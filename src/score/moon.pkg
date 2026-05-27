@@ -1,0 +1,10 @@
+import {
+  "moonbitlang/core/double",
+  "moonbitlang/core/float",
+  "moonbitlang/core/int",
+  "moonbitlang/core/math",
+}
+
+import {
+  "moonbitlang/core/debug",
+} for "test"
