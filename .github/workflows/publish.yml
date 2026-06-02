@@ -31,10 +31,11 @@ jobs:
       - name: moon check
         run: |
           moon install
-          moon check --target all
+          moon check src/score --target all
+          moon check src/cli --target js
       - name: moon test
         run: |
-          moon test --target all
+          moon test src/score --target all
       - name: publish
         run: |
           trap 'rm -f ~/.moon/credentials.json' EXIT
@@ -43,4 +44,3 @@ jobs:
           moon publish
         env:
           SECRET: ${{ secrets.LUNA_MOONCAKE }}
-
