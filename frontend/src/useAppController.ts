@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useReducer, useRef } from "react";
+import { useEffect, useMemo, useReducer, useRef, useState } from "react";
 import type { Dispatch } from "react";
 
 import { DEFAULT_SEARCH_PARAMS, fetchFeed, fetchPackageAnalysis, searchPackages, type AdvancedSearchParams, type FeedSource } from "./api";
@@ -73,7 +73,9 @@ function getFeedLimit(source: FeedSource): number {
   return source === "top" ? 40 : 24;
 }
 
-function usePreferenceHydration(dispatch: Dispatch<AppAction>): void {
+function usePreferenceHydration(dispatch: Dispatch<AppAction>): boolean {
+  const [hydrated, setHydrated] = useState(false);
+
   useEffect(() => {
     const storedLanguage = typeof window !== "undefined" ? window.localStorage.getItem(LANGUAGE_STORAGE_KEY) : null;
     const initialLanguage =
@@ -89,28 +91,26 @@ function usePreferenceHydration(dispatch: Dispatch<AppAction>): void {
       themePreference,
       resolvedTheme
     });
+    setHydrated(true);
   }, [dispatch]);
+
+  return hydrated;
 }
 
-function usePreferenceEffects(state: AppState): void {
+function usePreferenceEffects(state: AppState, hydrated: boolean): void {
   const { language, themePreference, resolvedTheme } = state.preferences;
-  const hydratedRef = useRef(false);
 
   useEffect(() => {
-    hydratedRef.current = true;
-  }, []);
-
-  useEffect(() => {
-    if (!hydratedRef.current) return;
+    if (!hydrated) return;
     document.documentElement.lang = language;
     window.localStorage.setItem(LANGUAGE_STORAGE_KEY, language);
-  }, [language]);
+  }, [hydrated, language]);
 
   useEffect(() => {
-    if (!hydratedRef.current) return;
+    if (!hydrated) return;
     document.documentElement.dataset["theme"] = resolvedTheme;
     window.localStorage.setItem(THEME_STORAGE_KEY, themePreference);
-  }, [resolvedTheme, themePreference]);
+  }, [hydrated, resolvedTheme, themePreference]);
 }
 
 function useThemeResolution(preference: ThemePreference, dispatch: Dispatch<AppAction>): void {
@@ -142,9 +142,9 @@ export function useAppController(
 ): { state: AppState; commands: ControllerCommands } {
   const [state, dispatch] = useReducer(reduceAppState, initialData, createInitialAppState);
   const commandsRef = useRef<ControllerCommands | null>(null);
+  const preferencesHydrated = usePreferenceHydration(dispatch);
 
-  usePreferenceHydration(dispatch);
-  usePreferenceEffects(state);
+  usePreferenceEffects(state, preferencesHydrated);
   useThemeResolution(state.preferences.themePreference, dispatch);
 
   useEffect(() => {

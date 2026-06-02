@@ -1,48 +1,35 @@
 # Contribution Guidelines
 
-This guide describes the current repository workflow for the **`0.1.0`**
-baseline on this branch.
+This guide describes the current **`0.1.1`** branch baseline and the expected
+workflow for repository changes.
 
 ## Scope
 
-The repository currently contains:
+The repository has four primary responsibilities:
 
-- a MoonBit scoring package in `src/score`
-- Python indexing utilities in `scripts`
-- a Next.js full-stack app in `app/`, `frontend/src/`, and `lib/`
-- release-aligned documentation in `doc`
+- `src/score`: MoonBit score computation and rank mapping
+- `scripts`: Python-based registry ingestion, download fetching, and SQLite materialization
+- `app`, `frontend/src`, and `lib`: Next.js pages, route-handler APIs, and server-side query logic
+- `doc` plus root docs: release-aligned repository documentation
 
-Keep changes scoped to one of those responsibilities and avoid mixing unrelated
-work in the same commit.
+Keep each change focused on one of those responsibilities unless the feature
+explicitly spans multiple layers, such as score-model updates or API contract
+changes.
 
-## Code Style
+## Engineering Expectations
 
 - Run `moon fmt` for MoonBit code.
-- Keep Python code straightforward and structured around small functions.
-- Keep TypeScript code explicit about data flow, especially in SQLite access,
-  route handlers, and client state transitions.
-- Prefer descriptive names tied to package metadata, dependency edges, score
-  semantics, or search behavior.
-- Keep comments short and use them only when scoring, search compilation, or
-  indexing behavior is not obvious from the code.
-
-## Naming
-
-- Use `lowercase_with_underscores` for Python bindings and MoonBit value names.
-- Use `PascalCase` for MoonBit public types.
-- Use `UPPERCASE_WITH_UNDERSCORES` for Python module constants.
-- Avoid generic file names such as `utils.py`, `helpers.py`, or `misc.mbt`.
+- Keep Python changes explicit and structured around small, testable functions.
+- Keep TypeScript changes clear about request parsing, SQLite query behavior, and client state flow.
+- Prefer names tied to package metadata, dependency edges, ranking semantics, and search behavior.
+- Add comments only when indexing, scoring, or query-compilation behavior would otherwise be hard to infer.
 
 ## Documentation Expectations
 
-- `README.md` and `doc/*` must describe the implementation that actually exists
-  on the branch.
-- Document stable CLI flags, HTTP endpoints, score thresholds, and release
-  behavior when they change.
-- If a behavior depends on local registry snapshots or mooncakes download data,
-  say so explicitly instead of implying global authority.
-- When changing the score formula in Python, keep the MoonBit implementation
-  aligned in the same change.
+- `README.md`, `CONTRIBUTING.md`, and `doc/*` must describe the implementation that actually exists on the branch.
+- Document stable CLI flags, search parameters, score thresholds, and release behavior when they change.
+- Be explicit when behavior depends on a local registry snapshot, local SQLite state, cached download data, or optional network fetches.
+- If the score formula changes in Python, update the MoonBit implementation and the relevant docs in the same change.
 
 ## Validation
 
@@ -62,29 +49,28 @@ Useful repository commands:
 just build-db
 just build-db-with-downloads data/downloads.json
 just build-db-offline
+just web-typecheck
+just web-build
 just serve
 just dev
 ./run_test.sh
 ```
 
-If you change indexing, API behavior, or Next app runtime behavior, validate
-the affected command paths as well.
+If you change indexing, route-handler behavior, SQLite query logic, or runtime
+UI behavior, validate the affected command paths as well.
 
 ## Commit Policy
 
-- Use English Conventional Commits such as `docs:`, `feat:`, `fix:`, `test:`,
-  `refactor:`, or `chore:`.
+- Use English Conventional Commits such as `docs:`, `feat:`, `fix:`, `test:`, `refactor:`, or `chore:`.
 - Keep each commit focused on one logical change.
 - Do not mention file paths in the commit summary.
 - Re-check the final commit message immediately before `git commit`.
 
 ## Release Checklist
 
-- Bump the version in `moon.mod` before publishing.
-- Keep `README.md`, `CONTRIBUTING.md`, and `doc/*` aligned with the branch.
-- Ensure `.github/workflows/publish.yml` still matches the MoonBit manifest
-  layout.
-- Run `moon check --target all` and `moon test --target all`.
-- Trigger `publish-package` manually after validation.
-- If mooncakes reports a duplicate version, publish a new bumped version
-  instead.
+1. Bump the version in `moon.mod`.
+2. Keep `README.md`, `CONTRIBUTING.md`, and `doc/*` aligned with the branch.
+3. Ensure `.github/workflows/publish.yml` still matches the MoonBit manifest layout.
+4. Run `moon fmt`, `moon check --target all`, `moon test --target all`, `npm run typecheck`, and `npm run build`.
+5. Trigger `publish-package` manually after validation.
+6. If mooncakes reports a duplicate version, publish a new bumped version instead.

@@ -1,12 +1,13 @@
-# 使用指南
+# 使用教程
 
-本文覆盖当前 **`0.1.0`** 分支上的本地使用流程。
+这份文档覆盖当前 **`0.1.1`** 分支的本地工作流。
 
 ## 前置条件
 
 - Python 3
 - MoonBit 工具链
-- 本地 MoonBit registry 快照，默认位于 `~/.moon/registry/index/user`
+- Node.js 和 npm
+- `~/.moon/registry/index/user` 下的本地 MoonBit 注册表快照
 
 ## 1. 构建数据库
 
@@ -18,18 +19,18 @@ python3 scripts/build_index.py --db data/mooncake.db
 
 这个命令会：
 
-- 读取本地 registry 下所有 `*.index` 记录
+- 读取本地注册表下的所有 `*.index` 记录
 - 从头重建 SQLite schema
-- 在未禁用时抓取 mooncakes 下载量
-- 计算依赖边、反向依赖数量和包分数
+- 在未禁用时从 mooncakes 拉取缺失的下载量
+- 计算包边、反向依赖数量、评分快照和全文检索索引
 
-如果只想依赖本地数据：
+不访问 mooncakes、离线构建：
 
 ```bash
 python3 scripts/build_index.py --db data/mooncake.db --skip-mooncakes-downloads
 ```
 
-如果要叠加本地下载量覆盖文件：
+叠加本地下载量覆盖文件：
 
 ```bash
 python3 scripts/build_index.py \
@@ -37,7 +38,7 @@ python3 scripts/build_index.py \
   --downloads-json data/downloads.json
 ```
 
-覆盖文件格式是一个以完整包名为键的 JSON 对象：
+覆盖文件必须是一个以完整包名为键的 JSON 对象：
 
 ```json
 {
@@ -45,18 +46,28 @@ python3 scripts/build_index.py \
 }
 ```
 
-## 2. 启动本地应用
+## 2. 运行本地应用
+
+先安装依赖：
 
 ```bash
-MOONCAKE_DB_PATH=data/mooncake.db npm run dev
+npm install
 ```
 
-然后访问 `http://127.0.0.1:3000`。
+启动 Next.js 全栈应用：
 
-当前 Next.js 应用会提供：
+```bash
+MOONCAKE_DB_PATH=data/mooncake.db npm run dev -- --hostname 127.0.0.1 --port 3000
+```
 
-- `/`：研究型前端界面
-- `/api/*`：基于 SQLite 的 JSON API
+然后打开 `http://127.0.0.1:3000`。
+
+当前应用提供：
+
+- `/`：包榜单浏览界面
+- `/search`：主搜索结果页
+- `/advanced-search`：参数化高级搜索页
+- `/api/*`：直接读取 SQLite 的 JSON API
 
 ## 3. 调用 API
 
@@ -66,28 +77,26 @@ MOONCAKE_DB_PATH=data/mooncake.db npm run dev
 GET /api/search?q=io&limit=20
 ```
 
-高级检索参数：
+支持的搜索参数：
 
-- `q`：全局全文检索，支持 `AND`、`OR`、`NOT`、括号、短语引号，以及
-  `owner:`、`author:`、`package:`、`keyword:`、`description:`、`name:` 等字段前缀
-- `owner`、`package`、`keyword`、`description`：字段级全文筛选，彼此按 `AND`
-  组合
-- `license`、`repository`：元数据模糊匹配
+- `q`：全局全文检索，支持 `AND`、`OR`、`NOT`、括号、引号短语，以及 `owner:`、`author:`、`package:`、`keyword:`、`description:`、`name:` 等字段前缀
+- `owner`、`package`、`keyword`、`description`：字段级全文检索，彼此按 `AND` 组合
+- `license`、`repository`：元数据子串过滤
 - `rank`：`S`、`A`、`B`、`C`、`D`
 - `momentum`：`Rising`、`Hot`、`Stable`
 - `min_score`、`max_score`
 - `min_dependents`、`min_recent_dependents`、`min_downloads`
-- `from_year`、`to_year`：按最新版本年份筛选
-- `has_repository`、`has_license`：传 `true` 或 `false`
+- `from_year`、`to_year`
+- `has_repository`、`has_license`：`true` 或 `false`
 - `sort`：`relevance`、`score`、`growth`、`downloads`、`dependents`、`recent`、`updated`、`name`
 - `order`：`asc` 或 `desc`
 - `limit`：最大 `100`
 
-字段语义补充：
+字段语义：
 
-- `owner` 表示本地 registry 元数据里的包命名空间所有者。
-- `author:` 当前只是 `owner:` 的别名，用来兼容更像学术检索的输入习惯。
-- 当前索引里还没有独立的作者列表、维护者列表或机构字段，所以 `author:` 还不表示独立作者元数据。
+- `owner` 表示本地注册表元数据里的包命名空间所有者。
+- `author:` 目前只是 `owner:` 的别名。
+- 当前索引还没有单独的作者列表、维护者列表或机构字段。
 
 示例：
 
@@ -99,7 +108,7 @@ GET /api/search?description=parser&from_year=2024&to_year=2026&has_repository=tr
 GET /api/search?rank=A&momentum=Rising&min_dependents=5&sort=growth
 ```
 
-Feeds：
+榜单：
 
 ```text
 GET /api/feeds/top?limit=50
@@ -110,30 +119,33 @@ GET /api/feeds/rising?limit=24
 包分析：
 
 ```text
-GET /api/packages/<owner>/<name>/analysis
+GET /api/packages/<owner>/<packageName>/analysis
 ```
 
-## 4. 校验修改
+## 4. 验证改动
 
 ```bash
 moon fmt
 moon check --target all
 moon test --target all
+npm run typecheck
+npm run build
 ```
 
-仓库里还提供了这些快捷命令：
+仓库快捷命令：
 
 ```bash
 just build-db
 just build-db-with-downloads data/downloads.json
 just build-db-offline
+just web-typecheck
+just web-build
 just serve
 just dev
-./run_test.sh
 ```
 
-## 说明
+## 备注
 
-- 每次构建索引都会重建整个 SQLite 数据库。
-- 下载量可能来自缓存、mooncakes 实时响应，或本地覆盖文件。
-- 当 `sort=relevance` 且存在全文条件时，搜索优先按 SQLite `bm25` 相关度排序。
+- 每次构建索引都会从头重建 SQLite 数据库。
+- 下载量可能来自在线 mooncakes 响应、`data/download_cache.json` 或本地覆盖文件。
+- 当 `sort=relevance` 且存在任意全文条件时，搜索结果会优先按 SQLite `bm25` 相关性排序。

@@ -1,16 +1,17 @@
 # Tutorial
 
-This guide covers the current local workflow for the **`0.1.0`** branch.
+This guide covers the current local workflow for the **`0.1.1`** branch.
 
 ## Prerequisites
 
 - Python 3
 - MoonBit toolchain
-- a local MoonBit registry snapshot under `~/.moon/registry/index/user`
+- Node.js and npm
+- A local MoonBit registry snapshot under `~/.moon/registry/index/user`
 
 ## 1. Build The Database
 
-Build with download lookup enabled:
+Build with live mooncakes download lookup enabled:
 
 ```bash
 python3 scripts/build_index.py --db data/mooncake.db
@@ -18,10 +19,10 @@ python3 scripts/build_index.py --db data/mooncake.db
 
 This command:
 
-- reads every `*.index` file under the local registry
+- reads every `*.index` record under the local registry
 - recreates the SQLite schema from scratch
 - fetches missing download counts from mooncakes unless disabled
-- computes dependency edges, reverse-dependent counts, and package scores
+- computes package edges, reverse-dependent counts, score snapshots, and the FTS index
 
 Build without live mooncakes requests:
 
@@ -47,16 +48,26 @@ The override file must be a JSON object keyed by full package name:
 
 ## 2. Run The Local App
 
+Install dependencies:
+
 ```bash
-MOONCAKE_DB_PATH=data/mooncake.db npm run dev
+npm install
+```
+
+Run the full-stack Next.js app:
+
+```bash
+MOONCAKE_DB_PATH=data/mooncake.db npm run dev -- --hostname 127.0.0.1 --port 3000
 ```
 
 Then open `http://127.0.0.1:3000`.
 
-The Next.js app currently serves:
+The app currently serves:
 
-- `/`: the research UI
-- `/api/*`: JSON APIs backed by SQLite
+- `/`: ranked package browsing UI
+- `/search`: main search results page
+- `/advanced-search`: parameterized search UI
+- `/api/*`: JSON APIs backed directly by SQLite
 
 ## 3. Query The APIs
 
@@ -66,33 +77,26 @@ Search:
 GET /api/search?q=io&limit=20
 ```
 
-Advanced search parameters:
+Supported search parameters:
 
-- `q`: global full-text search with `AND`, `OR`, `NOT`, parentheses, quoted
-  phrases, and field prefixes such as `owner:`, `author:`, `package:`,
-  `keyword:`, `description:`, and `name:`
-- `owner`, `package`, `keyword`, `description`: field-specific full-text
-  filters combined with `AND`
+- `q`: global full-text query with `AND`, `OR`, `NOT`, parentheses, quoted phrases, and field prefixes such as `owner:`, `author:`, `package:`, `keyword:`, `description:`, and `name:`
+- `owner`, `package`, `keyword`, `description`: field-specific full-text filters combined with `AND`
 - `license`, `repository`: metadata substring filters
 - `rank`: `S`, `A`, `B`, `C`, `D`
 - `momentum`: `Rising`, `Hot`, `Stable`
 - `min_score`, `max_score`
 - `min_dependents`, `min_recent_dependents`, `min_downloads`
-- `from_year`, `to_year`: filter by the latest package release year
-- `has_repository`, `has_license`: pass `true` or `false`
-- `sort`: `relevance`, `score`, `growth`, `downloads`, `dependents`, `recent`,
-  `updated`, `name`
+- `from_year`, `to_year`
+- `has_repository`, `has_license`: `true` or `false`
+- `sort`: `relevance`, `score`, `growth`, `downloads`, `dependents`, `recent`, `updated`, `name`
 - `order`: `asc` or `desc`
 - `limit`: maximum `100`
 
 Field semantics:
 
 - `owner` means the package namespace owner from local registry metadata.
-- `author:` is currently only an alias for `owner:` so clients can expose a
-  more academic-style search syntax.
-- The current index does not yet include a standalone author list, maintainer
-  list, or institution field, so `author:` is not a separate author metadata
-  field yet.
+- `author:` is currently only an alias for `owner:`.
+- The index does not yet store a separate author list, maintainer list, or institution field.
 
 Examples:
 
@@ -115,7 +119,7 @@ GET /api/feeds/rising?limit=24
 Package analysis:
 
 ```text
-GET /api/packages/<owner>/<name>/analysis
+GET /api/packages/<owner>/<packageName>/analysis
 ```
 
 ## 4. Validate Changes
@@ -124,6 +128,8 @@ GET /api/packages/<owner>/<name>/analysis
 moon fmt
 moon check --target all
 moon test --target all
+npm run typecheck
+npm run build
 ```
 
 Repository shortcuts:
@@ -132,6 +138,8 @@ Repository shortcuts:
 just build-db
 just build-db-with-downloads data/downloads.json
 just build-db-offline
+just web-typecheck
+just web-build
 just serve
 just dev
 ```
@@ -139,7 +147,5 @@ just dev
 ## Notes
 
 - The SQLite database is rebuilt from scratch on each index build.
-- Download counts may come from cache, mooncakes live responses, or a local
-  override file.
-- When `sort=relevance` and at least one full-text condition is present, search
-  results are ordered by SQLite `bm25` relevance first.
+- Download counts may come from live mooncakes responses, `data/download_cache.json`, or a local override file.
+- When `sort=relevance` and at least one full-text condition is present, results are ordered by SQLite `bm25` relevance first.

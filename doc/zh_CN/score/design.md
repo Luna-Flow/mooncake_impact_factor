@@ -52,6 +52,16 @@ score =
 
 因此动量属于索引与服务层概念，不是当前 MoonBit 导出 API 的一部分。
 
+## 数据流
+
+1. `scripts/build_index.py` 从本地 MoonBit 注册表快照读取 `*.index` 记录。
+2. 构建器在 SQLite 中重建 packages、versions、dependencies、package_edges 和全文检索索引。
+3. Python 管线计算评分快照、等级标签、活动系数和动量标签。
+4. `src/score` 对外暴露同一套核心评分公式，供 MoonBit 侧复用。
+5. Next.js 应用读取生成后的 SQLite 数据库，提供榜单、搜索和包分析页面与 API。
+
 ## 实现约束
 
-仓库现在刻意让 Python 和 MoonBit 共享同一套核心评分公式。Python 负责数据库生成和历史比较，MoonBit 负责对外暴露可复用的评分计算接口。
+仓库当前有意在 Python 和 MoonBit 中维护同一套核心评分公式。Python
+负责数据库生成、历史比较和动量分类，MoonBit 则暴露给包消费者和后续复用的
+评分计算与等级映射逻辑。

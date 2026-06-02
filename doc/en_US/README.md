@@ -1,8 +1,8 @@
 # Mooncake Impact Factor Docs
 
-English documentation entry point for the current **`0.1.0`** baseline.
+English documentation entry point for the current **`0.1.1`** baseline.
 
-## Documents
+## Documentation Map
 
 - [Documentation standard](./doc_standard.md)
 - [Tutorial](./tutorial.md)
@@ -15,5 +15,10 @@ These docs describe the implementation currently present in this repository:
 
 - MoonBit score computation in `src/score`
 - SQLite index building in `scripts/build_index.py`
-- local HTTP APIs in `scripts/serve.py`
-- browser UI behavior in `web`
+- Next.js route-handler APIs in `app/api`
+- Browser UI and shared frontend logic in `app` and `frontend/src`
+
+## Notes
+
+- The ranking is derived from a local registry snapshot, not a globally authoritative ecosystem index.
+- Download counts may come from live mooncakes responses, the local download cache, or a local override JSON file.

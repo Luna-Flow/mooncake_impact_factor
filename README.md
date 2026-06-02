@@ -1,68 +1,65 @@
-# Mooncake Impact Factor
+# MOONCAKE IMPACT FACTOR
 
-[![img](https://img.shields.io/badge/License-MIT-blue)](https://github.com/Luna-Flow/mooncake_impact_factor/blob/main/LICENSE)
-![img](https://img.shields.io/badge/State-active-success)
+[![img](https://img.shields.io/badge/Maintainer-KCN--judu-violet)](https://github.com/KCN-judu) [![img](https://img.shields.io/badge/License-MIT-blue)](https://github.com/Luna-Flow/mooncake_impact_factor/blob/main/LICENSE) ![img](https://img.shields.io/badge/State-active-success)
 
-Mooncake Impact Factor is a local ranking toolkit for the `mooncakes.io`
-ecosystem. The current branch ships three aligned parts:
+## v0.1.1 - Local Registry Ranking, Search & Analysis
 
-- a MoonBit scoring package in `src/score`
-- a Python index builder in `scripts`
-- a Next.js full-stack app for the local UI and APIs
-
-This repository documents the released **`0.1.0`** baseline declared in
+This documentation tracks the current **`0.1.1`** release baseline declared in
 `moon.mod`.
 
-## What The Repository Does
+### Package Positioning
 
-The project reads the local MoonBit registry snapshot under
-`~/.moon/registry/index/user`, writes a searchable SQLite database, computes a
-package impact score, and serves the results through a research-oriented local
-web interface.
+- **`src/score`**: MoonBit package that exposes the reusable impact-score computation and rank mapping.
+- **`scripts/build_index.py`**: Local registry ingester that rebuilds SQLite state, computes package relationships, and materializes search data.
+- **`app` + `frontend/src` + `lib`**: Next.js full-stack research UI with route-handler APIs backed directly by SQLite.
 
-Current implemented capabilities:
+### What Defines v0.1.1
 
-- ingest every local `*.index` manifest record into SQLite
-- persist package, version, dependency, reverse-edge, score, and FTS tables
-- optionally fetch per-package download counts from `https://mooncakes.io`
-- allow download-count overrides from a local JSON file
-- expose Next.js route-handler APIs backed directly by SQLite
-- keep the score formula aligned between Python and MoonBit
-- validate API contracts in the Next.js client and server layers
+- **Local Registry Snapshot Ingestion**: Reads `~/.moon/registry/index/user/**/*.index` and rebuilds package, version, dependency, reverse-edge, score, and FTS tables.
+- **SQLite-Backed Search Surface**: Exposes ranked feeds, full-text search, structured filters, and per-package analysis endpoints from the Next.js app.
+- **Shared Score Formula**: Keeps the MoonBit package and Python index builder aligned on the same score equation and rank thresholds.
+- **Download Signal Support**: Can fetch per-package download counts from `mooncakes.io`, reuse a local cache, or apply a local override JSON file.
+- **Momentum Layer**: Computes `Rising`, `Hot`, and `Stable` labels in the Python build pipeline for the serving layer.
+- **Release-Aligned Documentation**: `README.md`, `CONTRIBUTING.md`, and localized docs are intended to describe the real branch state rather than a speculative roadmap.
 
-## Repository Layout
+### API Guidance & Data Semantics
 
-- `src/score/`: MoonBit package with score computation and rank mapping
-- `scripts/build_index.py`: local index ingestion, download fetching, and score computation
-- `app/`: Next.js App Router pages and route handlers
-- `frontend/src/`: shared client UI logic, copy, and schemas used by Next
-- `lib/`: server-side SQLite query and API support code
-- `web/app.css`: global stylesheet imported by the Next app
-- `doc/`: English and Chinese documentation aligned with the current branch
-- `.github/workflows/publish.yml`: manual MoonBit package publish workflow
+- **Search Authority**: Results are derived from a local registry snapshot plus optional mooncakes download metadata; they are not a canonical global ranking.
+- **Author Query Alias**: `author:` in the full-text query language is currently only an alias for `owner:` because the index does not yet store a separate author list.
+- **Relevance Ordering**: `sort=relevance` is only meaningful when at least one full-text condition is present; otherwise the API falls back to score-oriented ordering.
+- **Mutable Data Source**: Rebuilding the SQLite database replaces previous derived state, so rankings reflect the local snapshot used for the most recent build.
+
+### Key Features
+
+- **Impact Ranking**: Scores packages from dependent count, recent dependent growth, download volume, and release recency.
+- **Advanced Retrieval**: Supports FTS search with boolean syntax, field-prefixed terms, numeric thresholds, year filters, and rank or momentum filtering.
+- **Package Analysis View**: Serves detailed package metadata, version history, score breakdown fields, and dependent package summaries.
+- **Full Local Workflow**: Includes indexing, caching, score computation, API serving, and browser-based inspection in one repository.
 
 ## Quick Start
 
-Requirements:
+### Prerequisites
 
-- MoonBit toolchain for `moon check`, `moon test`, and package publishing
-- Python 3 for indexing
-- Node.js and npm for the Next.js app
-- a populated local registry under `~/.moon/registry/index/user`
+- MoonBit toolchain
+- Python 3
+- Node.js and npm
+- A populated local registry under `~/.moon/registry/index/user`
 
-Build the database with live mooncakes download snapshots:
+### Build the local database
+
+With live mooncakes download lookups:
 
 ```bash
 python3 scripts/build_index.py --db data/mooncake.db
 ```
 
-Build the database without network download lookups:
+Offline, without network download fetches:
 
 ```bash
 python3 scripts/build_index.py --db data/mooncake.db --skip-mooncakes-downloads
 ```
 
-Apply a local download override file on top of fetched or cached counts:
+With a local download override file:
 
 ```bash
 python3 scripts/build_index.py \
@@ -70,135 +67,71 @@ python3 scripts/build_index.py \
   --downloads-json data/downloads.json
 ```
 
-Install frontend dependencies:
+### Run the web app
 
 ```bash
 npm install
-```
-
-Run the full-stack Next.js app in development:
-
-```bash
-MOONCAKE_DB_PATH=data/mooncake.db npm run dev
+MOONCAKE_DB_PATH=data/mooncake.db npm run dev -- --hostname 127.0.0.1 --port 3000
 ```
 
 Then open `http://127.0.0.1:3000`.
 
-Build and run the production app locally:
+### Run quality checks
 
 ```bash
-MOONCAKE_DB_PATH=data/mooncake.db npm run build
-MOONCAKE_DB_PATH=data/mooncake.db npm run start
+moon fmt
+moon check --target all
+moon test --target all
+npm run typecheck
+npm run build
 ```
 
-## Scoring Model
+## Documentation Map
 
-The score uses four implemented inputs:
+### Core
 
-- total dependent package count
-- recent dependent package count inside a rolling 180-day window
-- download count from mooncakes or a local override
-- release-recency multiplier derived from the latest release age
+- Contribution workflow: `CONTRIBUTING.md`
+- English docs index: `doc/en_US/README.md`
+- Chinese docs index: `doc/zh_CN/README.md`
 
-The current formula is:
+### English
 
-```text
-score =
-  (ln(dependents + 1) * 38
-   + ln(recent_dependents + 1) * 27
-   + ln(downloads + 1) * 22)
-  * activity_multiplier(days_since_release)
-```
+- Documentation standard: `doc/en_US/doc_standard.md`
+- Tutorial: `doc/en_US/tutorial.md`
+- Score API: `doc/en_US/score/api.md`
+- Score design: `doc/en_US/score/design.md`
 
-Current activity multipliers:
+### 简体中文
 
-- `<= 30` days: `1.12`
-- `<= 90` days: `1.06`
-- `<= 180` days: `1.00`
-- `<= 365` days: `0.94`
-- `> 365` days: `0.88`
+- 文档标准: `doc/zh_CN/doc_standard.md`
+- 使用教程: `doc/zh_CN/tutorial.md`
+- 评分 API: `doc/zh_CN/score/api.md`
+- 评分设计: `doc/zh_CN/score/design.md`
 
-Rank labels:
+## Current Repository Highlights
 
-- `S`: `score >= 260`
-- `A`: `score >= 180`
-- `B`: `score >= 110`
-- `C`: `score >= 50`
-- `D`: otherwise
+- **Index Build Pipeline**:
+  - Recreates SQLite tables from scratch on every build.
+  - Tracks packages, versions, direct dependencies, package edges, score snapshots, and an FTS5 search index.
+  - Can reuse `data/download_cache.json` and merge local override data from `--downloads-json`.
 
-Momentum labels are computed in Python only:
+- **Score Model**:
+  - `compute_score()` combines total dependents, recent dependents, downloads, and release age.
+  - `rank_label()` maps the raw score to `S`, `A`, `B`, `C`, or `D`.
+  - Python additionally computes `score_30d_ago`, growth, growth ratio, momentum label, and activity multiplier for serving.
 
-- `Rising`: growth `>= 35`, ratio `>= 0.35`, and at least `3` recent dependents
-- `Hot`: growth `>= 18`, ratio `>= 0.18`, and at least `2` recent dependents
-- `Stable`: otherwise
-
-## Local API
-
-The Next.js app currently exposes:
-
-- `GET /api/feeds/top?limit=<n>`
-- `GET /api/feeds/hot?limit=<n>`
-- `GET /api/feeds/rising?limit=<n>`
-- `GET /api/search?...`
-- `GET /api/packages/<owner>/<name>/analysis`
-
-`/api/search` supports advanced retrieval over SQLite FTS5 plus structured
-filters. If every search parameter is empty, it falls back to top-ranked
-packages.
-
-Supported `/api/search` query parameters:
-
-- `q`: global full-text query with boolean operators, parentheses, quoted
-  phrases, and field prefixes such as `owner:`, `author:`, `package:`,
-  `keyword:`, `description:`, and `name:`
-- `owner`, `package`, `keyword`, `description`: field-specific full-text
-  filters that are combined with `AND`
-- `license`, `repository`: substring filters on package metadata
-- `rank`: one of `S`, `A`, `B`, `C`, `D`
-- `momentum`: one of `Rising`, `Hot`, `Stable`
-- `min_score`, `max_score`
-- `min_dependents`, `min_recent_dependents`, `min_downloads`
-- `from_year`, `to_year`: filter by the package latest release year
-- `has_repository`, `has_license`: `true` or `false`
-- `sort`: one of `relevance`, `score`, `growth`, `downloads`, `dependents`,
-  `recent`, `updated`, `name`
-- `order`: `asc` or `desc`
-- `limit`: result size, clamped to `100`
-
-Field semantics:
-
-- `owner` is the package namespace owner from the local registry metadata.
-- `author:` is currently only an alias for `owner:` so frontend clients can use
-  a more academic-looking query syntax.
-- The current index does not contain a standalone author list, maintainer list,
-  or institution metadata, so `author:` does not mean a separate paper-style
-  author field yet.
-
-Examples:
-
-```text
-GET /api/search?q=owner:gmlewis AND "http client"&limit=20
-GET /api/search?q=author:gmlewis AND keyword:json
-GET /api/search?keyword=json&min_score=180&min_downloads=500&sort=downloads
-GET /api/search?description=parser&from_year=2024&to_year=2026&has_repository=true&sort=updated
-GET /api/search?rank=A&momentum=Rising&min_dependents=5&sort=growth
-GET /api/packages/gmlewis/http-client/analysis
-```
+- **Serving Surface**:
+  - `GET /api/feeds/top?limit=<n>`
+  - `GET /api/feeds/hot?limit=<n>`
+  - `GET /api/feeds/rising?limit=<n>`
+  - `GET /api/search?...`
+  - `GET /api/packages/<owner>/<packageName>/analysis`
 
 ## Development
 
 Useful local commands:
 
 ```bash
-npm install
-npm run dev
-npm run typecheck
-npm run build
-npm run start
-moon fmt
-moon check --target all
-moon test --target all
-./run_test.sh
 just build-db
 just build-db-with-downloads data/downloads.json
 just build-db-offline
@@ -206,6 +139,12 @@ just web-typecheck
 just web-build
 just serve
 just dev
+moon fmt
+moon check --target all
+moon test --target all
+npm run typecheck
+npm run build
+./run_test.sh
 ```
 
 ## Release Workflow
@@ -217,19 +156,9 @@ Before publishing:
 
 1. Bump the version in `moon.mod`.
 2. Keep `README.md`, `CONTRIBUTING.md`, and `doc/*` aligned with the branch.
-3. Run `moon fmt`, `moon check --target all`, and `moon test --target all`.
+3. Run `moon fmt`, `moon check --target all`, `moon test --target all`, `npm run typecheck`, and `npm run build`.
 4. Ensure `README.md` exists and `moon.mod.json` does not exist.
-5. Trigger `publish-package`; it installs MoonBit, runs checks/tests, and calls
-   `moon publish` with the `LUNA_MOONCAKE` secret.
+5. Trigger `publish-package`; it installs MoonBit, runs checks, and calls `moon publish` with the `LUNA_MOONCAKE` secret.
 
-If mooncakes rejects the upload because the version already exists, bump the
-version before retrying.
-
-## Documentation
-
-- English overview: [doc/en_US/README.md](./doc/en_US/README.md)
-- English standard: [doc/en_US/doc_standard.md](./doc/en_US/doc_standard.md)
-- Chinese overview: [doc/zh_CN/README.md](./doc/zh_CN/README.md)
-- Chinese standard: [doc/zh_CN/doc_standard.md](./doc/zh_CN/doc_standard.md)
-
-Contribution guidance is available in [CONTRIBUTING.md](./CONTRIBUTING.md).
+If mooncakes rejects the upload because the version already exists, publish a
+new bumped version instead.

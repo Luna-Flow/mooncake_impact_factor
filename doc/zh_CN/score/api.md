@@ -4,7 +4,7 @@
 
 `Luna-Flow/mooncake-impact-factor/score`
 
-## 公开函数
+## 导出的 MoonBit 函数
 
 ### `clamp_non_negative(value : Int) -> Int`
 
@@ -52,3 +52,49 @@
 - `B`：`score >= 110.0`
 - `C`：`score >= 50.0`
 - `D`：其余情况
+
+## 稳定 HTTP 接口
+
+### `GET /api/feeds/top?limit=<n>`
+
+返回按当前分数排序的头部包列表。
+
+### `GET /api/feeds/hot?limit=<n>`
+
+返回当前 `Hot` 动量表现最强的包列表。
+
+### `GET /api/feeds/rising?limit=<n>`
+
+返回当前 `Rising` 动量表现最强的包列表。
+
+### `GET /api/search?...`
+
+返回 `{ "items": [...] }` 形式的包摘要列表。
+
+稳定查询参数：
+
+- `q`
+- `limit`
+- `owner`
+- `package`
+- `keyword`
+- `description`
+- `license`
+- `repository`
+- `rank`
+- `momentum`
+- `min_score`
+- `max_score`
+- `min_dependents`
+- `min_recent_dependents`
+- `min_downloads`
+- `from_year`
+- `to_year`
+- `has_repository`
+- `has_license`
+- `sort`
+- `order`
+
+### `GET /api/packages/<owner>/<packageName>/analysis`
+
+返回单个包的 `{ "detail": ..., "dependents": [...] }` 分析结果。

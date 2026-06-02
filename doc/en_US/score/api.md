@@ -4,7 +4,7 @@
 
 `Luna-Flow/mooncake-impact-factor/score`
 
-## Public Functions
+## Exported MoonBit Functions
 
 ### `clamp_non_negative(value : Int) -> Int`
 
@@ -53,3 +53,49 @@ Current thresholds:
 - `B`: `score >= 110.0`
 - `C`: `score >= 50.0`
 - `D`: otherwise
+
+## Stable HTTP Endpoints
+
+### `GET /api/feeds/top?limit=<n>`
+
+Returns top-ranked packages ordered by current score.
+
+### `GET /api/feeds/hot?limit=<n>`
+
+Returns packages with the strongest current hot momentum profile.
+
+### `GET /api/feeds/rising?limit=<n>`
+
+Returns packages with the strongest current rising momentum profile.
+
+### `GET /api/search?...`
+
+Returns `{ "items": [...] }` with ranked package summaries.
+
+Stable query parameters:
+
+- `q`
+- `limit`
+- `owner`
+- `package`
+- `keyword`
+- `description`
+- `license`
+- `repository`
+- `rank`
+- `momentum`
+- `min_score`
+- `max_score`
+- `min_dependents`
+- `min_recent_dependents`
+- `min_downloads`
+- `from_year`
+- `to_year`
+- `has_repository`
+- `has_license`
+- `sort`
+- `order`
+
+### `GET /api/packages/<owner>/<packageName>/analysis`
+
+Returns `{ "detail": ..., "dependents": [...] }` for a single package.

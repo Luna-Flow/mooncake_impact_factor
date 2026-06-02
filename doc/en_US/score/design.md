@@ -12,8 +12,7 @@ The current scoring model combines four signals:
 - Total dependents capture established ecosystem adoption.
 - Recent dependents reward active new integration, not only historical weight.
 - Download counts provide an external popularity hint when available.
-- Release recency reduces stale-package bias without making age the primary
-  ranking factor.
+- Release recency reduces stale-package bias without making age the primary ranking factor.
 
 ## Current Formula
 
@@ -55,8 +54,17 @@ Momentum labels are computed by the Python index builder from score deltas:
 Momentum is currently a serving concern rather than part of the exported
 MoonBit API.
 
+## Data Flow
+
+1. `scripts/build_index.py` reads local `*.index` records from the MoonBit registry snapshot.
+2. The builder reconstructs packages, versions, dependencies, package edges, and the FTS search index in SQLite.
+3. The Python pipeline computes score snapshots, rank labels, activity multipliers, and momentum labels.
+4. `src/score` exposes the same core score formula for MoonBit consumers and future reuse.
+5. The Next.js app reads the generated SQLite database and serves feeds, search results, and package analysis views.
+
 ## Implementation Constraint
 
 The repository intentionally keeps the same core score formula in Python and
-MoonBit. Python owns database generation and historical comparisons, while
-MoonBit exposes the computation needed for package consumers and future reuse.
+MoonBit. Python owns database generation, comparison snapshots, and momentum
+classification, while MoonBit exposes the reusable score computation and rank
+mapping needed for package consumers and future reuse.

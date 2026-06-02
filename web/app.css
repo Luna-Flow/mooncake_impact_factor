@@ -487,7 +487,7 @@ input[type="search"]::-webkit-search-results-decoration {
   display: grid;
   align-content: center;
   gap: 22px;
-  max-width: min(760px, 100%);
+  max-width: min(50vw, 100%);
   padding-left: clamp(18px, 3vw, 34px);
 }
 
@@ -503,7 +503,7 @@ input[type="search"]::-webkit-search-results-decoration {
 }
 
 .landing-hero__content h1 {
-  max-width: 9.5ch;
+  max-width: 14ch;
   font-size: clamp(40px, 5.8vw, 76px);
   line-height: 1.02;
   text-wrap: balance;
