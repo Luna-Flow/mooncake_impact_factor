@@ -1,4 +1,4 @@
-import { rename, access } from "node:fs/promises";
+import { rename, access, writeFile } from "node:fs/promises";
 import { constants } from "node:fs";
 import path from "node:path";
 import { spawn } from "node:child_process";
@@ -51,6 +51,7 @@ async function main() {
       NEXT_PUBLIC_APP_MODE: "static",
       NEXT_PUBLIC_BASE_PATH: process.env.NEXT_PUBLIC_BASE_PATH ?? ""
     });
+    await writeFile(path.join(root, "out", ".nojekyll"), "", "utf8");
   } finally {
     if (await exists(parkedApiDir)) {
       await rename(parkedApiDir, apiDir);

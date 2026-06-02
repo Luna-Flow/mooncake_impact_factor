@@ -45,8 +45,6 @@ jobs:
         run: npm run build:static-data
 
       - name: build static site
-        env:
-          NEXT_PUBLIC_BASE_PATH: /mooncake_impact_factor
         run: npm run build:static
 
       - name: setup pages
