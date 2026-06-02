@@ -86,11 +86,23 @@ Then open `http://127.0.0.1:3000`.
 moon fmt
 moon check src/score --target all
 moon check src/cli --target js
+moon check src/static_search --target js
 moon test src/score --target all
+moon test src/static_search --target js
 python3 -m unittest scripts/build_index_test.py
 npm run typecheck
 npm run build
+npm run build:static-data
+npm run build:static
 npm test
+```
+
+### Build static publish artifacts
+
+```bash
+npm run build:static-data
+npm run build:static
+npm run serve:static
 ```
 
 ## Documentation Map
@@ -139,6 +151,13 @@ npm test
 - **Validation Surface**:
   - `tests/data.test.mjs` covers search parsing, AST/native expression search, and analysis ordering behavior.
   - `scripts/build_index_test.py` covers index-builder-side scoring and data-shaping behavior.
+  - `src/static_search` builds to JS for the static publishing path and is validated by MoonBit tests.
+
+## Static Publishing
+
+- **Dynamic research mode** keeps SQLite, route handlers, and server-side query execution for local iteration.
+- **Static publish mode** exports `public/data/**` JSON assets and a GitHub Pages-compatible `out/` site.
+- The scheduled GitHub Actions workflow is `deploy-static`.
 
 ## Development
 
@@ -148,6 +167,9 @@ Useful local commands:
 just build-db
 just build-db-with-downloads data/downloads.json
 just build-db-offline
+just build-static-data
+just static-build
+just static-serve
 just web-typecheck
 just web-build
 just serve
@@ -163,14 +185,17 @@ npm run build
 
 ## Release Workflow
 
-The GitHub Actions workflow is `publish-package` and is triggered manually by
-`workflow_dispatch`.
+The GitHub Actions workflows are:
+
+- `publish-package` for MoonBit package publishing
+- `ci` for push / pull-request validation
+- `deploy-static` for scheduled static-site rebuild and GitHub Pages deployment
 
 Before publishing:
 
 1. Bump the version in `moon.mod`.
 2. Keep `README.md`, `CONTRIBUTING.md`, and `doc/*` aligned with the branch.
-3. Run `moon fmt`, `moon check src/score --target all`, `moon check src/cli --target js`, `moon test src/score --target all`, `python3 -m unittest scripts/build_index_test.py`, `npm run typecheck`, `npm run build`, and `npm test`.
+3. Run `moon fmt`, `moon check src/score --target all`, `moon check src/cli --target js`, `moon check src/static_search --target js`, `moon test src/score --target all`, `moon test src/static_search --target js`, `python3 -m unittest scripts/build_index_test.py`, `npm run typecheck`, `npm run build`, `npm run build:static-data`, `npm run build:static`, and `npm test`.
 4. Ensure `README.md` exists and `moon.mod.json` does not exist.
 5. Trigger `publish-package`; it installs MoonBit, runs checks, and calls `moon publish` with the `LUNA_MOONCAKE` secret.
 

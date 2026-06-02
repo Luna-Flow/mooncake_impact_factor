@@ -5,6 +5,7 @@ import type { Dispatch } from "react";
 
 import { DEFAULT_SEARCH_PARAMS, fetchFeed, fetchPackageAnalysis, searchPackages, type AdvancedSearchParams, type FeedSource } from "./api";
 import { detectLanguage, dictionaries, type Language, type ThemePreference } from "./i18n";
+import { fetchStaticFeed, fetchStaticPackageAnalysis, searchStaticPackages } from "./static-api";
 import type { PackageSummary } from "./types";
 import {
   buildSearchHref,
@@ -77,6 +78,37 @@ function getSearchErrorMessage(error: unknown, fallback: string): string {
 
 function getFeedLimit(source: FeedSource): number {
   return source === "top" ? 40 : 24;
+}
+
+function getCurrentSearchParams(): Partial<AdvancedSearchParams> {
+  if (typeof window === "undefined") {
+    return {};
+  }
+  const query = new URLSearchParams(window.location.search);
+  return {
+    q: query.get("q") ?? "",
+    owner: query.get("owner") ?? "",
+    packageName: query.get("package") ?? "",
+    keyword: query.get("keyword") ?? "",
+    description: query.get("description") ?? "",
+    license: query.get("license") ?? "",
+    repository: query.get("repository") ?? "",
+    rank: (query.get("rank") ?? "") as AdvancedSearchParams["rank"],
+    momentum: (query.get("momentum") ?? "") as AdvancedSearchParams["momentum"],
+    minScore: query.get("min_score") ?? "",
+    maxScore: query.get("max_score") ?? "",
+    minDependents: query.get("min_dependents") ?? "",
+    minRecentDependents: query.get("min_recent_dependents") ?? "",
+    minDownloads: query.get("min_downloads") ?? "",
+    fromYear: query.get("from_year") ?? "",
+    toYear: query.get("to_year") ?? "",
+    hasRepository: (query.get("has_repository") ?? "") as AdvancedSearchParams["hasRepository"],
+    hasLicense: (query.get("has_license") ?? "") as AdvancedSearchParams["hasLicense"],
+    sort: (query.get("sort") ?? "") as AdvancedSearchParams["sort"],
+    order: (query.get("order") ?? "") as AdvancedSearchParams["order"],
+    expr: query.get("expr") ?? "",
+    ast: query.get("ast") ?? ""
+  };
 }
 
 function usePreferenceHydration(dispatch: Dispatch<AppAction>): boolean {
@@ -169,6 +201,7 @@ export function useAppController(
 
   const commands = useMemo<ControllerCommands>(() => {
     const runtimeCopy = dictionaries[state.preferences.language];
+    const isStaticMode = state.dataMode === "static";
 
     async function submitSearch(
       params = state.search.draftParams,
@@ -185,7 +218,9 @@ export function useAppController(
       router.replace(buildSearchHref(nextParams, null, pathname), { scroll: false });
 
       try {
-        const items = await searchPackages(nextParams);
+        const items = isStaticMode
+          ? await searchStaticPackages(nextParams)
+          : await searchPackages(nextParams);
         dispatch({ type: "submitSearchSucceeded", items });
       } catch (error: unknown) {
         dispatch({
@@ -204,7 +239,9 @@ export function useAppController(
       router.replace(buildSearchHref(params, source, pathname), { scroll: false });
 
       try {
-        const items = await fetchFeed(source, getFeedLimit(source));
+        const items = isStaticMode
+          ? await fetchStaticFeed(source)
+          : await fetchFeed(source, getFeedLimit(source));
         dispatch({ type: "openFeedSucceeded", items });
       } catch (error: unknown) {
         dispatch({
@@ -218,7 +255,9 @@ export function useAppController(
       dispatch({ type: "selectPackageStarted", fullName });
       try {
         const { owner, packageName } = splitFullName(fullName);
-        const { detail, dependents } = await fetchPackageAnalysis(owner, packageName);
+        const { detail, dependents } = isStaticMode
+          ? await fetchStaticPackageAnalysis(owner, packageName)
+          : await fetchPackageAnalysis(owner, packageName);
         dispatch({ type: "selectPackageSucceeded", fullName, detail, dependents });
       } catch (error: unknown) {
         dispatch({
@@ -275,7 +314,35 @@ export function useAppController(
         dispatch({ type: "closeAdvanced" });
       }
     };
-  }, [router, state.detail.packageName, state.preferences.language, state.search.activeSource, state.search.appliedParams, state.search.draftParams, state.search.mode]);
+  }, [router, state.dataMode, state.detail.packageName, state.preferences.language, state.search.activeSource, state.search.appliedParams, state.search.draftParams, state.search.mode]);
+
+  useEffect(() => {
+    if (state.dataMode !== "static") return;
+    if (state.search.status !== "loading") return;
+    const pathname = initialData.initialView === "advanced-search" ? "/advanced-search" : "/search";
+    if (state.search.mode === "feed" && state.search.activeSource) {
+      void commandsRef.current?.openFeed(state.search.activeSource, pathname);
+      return;
+    }
+    if (state.search.mode === "search") {
+      void commandsRef.current?.submitSearch(state.search.appliedParams, pathname);
+    }
+  }, [initialData.initialView, state.dataMode, state.search.activeSource, state.search.appliedParams, state.search.mode, state.search.status]);
+
+  useEffect(() => {
+    if (state.dataMode !== "static") return;
+    if (initialData.initialView !== "search" && initialData.initialView !== "advanced-search") return;
+    if (state.search.mode !== "idle") return;
+    const params = normalizeSearchParams(getCurrentSearchParams());
+    if (hasSearchIntent(params)) {
+      dispatch({ type: "submitSearchStarted", params });
+      return;
+    }
+    const source = typeof window !== "undefined" ? new URLSearchParams(window.location.search).get("source") : null;
+    if (source === "top" || source === "hot" || source === "rising") {
+      dispatch({ type: "openFeedStarted", source, params: normalizeSearchParams(DEFAULT_SEARCH_PARAMS) });
+    }
+  }, [initialData.initialView, state.dataMode, state.search.mode]);
 
   commandsRef.current = commands;
 

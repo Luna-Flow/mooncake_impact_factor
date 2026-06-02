@@ -9,6 +9,7 @@ export type ResolvedTheme = "light" | "dark";
 
 export type AppInitialData = {
   initialView: AppView;
+  dataMode?: "dynamic" | "static";
   initialSearchParams?: Partial<AdvancedSearchParams>;
   initialSource?: FeedSource | null;
   initialSearchItems?: PackageSummary[];
@@ -41,6 +42,7 @@ export type DetailState = {
 };
 
 export type AppState = {
+  dataMode: "dynamic" | "static";
   preferences: PreferencesState;
   ui: {
     advancedOpen: boolean;
@@ -162,17 +164,18 @@ export function createInitialAppState(data: AppInitialData): AppState {
     if (data.initialSource) {
       baseSearch.mode = "feed";
       baseSearch.activeSource = data.initialSource;
-      baseSearch.status = "ready";
+      baseSearch.status = data.dataMode === "static" ? "loading" : "ready";
       baseSearch.items = data.initialSearchItems ?? [];
     } else if (hasSearchIntent(params)) {
       baseSearch.mode = "search";
-      baseSearch.status = data.initialSearchError ? "error" : "ready";
+      baseSearch.status = data.dataMode === "static" ? "loading" : (data.initialSearchError ? "error" : "ready");
       baseSearch.items = data.initialSearchItems ?? [];
       baseSearch.errorMessage = data.initialSearchError ?? null;
     }
   }
 
   return {
+    dataMode: data.dataMode ?? "dynamic",
     preferences: {
       language: "zh-CN",
       themePreference: "system",

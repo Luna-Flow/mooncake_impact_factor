@@ -1,0 +1,62 @@
+name: ci
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  test-and-build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: setup node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: setup python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: install moonbit
+        run: |
+          curl -fsSL https://cli.moonbitlang.com/install/unix.sh | bash
+          echo "$HOME/.moon/bin" >> $GITHUB_PATH
+
+      - name: install node deps
+        run: npm ci
+
+      - name: moon update
+        run: moon update
+
+      - name: moon check
+        run: |
+          moon check src/score --target all
+          moon check src/cli --target js
+          moon check src/static_search --target js
+
+      - name: moon test
+        run: |
+          moon test src/score --target all
+          moon test src/static_search --target js
+
+      - name: python tests
+        run: python3 -m unittest scripts/build_index_test.py
+
+      - name: web typecheck
+        run: npm run typecheck
+
+      - name: web tests
+        run: npm test
+
+      - name: dynamic build
+        run: npm run build
+
+      - name: static data build
+        run: npm run build:static-data
+
+      - name: static site build
+        run: npm run build:static

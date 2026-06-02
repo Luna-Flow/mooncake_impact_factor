@@ -9,6 +9,8 @@ __pycache__/
 *.pyd
 node_modules/
 .next/
+out/
+public/data/
 tsconfig.tsbuildinfo
 backend/target/
 .pytest_cache/

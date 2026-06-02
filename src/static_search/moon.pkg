@@ -1,0 +1,21 @@
+import {
+  "moonbitlang/core/array",
+  "moonbitlang/core/double",
+  "moonbitlang/core/float",
+  "moonbitlang/core/int",
+  "moonbitlang/core/json",
+  "moonbitlang/core/string",
+}
+
+import {
+  "moonbitlang/core/debug",
+} for "test"
+
+options(
+  "link": {
+    "js": {
+      "exports": ["runtime_version", "normalize_text"],
+      "format": "esm",
+    },
+  },
+)

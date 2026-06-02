@@ -62,6 +62,31 @@ export const packageSummaryListSchema = z.object({
   items: z.array(packageSummarySchema)
 });
 
+export const staticManifestSchema = z.object({
+  schema_version: z.string(),
+  generated_at: z.string(),
+  package_count: z.number(),
+  data_mode: z.literal("static"),
+  feeds: z.object({
+    top: z.number(),
+    hot: z.number(),
+    rising: z.number()
+  })
+});
+
+export const staticSearchPackageSchema = packageSummarySchema.extend({
+  repository: z.string().nullable(),
+  license: z.string().nullable(),
+  latest_created_at: z.string().nullable(),
+  version_count: z.number(),
+  activity_multiplier: z.number(),
+  keywords: z.array(z.string())
+});
+
+export const staticSearchPackageListSchema = z.object({
+  items: z.array(staticSearchPackageSchema)
+});
+
 export const dependentListSchema = z.object({
   items: z.array(dependentItemSchema)
 });
@@ -76,3 +101,5 @@ export type DependentItem = z.infer<typeof dependentItemSchema>;
 export type PackageVersion = z.infer<typeof packageVersionSchema>;
 export type PackageDetail = z.infer<typeof packageDetailSchema>;
 export type PackageAnalysis = z.infer<typeof packageAnalysisSchema>;
+export type StaticManifest = z.infer<typeof staticManifestSchema>;
+export type StaticSearchPackage = z.infer<typeof staticSearchPackageSchema>;

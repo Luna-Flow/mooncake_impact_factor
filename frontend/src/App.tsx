@@ -20,6 +20,7 @@ import {
 
 import {
   DEFAULT_SEARCH_PARAMS,
+  fetchFeed,
   type AdvancedSearchParams,
   type FeedSource,
   type SearchMomentum,
@@ -37,6 +38,7 @@ import {
   type SearchState
 } from "./app-state";
 import { useAppController } from "./useAppController";
+import { fetchStaticFeed } from "./static-api";
 import type { PackageSummary } from "./types";
 import {
   clearStructuredQuery,
@@ -59,6 +61,7 @@ import {
 type AppProps = {
   initialTopPackages: PackageSummary[];
   initialView: AppView;
+  dataMode?: "dynamic" | "static";
   initialSearchParams?: Partial<AdvancedSearchParams>;
   initialSource?: FeedSource | null;
   initialSearchItems?: PackageSummary[];
@@ -1755,10 +1758,12 @@ function AdvancedSearchPanel(props: {
 export function App(props: AppProps) {
   const { initialTopPackages, initialView, initialSource = null } = props;
   const router = useRouter();
+  const [landingItems, setLandingItems] = useState(initialTopPackages);
   const initialData = useMemo(
     () => {
       const data: AppInitialData = {
-        initialView: props.initialView
+        initialView: props.initialView,
+        dataMode: props.dataMode ?? "dynamic"
       };
       if (props.initialSearchParams) data.initialSearchParams = props.initialSearchParams;
       if (props.initialSource !== undefined) data.initialSource = props.initialSource;
@@ -1798,6 +1803,13 @@ export function App(props: AppProps) {
   useEffect(() => {
     document.title = dictionaries[language].appName;
   }, [language]);
+
+  useEffect(() => {
+    if ((props.dataMode ?? "dynamic") !== "static") return;
+    if (initialView !== "landing") return;
+    if (landingItems.length > 0) return;
+    void fetchStaticFeed("top").then((items) => setLandingItems(items.slice(0, 12))).catch(() => setLandingItems([]));
+  }, [initialView, landingItems.length, props.dataMode]);
 
   return (
     <main className="app-shell">
@@ -1839,7 +1851,7 @@ export function App(props: AppProps) {
       {initialView === "landing" ? (
         <LandingScreen
           language={language}
-          items={initialTopPackages}
+          items={landingItems}
           onOpenSearch={() => navigate("/search")}
           onBrowseTop={() => router.push("/search?source=top")}
           onOpenPackage={openLandingPackage}

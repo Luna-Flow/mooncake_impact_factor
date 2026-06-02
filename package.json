@@ -5,6 +5,9 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
+    "build:static-data": "moon build src/cli --target js && moon build src/static_search --target js && python3 scripts/build_index.py --db data/mooncake.db && python3 scripts/export_static_json.py --db data/mooncake.db --out public/data",
+    "build:static": "node scripts/build_static_site.mjs",
+    "serve:static": "python3 -m http.server 4173 -d out",
     "start": "next start",
     "typecheck": "tsc --project tsconfig.json --noEmit",
     "test": "node --experimental-specifier-resolution=node --test tests/*.test.mjs"
