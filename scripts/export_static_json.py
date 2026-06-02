@@ -114,7 +114,13 @@ def export_search_index(conn: sqlite3.Connection, out_dir: Path) -> int:
         """
     )
     packages: list[dict[str, object]] = []
+    search_index: list[dict[str, object]] = []
     for row in rows:
+        keywords = json.loads(row["keywords_json"])
+        normalized_description = (row["description"] or "").strip().lower()
+        normalized_license = (row["license"] or "").strip().lower()
+        normalized_repository = (row["repository"] or "").strip().lower()
+        normalized_keywords = [str(keyword).strip().lower() for keyword in keywords]
         packages.append(
             {
                 "full_name": row["full_name"],
@@ -136,11 +142,47 @@ def export_search_index(conn: sqlite3.Connection, out_dir: Path) -> int:
                 "rank_label": row["rank_label"],
                 "momentum_label": row["momentum_label"],
                 "activity_multiplier": row["activity_multiplier"],
-                "keywords": json.loads(row["keywords_json"]),
+                "keywords": keywords,
+            }
+        )
+        search_index.append(
+            {
+                "full_name": row["full_name"],
+                "owner": row["owner"],
+                "package_name": row["package_name"],
+                "description": row["description"],
+                "latest_version": row["latest_version"],
+                "latest_created_at": row["latest_created_at"],
+                "dependent_count": row["dependent_count"],
+                "recent_dependent_count": row["recent_dependent_count"],
+                "download_count": row["download_count"],
+                "score": row["score"],
+                "score_30d_ago": row["score_30d_ago"],
+                "score_growth_30d": row["score_growth_30d"],
+                "score_growth_ratio_30d": row["score_growth_ratio_30d"],
+                "rank_label": row["rank_label"],
+                "momentum_label": row["momentum_label"],
+                "repository_present": bool((row["repository"] or "").strip()),
+                "license_present": bool((row["license"] or "").strip()),
+                "normalized_full_text": " ".join(
+                    part for part in [
+                        str(row["full_name"]).strip().lower(),
+                        str(row["owner"]).strip().lower(),
+                        str(row["package_name"]).strip().lower(),
+                        normalized_description,
+                        " ".join(normalized_keywords),
+                    ] if part
+                ),
+                "normalized_owner": str(row["owner"]).strip().lower(),
+                "normalized_package": str(row["package_name"]).strip().lower(),
+                "normalized_description": normalized_description,
+                "normalized_license": normalized_license,
+                "normalized_repository": normalized_repository,
+                "normalized_keywords": normalized_keywords,
             }
         )
     write_json(out_dir / "search" / "packages.json", {"items": packages})
-    write_json(out_dir / "search" / "search-index.json", {"items": packages})
+    write_json(out_dir / "search" / "search-index.json", {"items": search_index})
     return len(packages)
 
 

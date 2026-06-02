@@ -2,41 +2,32 @@ import { z } from "zod";
 
 import {
   staticManifestSchema,
-  staticSearchPackageListSchema,
+  staticSearchIndexSchema,
   packageAnalysisSchema,
   packageSummaryListSchema,
   type PackageAnalysis,
   type PackageSummary,
   type StaticManifest,
-  type StaticSearchPackage
+  type StaticSearchIndexItem
 } from "./types";
 import type { AdvancedSearchParams, FeedSource } from "./api";
-import {
-  deriveQueryAst,
-  hasQueryAstIntent,
-  type QueryAst,
-  type QueryNode,
-  type QueryTermNode
-} from "../../lib/query";
+import { normalizeSearchParams } from "./app-state";
 
 type StaticSearchResponse = {
   items: PackageSummary[];
 };
 
 const STATIC_DATA_PREFIX = `${process.env["NEXT_PUBLIC_BASE_PATH"] ?? ""}/data`;
+const SEARCH_INDEX_URL = `${STATIC_DATA_PREFIX}/search/search-index.json`;
 
 let manifestPromise: Promise<StaticManifest> | null = null;
-let packagesPromise: Promise<StaticSearchPackage[]> | null = null;
-
-type IndexedStaticPackage = StaticSearchPackage & {
-  _normalized_full_text: string;
-  _normalized_owner: string;
-  _normalized_package: string;
-  _normalized_description: string;
-  _normalized_license: string;
-  _normalized_repository: string;
-  _normalized_keywords: string[];
-};
+let workerPromise: Promise<Worker> | null = null;
+let workerReadyPromise: Promise<void> | null = null;
+let workerRequestId = 0;
+const pendingWorkerRequests = new Map<number, {
+  resolve: (items: PackageSummary[]) => void;
+  reject: (error: Error) => void;
+}>();
 
 async function requestJson<T>(url: string, schema: z.ZodSchema<T>): Promise<T> {
   const response = await fetch(url, { cache: "no-store" });
@@ -65,205 +56,45 @@ export async function fetchStaticManifest(): Promise<StaticManifest> {
   return manifestPromise;
 }
 
-async function fetchStaticSearchPackages(): Promise<StaticSearchPackage[]> {
-  if (!packagesPromise) {
-    packagesPromise = requestJson(staticAsset("search/packages.json"), staticSearchPackageListSchema).then((data) => data.items);
-  }
-  return packagesPromise;
-}
-
 export async function fetchStaticFeed(source: FeedSource): Promise<PackageSummary[]> {
   await fetchStaticManifest();
   const data = await requestJson(staticAsset(`feeds/${source}.json`), packageSummaryListSchema);
   return data.items;
 }
 
-function normalizedText(value: string | null | undefined): string {
-  return (value ?? "").trim().toLowerCase();
-}
+type WorkerInitRequest = {
+  type: "init";
+  id: number;
+  indexUrl: string;
+};
 
-function toIndexedPackage(pkg: StaticSearchPackage): IndexedStaticPackage {
-  return {
-    ...pkg,
-    _normalized_full_text: normalizedText(
-      `${pkg.full_name} ${pkg.owner} ${pkg.package_name} ${pkg.description ?? ""} ${pkg.keywords.join(" ")}`
-    ),
-    _normalized_owner: normalizedText(pkg.owner),
-    _normalized_package: normalizedText(pkg.package_name),
-    _normalized_description: normalizedText(pkg.description),
-    _normalized_license: normalizedText(pkg.license),
-    _normalized_repository: normalizedText(pkg.repository),
-    _normalized_keywords: pkg.keywords.map((keyword) => normalizedText(keyword))
-  };
-}
+type WorkerSearchRequest = {
+  type: "search";
+  id: number;
+  params: AdvancedSearchParams;
+};
 
-function packageYear(pkg: StaticSearchPackage): number {
-  const text = pkg.latest_created_at ?? "";
-  if (text.length < 4) return 0;
-  const value = Number(text.slice(0, 4));
-  return Number.isFinite(value) ? value : 0;
-}
+type WorkerReadyResponse = {
+  type: "ready";
+  id: number;
+};
 
-function matchText(value: string, needle: string): boolean {
-  const normalizedNeedle = normalizedText(needle);
-  if (!normalizedNeedle) return true;
-  return value.includes(normalizedNeedle);
-}
+type WorkerResultResponse = {
+  type: "result";
+  id: number;
+  items: StaticSearchIndexItem[];
+};
 
-function matchTerm(pkg: IndexedStaticPackage, term: QueryTermNode): boolean {
-  switch (term.field) {
-    case "text":
-      return matchText(pkg._normalized_full_text, term.value);
-    case "owner":
-      return matchText(pkg._normalized_owner, term.value);
-    case "package":
-      return matchText(pkg._normalized_package, term.value);
-    case "keyword":
-      return pkg._normalized_keywords.some((keyword) => matchText(keyword, term.value));
-    case "description":
-      return matchText(pkg._normalized_description, term.value);
-    case "license":
-      return matchText(pkg._normalized_license, term.value);
-    case "repository":
-      return matchText(pkg._normalized_repository, term.value);
-    case "rank":
-      return pkg.rank_label === term.value;
-    case "momentum":
-      return pkg.momentum_label === term.value;
-    case "score":
-      return compareNumeric(pkg.score, term.operator, Number(term.value));
-    case "dependents":
-      return compareNumeric(pkg.dependent_count, term.operator, Number(term.value));
-    case "recent_dependents":
-      return compareNumeric(pkg.recent_dependent_count, term.operator, Number(term.value));
-    case "downloads":
-      return compareNumeric(pkg.download_count, term.operator, Number(term.value));
-    case "year":
-      return compareNumeric(packageYear(pkg), term.operator, Number(term.value));
-    case "has_repository":
-      return Boolean(pkg.repository?.trim()) === (term.value === "true");
-    case "has_license":
-      return Boolean(pkg.license?.trim()) === (term.value === "true");
-    default:
-      return false;
-  }
-}
+type WorkerErrorResponse = {
+  type: "error";
+  id: number;
+  message: string;
+};
 
-function compareNumeric(left: number, operator: QueryTermNode["operator"], right: number): boolean {
-  if (!Number.isFinite(right)) return false;
-  if (operator === "eq") return left === right;
-  if (operator === "gte") return left >= right;
-  if (operator === "lte") return left <= right;
-  return left === right;
-}
+type WorkerResponse = WorkerReadyResponse | WorkerResultResponse | WorkerErrorResponse;
 
-function evaluateQueryNode(pkg: IndexedStaticPackage, node: QueryNode): boolean {
-  if (node.kind === "term") {
-    const matched = matchTerm(pkg, node);
-    return node.negated ? !matched : matched;
-  }
-  const matched = node.op === "or"
-    ? node.children.some((child) => evaluateQueryNode(pkg, child))
-    : node.children.every((child) => evaluateQueryNode(pkg, child));
-  return node.negated ? !matched : matched;
-}
-
-function sortByRelevance(left: IndexedStaticPackage, right: IndexedStaticPackage, ast: QueryAst): number {
-  const leftScore = computeStaticRelevance(left, ast);
-  const rightScore = computeStaticRelevance(right, ast);
-  if (leftScore !== rightScore) return rightScore - leftScore;
-  if (left.score !== right.score) return right.score - left.score;
-  return left.full_name.localeCompare(right.full_name);
-}
-
-function computeStaticRelevance(pkg: IndexedStaticPackage, ast: QueryAst): number {
-  return countMatches(pkg, ast);
-}
-
-function countMatches(pkg: IndexedStaticPackage, node: QueryNode): number {
-  if (node.kind === "term") {
-    return matchTerm(pkg, { ...node, negated: false }) ? 1 : 0;
-  }
-  return node.children.reduce((sum, child) => sum + countMatches(pkg, child), 0);
-}
-
-function sortPackages(items: IndexedStaticPackage[], params: AdvancedSearchParams, ast: QueryAst): IndexedStaticPackage[] {
-  const sort = params.sort || (hasQueryAstIntent(ast) ? "relevance" : "score");
-  const order = params.order || (sort === "name" || sort === "relevance" ? "asc" : "desc");
-  const factor = order === "asc" ? 1 : -1;
-  const sorted = [...items];
-  sorted.sort((left, right) => {
-    if (sort === "relevance") {
-      return sortByRelevance(left, right, ast);
-    }
-    if (sort === "score") return factor * (left.score - right.score || left.full_name.localeCompare(right.full_name));
-    if (sort === "growth") return factor * (left.score_growth_30d - right.score_growth_30d || left.full_name.localeCompare(right.full_name));
-    if (sort === "downloads") return factor * (left.download_count - right.download_count || left.full_name.localeCompare(right.full_name));
-    if (sort === "dependents") return factor * (left.dependent_count - right.dependent_count || left.full_name.localeCompare(right.full_name));
-    if (sort === "recent") return factor * (left.recent_dependent_count - right.recent_dependent_count || left.full_name.localeCompare(right.full_name));
-    if (sort === "updated") return factor * (packageYear(left) - packageYear(right) || left.full_name.localeCompare(right.full_name));
-    if (sort === "name") return factor * left.full_name.localeCompare(right.full_name);
-    return factor * (left.score - right.score || left.full_name.localeCompare(right.full_name));
-  });
-  return sorted;
-}
-
-export async function searchStaticPackages(params: Partial<AdvancedSearchParams> = {}): Promise<PackageSummary[]> {
-  await fetchStaticManifest();
-  const packages = (await fetchStaticSearchPackages()).map(toIndexedPackage);
-  const normalized: AdvancedSearchParams = {
-    q: "",
-    owner: "",
-    packageName: "",
-    keyword: "",
-    description: "",
-    license: "",
-    repository: "",
-    rank: "",
-    momentum: "",
-    minScore: "",
-    maxScore: "",
-    minDependents: "",
-    minRecentDependents: "",
-    minDownloads: "",
-    fromYear: "",
-    toYear: "",
-    hasRepository: "",
-    hasLicense: "",
-    sort: "",
-    order: "",
-    expr: "",
-    ast: "",
-    ...params
-  };
-  const ast = deriveQueryAst({
-    q: normalized.q,
-    owner: normalized.owner,
-    packageName: normalized.packageName,
-    keyword: normalized.keyword,
-    description: normalized.description,
-    license: normalized.license,
-    repository: normalized.repository,
-    rank: normalized.rank,
-    momentum: normalized.momentum,
-    minScore: normalized.minScore,
-    maxScore: normalized.maxScore,
-    minDependents: normalized.minDependents,
-    minRecentDependents: normalized.minRecentDependents,
-    minDownloads: normalized.minDownloads,
-    fromYear: normalized.fromYear,
-    toYear: normalized.toYear,
-    hasRepository: normalized.hasRepository,
-    hasLicense: normalized.hasLicense,
-    sort: normalized.sort,
-    order: normalized.order,
-    expr: normalized.expr,
-    ast: normalized.ast
-  });
-  const matched = hasQueryAstIntent(ast)
-    ? packages.filter((pkg) => evaluateQueryNode(pkg, ast))
-    : packages;
-  return sortPackages(matched, normalized, ast).map((pkg) => ({
+function staticWorkerItemsToSummary(items: StaticSearchIndexItem[]): PackageSummary[] {
+  return items.map((pkg) => ({
     full_name: pkg.full_name,
     owner: pkg.owner,
     package_name: pkg.package_name,
@@ -279,6 +110,88 @@ export async function searchStaticPackages(params: Partial<AdvancedSearchParams>
     rank_label: pkg.rank_label,
     momentum_label: pkg.momentum_label
   }));
+}
+
+function nextWorkerId(): number {
+  workerRequestId += 1;
+  return workerRequestId;
+}
+
+async function getStaticSearchWorker(): Promise<Worker> {
+  if (typeof window === "undefined") {
+    throw new Error("Static search worker is only available in the browser");
+  }
+  if (!workerPromise) {
+    workerPromise = Promise.resolve(
+      new Worker(new URL("./static-search.worker.ts", import.meta.url), {
+        type: "module"
+      })
+    );
+    const worker = await workerPromise;
+    worker.addEventListener("message", (event: MessageEvent<WorkerResponse>) => {
+      const payload = event.data;
+      if (payload.type === "ready") {
+        return;
+      }
+      const pending = pendingWorkerRequests.get(payload.id);
+      if (!pending) {
+        return;
+      }
+      pendingWorkerRequests.delete(payload.id);
+      if (payload.type === "error") {
+        pending.reject(new Error(payload.message));
+        return;
+      }
+      pending.resolve(staticWorkerItemsToSummary(payload.items));
+    });
+  }
+  return workerPromise;
+}
+
+async function ensureStaticSearchWorkerReady(): Promise<void> {
+  if (!workerReadyPromise) {
+    workerReadyPromise = (async () => {
+      const worker = await getStaticSearchWorker();
+      const requestId = nextWorkerId();
+      await new Promise<void>((resolve, reject) => {
+        const handleMessage = (event: MessageEvent<WorkerResponse>) => {
+          const payload = event.data;
+          if (payload.id !== requestId) {
+            return;
+          }
+          worker.removeEventListener("message", handleMessage);
+          if (payload.type === "error") {
+            reject(new Error(payload.message));
+            return;
+          }
+          resolve();
+        };
+        worker.addEventListener("message", handleMessage);
+        worker.postMessage({
+          type: "init",
+          id: requestId,
+          indexUrl: SEARCH_INDEX_URL
+        } satisfies WorkerInitRequest);
+      });
+    })();
+  }
+  return workerReadyPromise;
+}
+
+export async function searchStaticPackages(params: Partial<AdvancedSearchParams> = {}): Promise<PackageSummary[]> {
+  await fetchStaticManifest();
+  await ensureStaticSearchWorkerReady();
+  const worker = await getStaticSearchWorker();
+  const normalized = normalizeSearchParams(params);
+  const requestId = nextWorkerId();
+  return await new Promise<PackageSummary[]>((resolve, reject) => {
+    pendingWorkerRequests.set(requestId, { resolve, reject });
+    worker.postMessage({
+      type: "search",
+      id: requestId,
+      params: normalized
+    } satisfies WorkerSearchRequest);
+  });
 }
 
 export async function fetchStaticPackageAnalysis(owner: string, packageName: string): Promise<PackageAnalysis> {
