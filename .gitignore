@@ -7,6 +7,10 @@ __pycache__/
 *.pyc
 *.pyo
 *.pyd
+node_modules/
+.next/
+tsconfig.tsbuildinfo
+backend/target/
 .pytest_cache/
 .mypy_cache/
 .ruff_cache/
@@ -18,4 +22,3 @@ data/*.sqlite3
 data/downloads*.json
 data/download_cache.json
 coverage_summary.txt
-

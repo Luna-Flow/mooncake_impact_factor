@@ -8,8 +8,8 @@ baseline on this branch.
 The repository currently contains:
 
 - a MoonBit scoring package in `src/score`
-- Python indexing and serving utilities in `scripts`
-- a static local UI in `web`
+- Python indexing utilities in `scripts`
+- a Next.js full-stack app in `app/`, `frontend/src/`, and `lib/`
 - release-aligned documentation in `doc`
 
 Keep changes scoped to one of those responsibilities and avoid mixing unrelated
@@ -19,10 +19,12 @@ work in the same commit.
 
 - Run `moon fmt` for MoonBit code.
 - Keep Python code straightforward and structured around small functions.
+- Keep TypeScript code explicit about data flow, especially in SQLite access,
+  route handlers, and client state transitions.
 - Prefer descriptive names tied to package metadata, dependency edges, score
-  semantics, or HTTP behavior.
-- Keep comments short and use them only when scoring or indexing behavior is
-  not obvious from the code.
+  semantics, or search behavior.
+- Keep comments short and use them only when scoring, search compilation, or
+  indexing behavior is not obvious from the code.
 
 ## Naming
 
@@ -50,6 +52,8 @@ Run the baseline checks before committing:
 moon fmt
 moon check --target all
 moon test --target all
+npm run typecheck
+npm run build
 ```
 
 Useful repository commands:
@@ -63,8 +67,8 @@ just dev
 ./run_test.sh
 ```
 
-If you change indexing, serving, or release behavior, validate the affected
-command paths as well.
+If you change indexing, API behavior, or Next app runtime behavior, validate
+the affected command paths as well.
 
 ## Commit Policy
 

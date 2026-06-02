@@ -45,19 +45,17 @@ python3 scripts/build_index.py \
 }
 ```
 
-## 2. 启动本地服务
+## 2. 启动本地应用
 
 ```bash
-python3 scripts/serve.py --db data/mooncake.db --host 127.0.0.1 --port 8765
+MOONCAKE_DB_PATH=data/mooncake.db npm run dev
 ```
 
-然后访问 `http://127.0.0.1:8765`。
+然后访问 `http://127.0.0.1:3000`。
 
-当前服务会提供：
+当前 Next.js 应用会提供：
 
-- `/`：静态 HTML 页面
-- `/app.css`：前端样式
-- `/app.js`：前端逻辑
+- `/`：研究型前端界面
 - `/api/*`：基于 SQLite 的 JSON API
 
 ## 3. 调用 API
@@ -68,22 +66,51 @@ python3 scripts/serve.py --db data/mooncake.db --host 127.0.0.1 --port 8765
 GET /api/search?q=io&limit=20
 ```
 
-Top 列表：
+高级检索参数：
+
+- `q`：全局全文检索，支持 `AND`、`OR`、`NOT`、括号、短语引号，以及
+  `owner:`、`author:`、`package:`、`keyword:`、`description:`、`name:` 等字段前缀
+- `owner`、`package`、`keyword`、`description`：字段级全文筛选，彼此按 `AND`
+  组合
+- `license`、`repository`：元数据模糊匹配
+- `rank`：`S`、`A`、`B`、`C`、`D`
+- `momentum`：`Rising`、`Hot`、`Stable`
+- `min_score`、`max_score`
+- `min_dependents`、`min_recent_dependents`、`min_downloads`
+- `from_year`、`to_year`：按最新版本年份筛选
+- `has_repository`、`has_license`：传 `true` 或 `false`
+- `sort`：`relevance`、`score`、`growth`、`downloads`、`dependents`、`recent`、`updated`、`name`
+- `order`：`asc` 或 `desc`
+- `limit`：最大 `100`
+
+字段语义补充：
+
+- `owner` 表示本地 registry 元数据里的包命名空间所有者。
+- `author:` 当前只是 `owner:` 的别名，用来兼容更像学术检索的输入习惯。
+- 当前索引里还没有独立的作者列表、维护者列表或机构字段，所以 `author:` 还不表示独立作者元数据。
+
+示例：
 
 ```text
-GET /api/top?limit=50
+GET /api/search?q=owner:gmlewis AND "http client"&limit=20
+GET /api/search?q=author:gmlewis AND keyword:json
+GET /api/search?keyword=json&min_score=180&min_downloads=500&sort=downloads
+GET /api/search?description=parser&from_year=2024&to_year=2026&has_repository=true&sort=updated
+GET /api/search?rank=A&momentum=Rising&min_dependents=5&sort=growth
 ```
 
-包详情：
+Feeds：
 
 ```text
-GET /api/packages/<owner>/<name>
+GET /api/feeds/top?limit=50
+GET /api/feeds/hot?limit=24
+GET /api/feeds/rising?limit=24
 ```
 
-反向依赖：
+包分析：
 
 ```text
-GET /api/packages/<owner>/<name>/dependents
+GET /api/packages/<owner>/<name>/analysis
 ```
 
 ## 4. 校验修改
@@ -109,4 +136,4 @@ just dev
 
 - 每次构建索引都会重建整个 SQLite 数据库。
 - 下载量可能来自缓存、mooncakes 实时响应，或本地覆盖文件。
-- 搜索结果按计算分数排序，不是只按全文匹配相关度排序。
+- 当 `sort=relevance` 且存在全文条件时，搜索优先按 SQLite `bm25` 相关度排序。

@@ -7,8 +7,8 @@ Mooncake Impact Factor is a local ranking toolkit for the `mooncakes.io`
 ecosystem. The current branch ships three aligned parts:
 
 - a MoonBit scoring package in `src/score`
-- a Python index builder and HTTP server in `scripts`
-- a static browser UI in `web`
+- a Python index builder in `scripts`
+- a Next.js full-stack app for the local UI and APIs
 
 This repository documents the released **`0.1.0`** baseline declared in
 `moon.mod`.
@@ -17,7 +17,8 @@ This repository documents the released **`0.1.0`** baseline declared in
 
 The project reads the local MoonBit registry snapshot under
 `~/.moon/registry/index/user`, writes a searchable SQLite database, computes a
-package impact score, and serves the results through a local web interface.
+package impact score, and serves the results through a research-oriented local
+web interface.
 
 Current implemented capabilities:
 
@@ -25,15 +26,18 @@ Current implemented capabilities:
 - persist package, version, dependency, reverse-edge, score, and FTS tables
 - optionally fetch per-package download counts from `https://mooncakes.io`
 - allow download-count overrides from a local JSON file
-- expose search, top-list, package-detail, and dependents HTTP endpoints
+- expose Next.js route-handler APIs backed directly by SQLite
 - keep the score formula aligned between Python and MoonBit
+- validate API contracts in the Next.js client and server layers
 
 ## Repository Layout
 
 - `src/score/`: MoonBit package with score computation and rank mapping
 - `scripts/build_index.py`: local index ingestion, download fetching, and score computation
-- `scripts/serve.py`: local HTTP server for APIs and static assets
-- `web/`: static frontend for search results and package detail inspection
+- `app/`: Next.js App Router pages and route handlers
+- `frontend/src/`: shared client UI logic, copy, and schemas used by Next
+- `lib/`: server-side SQLite query and API support code
+- `web/app.css`: global stylesheet imported by the Next app
 - `doc/`: English and Chinese documentation aligned with the current branch
 - `.github/workflows/publish.yml`: manual MoonBit package publish workflow
 
@@ -42,7 +46,8 @@ Current implemented capabilities:
 Requirements:
 
 - MoonBit toolchain for `moon check`, `moon test`, and package publishing
-- Python 3 for indexing and local serving
+- Python 3 for indexing
+- Node.js and npm for the Next.js app
 - a populated local registry under `~/.moon/registry/index/user`
 
 Build the database with live mooncakes download snapshots:
@@ -65,13 +70,26 @@ python3 scripts/build_index.py \
   --downloads-json data/downloads.json
 ```
 
-Serve the local UI and APIs:
+Install frontend dependencies:
 
 ```bash
-python3 scripts/serve.py --db data/mooncake.db --host 127.0.0.1 --port 8765
+npm install
 ```
 
-Then open `http://127.0.0.1:8765`.
+Run the full-stack Next.js app in development:
+
+```bash
+MOONCAKE_DB_PATH=data/mooncake.db npm run dev
+```
+
+Then open `http://127.0.0.1:3000`.
+
+Build and run the production app locally:
+
+```bash
+MOONCAKE_DB_PATH=data/mooncake.db npm run build
+MOONCAKE_DB_PATH=data/mooncake.db npm run start
+```
 
 ## Scoring Model
 
@@ -116,21 +134,67 @@ Momentum labels are computed in Python only:
 
 ## Local API
 
-The HTTP server currently exposes:
+The Next.js app currently exposes:
 
-- `GET /api/search?q=<term>&limit=<n>`
-- `GET /api/top?limit=<n>`
-- `GET /api/packages/<owner>/<name>`
-- `GET /api/packages/<owner>/<name>/dependents`
+- `GET /api/feeds/top?limit=<n>`
+- `GET /api/feeds/hot?limit=<n>`
+- `GET /api/feeds/rising?limit=<n>`
+- `GET /api/search?...`
+- `GET /api/packages/<owner>/<name>/analysis`
 
-`/api/search` uses SQLite FTS5 against package name, owner, description, and
-keywords. An empty search falls back to top-ranked packages.
+`/api/search` supports advanced retrieval over SQLite FTS5 plus structured
+filters. If every search parameter is empty, it falls back to top-ranked
+packages.
+
+Supported `/api/search` query parameters:
+
+- `q`: global full-text query with boolean operators, parentheses, quoted
+  phrases, and field prefixes such as `owner:`, `author:`, `package:`,
+  `keyword:`, `description:`, and `name:`
+- `owner`, `package`, `keyword`, `description`: field-specific full-text
+  filters that are combined with `AND`
+- `license`, `repository`: substring filters on package metadata
+- `rank`: one of `S`, `A`, `B`, `C`, `D`
+- `momentum`: one of `Rising`, `Hot`, `Stable`
+- `min_score`, `max_score`
+- `min_dependents`, `min_recent_dependents`, `min_downloads`
+- `from_year`, `to_year`: filter by the package latest release year
+- `has_repository`, `has_license`: `true` or `false`
+- `sort`: one of `relevance`, `score`, `growth`, `downloads`, `dependents`,
+  `recent`, `updated`, `name`
+- `order`: `asc` or `desc`
+- `limit`: result size, clamped to `100`
+
+Field semantics:
+
+- `owner` is the package namespace owner from the local registry metadata.
+- `author:` is currently only an alias for `owner:` so frontend clients can use
+  a more academic-looking query syntax.
+- The current index does not contain a standalone author list, maintainer list,
+  or institution metadata, so `author:` does not mean a separate paper-style
+  author field yet.
+
+Examples:
+
+```text
+GET /api/search?q=owner:gmlewis AND "http client"&limit=20
+GET /api/search?q=author:gmlewis AND keyword:json
+GET /api/search?keyword=json&min_score=180&min_downloads=500&sort=downloads
+GET /api/search?description=parser&from_year=2024&to_year=2026&has_repository=true&sort=updated
+GET /api/search?rank=A&momentum=Rising&min_dependents=5&sort=growth
+GET /api/packages/gmlewis/http-client/analysis
+```
 
 ## Development
 
 Useful local commands:
 
 ```bash
+npm install
+npm run dev
+npm run typecheck
+npm run build
+npm run start
 moon fmt
 moon check --target all
 moon test --target all
@@ -138,6 +202,8 @@ moon test --target all
 just build-db
 just build-db-with-downloads data/downloads.json
 just build-db-offline
+just web-typecheck
+just web-build
 just serve
 just dev
 ```
