@@ -81,6 +81,8 @@
 
 稳定查询参数：
 
+- `ast`
+- `expr`
 - `q`
 - `limit`
 - `owner`
@@ -102,6 +104,12 @@
 - `has_license`
 - `sort`
 - `order`
+
+查询兼容规则：
+
+- 存在 `ast` 时优先使用 `ast`。
+- 不存在 `ast` 但存在 `expr` 时使用 `expr`。
+- 旧的结构化参数仍然保留，用于兼容已有链接和简单筛选。
 
 ### `GET /api/packages/<owner>/<packageName>/analysis`
 

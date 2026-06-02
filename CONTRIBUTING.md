@@ -1,6 +1,6 @@
 # Contribution Guidelines
 
-This guide describes the current **`0.1.1`** branch baseline and the expected
+This guide describes the current **`0.1.2`** branch baseline and the expected
 workflow for repository changes.
 
 ## Scope
@@ -28,7 +28,7 @@ changes.
 ## Documentation Expectations
 
 - `README.md`, `CONTRIBUTING.md`, and `doc/*` must describe the implementation that actually exists on the branch.
-- Document stable CLI flags, search parameters, score thresholds, and release behavior when they change.
+- Document stable CLI flags, search parameters, query-builder behavior, score thresholds, and release behavior when they change.
 - Be explicit when behavior depends on a local registry snapshot, local SQLite state, cached download data, or optional network fetches.
 - If the score formula, rank thresholds, or momentum rules change, update the MoonBit implementation and the relevant docs in the same change.
 
@@ -43,6 +43,8 @@ moon check src/cli --target js
 moon test src/score --target all
 npm run typecheck
 npm run build
+python3 -m unittest scripts/build_index_test.py
+npm test
 ```
 
 Useful repository commands:
@@ -73,6 +75,6 @@ UI behavior, validate the affected command paths as well.
 1. Bump the version in `moon.mod`.
 2. Keep `README.md`, `CONTRIBUTING.md`, and `doc/*` aligned with the branch.
 3. Ensure `.github/workflows/publish.yml` still matches the MoonBit manifest layout.
-4. Run `moon fmt`, `moon check src/score --target all`, `moon check src/cli --target js`, `moon test src/score --target all`, `npm run typecheck`, and `npm run build`.
+4. Run `moon fmt`, `moon check src/score --target all`, `moon check src/cli --target js`, `moon test src/score --target all`, `python3 -m unittest scripts/build_index_test.py`, `npm run typecheck`, `npm run build`, and `npm test`.
 5. Trigger `publish-package` manually after validation.
 6. If mooncakes reports a duplicate version, publish a new bumped version instead.

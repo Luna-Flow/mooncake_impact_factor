@@ -1,6 +1,6 @@
 # Tutorial
 
-This guide covers the current local workflow for the **`0.1.1`** branch.
+This guide covers the current local workflow for the **`0.1.2`** branch.
 
 ## Prerequisites
 
@@ -66,7 +66,7 @@ The app currently serves:
 
 - `/`: ranked package browsing UI
 - `/search`: main search results page
-- `/advanced-search`: parameterized search UI
+- `/advanced-search`: graphical advanced-search UI with grouped conditions and native-expression editing
 - `/api/*`: JSON APIs backed directly by SQLite
 
 ## 3. Query The APIs
@@ -79,6 +79,8 @@ GET /api/search?q=io&limit=20
 
 Supported search parameters:
 
+- `ast`: serialized grouped query AST used by the advanced query builder
+- `expr`: native boolean search expression compiled into the shared query AST
 - `q`: global full-text query with `AND`, `OR`, `NOT`, parentheses, quoted phrases, and field prefixes such as `owner:`, `author:`, `package:`, `keyword:`, `description:`, and `name:`
 - `owner`, `package`, `keyword`, `description`: field-specific full-text filters combined with `AND`
 - `license`, `repository`: metadata substring filters
@@ -101,6 +103,8 @@ Field semantics:
 Examples:
 
 ```text
+GET /api/search?expr=(owner:gmlewis OR keyword:json) AND score>=180
+GET /api/search?ast=<serialized-query-ast>
 GET /api/search?q=owner:gmlewis AND "http client"&limit=20
 GET /api/search?q=author:gmlewis AND keyword:json
 GET /api/search?keyword=json&min_score=180&min_downloads=500&sort=downloads
@@ -129,8 +133,10 @@ moon fmt
 moon check src/score --target all
 moon check src/cli --target js
 moon test src/score --target all
+python3 -m unittest scripts/build_index_test.py
 npm run typecheck
 npm run build
+npm test
 ```
 
 Repository shortcuts:
@@ -150,3 +156,4 @@ just dev
 - The SQLite database is rebuilt from scratch on each index build.
 - Download counts may come from live mooncakes responses, `data/download_cache.json`, or a local override file.
 - When `sort=relevance` and at least one full-text condition is present, results are ordered by SQLite `bm25` relevance first.
+- The advanced query builder and the native `expr` input both compile through the same shared query AST layer.

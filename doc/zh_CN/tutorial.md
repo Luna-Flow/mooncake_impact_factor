@@ -1,6 +1,6 @@
 # 使用教程
 
-这份文档覆盖当前 **`0.1.1`** 分支的本地工作流。
+这份文档覆盖当前 **`0.1.2`** 分支的本地工作流。
 
 ## 前置条件
 
@@ -66,7 +66,7 @@ MOONCAKE_DB_PATH=data/mooncake.db npm run dev -- --hostname 127.0.0.1 --port 300
 
 - `/`：包榜单浏览界面
 - `/search`：主搜索结果页
-- `/advanced-search`：参数化高级搜索页
+- `/advanced-search`：支持条件分组与原生表达式的图形化高级检索页
 - `/api/*`：直接读取 SQLite 的 JSON API
 
 ## 3. 调用 API
@@ -79,6 +79,8 @@ GET /api/search?q=io&limit=20
 
 支持的搜索参数：
 
+- `ast`：供高级检索构建器使用的序列化查询 AST
+- `expr`：会被编译到共享查询 AST 的原生布尔表达式
 - `q`：全局全文检索，支持 `AND`、`OR`、`NOT`、括号、引号短语，以及 `owner:`、`author:`、`package:`、`keyword:`、`description:`、`name:` 等字段前缀
 - `owner`、`package`、`keyword`、`description`：字段级全文检索，彼此按 `AND` 组合
 - `license`、`repository`：元数据子串过滤
@@ -101,6 +103,8 @@ GET /api/search?q=io&limit=20
 示例：
 
 ```text
+GET /api/search?expr=(owner:gmlewis OR keyword:json) AND score>=180
+GET /api/search?ast=<serialized-query-ast>
 GET /api/search?q=owner:gmlewis AND "http client"&limit=20
 GET /api/search?q=author:gmlewis AND keyword:json
 GET /api/search?keyword=json&min_score=180&min_downloads=500&sort=downloads
@@ -129,8 +133,10 @@ moon fmt
 moon check src/score --target all
 moon check src/cli --target js
 moon test src/score --target all
+python3 -m unittest scripts/build_index_test.py
 npm run typecheck
 npm run build
+npm test
 ```
 
 仓库快捷命令：
@@ -150,3 +156,4 @@ just dev
 - 每次构建索引都会从头重建 SQLite 数据库。
 - 下载量可能来自在线 mooncakes 响应、`data/download_cache.json` 或本地覆盖文件。
 - 当 `sort=relevance` 且存在任意全文条件时，搜索结果会优先按 SQLite `bm25` 相关性排序。
+- 图形化高级检索和原生 `expr` 输入都会编译到同一套共享查询 AST。

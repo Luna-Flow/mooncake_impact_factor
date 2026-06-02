@@ -2,9 +2,9 @@
 
 [![img](https://img.shields.io/badge/Maintainer-KCN--judu-violet)](https://github.com/KCN-judu) [![img](https://img.shields.io/badge/License-MIT-blue)](https://github.com/Luna-Flow/mooncake_impact_factor/blob/main/LICENSE) ![img](https://img.shields.io/badge/State-active-success)
 
-## v0.1.1 - Local Registry Ranking, Search & Analysis
+## v0.1.2 - Query Builder, Search & Analysis
 
-This documentation tracks the current **`0.1.1`** release baseline declared in
+This documentation tracks the current **`0.1.2`** release baseline declared in
 `moon.mod`.
 
 ### Package Positioning
@@ -14,10 +14,12 @@ This documentation tracks the current **`0.1.1`** release baseline declared in
 - **`scripts/build_index.py`**: Local registry ingester that rebuilds SQLite state, computes package relationships, and materializes search data.
 - **`app` + `frontend/src` + `lib`**: Next.js full-stack research UI with route-handler APIs backed directly by SQLite.
 
-### What Defines v0.1.1
+### What Defines v0.1.2
 
 - **Local Registry Snapshot Ingestion**: Reads `~/.moon/registry/index/user/**/*.index` and rebuilds package, version, dependency, reverse-edge, score, and FTS tables.
 - **SQLite-Backed Search Surface**: Exposes ranked feeds, full-text search, structured filters, and per-package analysis endpoints from the Next.js app.
+- **Graphical Advanced Query Builder**: Exposes a grouped advanced-search UI that can build nested boolean conditions while preserving direct native-expression input.
+- **Unified Query AST Layer**: Supports serialized `ast` queries, `expr` native expressions, and legacy structured search parameters through one server-side query model.
 - **Shared Score Formula**: Uses the MoonBit score package plus a local MoonBit CLI bridge so the Python index builder consumes the same score, rank, and momentum rules.
 - **Download Signal Support**: Can fetch per-package download counts from `mooncakes.io`, reuse a local cache, or apply a local override JSON file.
 - **Momentum Layer**: Uses MoonBit-exported momentum rules through the local CLI bridge, then materializes `Rising`, `Hot`, and `Stable` labels in the Python build pipeline.
@@ -34,6 +36,7 @@ This documentation tracks the current **`0.1.1`** release baseline declared in
 
 - **Impact Ranking**: Scores packages from dependent count, recent dependent growth, download volume, and release recency.
 - **Advanced Retrieval**: Supports FTS search with boolean syntax, field-prefixed terms, numeric thresholds, year filters, and rank or momentum filtering.
+- **Advanced Retrieval**: Supports FTS queries, graphical grouped filters, serialized AST queries, native expression queries, numeric thresholds, year filters, and rank or momentum filtering.
 - **Package Analysis View**: Serves detailed package metadata, version history, score breakdown fields, and dependent package summaries.
 - **Full Local Workflow**: Includes indexing, caching, score computation, API serving, and browser-based inspection in one repository.
 
@@ -84,8 +87,10 @@ moon fmt
 moon check src/score --target all
 moon check src/cli --target js
 moon test src/score --target all
+python3 -m unittest scripts/build_index_test.py
 npm run typecheck
 npm run build
+npm test
 ```
 
 ## Documentation Map
@@ -131,6 +136,10 @@ npm run build
   - `GET /api/search?...`
   - `GET /api/packages/<owner>/<packageName>/analysis`
 
+- **Validation Surface**:
+  - `tests/data.test.mjs` covers search parsing, AST/native expression search, and analysis ordering behavior.
+  - `scripts/build_index_test.py` covers index-builder-side scoring and data-shaping behavior.
+
 ## Development
 
 Useful local commands:
@@ -161,7 +170,7 @@ Before publishing:
 
 1. Bump the version in `moon.mod`.
 2. Keep `README.md`, `CONTRIBUTING.md`, and `doc/*` aligned with the branch.
-3. Run `moon fmt`, `moon check src/score --target all`, `moon check src/cli --target js`, `moon test src/score --target all`, `npm run typecheck`, and `npm run build`.
+3. Run `moon fmt`, `moon check src/score --target all`, `moon check src/cli --target js`, `moon test src/score --target all`, `python3 -m unittest scripts/build_index_test.py`, `npm run typecheck`, `npm run build`, and `npm test`.
 4. Ensure `README.md` exists and `moon.mod.json` does not exist.
 5. Trigger `publish-package`; it installs MoonBit, runs checks, and calls `moon publish` with the `LUNA_MOONCAKE` secret.
 

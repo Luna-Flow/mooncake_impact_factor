@@ -58,7 +58,8 @@ score =
 2. 构建器在 SQLite 中重建 packages、versions、dependencies、package_edges 和全文检索索引。
 3. Python 管线通过本地 MoonBit CLI 计算评分快照、等级标签、活动系数和动量标签。
 4. `src/score` 对外暴露评分、等级和动量相关逻辑，`src/cli` 通过本地 CLI 形式把这些规则提供给 Python 构建流程。
-5. Next.js 应用读取生成后的 SQLite 数据库，提供榜单、搜索和包分析页面与 API。
+5. `lib/query.ts` 定义了服务端与前端共用的查询 AST、原生表达式解析器、序列化器和兼容辅助逻辑。
+6. Next.js 应用读取生成后的 SQLite 数据库，提供榜单、搜索、图形化高级检索和包分析页面与 API。
 
 ## 实现约束
 

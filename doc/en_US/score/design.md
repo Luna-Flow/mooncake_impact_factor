@@ -61,7 +61,8 @@ the source of truth for the rule definitions.
 2. The builder reconstructs packages, versions, dependencies, package edges, and the FTS search index in SQLite.
 3. The Python pipeline calls the local MoonBit CLI to compute score snapshots, rank labels, activity multipliers, and momentum labels.
 4. `src/score` exposes the score, rank, momentum, and snapshot logic for MoonBit consumers and local CLI reuse.
-5. The Next.js app reads the generated SQLite database and serves feeds, search results, and package analysis views.
+5. `lib/query.ts` defines the shared query AST, native-expression parser, serializer, and compatibility helpers used by both server and client.
+6. The Next.js app reads the generated SQLite database and serves feeds, search results, advanced query building, and package analysis views.
 
 ## Implementation Constraint
 

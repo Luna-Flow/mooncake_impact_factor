@@ -1,6 +1,6 @@
 # Mooncake Impact Factor Docs
 
-English documentation entry point for the current **`0.1.1`** baseline.
+English documentation entry point for the current **`0.1.2`** baseline.
 
 ## Documentation Map
 
@@ -17,6 +17,7 @@ These docs describe the implementation currently present in this repository:
 - SQLite index building in `scripts/build_index.py`
 - Next.js route-handler APIs in `app/api`
 - Browser UI and shared frontend logic in `app` and `frontend/src`
+- Graphical advanced query building and native-expression search support
 
 ## Notes
 

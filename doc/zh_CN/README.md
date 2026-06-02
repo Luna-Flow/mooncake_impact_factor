@@ -1,6 +1,6 @@
 # Mooncake Impact Factor
 
-当前 **`0.1.1`** 基线的中文文档入口。
+当前 **`0.1.2`** 基线的中文文档入口。
 
 ## 文档目录
 
@@ -17,6 +17,7 @@
 - `scripts/build_index.py` 中的 SQLite 索引构建流程
 - `app/api` 中的 Next.js Route Handler API
 - `app` 和 `frontend/src` 中的浏览器界面与共享前端逻辑
+- 图形化高级检索构建器与原生表达式检索能力
 
 ## 说明
 

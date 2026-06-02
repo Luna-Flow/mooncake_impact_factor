@@ -83,6 +83,8 @@ Returns `{ "items": [...] }` with ranked package summaries.
 
 Stable query parameters:
 
+- `ast`
+- `expr`
 - `q`
 - `limit`
 - `owner`
@@ -104,6 +106,12 @@ Stable query parameters:
 - `has_license`
 - `sort`
 - `order`
+
+Query compatibility rules:
+
+- `ast` has highest priority when present.
+- `expr` is used when `ast` is absent.
+- Legacy structured parameters remain supported for compatibility and simple links.
 
 ### `GET /api/packages/<owner>/<packageName>/analysis`
 
