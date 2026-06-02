@@ -24,11 +24,19 @@ type StaticSearchResponse = {
 };
 
 const STATIC_DATA_PREFIX = `${process.env["NEXT_PUBLIC_BASE_PATH"] ?? ""}/data`;
-const STATIC_RUNTIME_PREFIX = `${process.env["NEXT_PUBLIC_BASE_PATH"] ?? ""}/runtime`;
 
 let manifestPromise: Promise<StaticManifest> | null = null;
 let packagesPromise: Promise<StaticSearchPackage[]> | null = null;
-let runtimePromise: Promise<{ normalize_text?: (input: string) => string } | null> | null = null;
+
+type IndexedStaticPackage = StaticSearchPackage & {
+  _normalized_full_text: string;
+  _normalized_owner: string;
+  _normalized_package: string;
+  _normalized_description: string;
+  _normalized_license: string;
+  _normalized_repository: string;
+  _normalized_keywords: string[];
+};
 
 async function requestJson<T>(url: string, schema: z.ZodSchema<T>): Promise<T> {
   const response = await fetch(url, { cache: "no-store" });
@@ -48,13 +56,6 @@ async function requestJson<T>(url: string, schema: z.ZodSchema<T>): Promise<T> {
 
 function staticAsset(pathname: string): string {
   return `${STATIC_DATA_PREFIX}/${pathname}`;
-}
-
-async function loadStaticSearchRuntime(): Promise<{ normalize_text?: (input: string) => string } | null> {
-  if (!runtimePromise) {
-    runtimePromise = import(/* webpackIgnore: true */ `${STATIC_RUNTIME_PREFIX}/static_search.js`).catch(() => null);
-  }
-  return runtimePromise;
 }
 
 export async function fetchStaticManifest(): Promise<StaticManifest> {
@@ -77,13 +78,23 @@ export async function fetchStaticFeed(source: FeedSource): Promise<PackageSummar
   return data.items;
 }
 
-async function normalizedText(value: string | null | undefined): Promise<string> {
-  const runtime = await loadStaticSearchRuntime();
-  const trimmed = (value ?? "").trim();
-  if (!runtime?.normalize_text) {
-    return trimmed.toLowerCase();
-  }
-  return runtime.normalize_text(trimmed);
+function normalizedText(value: string | null | undefined): string {
+  return (value ?? "").trim().toLowerCase();
+}
+
+function toIndexedPackage(pkg: StaticSearchPackage): IndexedStaticPackage {
+  return {
+    ...pkg,
+    _normalized_full_text: normalizedText(
+      `${pkg.full_name} ${pkg.owner} ${pkg.package_name} ${pkg.description ?? ""} ${pkg.keywords.join(" ")}`
+    ),
+    _normalized_owner: normalizedText(pkg.owner),
+    _normalized_package: normalizedText(pkg.package_name),
+    _normalized_description: normalizedText(pkg.description),
+    _normalized_license: normalizedText(pkg.license),
+    _normalized_repository: normalizedText(pkg.repository),
+    _normalized_keywords: pkg.keywords.map((keyword) => normalizedText(keyword))
+  };
 }
 
 function packageYear(pkg: StaticSearchPackage): number {
@@ -93,31 +104,28 @@ function packageYear(pkg: StaticSearchPackage): number {
   return Number.isFinite(value) ? value : 0;
 }
 
-async function matchText(value: string | null | undefined, needle: string): Promise<boolean> {
-  const normalizedNeedle = await normalizedText(needle);
+function matchText(value: string, needle: string): boolean {
+  const normalizedNeedle = normalizedText(needle);
   if (!normalizedNeedle) return true;
-  return (await normalizedText(value)).includes(normalizedNeedle);
+  return value.includes(normalizedNeedle);
 }
 
-async function matchTerm(pkg: StaticSearchPackage, term: QueryTermNode): Promise<boolean> {
+function matchTerm(pkg: IndexedStaticPackage, term: QueryTermNode): boolean {
   switch (term.field) {
     case "text":
-      return matchText(
-        `${pkg.full_name} ${pkg.owner} ${pkg.package_name} ${pkg.description ?? ""} ${pkg.keywords.join(" ")}`,
-        term.value
-      );
+      return matchText(pkg._normalized_full_text, term.value);
     case "owner":
-      return matchText(pkg.owner, term.value);
+      return matchText(pkg._normalized_owner, term.value);
     case "package":
-      return matchText(pkg.package_name, term.value);
+      return matchText(pkg._normalized_package, term.value);
     case "keyword":
-      return (await Promise.all(pkg.keywords.map((keyword) => matchText(keyword, term.value)))).some(Boolean);
+      return pkg._normalized_keywords.some((keyword) => matchText(keyword, term.value));
     case "description":
-      return matchText(pkg.description, term.value);
+      return matchText(pkg._normalized_description, term.value);
     case "license":
-      return matchText(pkg.license, term.value);
+      return matchText(pkg._normalized_license, term.value);
     case "repository":
-      return matchText(pkg.repository, term.value);
+      return matchText(pkg._normalized_repository, term.value);
     case "rank":
       return pkg.rank_label === term.value;
     case "momentum":
@@ -149,19 +157,18 @@ function compareNumeric(left: number, operator: QueryTermNode["operator"], right
   return left === right;
 }
 
-async function evaluateQueryNode(pkg: StaticSearchPackage, node: QueryNode): Promise<boolean> {
+function evaluateQueryNode(pkg: IndexedStaticPackage, node: QueryNode): boolean {
   if (node.kind === "term") {
-    const matched = await matchTerm(pkg, node);
+    const matched = matchTerm(pkg, node);
     return node.negated ? !matched : matched;
   }
-  const childResults = await Promise.all(node.children.map((child) => evaluateQueryNode(pkg, child)));
   const matched = node.op === "or"
-    ? childResults.some(Boolean)
-    : childResults.every(Boolean);
+    ? node.children.some((child) => evaluateQueryNode(pkg, child))
+    : node.children.every((child) => evaluateQueryNode(pkg, child));
   return node.negated ? !matched : matched;
 }
 
-function sortByRelevance(left: StaticSearchPackage, right: StaticSearchPackage, ast: QueryAst): number {
+function sortByRelevance(left: IndexedStaticPackage, right: IndexedStaticPackage, ast: QueryAst): number {
   const leftScore = computeStaticRelevance(left, ast);
   const rightScore = computeStaticRelevance(right, ast);
   if (leftScore !== rightScore) return rightScore - leftScore;
@@ -169,13 +176,18 @@ function sortByRelevance(left: StaticSearchPackage, right: StaticSearchPackage, 
   return left.full_name.localeCompare(right.full_name);
 }
 
-function computeStaticRelevance(pkg: StaticSearchPackage, ast: QueryAst): number {
-  void pkg;
-  void ast;
-  return 0;
+function computeStaticRelevance(pkg: IndexedStaticPackage, ast: QueryAst): number {
+  return countMatches(pkg, ast);
 }
 
-function sortPackages(items: StaticSearchPackage[], params: AdvancedSearchParams, ast: QueryAst): StaticSearchPackage[] {
+function countMatches(pkg: IndexedStaticPackage, node: QueryNode): number {
+  if (node.kind === "term") {
+    return matchTerm(pkg, { ...node, negated: false }) ? 1 : 0;
+  }
+  return node.children.reduce((sum, child) => sum + countMatches(pkg, child), 0);
+}
+
+function sortPackages(items: IndexedStaticPackage[], params: AdvancedSearchParams, ast: QueryAst): IndexedStaticPackage[] {
   const sort = params.sort || (hasQueryAstIntent(ast) ? "relevance" : "score");
   const order = params.order || (sort === "name" || sort === "relevance" ? "asc" : "desc");
   const factor = order === "asc" ? 1 : -1;
@@ -198,8 +210,7 @@ function sortPackages(items: StaticSearchPackage[], params: AdvancedSearchParams
 
 export async function searchStaticPackages(params: Partial<AdvancedSearchParams> = {}): Promise<PackageSummary[]> {
   await fetchStaticManifest();
-  await loadStaticSearchRuntime();
-  const packages = await fetchStaticSearchPackages();
+  const packages = (await fetchStaticSearchPackages()).map(toIndexedPackage);
   const normalized: AdvancedSearchParams = {
     q: "",
     owner: "",
@@ -250,7 +261,7 @@ export async function searchStaticPackages(params: Partial<AdvancedSearchParams>
     ast: normalized.ast
   });
   const matched = hasQueryAstIntent(ast)
-    ? (await Promise.all(packages.map(async (pkg) => (await evaluateQueryNode(pkg, ast)) ? pkg : null))).filter((pkg): pkg is StaticSearchPackage => pkg !== null)
+    ? packages.filter((pkg) => evaluateQueryNode(pkg, ast))
     : packages;
   return sortPackages(matched, normalized, ast).map((pkg) => ({
     full_name: pkg.full_name,
