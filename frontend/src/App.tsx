@@ -34,7 +34,7 @@ import type { DependentItem, PackageDetail, PackageSummary } from "./types";
 
 type AppProps = {
   initialTopPackages: PackageSummary[];
-  initialView: "landing" | "search";
+  initialView: "landing" | "search" | "advanced-search";
   initialSearchParams?: Partial<AdvancedSearchParams>;
   initialSource?: FeedSource | null;
   initialSearchItems?: PackageSummary[];
@@ -227,7 +227,7 @@ function appendBooleanIfPresent(query: URLSearchParams, key: string, value: "" |
   if (value) query.set(key, value);
 }
 
-function buildSearchHref(params: AdvancedSearchParams, source?: FeedSource | null): string {
+function buildSearchHref(params: AdvancedSearchParams, source?: FeedSource | null, pathname = "/search"): string {
   const query = new URLSearchParams();
 
   if (source) {
@@ -256,7 +256,7 @@ function buildSearchHref(params: AdvancedSearchParams, source?: FeedSource | nul
   }
 
   const suffix = query.toString();
-  return `/search${suffix ? `?${suffix}` : ""}`;
+  return `${pathname}${suffix ? `?${suffix}` : ""}`;
 }
 
 function createPromptPresets(language: Language): PromptPreset[] {
@@ -279,7 +279,7 @@ function createPromptPresets(language: Language): PromptPreset[] {
 
 function buildInitialSearchState(props: AppProps): SearchState {
   const params = normalizeSearchParams(props.initialSearchParams);
-  if (props.initialView !== "search") {
+  if (props.initialView === "landing") {
     return { status: "idle", source: null, items: [], params };
   }
   if (props.initialSource) {
@@ -485,13 +485,13 @@ function SourceTabs(props: {
 }
 
 function Masthead(props: {
-  page: "landing" | "search";
+  page: "landing" | "search" | "advanced-search";
   language: Language;
   themePreference: ThemePreference;
   resolvedTheme: "light" | "dark";
   onLanguageChange: (language: Language) => void;
   onThemeChange: (value: ThemePreference) => void;
-  onNavigate: (href: "/" | "/search") => void;
+  onNavigate: (href: "/" | "/search" | "/advanced-search") => void;
 }) {
   const { page, language, themePreference, resolvedTheme, onLanguageChange, onThemeChange, onNavigate } = props;
   const copy = dictionaries[language];
@@ -511,6 +511,9 @@ function Masthead(props: {
         </button>
         <button type="button" className={`nav-link${page === "search" ? " is-active" : ""}`} onClick={() => onNavigate("/search")}>
           {copy.toolbar.searchPage}
+        </button>
+        <button type="button" className={`nav-link${page === "advanced-search" ? " is-active" : ""}`} onClick={() => onNavigate("/advanced-search")}>
+          {copy.toolbar.advancedSearchPage}
         </button>
       </nav>
       <div className="masthead__controls">
@@ -653,8 +656,9 @@ function SearchHero(props: {
   onSubmit: () => Promise<void>;
   onApplyPrompt: (params: Partial<AdvancedSearchParams>) => Promise<void>;
   onOpenFeed: (source: FeedSource) => Promise<void>;
+  onOpenAdvancedSearch: () => void;
 }) {
-  const { language, params, onChange, onSubmit, onApplyPrompt, onOpenFeed } = props;
+  const { language, params, onChange, onSubmit, onApplyPrompt, onOpenFeed, onOpenAdvancedSearch } = props;
   const copy = dictionaries[language];
   const promptPresets = createPromptPresets(language);
 
@@ -700,6 +704,7 @@ function SearchHero(props: {
             <button type="button" className="button button--secondary" onClick={() => void onOpenFeed("top")}>{copy.workspace.topFeed}</button>
             <button type="button" className="button button--secondary" onClick={() => void onOpenFeed("hot")}>{copy.workspace.hotFeed}</button>
             <button type="button" className="button button--secondary" onClick={() => void onOpenFeed("rising")}>{copy.workspace.risingFeed}</button>
+            <button type="button" className="button button--secondary" onClick={onOpenAdvancedSearch}>{copy.toolbar.advancedSearchPage}</button>
           </div>
         </div>
       </div>
@@ -715,9 +720,10 @@ function SearchControlRail(props: {
   onSubmit: () => Promise<void>;
   onSelectSource: (source: FeedSource) => void;
   onOpenAdvanced: () => void;
+  onOpenAdvancedSearch: () => void;
   onReset: () => void;
 }) {
-  const { language, currentSource, params, onChange, onSubmit, onSelectSource, onOpenAdvanced, onReset } = props;
+  const { language, currentSource, params, onChange, onSubmit, onSelectSource, onOpenAdvanced, onOpenAdvancedSearch, onReset } = props;
   const copy = dictionaries[language];
   const rankOptions: SelectOption<SearchRank>[] = [
     { value: "", label: copy.filters.any },
@@ -793,10 +799,16 @@ function SearchControlRail(props: {
 
         <div className="query-stage__footer">
           <button type="button" className="text-link" onClick={onReset}>{copy.workspace.clearFilters}</button>
-          <button type="button" className="button button--secondary button--compact" onClick={onOpenAdvanced}>
-            <SlidersHorizontal size={16} strokeWidth={2} aria-hidden="true" />
-            <span>{copy.filters.moreFilters}</span>
-          </button>
+          <div className="query-stage__footer-actions">
+            <button type="button" className="button button--secondary button--compact" onClick={onOpenAdvancedSearch}>
+              <ArrowRight size={16} strokeWidth={2} aria-hidden="true" />
+              <span>{copy.toolbar.advancedSearchPage}</span>
+            </button>
+            <button type="button" className="button button--secondary button--compact" onClick={onOpenAdvanced}>
+              <SlidersHorizontal size={16} strokeWidth={2} aria-hidden="true" />
+              <span>{copy.filters.moreFilters}</span>
+            </button>
+          </div>
         </div>
       </form>
     </section>
@@ -997,6 +1009,7 @@ function WorkspaceScreen(props: {
   onSubmit: () => Promise<void>;
   onSelectSource: (source: FeedSource) => void;
   onOpenAdvanced: () => void;
+  onOpenAdvancedSearch: () => void;
   onResetParams: () => void;
   onSelect: (fullName: string) => void;
   onRetry: () => Promise<void>;
@@ -1014,6 +1027,7 @@ function WorkspaceScreen(props: {
     onSubmit,
     onSelectSource,
     onOpenAdvanced,
+    onOpenAdvancedSearch,
     onResetParams,
     onSelect,
     onRetry,
@@ -1062,6 +1076,7 @@ function WorkspaceScreen(props: {
             onSubmit={onSubmit}
             onSelectSource={onSelectSource}
             onOpenAdvanced={onOpenAdvanced}
+            onOpenAdvancedSearch={onOpenAdvancedSearch}
             onReset={onResetParams}
           />
 
@@ -1122,18 +1137,19 @@ function AdvancedSearchPanel(props: {
   language: Language;
   params: AdvancedSearchParams;
   open: boolean;
+  standalone?: boolean;
   onChange: (params: AdvancedSearchParams) => void;
   onApply: () => Promise<void>;
   onReset: () => void;
   onClose: () => void;
 }) {
-  const { language, params, open, onChange, onApply, onReset, onClose } = props;
+  const { language, params, open, standalone = false, onChange, onApply, onReset, onClose } = props;
   const copy = dictionaries[language];
   const rootRef = useRef<HTMLDivElement | null>(null);
   const closeButtonRef = useRef<HTMLButtonElement | null>(null);
   const titleId = useId();
 
-  useDialogBehavior({ open, rootRef, initialFocusRef: closeButtonRef, onClose });
+  useDialogBehavior({ open: open && !standalone, rootRef, initialFocusRef: closeButtonRef, onClose });
 
   useGSAP(
     () => {
@@ -1160,6 +1176,91 @@ function AdvancedSearchPanel(props: {
   const momentumOptions = [...anyOption, { value: "Hot" as const, label: "Hot" }, { value: "Rising" as const, label: "Rising" }, { value: "Stable" as const, label: "Stable" }] as SelectOption<SearchMomentum>[];
   const sortOptions = [...anyOption, ...(["relevance", "score", "growth", "downloads", "dependents", "recent", "updated", "name"] as const).map((value) => ({ value, label: value }))] as SelectOption<SearchSort | "">[];
   const orderOptions = [...anyOption, { value: "asc" as const, label: copy.filters.orderAscending }, { value: "desc" as const, label: copy.filters.orderDescending }] as SelectOption<SearchOrder | "">[];
+
+  if (standalone) {
+    return (
+      <section className="screen screen--advanced-search">
+        <section className="advanced-dialog advanced-dialog--standalone" ref={rootRef} aria-labelledby={titleId}>
+          <div className="advanced-dialog__head">
+            <div>
+              <p className="eyebrow">{copy.filters.eyebrow}</p>
+              <h2 id={titleId}>{copy.filters.title}</h2>
+              <p>{copy.filters.subtitle}</p>
+            </div>
+          </div>
+
+          <form className="advanced-form" onSubmit={(event) => void handleSubmit(event)}>
+            <section className="field-section">
+              <h3>{copy.filters.textGroup}</h3>
+              <div className="field-grid">
+                <label><span>{copy.filters.query}</span><input value={params.q} onChange={(event) => update("q", event.target.value)} /></label>
+                <label><span>{copy.filters.owner}</span><input value={params.owner} onChange={(event) => update("owner", event.target.value)} /></label>
+                <label><span>{copy.filters.packageName}</span><input value={params.packageName} onChange={(event) => update("packageName", event.target.value)} /></label>
+                <label><span>{copy.filters.keyword}</span><input value={params.keyword} onChange={(event) => update("keyword", event.target.value)} /></label>
+                <label className="field-grid__wide"><span>{copy.filters.description}</span><input value={params.description} onChange={(event) => update("description", event.target.value)} /></label>
+              </div>
+            </section>
+
+            <section className="field-section">
+              <h3>{copy.filters.metadataGroup}</h3>
+              <div className="field-grid">
+                <label><span>{copy.filters.license}</span><input value={params.license} onChange={(event) => update("license", event.target.value)} /></label>
+                <label><span>{copy.filters.repository}</span><input value={params.repository} onChange={(event) => update("repository", event.target.value)} /></label>
+                <div className="field-grid__control">
+                  <span>{copy.filters.hasRepository}</span>
+                  <SelectMenu label={copy.filters.hasRepository} value={params.hasRepository} options={booleanOptions} onChange={(value) => update("hasRepository", value)} />
+                </div>
+                <div className="field-grid__control">
+                  <span>{copy.filters.hasLicense}</span>
+                  <SelectMenu label={copy.filters.hasLicense} value={params.hasLicense} options={booleanOptions} onChange={(value) => update("hasLicense", value)} />
+                </div>
+              </div>
+            </section>
+
+            <section className="field-section">
+              <h3>{copy.filters.scoreGroup}</h3>
+              <div className="field-grid">
+                <div className="field-grid__control">
+                  <span>{copy.filters.rank}</span>
+                  <SelectMenu label={copy.filters.rank} value={params.rank} options={rankOptions} onChange={(value) => update("rank", value)} />
+                </div>
+                <div className="field-grid__control">
+                  <span>{copy.filters.momentum}</span>
+                  <SelectMenu label={copy.filters.momentum} value={params.momentum} options={momentumOptions} onChange={(value) => update("momentum", value)} />
+                </div>
+                <label><span>{copy.filters.minScore}</span><input inputMode="decimal" value={params.minScore} onChange={(event) => update("minScore", event.target.value)} /></label>
+                <label><span>{copy.filters.maxScore}</span><input inputMode="decimal" value={params.maxScore} onChange={(event) => update("maxScore", event.target.value)} /></label>
+                <label><span>{copy.filters.minDependents}</span><input inputMode="numeric" value={params.minDependents} onChange={(event) => update("minDependents", event.target.value)} /></label>
+                <label><span>{copy.filters.minRecentDependents}</span><input inputMode="numeric" value={params.minRecentDependents} onChange={(event) => update("minRecentDependents", event.target.value)} /></label>
+                <label><span>{copy.filters.minDownloads}</span><input inputMode="numeric" value={params.minDownloads} onChange={(event) => update("minDownloads", event.target.value)} /></label>
+              </div>
+            </section>
+
+            <section className="field-section">
+              <h3>{copy.filters.timeGroup}</h3>
+              <div className="field-grid">
+                <label><span>{copy.filters.fromYear}</span><input inputMode="numeric" value={params.fromYear} onChange={(event) => update("fromYear", event.target.value)} /></label>
+                <label><span>{copy.filters.toYear}</span><input inputMode="numeric" value={params.toYear} onChange={(event) => update("toYear", event.target.value)} /></label>
+                <div className="field-grid__control">
+                  <span>{copy.filters.sort}</span>
+                  <SelectMenu label={copy.filters.sort} value={params.sort} options={sortOptions} onChange={(value) => update("sort", value)} />
+                </div>
+                <div className="field-grid__control">
+                  <span>{copy.filters.order}</span>
+                  <SelectMenu label={copy.filters.order} value={params.order} options={orderOptions} onChange={(value) => update("order", value)} />
+                </div>
+              </div>
+            </section>
+
+            <div className="advanced-form__actions">
+              <button type="button" className="button button--secondary" onClick={onReset}>{copy.common.reset}</button>
+              <button type="submit" className="button button--primary">{copy.common.apply}</button>
+            </div>
+          </form>
+        </section>
+      </section>
+    );
+  }
 
   return (
     <div className="dialog-shell">
@@ -1384,8 +1485,21 @@ export function App(props: AppProps) {
     }
   }
 
-  function navigate(href: "/" | "/search"): void {
+  function navigate(href: "/" | "/search" | "/advanced-search"): void {
     router.push(href);
+  }
+
+  function openAdvancedSearchPage(): void {
+    if (hasSearchIntent(draftParams)) {
+      router.push(buildSearchHref(draftParams, null, "/advanced-search"));
+      return;
+    }
+
+    const source =
+      searchState.status !== "idle" && searchState.source && searchState.source !== "search"
+        ? searchState.source
+        : currentSource;
+    router.push(buildSearchHref(normalizeSearchParams(DEFAULT_SEARCH_PARAMS), source, "/advanced-search"));
   }
 
   function openLandingPackage(item: PackageSummary): void {
@@ -1411,11 +1525,18 @@ export function App(props: AppProps) {
       <AdvancedSearchPanel
         language={language}
         params={draftParams}
-        open={advancedOpen}
+        open={advancedOpen || initialView === "advanced-search"}
+        standalone={initialView === "advanced-search"}
         onChange={setDraftParams}
         onApply={() => submitSearch(draftParams)}
         onReset={resetDraftParams}
-        onClose={() => setAdvancedOpen(false)}
+        onClose={() => {
+          if (initialView === "advanced-search") {
+            navigate("/search");
+            return;
+          }
+          setAdvancedOpen(false);
+        }}
       />
 
       {initialView === "landing" ? (
@@ -1434,6 +1555,7 @@ export function App(props: AppProps) {
           onSubmit={() => submitSearch(draftParams)}
           onApplyPrompt={applyPrompt}
           onOpenFeed={openFeed}
+          onOpenAdvancedSearch={openAdvancedSearchPage}
         />
       ) : (
         <WorkspaceScreen
@@ -1447,6 +1569,7 @@ export function App(props: AppProps) {
           onSubmit={() => submitSearch(draftParams)}
           onSelectSource={(source) => void openFeed(source)}
           onOpenAdvanced={() => setAdvancedOpen(true)}
+          onOpenAdvancedSearch={openAdvancedSearchPage}
           onResetParams={resetDraftParams}
           onSelect={(fullName) => void showPackage(fullName)}
           onRetry={retryCurrentSearch}

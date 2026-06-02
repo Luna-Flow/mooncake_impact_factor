@@ -19,6 +19,7 @@ type Dictionary = {
     projectCaption: string;
     home: string;
     searchPage: string;
+    advancedSearchPage: string;
     searchPlaceholder: string;
     advancedButton: string;
     themeSystem: string;
@@ -165,6 +166,7 @@ export const dictionaries: Record<Language, Dictionary> = {
       projectCaption: "MoonBit 包影响因子检索与分析",
       home: "首页",
       searchPage: "搜索",
+      advancedSearchPage: "高级检索",
       searchPlaceholder: "搜索包名、owner/name、关键词或研究问题",
       advancedButton: "高级筛选",
       themeSystem: "跟随系统",
@@ -309,6 +311,7 @@ export const dictionaries: Record<Language, Dictionary> = {
       projectCaption: "MoonBit パッケージ影響因子の検索と分析",
       home: "ホーム",
       searchPage: "検索",
+      advancedSearchPage: "詳細検索",
       searchPlaceholder: "パッケージ名、owner/name、キーワード、問いで検索",
       advancedButton: "詳細フィルター",
       themeSystem: "システム設定",
@@ -453,6 +456,7 @@ export const dictionaries: Record<Language, Dictionary> = {
       projectCaption: "Search and analyze MoonBit package influence",
       home: "Home",
       searchPage: "Search",
+      advancedSearchPage: "Advanced Search",
       searchPlaceholder: "Search by package, owner/name, keyword, or research question",
       advancedButton: "Advanced filters",
       themeSystem: "System",

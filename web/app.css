@@ -534,6 +534,7 @@ input[type="search"]::-webkit-search-results-decoration {
 .landing-hero__actions,
 .search-home__actions,
 .query-stage__footer,
+.query-stage__footer-actions,
 .state-card__actions,
 .result-badges,
 .workspace-overview__chips,
@@ -1038,6 +1039,11 @@ input[type="search"]::-webkit-search-results-decoration {
   border-radius: 18px;
 }
 
+.advanced-dialog--standalone {
+  margin-top: 0;
+  max-height: none;
+}
+
 .advanced-dialog__head {
   margin-bottom: 18px;
   padding-bottom: 16px;
@@ -1063,7 +1069,14 @@ input[type="search"]::-webkit-search-results-decoration {
 .advanced-form input {
   min-height: 44px;
   padding: 0 12px;
+  border: 1px solid var(--line-strong);
   border-radius: 12px;
+  background: var(--surface-strong);
+}
+
+.advanced-form .select-menu__trigger {
+  border-color: var(--line-strong);
+  background: var(--surface-strong);
 }
 
 .advanced-form__actions {
