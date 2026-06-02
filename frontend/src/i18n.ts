@@ -17,6 +17,7 @@ type Dictionary = {
   toolbar: {
     projectLabel: string;
     projectCaption: string;
+    primaryNav: string;
     home: string;
     searchPage: string;
     advancedSearchPage: string;
@@ -102,6 +103,11 @@ type Dictionary = {
     repository: string;
     rank: string;
     momentum: string;
+    scoreField: string;
+    dependentsField: string;
+    recentDependentsField: string;
+    downloadsField: string;
+    yearField: string;
     minScore: string;
     maxScore: string;
     minDependents: string;
@@ -120,6 +126,38 @@ type Dictionary = {
     no: string;
     quickFilters: string;
     moreFilters: string;
+    builderMode: string;
+    expressionMode: string;
+    builderTitle: string;
+    groupTitle: string;
+    addCondition: string;
+    addGroup: string;
+    remove: string;
+    field: string;
+    operator: string;
+    value: string;
+    logic: string;
+    logicAnd: string;
+    logicOr: string;
+    include: string;
+    exclude: string;
+    includeGroup: string;
+    excludeGroup: string;
+    preview: string;
+    expressionHelp: string;
+    expressionError: string;
+    emptyBuilder: string;
+    sortRelevance: string;
+    sortScore: string;
+    sortGrowth: string;
+    sortDownloads: string;
+    sortDependents: string;
+    sortRecent: string;
+    sortUpdated: string;
+    sortName: string;
+    momentumHot: string;
+    momentumRising: string;
+    momentumStable: string;
   };
   detail: {
     title: string;
@@ -164,10 +202,11 @@ export const dictionaries: Record<Language, Dictionary> = {
     toolbar: {
       projectLabel: "Mooncake Impact Factor",
       projectCaption: "MoonBit 包影响因子检索与分析",
+      primaryNav: "主导航",
       home: "首页",
       searchPage: "搜索",
       advancedSearchPage: "高级检索",
-      searchPlaceholder: "搜索包名、owner/name、关键词或研究问题",
+      searchPlaceholder: "搜索包名、所有者/包名、关键词或研究问题",
       advancedButton: "高级筛选",
       themeSystem: "跟随系统",
       themeLight: "浅色",
@@ -178,7 +217,7 @@ export const dictionaries: Record<Language, Dictionary> = {
       title: "用类似学术影响因子的方式，判断一个 MoonBit 包是否真正重要。",
       subtitle: "Mooncake Impact Factor 不是简单按热度排序，而是综合依赖扩散、近期增长、下载规模与发布时间，帮助你找出真正对生态产生影响的包。",
       primaryAction: "开始搜索",
-      secondaryAction: "浏览 Top 包",
+      secondaryAction: "浏览高影响包",
       methodsTitle: "评分信号",
       methodsBody: "我们把包的影响力拆成四种证据：被多少包依赖、最近增长是否持续、下载规模是否真实、最近是否还在活跃发布。",
       metricOneTitle: "依赖扩散",
@@ -206,10 +245,10 @@ export const dictionaries: Record<Language, Dictionary> = {
       emptyBody: "输入一个问题，或者从下方示例中开始。",
       errorTitle: "加载失败",
       retry: "重试",
-      topFeed: "Top",
-      hotFeed: "Hot",
-      risingFeed: "Rising",
-      searchResults: "搜索结果",
+      topFeed: "高影响",
+      hotFeed: "热门",
+      risingFeed: "上升",
+      searchResults: "检索结果",
       feedSwitcher: "结果来源",
       summaryTemplate: "共 {count} 条结果",
       sourceLabel: "来源",
@@ -225,7 +264,7 @@ export const dictionaries: Record<Language, Dictionary> = {
       activeFiltersLabel: "个筛选已启用",
       clearFilters: "清空筛选",
       emptySearchTitle: "从一个检索问题开始",
-      emptySearchBody: "搜索包名、关键词、owner，或者直接用筛选定义你想找的高价值包。",
+      emptySearchBody: "搜索包名、关键词或所有者，或者直接用筛选定义你想找的高价值包。",
       promptTitle: "示例查询",
       promptOne: "哪些包依赖面广，但还没有被过度关注？",
       promptTwo: "最近 30 天增长最快的 MoonBit 包有哪些？",
@@ -233,7 +272,7 @@ export const dictionaries: Record<Language, Dictionary> = {
       browseTitle: "直接浏览"
     },
     filters: {
-      eyebrow: "Advanced Search",
+      eyebrow: "高级检索",
       title: "高级筛选",
       subtitle: "保留完整能力，但默认只展示最重要的筛选项。",
       textGroup: "文本条件",
@@ -241,7 +280,7 @@ export const dictionaries: Record<Language, Dictionary> = {
       scoreGroup: "评分与规模",
       timeGroup: "时间与排序",
       query: "全文查询",
-      owner: "Owner",
+      owner: "所有者",
       packageName: "包名",
       keyword: "关键词",
       description: "描述",
@@ -249,6 +288,11 @@ export const dictionaries: Record<Language, Dictionary> = {
       repository: "仓库",
       rank: "等级",
       momentum: "状态",
+      scoreField: "影响分",
+      dependentsField: "依赖数",
+      recentDependentsField: "近期依赖数",
+      downloadsField: "下载量",
+      yearField: "更新年份",
       minScore: "最低分数",
       maxScore: "最高分数",
       minDependents: "最少依赖数",
@@ -266,7 +310,39 @@ export const dictionaries: Record<Language, Dictionary> = {
       yes: "是",
       no: "否",
       quickFilters: "核心筛选",
-      moreFilters: "更多条件"
+      moreFilters: "更多条件",
+      builderMode: "图形化构建",
+      expressionMode: "原生表达式",
+      builderTitle: "检索构建器",
+      groupTitle: "条件组",
+      addCondition: "添加条件",
+      addGroup: "添加条件组",
+      remove: "删除",
+      field: "字段",
+      operator: "操作符",
+      value: "值",
+      logic: "逻辑",
+      logicAnd: "并且",
+      logicOr: "或者",
+      include: "包含",
+      exclude: "排除",
+      includeGroup: "包含本组",
+      excludeGroup: "排除本组",
+      preview: "表达式预览",
+      expressionHelp: "支持括号、AND、OR、NOT、字段:值，以及类似影响分>=180 的数值比较。",
+      expressionError: "表达式无效，请检查语法",
+      emptyBuilder: "先添加一个条件或条件组。",
+      sortRelevance: "相关性",
+      sortScore: "影响分",
+      sortGrowth: "增长",
+      sortDownloads: "下载量",
+      sortDependents: "依赖数",
+      sortRecent: "近期依赖",
+      sortUpdated: "最近更新",
+      sortName: "名称",
+      momentumHot: "热门",
+      momentumRising: "上升",
+      momentumStable: "稳定"
     },
     detail: {
       title: "包影响分析",
@@ -309,10 +385,11 @@ export const dictionaries: Record<Language, Dictionary> = {
     toolbar: {
       projectLabel: "Mooncake Impact Factor",
       projectCaption: "MoonBit パッケージ影響因子の検索と分析",
+      primaryNav: "主要ナビゲーション",
       home: "ホーム",
       searchPage: "検索",
       advancedSearchPage: "詳細検索",
-      searchPlaceholder: "パッケージ名、owner/name、キーワード、問いで検索",
+      searchPlaceholder: "パッケージ名、オーナー/パッケージ名、キーワード、問いで検索",
       advancedButton: "詳細フィルター",
       themeSystem: "システム設定",
       themeLight: "ライト",
@@ -323,7 +400,7 @@ export const dictionaries: Record<Language, Dictionary> = {
       title: "学術的な影響因子に近い考え方で、MoonBit パッケージの本当の重要度を見極める。",
       subtitle: "Mooncake Impact Factor は単なる人気順ではありません。依存の広がり、最近の成長、ダウンロード規模、公開時期を合わせて、実際に価値のあるパッケージを見つけるための指標です。",
       primaryAction: "検索を始める",
-      secondaryAction: "Top を見る",
+      secondaryAction: "主要パッケージを見る",
       methodsTitle: "評価に使うシグナル",
       methodsBody: "影響力を四つの証拠に分けて見ます。どれだけ依存されているか、最近伸びているか、実際に使われているか、今も更新されているかです。",
       metricOneTitle: "依存の広がり",
@@ -351,9 +428,9 @@ export const dictionaries: Record<Language, Dictionary> = {
       emptyBody: "問いを入力するか、下の例から始めてください。",
       errorTitle: "読み込みに失敗しました",
       retry: "再試行",
-      topFeed: "Top",
-      hotFeed: "Hot",
-      risingFeed: "Rising",
+      topFeed: "主要",
+      hotFeed: "注目",
+      risingFeed: "上昇",
       searchResults: "検索結果",
       feedSwitcher: "結果ソース",
       summaryTemplate: "{count} 件の結果",
@@ -370,7 +447,7 @@ export const dictionaries: Record<Language, Dictionary> = {
       activeFiltersLabel: "個のフィルターを使用中",
       clearFilters: "フィルターをクリア",
       emptySearchTitle: "問いから検索を始める",
-      emptySearchBody: "パッケージ名、キーワード、owner を検索するか、条件で高価値パッケージを定義してください。",
+      emptySearchBody: "パッケージ名、キーワード、オーナーで検索するか、条件で高価値パッケージを定義してください。",
       promptTitle: "クエリ例",
       promptOne: "依存の広がりは強いが、まだ過熱していないパッケージは？",
       promptTwo: "最近 30 日で最も伸びている MoonBit パッケージは？",
@@ -378,7 +455,7 @@ export const dictionaries: Record<Language, Dictionary> = {
       browseTitle: "そのまま閲覧"
     },
     filters: {
-      eyebrow: "Advanced Search",
+      eyebrow: "詳細検索",
       title: "詳細フィルター",
       subtitle: "完全な絞り込み能力は残しつつ、初期画面は重要項目だけを見せます。",
       textGroup: "テキスト条件",
@@ -386,7 +463,7 @@ export const dictionaries: Record<Language, Dictionary> = {
       scoreGroup: "スコアと規模",
       timeGroup: "時間と並び替え",
       query: "全文検索",
-      owner: "Owner",
+      owner: "オーナー",
       packageName: "パッケージ名",
       keyword: "キーワード",
       description: "説明",
@@ -394,6 +471,11 @@ export const dictionaries: Record<Language, Dictionary> = {
       repository: "リポジトリ",
       rank: "ランク",
       momentum: "状態",
+      scoreField: "影響スコア",
+      dependentsField: "依存数",
+      recentDependentsField: "最近の依存数",
+      downloadsField: "ダウンロード数",
+      yearField: "更新年",
       minScore: "最小スコア",
       maxScore: "最大スコア",
       minDependents: "最小依存数",
@@ -411,7 +493,39 @@ export const dictionaries: Record<Language, Dictionary> = {
       yes: "はい",
       no: "いいえ",
       quickFilters: "主要フィルター",
-      moreFilters: "その他の条件"
+      moreFilters: "その他の条件",
+      builderMode: "ビルダー",
+      expressionMode: "ネイティブ式",
+      builderTitle: "クエリビルダー",
+      groupTitle: "条件グループ",
+      addCondition: "条件を追加",
+      addGroup: "グループを追加",
+      remove: "削除",
+      field: "項目",
+      operator: "演算子",
+      value: "値",
+      logic: "論理",
+      logicAnd: "かつ",
+      logicOr: "または",
+      include: "含める",
+      exclude: "除外",
+      includeGroup: "このグループを含める",
+      excludeGroup: "このグループを除外",
+      preview: "式プレビュー",
+      expressionHelp: "括弧、AND、OR、NOT、項目:値、影響スコア>=180 のような数値比較を使えます。",
+      expressionError: "式が無効です。構文を確認してください",
+      emptyBuilder: "まず条件またはグループを追加してください。",
+      sortRelevance: "関連度",
+      sortScore: "影響スコア",
+      sortGrowth: "成長",
+      sortDownloads: "ダウンロード数",
+      sortDependents: "依存数",
+      sortRecent: "最近の依存",
+      sortUpdated: "更新日時",
+      sortName: "名前",
+      momentumHot: "注目",
+      momentumRising: "上昇",
+      momentumStable: "安定"
     },
     detail: {
       title: "パッケージ影響分析",
@@ -454,10 +568,11 @@ export const dictionaries: Record<Language, Dictionary> = {
     toolbar: {
       projectLabel: "Mooncake Impact Factor",
       projectCaption: "Search and analyze MoonBit package influence",
+      primaryNav: "Primary navigation",
       home: "Home",
       searchPage: "Search",
       advancedSearchPage: "Advanced Search",
-      searchPlaceholder: "Search by package, owner/name, keyword, or research question",
+      searchPlaceholder: "Search by package, owner/package, keyword, or research question",
       advancedButton: "Advanced filters",
       themeSystem: "System",
       themeLight: "Light",
@@ -515,7 +630,7 @@ export const dictionaries: Record<Language, Dictionary> = {
       activeFiltersLabel: "filters active",
       clearFilters: "Clear filters",
       emptySearchTitle: "Start from a search question",
-      emptySearchBody: "Search by package, keyword, or owner, or define the kind of high-value package you want to find.",
+      emptySearchBody: "Search by package name, keyword, or owner, or define the kind of high-value package you want to find.",
       promptTitle: "Example queries",
       promptOne: "Which packages have broad dependency reach but are not yet overexposed?",
       promptTwo: "Which MoonBit packages are rising fastest over the last 30 days?",
@@ -539,6 +654,11 @@ export const dictionaries: Record<Language, Dictionary> = {
       repository: "Repository",
       rank: "Rank",
       momentum: "Status",
+      scoreField: "Impact score",
+      dependentsField: "Dependents",
+      recentDependentsField: "Recent dependents",
+      downloadsField: "Downloads",
+      yearField: "Updated year",
       minScore: "Minimum score",
       maxScore: "Maximum score",
       minDependents: "Minimum dependents",
@@ -556,7 +676,39 @@ export const dictionaries: Record<Language, Dictionary> = {
       yes: "Yes",
       no: "No",
       quickFilters: "Core filters",
-      moreFilters: "More filters"
+      moreFilters: "More filters",
+      builderMode: "Builder",
+      expressionMode: "Native expression",
+      builderTitle: "Query builder",
+      groupTitle: "Condition group",
+      addCondition: "Add condition",
+      addGroup: "Add group",
+      remove: "Remove",
+      field: "Field",
+      operator: "Operator",
+      value: "Value",
+      logic: "Logic",
+      logicAnd: "AND",
+      logicOr: "OR",
+      include: "Include",
+      exclude: "Exclude",
+      includeGroup: "Include group",
+      excludeGroup: "Exclude group",
+      preview: "Expression preview",
+      expressionHelp: "Use parentheses, AND, OR, NOT, field:value, and numeric comparisons such as score>=180.",
+      expressionError: "Invalid expression. Check the syntax.",
+      emptyBuilder: "Start by adding a condition or a subgroup.",
+      sortRelevance: "Relevance",
+      sortScore: "Score",
+      sortGrowth: "Growth",
+      sortDownloads: "Downloads",
+      sortDependents: "Dependents",
+      sortRecent: "Recent",
+      sortUpdated: "Updated",
+      sortName: "Name",
+      momentumHot: "Hot",
+      momentumRising: "Rising",
+      momentumStable: "Stable"
     },
     detail: {
       title: "Package impact analysis",

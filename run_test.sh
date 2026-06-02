@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-moon test --target all
-
+moon check src/cli --target js
+moon test src/score --target all
+npm test

@@ -54,6 +54,15 @@ Current thresholds:
 - `C`: `score >= 50.0`
 - `D`: otherwise
 
+### `compute_momentum_label(score : Double, score_30d_ago : Double, growth_ratio : Double, recent_dependents : Int) -> String`
+
+Maps a score delta profile to `Rising`, `Hot`, or `Stable`.
+
+### `compute_score_snapshot(...) -> ScoreSnapshot`
+
+Returns the current score snapshot, historical comparison fields, rank label,
+momentum label, and activity multiplier in a single MoonBit call.
+
 ## Stable HTTP Endpoints
 
 ### `GET /api/feeds/top?limit=<n>`

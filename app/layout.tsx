@@ -1,18 +1,22 @@
 import type { Metadata } from "next";
 import type { ReactNode } from "react";
 
+import { dictionaries } from "../frontend/src/i18n";
 import "./globals.css";
 
+const defaultLanguage = "zh-CN" as const;
+const defaultCopy = dictionaries[defaultLanguage];
+
 export const metadata: Metadata = {
-  title: "Mooncake Impact Factor",
-  description: "Research and analyze MoonBit package impact through a full-stack Next.js interface."
+  title: defaultCopy.appName,
+  description: defaultCopy.toolbar.projectCaption
 };
 
 export default function RootLayout(props: { children: ReactNode }) {
   const { children } = props;
 
   return (
-    <html lang="zh-CN">
+    <html lang={defaultLanguage}>
       <body>{children}</body>
     </html>
   );

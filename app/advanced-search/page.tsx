@@ -7,7 +7,7 @@ export default async function AdvancedSearchPage(props: {
   searchParams?: Promise<SearchParamRecord>;
 }) {
   const rawParams = props.searchParams ? await props.searchParams : {};
-  const { initialSource, initialSearchItems, initialSearchParams } = getSearchPageData(rawParams);
+  const { initialSource, initialSearchItems, initialSearchParams, initialSearchError } = getSearchPageData(rawParams);
 
   return (
     <App
@@ -16,6 +16,7 @@ export default async function AdvancedSearchPage(props: {
       initialSource={initialSource}
       initialSearchParams={initialSearchParams}
       initialSearchItems={initialSearchItems}
+      initialSearchError={initialSearchError}
     />
   );
 }

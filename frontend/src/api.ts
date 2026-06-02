@@ -43,6 +43,8 @@ export type AdvancedSearchParams = {
   hasLicense: "" | "true" | "false";
   sort: SearchSort | "";
   order: SearchOrder | "";
+  expr: string;
+  ast: string;
 };
 
 export const DEFAULT_SEARCH_PARAMS: AdvancedSearchParams = {
@@ -65,7 +67,9 @@ export const DEFAULT_SEARCH_PARAMS: AdvancedSearchParams = {
   hasRepository: "",
   hasLicense: "",
   sort: "",
-  order: ""
+  order: "",
+  expr: "",
+  ast: ""
 };
 
 async function requestJson<T>(url: string, schema: z.ZodSchema<T>): Promise<T> {
@@ -127,6 +131,8 @@ function buildSearchQuery(params: Partial<AdvancedSearchParams>): URLSearchParam
   appendBooleanIfPresent(query, "has_license", params.hasLicense ?? "");
   appendIfPresent(query, "sort", params.sort ?? "");
   appendIfPresent(query, "order", params.order ?? "");
+  appendIfPresent(query, "expr", params.expr ?? "");
+  appendIfPresent(query, "ast", params.ast ?? "");
   return query;
 }
 

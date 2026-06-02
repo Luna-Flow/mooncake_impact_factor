@@ -8,6 +8,7 @@ workflow for repository changes.
 The repository has four primary responsibilities:
 
 - `src/score`: MoonBit score computation and rank mapping
+- `src/cli`: MoonBit CLI bridge for score snapshot interop
 - `scripts`: Python-based registry ingestion, download fetching, and SQLite materialization
 - `app`, `frontend/src`, and `lib`: Next.js pages, route-handler APIs, and server-side query logic
 - `doc` plus root docs: release-aligned repository documentation
@@ -29,7 +30,7 @@ changes.
 - `README.md`, `CONTRIBUTING.md`, and `doc/*` must describe the implementation that actually exists on the branch.
 - Document stable CLI flags, search parameters, score thresholds, and release behavior when they change.
 - Be explicit when behavior depends on a local registry snapshot, local SQLite state, cached download data, or optional network fetches.
-- If the score formula changes in Python, update the MoonBit implementation and the relevant docs in the same change.
+- If the score formula, rank thresholds, or momentum rules change, update the MoonBit implementation and the relevant docs in the same change.
 
 ## Validation
 
@@ -37,8 +38,9 @@ Run the baseline checks before committing:
 
 ```bash
 moon fmt
-moon check --target all
-moon test --target all
+moon check src/score --target all
+moon check src/cli --target js
+moon test src/score --target all
 npm run typecheck
 npm run build
 ```
@@ -71,6 +73,6 @@ UI behavior, validate the affected command paths as well.
 1. Bump the version in `moon.mod`.
 2. Keep `README.md`, `CONTRIBUTING.md`, and `doc/*` aligned with the branch.
 3. Ensure `.github/workflows/publish.yml` still matches the MoonBit manifest layout.
-4. Run `moon fmt`, `moon check --target all`, `moon test --target all`, `npm run typecheck`, and `npm run build`.
+4. Run `moon fmt`, `moon check src/score --target all`, `moon check src/cli --target js`, `moon test src/score --target all`, `npm run typecheck`, and `npm run build`.
 5. Trigger `publish-package` manually after validation.
 6. If mooncakes reports a duplicate version, publish a new bumped version instead.

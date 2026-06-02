@@ -29,7 +29,9 @@ export async function GET(request: Request) {
       has_repository: searchParams.get("has_repository"),
       has_license: searchParams.get("has_license"),
       sort: searchParams.get("sort"),
-      order: searchParams.get("order")
+      order: searchParams.get("order"),
+      expr: searchParams.get("expr"),
+      ast: searchParams.get("ast")
     });
 
     return NextResponse.json({ items });

@@ -12,14 +12,17 @@ refresh-index:
 
 build-db:
   just refresh-index
+  moon build src/cli --target js
   python3 scripts/build_index.py --db {{db}}
 
 build-db-with-downloads downloads_json:
   just refresh-index
+  moon build src/cli --target js
   python3 scripts/build_index.py --db {{db}} --downloads-json {{downloads_json}}
 
 build-db-offline:
   just refresh-index
+  moon build src/cli --target js
   python3 scripts/build_index.py --db {{db}} --skip-mooncakes-downloads
 
 serve:
@@ -32,15 +35,18 @@ web-typecheck:
   npm run typecheck
 
 check:
-  moon check --target all
+  moon check src/score --target all
+  moon check src/cli --target js
 
 test:
-  moon test --target all
+  moon test src/score --target all
+  npm test
 
 fmt:
   moon fmt
 
 dev:
   just refresh-index
+  moon build src/cli --target js
   python3 scripts/build_index.py --db {{db}}
   MOONCAKE_DB_PATH={{db}} npm run dev -- --hostname {{host}} --port {{port}}

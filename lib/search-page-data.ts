@@ -1,5 +1,5 @@
 import type { AdvancedSearchParams, FeedSource } from "../frontend/src/api";
-import { getFeedPackages, searchPackagesFromInput } from "./data";
+import { getFeedPackages, isHttpError, searchPackagesFromInput } from "./data";
 
 export type SearchParamRecord = Record<string, string | string[] | undefined>;
 
@@ -7,6 +7,7 @@ export type SearchPageData = {
   initialSource: FeedSource | null;
   initialSearchParams: Partial<AdvancedSearchParams>;
   initialSearchItems: ReturnType<typeof searchPackagesFromInput>;
+  initialSearchError: string | null;
 };
 
 function first(value: string | string[] | undefined): string {
@@ -42,7 +43,9 @@ function buildInitialParams(params: SearchParamRecord): Partial<AdvancedSearchPa
     hasRepository: first(params["has_repository"]) as AdvancedSearchParams["hasRepository"],
     hasLicense: first(params["has_license"]) as AdvancedSearchParams["hasLicense"],
     sort: first(params["sort"]) as AdvancedSearchParams["sort"],
-    order: first(params["order"]) as AdvancedSearchParams["order"]
+    order: first(params["order"]) as AdvancedSearchParams["order"],
+    expr: first(params["expr"]),
+    ast: first(params["ast"])
   };
 }
 
@@ -53,37 +56,49 @@ function hasInitialSearchIntent(params: Partial<AdvancedSearchParams>): boolean 
 export function getSearchPageData(params: SearchParamRecord): SearchPageData {
   const initialSource = normalizeSource(params);
   const initialSearchParams = buildInitialParams(params);
+  let initialSearchError: string | null = null;
 
-  const initialSearchItems = initialSource
-    ? getFeedPackages(initialSource, initialSource === "top" ? 40 : 24)
-    : hasInitialSearchIntent(initialSearchParams)
-      ? searchPackagesFromInput({
-          q: first(params["q"]),
-          owner: first(params["owner"]),
-          package: first(params["package"]),
-          keyword: first(params["keyword"]),
-          description: first(params["description"]),
-          license: first(params["license"]),
-          repository: first(params["repository"]),
-          rank: first(params["rank"]),
-          momentum: first(params["momentum"]),
-          min_score: first(params["min_score"]),
-          max_score: first(params["max_score"]),
-          min_dependents: first(params["min_dependents"]),
-          min_recent_dependents: first(params["min_recent_dependents"]),
-          min_downloads: first(params["min_downloads"]),
-          from_year: first(params["from_year"]),
-          to_year: first(params["to_year"]),
-          has_repository: first(params["has_repository"]),
-          has_license: first(params["has_license"]),
-          sort: first(params["sort"]),
-          order: first(params["order"])
-        })
-      : [];
+  let initialSearchItems: ReturnType<typeof searchPackagesFromInput> = [];
+  try {
+    initialSearchItems = initialSource
+      ? getFeedPackages(initialSource, initialSource === "top" ? 40 : 24)
+      : hasInitialSearchIntent(initialSearchParams)
+        ? searchPackagesFromInput({
+            q: first(params["q"]),
+            owner: first(params["owner"]),
+            package: first(params["package"]),
+            keyword: first(params["keyword"]),
+            description: first(params["description"]),
+            license: first(params["license"]),
+            repository: first(params["repository"]),
+            rank: first(params["rank"]),
+            momentum: first(params["momentum"]),
+            min_score: first(params["min_score"]),
+            max_score: first(params["max_score"]),
+            min_dependents: first(params["min_dependents"]),
+            min_recent_dependents: first(params["min_recent_dependents"]),
+            min_downloads: first(params["min_downloads"]),
+            from_year: first(params["from_year"]),
+            to_year: first(params["to_year"]),
+            has_repository: first(params["has_repository"]),
+            has_license: first(params["has_license"]),
+            sort: first(params["sort"]),
+            order: first(params["order"]),
+            expr: first(params["expr"]),
+            ast: first(params["ast"])
+          })
+        : [];
+  } catch (error: unknown) {
+    if (!isHttpError(error)) {
+      throw error;
+    }
+    initialSearchError = error.message;
+  }
 
   return {
     initialSource,
     initialSearchParams,
-    initialSearchItems
+    initialSearchItems,
+    initialSearchError
   };
 }

@@ -12,6 +12,7 @@ export type AppInitialData = {
   initialSearchParams?: Partial<AdvancedSearchParams>;
   initialSource?: FeedSource | null;
   initialSearchItems?: PackageSummary[];
+  initialSearchError?: string | null;
 };
 
 export type PreferencesState = {
@@ -137,6 +138,8 @@ export function buildSearchHref(
     appendBooleanIfPresent(query, "has_license", params.hasLicense);
     appendIfPresent(query, "sort", params.sort);
     appendIfPresent(query, "order", params.order);
+    appendIfPresent(query, "expr", params.expr);
+    appendIfPresent(query, "ast", params.ast);
   }
 
   const suffix = query.toString();
@@ -163,8 +166,9 @@ export function createInitialAppState(data: AppInitialData): AppState {
       baseSearch.items = data.initialSearchItems ?? [];
     } else if (hasSearchIntent(params)) {
       baseSearch.mode = "search";
-      baseSearch.status = "ready";
+      baseSearch.status = data.initialSearchError ? "error" : "ready";
       baseSearch.items = data.initialSearchItems ?? [];
+      baseSearch.errorMessage = data.initialSearchError ?? null;
     }
   }
 

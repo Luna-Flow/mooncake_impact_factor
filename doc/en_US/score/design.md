@@ -45,26 +45,26 @@ Rank labels are coarse score buckets:
 - `C >= 50`
 - `D < 50`
 
-Momentum labels are computed by the Python index builder from score deltas:
+Momentum labels use score-delta rules exported from MoonBit and are materialized
+by the Python index builder:
 
 - `Rising`: growth `>= 35`, ratio `>= 0.35`, recent dependents `>= 3`
 - `Hot`: growth `>= 18`, ratio `>= 0.18`, recent dependents `>= 2`
 - `Stable`: otherwise
 
-Momentum is currently a serving concern rather than part of the exported
-MoonBit API.
+The build pipeline persists momentum labels for serving, while MoonBit remains
+the source of truth for the rule definitions.
 
 ## Data Flow
 
 1. `scripts/build_index.py` reads local `*.index` records from the MoonBit registry snapshot.
 2. The builder reconstructs packages, versions, dependencies, package edges, and the FTS search index in SQLite.
-3. The Python pipeline computes score snapshots, rank labels, activity multipliers, and momentum labels.
-4. `src/score` exposes the same core score formula for MoonBit consumers and future reuse.
+3. The Python pipeline calls the local MoonBit CLI to compute score snapshots, rank labels, activity multipliers, and momentum labels.
+4. `src/score` exposes the score, rank, momentum, and snapshot logic for MoonBit consumers and local CLI reuse.
 5. The Next.js app reads the generated SQLite database and serves feeds, search results, and package analysis views.
 
 ## Implementation Constraint
 
-The repository intentionally keeps the same core score formula in Python and
-MoonBit. Python owns database generation, comparison snapshots, and momentum
-classification, while MoonBit exposes the reusable score computation and rank
-mapping needed for package consumers and future reuse.
+The repository intentionally keeps Python responsible for database generation
+and SQLite materialization, while MoonBit owns the reusable score, rank,
+momentum, and snapshot rules that the local CLI forwards into the build flow.

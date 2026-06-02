@@ -4,7 +4,7 @@ import { useEffect, useMemo, useReducer, useRef, useState } from "react";
 import type { Dispatch } from "react";
 
 import { DEFAULT_SEARCH_PARAMS, fetchFeed, fetchPackageAnalysis, searchPackages, type AdvancedSearchParams, type FeedSource } from "./api";
-import { detectLanguage, type Language, type ThemePreference } from "./i18n";
+import { detectLanguage, dictionaries, type Language, type ThemePreference } from "./i18n";
 import type { PackageSummary } from "./types";
 import {
   buildSearchHref,
@@ -66,7 +66,13 @@ function splitFullName(fullName: string): { owner: string; packageName: string }
 }
 
 function getSearchErrorMessage(error: unknown, fallback: string): string {
-  return error instanceof Error ? error.message : fallback;
+  if (!(error instanceof Error)) {
+    return fallback;
+  }
+  if (/^Unexpected .* error$/i.test(error.message)) {
+    return fallback;
+  }
+  return error.message;
 }
 
 function getFeedLimit(source: FeedSource): number {
@@ -134,11 +140,7 @@ function useThemeResolution(preference: ThemePreference, dispatch: Dispatch<AppA
 
 export function useAppController(
   initialData: AppInitialData,
-  router: RouterLike,
-  copy: {
-    workspaceUnknownError: string;
-    detailUnknownError: string;
-  }
+  router: RouterLike
 ): { state: AppState; commands: ControllerCommands } {
   const [state, dispatch] = useReducer(reduceAppState, initialData, createInitialAppState);
   const commandsRef = useRef<ControllerCommands | null>(null);
@@ -166,6 +168,8 @@ export function useAppController(
   }, [state.detail.selectedFullName, state.detail.status, state.search.items, state.search.status]);
 
   const commands = useMemo<ControllerCommands>(() => {
+    const runtimeCopy = dictionaries[state.preferences.language];
+
     async function submitSearch(
       params = state.search.draftParams,
       pathname: "/search" | "/advanced-search" = "/search"
@@ -186,7 +190,7 @@ export function useAppController(
       } catch (error: unknown) {
         dispatch({
           type: "submitSearchFailed",
-          message: getSearchErrorMessage(error, copy.workspaceUnknownError)
+          message: getSearchErrorMessage(error, runtimeCopy.workspace.unknownError)
         });
       }
     }
@@ -205,7 +209,7 @@ export function useAppController(
       } catch (error: unknown) {
         dispatch({
           type: "openFeedFailed",
-          message: getSearchErrorMessage(error, copy.workspaceUnknownError)
+          message: getSearchErrorMessage(error, runtimeCopy.workspace.unknownError)
         });
       }
     }
@@ -220,7 +224,7 @@ export function useAppController(
         dispatch({
           type: "selectPackageFailed",
           fullName,
-          message: getSearchErrorMessage(error, copy.detailUnknownError)
+          message: getSearchErrorMessage(error, runtimeCopy.detail.unknownError)
         });
       }
     }
@@ -271,7 +275,7 @@ export function useAppController(
         dispatch({ type: "closeAdvanced" });
       }
     };
-  }, [copy.detailUnknownError, copy.workspaceUnknownError, router, state.detail.packageName, state.search.activeSource, state.search.appliedParams, state.search.draftParams, state.search.mode]);
+  }, [router, state.detail.packageName, state.preferences.language, state.search.activeSource, state.search.appliedParams, state.search.draftParams, state.search.mode]);
 
   commandsRef.current = commands;
 

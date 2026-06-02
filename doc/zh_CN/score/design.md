@@ -44,24 +44,23 @@ score =
 - `C >= 50`
 - `D < 50`
 
-动量标签目前只在 Python 构建流程中计算：
+动量标签规则由 MoonBit 导出，并在 Python 构建流程里物化为服务层数据：
 
 - `Rising`：增长值 `>= 35`、增长比 `>= 0.35`、近期反向依赖 `>= 3`
 - `Hot`：增长值 `>= 18`、增长比 `>= 0.18`、近期反向依赖 `>= 2`
 - `Stable`：其余情况
 
-因此动量属于索引与服务层概念，不是当前 MoonBit 导出 API 的一部分。
+因此动量标签会作为索引与服务层数据持久化，但规则定义以 MoonBit 为准。
 
 ## 数据流
 
 1. `scripts/build_index.py` 从本地 MoonBit 注册表快照读取 `*.index` 记录。
 2. 构建器在 SQLite 中重建 packages、versions、dependencies、package_edges 和全文检索索引。
-3. Python 管线计算评分快照、等级标签、活动系数和动量标签。
-4. `src/score` 对外暴露同一套核心评分公式，供 MoonBit 侧复用。
+3. Python 管线通过本地 MoonBit CLI 计算评分快照、等级标签、活动系数和动量标签。
+4. `src/score` 对外暴露评分、等级和动量相关逻辑，`src/cli` 通过本地 CLI 形式把这些规则提供给 Python 构建流程。
 5. Next.js 应用读取生成后的 SQLite 数据库，提供榜单、搜索和包分析页面与 API。
 
 ## 实现约束
 
-仓库当前有意在 Python 和 MoonBit 中维护同一套核心评分公式。Python
-负责数据库生成、历史比较和动量分类，MoonBit 则暴露给包消费者和后续复用的
-评分计算与等级映射逻辑。
+仓库当前让 Python 保留索引与 SQLite 物化职责，但将评分快照、等级映射和动量
+分类规则集中到 MoonBit，并通过本地 CLI 供构建流程调用。

@@ -38,6 +38,23 @@ import {
 } from "./app-state";
 import { useAppController } from "./useAppController";
 import type { PackageSummary } from "./types";
+import {
+  clearStructuredQuery,
+  createEmptyQueryAst,
+  deriveQueryAst,
+  encodeQueryAst,
+  hasQueryAstIntent,
+  parseNativeExpression,
+  serializeQueryAst,
+  withQueryAst,
+  type QueryAst,
+  type QueryGroupNode,
+  type QueryGroupOperator,
+  type QueryNode,
+  type QueryTermField,
+  type QueryTermNode,
+  type QueryTermOperator
+} from "../../lib/query";
 
 type AppProps = {
   initialTopPackages: PackageSummary[];
@@ -45,6 +62,7 @@ type AppProps = {
   initialSearchParams?: Partial<AdvancedSearchParams>;
   initialSource?: FeedSource | null;
   initialSearchItems?: PackageSummary[];
+  initialSearchError?: string | null;
 };
 
 type PromptPreset = { label: string; params: Partial<AdvancedSearchParams> };
@@ -90,15 +108,233 @@ function buildFilterSummary(language: Language, params: AdvancedSearchParams): s
   const copy = dictionaries[language];
   const chips: string[] = [];
 
+  if (params.ast.trim() || params.expr.trim()) {
+    chips.push(`${copy.workspace.queryLabel}: ${params.expr.trim() || serializeQueryAst(deriveQueryAst(params))}`);
+  }
+
   if (params.q.trim()) chips.push(`${copy.workspace.queryLabel}: ${params.q.trim()}`);
   if (params.rank) chips.push(`${copy.filters.rank}: ${params.rank}`);
-  if (params.momentum) chips.push(`${copy.filters.momentum}: ${params.momentum}`);
+  if (params.momentum) chips.push(`${copy.filters.momentum}: ${getMomentumLabel(copy, params.momentum)}`);
   if (params.minScore.trim()) chips.push(`${copy.filters.minScore}: ${params.minScore.trim()}`);
   if (params.minDependents.trim()) chips.push(`${copy.filters.minDependents}: ${params.minDependents.trim()}`);
   if (params.keyword.trim()) chips.push(`${copy.filters.keyword}: ${params.keyword.trim()}`);
-  if (params.sort) chips.push(`${copy.filters.sort}: ${params.sort}`);
+  if (params.sort) chips.push(`${copy.filters.sort}: ${getSortLabel(copy, params.sort)}`);
 
   return chips;
+}
+
+function applyLegacyPatch(
+  params: AdvancedSearchParams,
+  patch: Partial<AdvancedSearchParams>
+): AdvancedSearchParams {
+  return clearStructuredQuery({
+    ...params,
+    ...patch
+  });
+}
+
+type QueryFieldSpec = {
+  field: QueryTermField;
+  label: string;
+  operators: QueryTermOperator[];
+  kind: "text" | "enum" | "number" | "boolean";
+  options?: Array<{ value: string; label: string }>;
+  placeholder?: string;
+};
+
+function getQueryFieldSpecs(language: Language): QueryFieldSpec[] {
+  const copy = dictionaries[language];
+  return [
+    { field: "text", label: copy.filters.query, operators: ["match"], kind: "text", placeholder: copy.toolbar.searchPlaceholder },
+    { field: "owner", label: copy.filters.owner, operators: ["match"], kind: "text" },
+    { field: "package", label: copy.filters.packageName, operators: ["match"], kind: "text" },
+    { field: "keyword", label: copy.filters.keyword, operators: ["match"], kind: "text" },
+    { field: "description", label: copy.filters.description, operators: ["match"], kind: "text" },
+    { field: "license", label: copy.filters.license, operators: ["match"], kind: "text" },
+    { field: "repository", label: copy.filters.repository, operators: ["match"], kind: "text" },
+    {
+      field: "rank",
+      label: copy.filters.rank,
+      operators: ["eq"],
+      kind: "enum",
+      options: ["S", "A", "B", "C", "D"].map((value) => ({ value, label: value }))
+    },
+    {
+      field: "momentum",
+      label: copy.filters.momentum,
+      operators: ["eq"],
+      kind: "enum",
+      options: [
+        { value: "Hot", label: copy.filters.momentumHot },
+        { value: "Rising", label: copy.filters.momentumRising },
+        { value: "Stable", label: copy.filters.momentumStable }
+      ]
+    },
+    { field: "score", label: copy.filters.scoreField, operators: ["gte", "lte", "eq"], kind: "number" },
+    { field: "dependents", label: copy.filters.dependentsField, operators: ["gte", "lte", "eq"], kind: "number" },
+    { field: "recent_dependents", label: copy.filters.recentDependentsField, operators: ["gte", "lte", "eq"], kind: "number" },
+    { field: "downloads", label: copy.filters.downloadsField, operators: ["gte", "lte", "eq"], kind: "number" },
+    { field: "year", label: copy.filters.yearField, operators: ["gte", "lte", "eq"], kind: "number" },
+    {
+      field: "has_repository",
+      label: copy.filters.hasRepository,
+      operators: ["eq"],
+      kind: "boolean",
+      options: [
+        { value: "true", label: copy.filters.yes },
+        { value: "false", label: copy.filters.no }
+      ]
+    },
+    {
+      field: "has_license",
+      label: copy.filters.hasLicense,
+      operators: ["eq"],
+      kind: "boolean",
+      options: [
+        { value: "true", label: copy.filters.yes },
+        { value: "false", label: copy.filters.no }
+      ]
+    }
+  ];
+}
+
+function createDefaultTerm(): QueryTermNode {
+  return { kind: "term", field: "text", operator: "match", value: "" };
+}
+
+function createInitialBuilderAst(): QueryAst {
+  return {
+    kind: "group",
+    op: "and",
+    children: [
+      {
+        kind: "group",
+        op: "and",
+        children: []
+      }
+    ]
+  };
+}
+
+function getExpressionPreview(ast: QueryAst): string {
+  return hasQueryAstIntent(ast) ? serializeQueryAst(ast) : "";
+}
+
+function getDefaultValueForField(spec: QueryFieldSpec): string {
+  if (spec.options?.[0]) return spec.options[0].value;
+  return "";
+}
+
+function getDefaultOperatorForField(spec: QueryFieldSpec): QueryTermOperator {
+  return spec.operators[0] ?? "match";
+}
+
+function normalizeTermAgainstSpec(term: QueryTermNode, spec: QueryFieldSpec): QueryTermNode {
+  const nextOperator = spec.operators.includes(term.operator) ? term.operator : getDefaultOperatorForField(spec);
+  const nextValue = spec.options?.some((option) => option.value === term.value)
+    ? term.value
+    : (term.value || getDefaultValueForField(spec));
+  return {
+    ...term,
+    operator: nextOperator,
+    value: nextValue
+  };
+}
+
+function getOperatorLabel(operator: QueryTermOperator): string {
+  if (operator === "match") return ":";
+  if (operator === "eq") return "=";
+  if (operator === "gte") return ">=";
+  return "<=";
+}
+
+function getMomentumLabel(copy: (typeof dictionaries)[Language], value: string): string {
+  if (value === "Hot") return copy.filters.momentumHot;
+  if (value === "Rising") return copy.filters.momentumRising;
+  if (value === "Stable") return copy.filters.momentumStable;
+  return value;
+}
+
+function getSortLabel(copy: (typeof dictionaries)[Language], value: string): string {
+  if (value === "relevance") return copy.filters.sortRelevance;
+  if (value === "score") return copy.filters.sortScore;
+  if (value === "growth") return copy.filters.sortGrowth;
+  if (value === "downloads") return copy.filters.sortDownloads;
+  if (value === "dependents") return copy.filters.sortDependents;
+  if (value === "recent") return copy.filters.sortRecent;
+  if (value === "updated") return copy.filters.sortUpdated;
+  if (value === "name") return copy.filters.sortName;
+  return value;
+}
+
+function getStatusLabel(copy: (typeof dictionaries)[Language], value: string): string {
+  if (value === "Hot") return copy.filters.momentumHot;
+  if (value === "Rising") return copy.filters.momentumRising;
+  if (value === "Stable") return copy.filters.momentumStable;
+  return value;
+}
+
+function getTermDisplayValue(spec: QueryFieldSpec | undefined, value: string): string {
+  if (!spec?.options) {
+    return value;
+  }
+  return spec.options.find((option) => option.value === value)?.label ?? value;
+}
+
+function getNodeLabel(language: Language, node: QueryNode): string {
+  const specs = getQueryFieldSpecs(language);
+  if (node.kind === "group") {
+    return node.op.toUpperCase();
+  }
+  const spec = specs.find((item) => item.field === node.field);
+  const fieldLabel = spec?.label ?? node.field;
+  return `${fieldLabel} ${getOperatorLabel(node.operator)} ${getTermDisplayValue(spec, node.value)}`;
+}
+
+function cloneQueryAst(ast: QueryAst): QueryAst {
+  return JSON.parse(JSON.stringify(ast)) as QueryAst;
+}
+
+function getGroupByPath(ast: QueryAst, path: number[]): QueryGroupNode {
+  let current: QueryNode = ast;
+  for (const index of path) {
+    if (current.kind !== "group") {
+      throw new Error("Invalid query group path");
+    }
+    const next: QueryNode | undefined = current.children[index];
+    if (!next) {
+      throw new Error("Query group path is out of range");
+    }
+    current = next;
+  }
+  if (current.kind !== "group") {
+    throw new Error("Expected query group at path");
+  }
+  return current;
+}
+
+function updateAstGroup(
+  ast: QueryAst,
+  path: number[],
+  mutate: (group: QueryGroupNode) => void
+): QueryAst {
+  const next = cloneQueryAst(ast);
+  mutate(getGroupByPath(next, path));
+  return next;
+}
+
+function removeNodeAtPath(ast: QueryAst, path: number[]): QueryAst {
+  if (path.length === 0) {
+    return createEmptyQueryAst();
+  }
+  const parentPath = path.slice(0, -1);
+  const index = path[path.length - 1];
+  if (index === undefined) {
+    return createEmptyQueryAst();
+  }
+  return updateAstGroup(ast, parentPath, (group) => {
+    group.children.splice(index, 1);
+  });
 }
 
 function getFocusableElements(root: HTMLElement): HTMLElement[] {
@@ -470,7 +706,7 @@ function Masthead(props: {
           <small>{copy.toolbar.projectCaption}</small>
         </div>
       </button>
-      <nav className="masthead__nav" aria-label="Primary">
+      <nav className="masthead__nav" aria-label={copy.toolbar.primaryNav}>
         <button type="button" className={`nav-link${page === "landing" ? " is-active" : ""}`} onClick={() => onNavigate("/")}>
           {copy.toolbar.home}
         </button>
@@ -644,9 +880,9 @@ function SearchHero(props: {
             <input
               aria-label={copy.common.search}
               type="search"
-              value={params.q}
+              value={params.q || params.expr}
               placeholder={copy.toolbar.searchPlaceholder}
-              onChange={(event) => onChange({ ...params, q: event.target.value })}
+              onChange={(event) => onChange(applyLegacyPatch(params, { q: event.target.value }))}
             />
           </label>
           <button type="submit" className="button button--primary">{copy.common.search}</button>
@@ -704,25 +940,25 @@ function SearchControlRail(props: {
   const momentumOptions = useMemo<SelectOption<SearchMomentum>[]>(
     () => [
       { value: "", label: copy.filters.any },
-      { value: "Hot", label: "Hot" },
-      { value: "Rising", label: "Rising" },
-      { value: "Stable", label: "Stable" }
+      { value: "Hot", label: copy.filters.momentumHot },
+      { value: "Rising", label: copy.filters.momentumRising },
+      { value: "Stable", label: copy.filters.momentumStable }
     ],
-    [copy.filters.any]
+    [copy.filters.any, copy.filters.momentumHot, copy.filters.momentumRising, copy.filters.momentumStable]
   );
   const sortOptions = useMemo<SelectOption<SearchSort | "">[]>(
     () => [
       { value: "", label: copy.filters.any },
-      { value: "relevance", label: "Relevance" },
-      { value: "score", label: "Score" },
-      { value: "growth", label: "Growth" },
-      { value: "downloads", label: "Downloads" },
-      { value: "dependents", label: "Dependents" },
-      { value: "recent", label: "Recent" },
-      { value: "updated", label: "Updated" },
-      { value: "name", label: "Name" }
+      { value: "relevance", label: copy.filters.sortRelevance },
+      { value: "score", label: copy.filters.sortScore },
+      { value: "growth", label: copy.filters.sortGrowth },
+      { value: "downloads", label: copy.filters.sortDownloads },
+      { value: "dependents", label: copy.filters.sortDependents },
+      { value: "recent", label: copy.filters.sortRecent },
+      { value: "updated", label: copy.filters.sortUpdated },
+      { value: "name", label: copy.filters.sortName }
     ],
-    [copy.filters.any]
+    [copy.filters.any, copy.filters.sortDependents, copy.filters.sortDownloads, copy.filters.sortGrowth, copy.filters.sortName, copy.filters.sortRecent, copy.filters.sortRelevance, copy.filters.sortScore, copy.filters.sortUpdated]
   );
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>): Promise<void> {
@@ -749,9 +985,9 @@ function SearchControlRail(props: {
             <input
               aria-label={copy.common.search}
               type="search"
-              value={params.q}
+              value={params.q || params.expr}
               placeholder={copy.toolbar.searchPlaceholder}
-              onChange={(event) => onChange({ ...params, q: event.target.value })}
+              onChange={(event) => onChange(applyLegacyPatch(params, { q: event.target.value }))}
             />
           </label>
           <button type="submit" className="button button--primary">{copy.common.search}</button>
@@ -760,11 +996,11 @@ function SearchControlRail(props: {
         <div className="query-stage__filters">
           <div className="facet-control query-stage__filter-select">
             <span>{copy.filters.rank}</span>
-            <SelectMenu label={copy.filters.rank} value={params.rank} options={rankOptions} onChange={(value) => onChange({ ...params, rank: value })} />
+            <SelectMenu label={copy.filters.rank} value={params.rank} options={rankOptions} onChange={(value) => onChange(applyLegacyPatch(params, { rank: value }))} />
           </div>
           <div className="facet-control query-stage__filter-select">
             <span>{copy.filters.momentum}</span>
-            <SelectMenu label={copy.filters.momentum} value={params.momentum} options={momentumOptions} onChange={(value) => onChange({ ...params, momentum: value })} />
+            <SelectMenu label={copy.filters.momentum} value={params.momentum} options={momentumOptions} onChange={(value) => onChange(applyLegacyPatch(params, { momentum: value }))} />
           </div>
           <div className="facet-control query-stage__filter-select">
             <span>{copy.filters.sort}</span>
@@ -772,11 +1008,11 @@ function SearchControlRail(props: {
           </div>
           <label className="facet-control">
             <span>{copy.filters.minScore}</span>
-            <input inputMode="decimal" value={params.minScore} onChange={(event) => onChange({ ...params, minScore: event.target.value })} />
+            <input inputMode="decimal" value={params.minScore} onChange={(event) => onChange(applyLegacyPatch(params, { minScore: event.target.value }))} />
           </label>
           <label className="facet-control">
             <span>{copy.filters.minDependents}</span>
-            <input inputMode="numeric" value={params.minDependents} onChange={(event) => onChange({ ...params, minDependents: event.target.value })} />
+            <input inputMode="numeric" value={params.minDependents} onChange={(event) => onChange(applyLegacyPatch(params, { minDependents: event.target.value }))} />
           </label>
         </div>
 
@@ -822,7 +1058,7 @@ function ResultCard(props: {
           </div>
           <div className="result-badges" aria-label={copy.workspace.statusBadges}>
             <span className="badge">{item.rank_label}</span>
-            <span className="badge badge--accent">{item.momentum_label}</span>
+            <span className="badge badge--accent">{getStatusLabel(copy, item.momentum_label)}</span>
           </div>
         </div>
         <dl className="metric-grid">
@@ -892,7 +1128,7 @@ function DetailContent(props: { language: Language; state: DetailState; onRetry:
         </div>
         <div className="result-badges">
           <span className="badge">{pkg.rank_label}</span>
-          <span className="badge badge--accent">{pkg.momentum_label}</span>
+          <span className="badge badge--accent">{getStatusLabel(copy, pkg.momentum_label)}</span>
         </div>
       </header>
 
@@ -965,7 +1201,7 @@ function DetailContent(props: { language: Language; state: DetailState; onRetry:
                   <strong>{item.full_name}</strong>
                   <div className="result-badges">
                     <span className="badge">{item.rank_label}</span>
-                    <span className="badge badge--accent">{item.momentum_label}</span>
+                    <span className="badge badge--accent">{getStatusLabel(copy, item.momentum_label)}</span>
                   </div>
                 </div>
                 <p>{item.description ?? copy.common.noDescription}</p>
@@ -1117,13 +1353,200 @@ function WorkspaceScreen(props: {
   );
 }
 
+function QueryTermEditor(props: {
+  language: Language;
+  term: QueryTermNode;
+  specs: QueryFieldSpec[];
+  onChange: (term: QueryTermNode) => void;
+  onRemove: () => void;
+}) {
+  const { language, term, specs, onChange, onRemove } = props;
+  const copy = dictionaries[language];
+  const fieldOptions = useMemo<SelectOption<QueryTermField>[]>(
+    () => specs.map((spec) => ({ value: spec.field, label: spec.label })),
+    [specs]
+  );
+  const spec = specs.find((item) => item.field === term.field) ?? specs[0]!;
+  const normalizedTerm = normalizeTermAgainstSpec(term, spec);
+  const operatorOptions = spec.operators.map((operator) => ({
+    value: operator,
+    label: getOperatorLabel(operator)
+  }));
+  const showOperator = spec.operators.length > 1;
+
+  function updateField(field: QueryTermField): void {
+    const nextSpec = specs.find((item) => item.field === field) ?? specs[0]!;
+    onChange(
+      normalizeTermAgainstSpec(
+        {
+          ...normalizedTerm,
+          field,
+          operator: getDefaultOperatorForField(nextSpec),
+          value: getDefaultValueForField(nextSpec)
+        },
+        nextSpec
+      )
+    );
+  }
+
+  return (
+    <div className={`query-node query-node--term${normalizedTerm.negated === true ? " is-excluded" : ""}`}>
+      <div className="query-node__header">
+        <strong>{getNodeLabel(language, normalizedTerm)}</strong>
+        <button type="button" className="text-link" onClick={onRemove}>{copy.filters.remove}</button>
+      </div>
+      <div className={`query-term-grid${showOperator ? "" : " query-term-grid--compact"}`}>
+        <div className="field-grid__control">
+          <span>{copy.filters.field}</span>
+          <SelectMenu label={copy.filters.field} value={normalizedTerm.field} options={fieldOptions} onChange={updateField} />
+        </div>
+        {showOperator ? (
+          <div className="field-grid__control">
+            <span>{copy.filters.operator}</span>
+            <SelectMenu
+              label={copy.filters.operator}
+              value={normalizedTerm.operator}
+              options={operatorOptions}
+              onChange={(operator) => onChange({ ...normalizedTerm, operator })}
+            />
+          </div>
+        ) : null}
+        {spec.kind === "enum" || spec.kind === "boolean" ? (
+          <div className="field-grid__control query-term-grid__value">
+            <span>{copy.filters.value}</span>
+            <SelectMenu
+              label={copy.filters.value}
+              value={normalizedTerm.value}
+              options={(spec.options ?? []).map((option) => ({ value: option.value, label: option.label }))}
+              onChange={(value) => onChange({ ...normalizedTerm, value })}
+            />
+          </div>
+        ) : (
+          <label className="query-term-input query-term-grid__value">
+            <span>{copy.filters.value}</span>
+            <input
+              inputMode={spec.kind === "number" ? "decimal" : undefined}
+              value={normalizedTerm.value}
+              placeholder={spec.placeholder ?? ""}
+              onChange={(event) => onChange({ ...normalizedTerm, value: event.target.value })}
+            />
+          </label>
+        )}
+        <button
+          type="button"
+          className={`button button--secondary query-builder-button query-toggle-button query-term-grid__toggle${normalizedTerm.negated === true ? " is-active" : ""}`}
+          aria-pressed={normalizedTerm.negated === true}
+          onClick={() => onChange({ ...normalizedTerm, negated: normalizedTerm.negated !== true })}
+        >
+          {normalizedTerm.negated === true ? copy.filters.include : copy.filters.exclude}
+        </button>
+      </div>
+    </div>
+  );
+}
+
+function QueryGroupEditor(props: {
+  language: Language;
+  group: QueryGroupNode;
+  path: number[];
+  specs: QueryFieldSpec[];
+  isRoot?: boolean;
+  onChangeAst: (ast: QueryAst) => void;
+  ast: QueryAst;
+}) {
+  const { language, group, path, specs, isRoot = false, onChangeAst, ast } = props;
+  const copy = dictionaries[language];
+
+  const logicOptions: SelectOption<QueryGroupOperator>[] = [
+    { value: "and", label: copy.filters.logicAnd },
+    { value: "or", label: copy.filters.logicOr }
+  ];
+
+  function patchGroup(mutate: (target: QueryGroupNode) => void): void {
+    onChangeAst(updateAstGroup(ast, path, mutate));
+  }
+
+  return (
+    <section className={`query-node query-node--group${isRoot ? " is-root" : ""}${group.negated === true ? " is-excluded" : ""}`}>
+      <div className="query-node__header">
+        <strong>{isRoot ? copy.filters.builderTitle : copy.filters.groupTitle}</strong>
+        <div className="query-node__actions">
+          {!isRoot ? (
+            <button type="button" className="text-link" onClick={() => onChangeAst(removeNodeAtPath(ast, path))}>
+              {copy.filters.remove}
+            </button>
+          ) : null}
+          <button type="button" className="button button--secondary button--compact query-builder-button" onClick={() => patchGroup((target) => target.children.push(createDefaultTerm()))}>
+            {copy.filters.addCondition}
+          </button>
+          <button
+            type="button"
+            className="button button--secondary button--compact query-builder-button"
+            onClick={() => patchGroup((target) => target.children.push({ kind: "group", op: "and", children: [createDefaultTerm()] }))}
+          >
+            {copy.filters.addGroup}
+          </button>
+        </div>
+      </div>
+      <div className="query-group__toolbar">
+        <div className="field-grid__control query-group__logic">
+          <span>{copy.filters.logic}</span>
+          <SelectMenu label={copy.filters.logic} value={group.op} options={logicOptions} onChange={(op) => patchGroup((target) => { target.op = op; })} />
+        </div>
+        {!isRoot ? (
+          <button
+            type="button"
+            className={`button button--secondary query-builder-button query-toggle-button query-group__toggle${group.negated === true ? " is-active" : ""}`}
+            aria-pressed={group.negated === true}
+            onClick={() => patchGroup((target) => { target.negated = target.negated !== true; })}
+          >
+            {group.negated === true ? copy.filters.includeGroup : copy.filters.excludeGroup}
+          </button>
+        ) : null}
+      </div>
+      <div className="query-group__children">
+        {group.children.length === 0 ? <div className="state-card state-card--compact"><p>{copy.filters.emptyBuilder}</p></div> : null}
+        {group.children.map((child, index) => {
+          const childPath = [...path, index];
+          return child.kind === "group" ? (
+            <QueryGroupEditor
+              key={childPath.join(".")}
+              language={language}
+              group={child}
+              path={childPath}
+              specs={specs}
+              ast={ast}
+              onChangeAst={onChangeAst}
+            />
+          ) : (
+            <QueryTermEditor
+              key={childPath.join(".")}
+              language={language}
+              term={child}
+              specs={specs}
+              onChange={(term) => {
+                onChangeAst(
+                  updateAstGroup(ast, path, (target) => {
+                    target.children[index] = term;
+                  })
+                );
+              }}
+              onRemove={() => onChangeAst(removeNodeAtPath(ast, childPath))}
+            />
+          );
+        })}
+      </div>
+    </section>
+  );
+}
+
 function AdvancedSearchPanel(props: {
   language: Language;
   params: AdvancedSearchParams;
   open: boolean;
   standalone?: boolean;
   onChange: (params: AdvancedSearchParams) => void;
-  onApply: () => Promise<void>;
+  onApply: (params: AdvancedSearchParams) => Promise<void>;
   onReset: () => void;
   onClose: () => void;
 }) {
@@ -1132,6 +1555,18 @@ function AdvancedSearchPanel(props: {
   const rootRef = useRef<HTMLDivElement | null>(null);
   const closeButtonRef = useRef<HTMLButtonElement | null>(null);
   const titleId = useId();
+  const specs = useMemo(() => getQueryFieldSpecs(language), [language]);
+  const initialMode = params.expr.trim() && !params.ast.trim() ? "expression" : "builder";
+  const [editorMode, setEditorMode] = useState<"builder" | "expression">(initialMode);
+  const [draftAst, setDraftAst] = useState<QueryAst>(() => {
+    const ast = deriveQueryAst(params);
+    return hasQueryAstIntent(ast) ? ast : createInitialBuilderAst();
+  });
+  const [expressionText, setExpressionText] = useState(() => {
+    const ast = deriveQueryAst(params);
+    return params.expr.trim() || getExpressionPreview(ast);
+  });
+  const [expressionError, setExpressionError] = useState<string | null>(null);
 
   useDialogBehavior({ open: open && !standalone, rootRef, initialFocusRef: closeButtonRef, onClose });
 
@@ -1145,38 +1580,141 @@ function AdvancedSearchPanel(props: {
 
   if (!open) return null;
 
-  function update<K extends keyof AdvancedSearchParams>(key: K, value: AdvancedSearchParams[K]): void {
-    onChange({ ...params, [key]: value });
-  }
-
   async function handleSubmit(event: FormEvent<HTMLFormElement>): Promise<void> {
     event.preventDefault();
-    await onApply();
+    if (editorMode === "expression") {
+      try {
+        const parsed = parseNativeExpression(expressionText);
+        setExpressionError(null);
+        const nextParams = hasQueryAstIntent(parsed) ? withQueryAst(params, parsed) : clearStructuredQuery(params);
+        onChange(nextParams);
+        await onApply(nextParams);
+        return;
+      } catch (error: unknown) {
+        setExpressionError(copy.filters.expressionError);
+        return;
+      }
+    }
+    const nextParams = hasQueryAstIntent(draftAst) ? withQueryAst(params, draftAst) : clearStructuredQuery(params);
+    onChange(nextParams);
+    await onApply(nextParams);
   }
 
-  const anyOption = useMemo<SelectOption<"">[]>(
-    () => [{ value: "", label: copy.filters.any }],
-    [copy.filters.any]
-  );
-  const booleanOptions = useMemo(
-    () => [...anyOption, { value: "true" as const, label: copy.filters.yes }, { value: "false" as const, label: copy.filters.no }],
-    [anyOption, copy.filters.no, copy.filters.yes]
-  );
-  const rankOptions = useMemo(
-    () => [...anyOption, ...(["S", "A", "B", "C", "D"] as SearchRank[]).filter(Boolean).map((rank) => ({ value: rank, label: rank }))] as SelectOption<SearchRank>[],
-    [anyOption]
-  );
-  const momentumOptions = useMemo(
-    () => [...anyOption, { value: "Hot" as const, label: "Hot" }, { value: "Rising" as const, label: "Rising" }, { value: "Stable" as const, label: "Stable" }] as SelectOption<SearchMomentum>[],
-    [anyOption]
-  );
-  const sortOptions = useMemo(
-    () => [...anyOption, ...(["relevance", "score", "growth", "downloads", "dependents", "recent", "updated", "name"] as const).map((value) => ({ value, label: value }))] as SelectOption<SearchSort | "">[],
-    [anyOption]
-  );
-  const orderOptions = useMemo(
-    () => [...anyOption, { value: "asc" as const, label: copy.filters.orderAscending }, { value: "desc" as const, label: copy.filters.orderDescending }] as SelectOption<SearchOrder | "">[],
-    [anyOption, copy.filters.orderAscending, copy.filters.orderDescending]
+  useEffect(() => {
+    const nextAst = deriveQueryAst(params);
+    const normalizedAst = hasQueryAstIntent(nextAst) ? nextAst : createInitialBuilderAst();
+    setDraftAst(normalizedAst);
+    setExpressionText(params.expr.trim() || getExpressionPreview(nextAst));
+    setEditorMode(params.expr.trim() && !params.ast.trim() ? "expression" : "builder");
+    setExpressionError(null);
+  }, [params]);
+
+  const panelBody = (
+    <form className="advanced-form advanced-form--builder" onSubmit={(event) => void handleSubmit(event)}>
+      <div className="advanced-mode-switch">
+        <button
+          type="button"
+          className={`nav-link${editorMode === "builder" ? " is-active" : ""}`}
+          onClick={() => {
+            setEditorMode("builder");
+            setExpressionError(null);
+          }}
+        >
+          {copy.filters.builderMode}
+        </button>
+        <button
+          type="button"
+          className={`nav-link${editorMode === "expression" ? " is-active" : ""}`}
+          onClick={() => {
+            setEditorMode("expression");
+            setExpressionText(serializeQueryAst(draftAst));
+            setExpressionError(null);
+          }}
+        >
+          {copy.filters.expressionMode}
+        </button>
+      </div>
+
+      {editorMode === "builder" ? (
+        <div className="query-builder-shell">
+          <QueryGroupEditor
+            language={language}
+            group={draftAst}
+            path={[]}
+            specs={specs}
+            ast={draftAst}
+            isRoot
+          onChangeAst={(nextAst) => {
+              setDraftAst(nextAst);
+              setExpressionText(getExpressionPreview(nextAst));
+            }}
+          />
+          <section className="field-section">
+            <h3>{copy.filters.preview}</h3>
+            <div className="query-expression-preview">{getExpressionPreview(draftAst)}</div>
+          </section>
+        </div>
+      ) : (
+        <section className="field-section">
+          <h3>{copy.filters.expressionMode}</h3>
+          <label className="query-expression-label">
+            <span>{copy.filters.expressionHelp}</span>
+            <textarea
+              className="query-expression-editor"
+              value={expressionText}
+              onChange={(event) => {
+                setExpressionText(event.target.value);
+                setExpressionError(null);
+              }}
+            />
+          </label>
+          {expressionError ? <p className="query-expression-error">{expressionError}</p> : null}
+        </section>
+      )}
+
+      <section className="field-section">
+        <h3>{copy.filters.timeGroup}</h3>
+        <div className="field-grid">
+          <div className="field-grid__control">
+            <span>{copy.filters.sort}</span>
+            <SelectMenu
+              label={copy.filters.sort}
+              value={params.sort}
+              options={[
+                { value: "", label: copy.filters.any },
+                { value: "relevance", label: copy.filters.sortRelevance },
+                { value: "score", label: copy.filters.sortScore },
+                { value: "growth", label: copy.filters.sortGrowth },
+                { value: "downloads", label: copy.filters.sortDownloads },
+                { value: "dependents", label: copy.filters.sortDependents },
+                { value: "recent", label: copy.filters.sortRecent },
+                { value: "updated", label: copy.filters.sortUpdated },
+                { value: "name", label: copy.filters.sortName }
+              ]}
+              onChange={(value) => onChange({ ...params, sort: value })}
+            />
+          </div>
+          <div className="field-grid__control">
+            <span>{copy.filters.order}</span>
+            <SelectMenu
+              label={copy.filters.order}
+              value={params.order}
+              options={[
+                { value: "", label: copy.filters.any },
+                { value: "asc", label: copy.filters.orderAscending },
+                { value: "desc", label: copy.filters.orderDescending }
+              ]}
+              onChange={(value) => onChange({ ...params, order: value })}
+            />
+          </div>
+        </div>
+      </section>
+
+      <div className="advanced-form__actions">
+        <button type="button" className="button button--secondary" onClick={onReset}>{copy.common.reset}</button>
+        <button type="submit" className="button button--primary">{copy.common.apply}</button>
+      </div>
+    </form>
   );
 
   if (standalone) {
@@ -1190,75 +1728,7 @@ function AdvancedSearchPanel(props: {
               <p>{copy.filters.subtitle}</p>
             </div>
           </div>
-
-          <form className="advanced-form" onSubmit={(event) => void handleSubmit(event)}>
-            <section className="field-section">
-              <h3>{copy.filters.textGroup}</h3>
-              <div className="field-grid">
-                <label><span>{copy.filters.query}</span><input value={params.q} onChange={(event) => update("q", event.target.value)} /></label>
-                <label><span>{copy.filters.owner}</span><input value={params.owner} onChange={(event) => update("owner", event.target.value)} /></label>
-                <label><span>{copy.filters.packageName}</span><input value={params.packageName} onChange={(event) => update("packageName", event.target.value)} /></label>
-                <label><span>{copy.filters.keyword}</span><input value={params.keyword} onChange={(event) => update("keyword", event.target.value)} /></label>
-                <label className="field-grid__wide"><span>{copy.filters.description}</span><input value={params.description} onChange={(event) => update("description", event.target.value)} /></label>
-              </div>
-            </section>
-
-            <section className="field-section">
-              <h3>{copy.filters.metadataGroup}</h3>
-              <div className="field-grid">
-                <label><span>{copy.filters.license}</span><input value={params.license} onChange={(event) => update("license", event.target.value)} /></label>
-                <label><span>{copy.filters.repository}</span><input value={params.repository} onChange={(event) => update("repository", event.target.value)} /></label>
-                <div className="field-grid__control">
-                  <span>{copy.filters.hasRepository}</span>
-                  <SelectMenu label={copy.filters.hasRepository} value={params.hasRepository} options={booleanOptions} onChange={(value) => update("hasRepository", value)} />
-                </div>
-                <div className="field-grid__control">
-                  <span>{copy.filters.hasLicense}</span>
-                  <SelectMenu label={copy.filters.hasLicense} value={params.hasLicense} options={booleanOptions} onChange={(value) => update("hasLicense", value)} />
-                </div>
-              </div>
-            </section>
-
-            <section className="field-section">
-              <h3>{copy.filters.scoreGroup}</h3>
-              <div className="field-grid">
-                <div className="field-grid__control">
-                  <span>{copy.filters.rank}</span>
-                  <SelectMenu label={copy.filters.rank} value={params.rank} options={rankOptions} onChange={(value) => update("rank", value)} />
-                </div>
-                <div className="field-grid__control">
-                  <span>{copy.filters.momentum}</span>
-                  <SelectMenu label={copy.filters.momentum} value={params.momentum} options={momentumOptions} onChange={(value) => update("momentum", value)} />
-                </div>
-                <label><span>{copy.filters.minScore}</span><input inputMode="decimal" value={params.minScore} onChange={(event) => update("minScore", event.target.value)} /></label>
-                <label><span>{copy.filters.maxScore}</span><input inputMode="decimal" value={params.maxScore} onChange={(event) => update("maxScore", event.target.value)} /></label>
-                <label><span>{copy.filters.minDependents}</span><input inputMode="numeric" value={params.minDependents} onChange={(event) => update("minDependents", event.target.value)} /></label>
-                <label><span>{copy.filters.minRecentDependents}</span><input inputMode="numeric" value={params.minRecentDependents} onChange={(event) => update("minRecentDependents", event.target.value)} /></label>
-                <label><span>{copy.filters.minDownloads}</span><input inputMode="numeric" value={params.minDownloads} onChange={(event) => update("minDownloads", event.target.value)} /></label>
-              </div>
-            </section>
-
-            <section className="field-section">
-              <h3>{copy.filters.timeGroup}</h3>
-              <div className="field-grid">
-                <label><span>{copy.filters.fromYear}</span><input inputMode="numeric" value={params.fromYear} onChange={(event) => update("fromYear", event.target.value)} /></label>
-                <label><span>{copy.filters.toYear}</span><input inputMode="numeric" value={params.toYear} onChange={(event) => update("toYear", event.target.value)} /></label>
-                <div className="field-grid__control">
-                  <span>{copy.filters.sort}</span>
-                  <SelectMenu label={copy.filters.sort} value={params.sort} options={sortOptions} onChange={(value) => update("sort", value)} />
-                </div>
-                <div className="field-grid__control">
-                  <span>{copy.filters.order}</span>
-                  <SelectMenu label={copy.filters.order} value={params.order} options={orderOptions} onChange={(value) => update("order", value)} />
-                </div>
-              </div>
-            </section>
-
-            <div className="advanced-form__actions">
-              <button type="button" className="button button--secondary" onClick={onReset}>{copy.common.reset}</button>
-              <button type="submit" className="button button--primary">{copy.common.apply}</button>
-            </div>
-          </form>
+          {panelBody}
         </section>
       </section>
     );
@@ -1276,75 +1746,7 @@ function AdvancedSearchPanel(props: {
           </div>
           <button ref={closeButtonRef} type="button" className="button button--secondary" onClick={onClose}>{copy.common.close}</button>
         </div>
-
-        <form className="advanced-form" onSubmit={(event) => void handleSubmit(event)}>
-          <section className="field-section">
-            <h3>{copy.filters.textGroup}</h3>
-            <div className="field-grid">
-              <label><span>{copy.filters.query}</span><input value={params.q} onChange={(event) => update("q", event.target.value)} /></label>
-              <label><span>{copy.filters.owner}</span><input value={params.owner} onChange={(event) => update("owner", event.target.value)} /></label>
-              <label><span>{copy.filters.packageName}</span><input value={params.packageName} onChange={(event) => update("packageName", event.target.value)} /></label>
-              <label><span>{copy.filters.keyword}</span><input value={params.keyword} onChange={(event) => update("keyword", event.target.value)} /></label>
-              <label className="field-grid__wide"><span>{copy.filters.description}</span><input value={params.description} onChange={(event) => update("description", event.target.value)} /></label>
-            </div>
-          </section>
-
-          <section className="field-section">
-            <h3>{copy.filters.metadataGroup}</h3>
-            <div className="field-grid">
-              <label><span>{copy.filters.license}</span><input value={params.license} onChange={(event) => update("license", event.target.value)} /></label>
-              <label><span>{copy.filters.repository}</span><input value={params.repository} onChange={(event) => update("repository", event.target.value)} /></label>
-              <div className="field-grid__control">
-                <span>{copy.filters.hasRepository}</span>
-                <SelectMenu label={copy.filters.hasRepository} value={params.hasRepository} options={booleanOptions} onChange={(value) => update("hasRepository", value)} />
-              </div>
-              <div className="field-grid__control">
-                <span>{copy.filters.hasLicense}</span>
-                <SelectMenu label={copy.filters.hasLicense} value={params.hasLicense} options={booleanOptions} onChange={(value) => update("hasLicense", value)} />
-              </div>
-            </div>
-          </section>
-
-          <section className="field-section">
-            <h3>{copy.filters.scoreGroup}</h3>
-            <div className="field-grid">
-              <div className="field-grid__control">
-                <span>{copy.filters.rank}</span>
-                <SelectMenu label={copy.filters.rank} value={params.rank} options={rankOptions} onChange={(value) => update("rank", value)} />
-              </div>
-              <div className="field-grid__control">
-                <span>{copy.filters.momentum}</span>
-                <SelectMenu label={copy.filters.momentum} value={params.momentum} options={momentumOptions} onChange={(value) => update("momentum", value)} />
-              </div>
-              <label><span>{copy.filters.minScore}</span><input inputMode="decimal" value={params.minScore} onChange={(event) => update("minScore", event.target.value)} /></label>
-              <label><span>{copy.filters.maxScore}</span><input inputMode="decimal" value={params.maxScore} onChange={(event) => update("maxScore", event.target.value)} /></label>
-              <label><span>{copy.filters.minDependents}</span><input inputMode="numeric" value={params.minDependents} onChange={(event) => update("minDependents", event.target.value)} /></label>
-              <label><span>{copy.filters.minRecentDependents}</span><input inputMode="numeric" value={params.minRecentDependents} onChange={(event) => update("minRecentDependents", event.target.value)} /></label>
-              <label><span>{copy.filters.minDownloads}</span><input inputMode="numeric" value={params.minDownloads} onChange={(event) => update("minDownloads", event.target.value)} /></label>
-            </div>
-          </section>
-
-          <section className="field-section">
-            <h3>{copy.filters.timeGroup}</h3>
-            <div className="field-grid">
-              <label><span>{copy.filters.fromYear}</span><input inputMode="numeric" value={params.fromYear} onChange={(event) => update("fromYear", event.target.value)} /></label>
-              <label><span>{copy.filters.toYear}</span><input inputMode="numeric" value={params.toYear} onChange={(event) => update("toYear", event.target.value)} /></label>
-              <div className="field-grid__control">
-                <span>{copy.filters.sort}</span>
-                <SelectMenu label={copy.filters.sort} value={params.sort} options={sortOptions} onChange={(value) => update("sort", value)} />
-              </div>
-              <div className="field-grid__control">
-                <span>{copy.filters.order}</span>
-                <SelectMenu label={copy.filters.order} value={params.order} options={orderOptions} onChange={(value) => update("order", value)} />
-              </div>
-            </div>
-          </section>
-
-          <div className="advanced-form__actions">
-            <button type="button" className="button button--secondary" onClick={onReset}>{copy.common.reset}</button>
-            <button type="submit" className="button button--primary">{copy.common.apply}</button>
-          </div>
-        </form>
+        {panelBody}
       </section>
     </div>
   );
@@ -1361,14 +1763,12 @@ export function App(props: AppProps) {
       if (props.initialSearchParams) data.initialSearchParams = props.initialSearchParams;
       if (props.initialSource !== undefined) data.initialSource = props.initialSource;
       if (props.initialSearchItems) data.initialSearchItems = props.initialSearchItems;
+      if (props.initialSearchError !== undefined) data.initialSearchError = props.initialSearchError;
       return data;
     },
-    [props.initialSearchItems, props.initialSearchParams, props.initialSource, props.initialView]
+    [props.initialSearchError, props.initialSearchItems, props.initialSearchParams, props.initialSource, props.initialView]
   );
-  const { state, commands } = useAppController(initialData, router, {
-    workspaceUnknownError: dictionaries["zh-CN"].workspace.unknownError,
-    detailUnknownError: dictionaries["zh-CN"].detail.unknownError
-  });
+  const { state, commands } = useAppController(initialData, router);
   const { language, themePreference, resolvedTheme } = state.preferences;
   const { search, detail } = state;
 
@@ -1421,7 +1821,7 @@ export function App(props: AppProps) {
         open={state.ui.advancedOpen || initialView === "advanced-search"}
         standalone={initialView === "advanced-search"}
         onChange={commands.changeDraftParams}
-        onApply={() => commands.submitSearch(search.draftParams, initialView === "advanced-search" ? "/advanced-search" : "/search")}
+        onApply={(nextParams) => commands.submitSearch(nextParams, initialView === "advanced-search" ? "/advanced-search" : "/search")}
         onReset={
           initialView === "advanced-search"
             ? () => commands.clearSearchResults("/advanced-search")

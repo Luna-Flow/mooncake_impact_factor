@@ -4,6 +4,12 @@ import { DatabaseSync } from "node:sqlite";
 
 import type { DependentItem, PackageDetail, PackageSummary, PackageVersion } from "../frontend/src/types";
 import type { FeedSource } from "../frontend/src/api";
+import {
+  decodeQueryAstFromParams,
+  hasQueryAstIntent,
+  type QueryNode,
+  type QueryTermNode
+} from "./query.js";
 
 type SearchInput = {
   q?: string | null;
@@ -27,6 +33,8 @@ type SearchInput = {
   has_license?: string | null;
   sort?: string | null;
   order?: string | null;
+  expr?: string | null;
+  ast?: string | null;
 };
 
 type ParsedSearchParams = {
@@ -51,6 +59,8 @@ type ParsedSearchParams = {
   hasLicense: boolean | null;
   sort: string;
   order: string;
+  expr: string;
+  ast: string;
 };
 
 class HttpError extends Error {
@@ -151,7 +161,9 @@ function parseSearchParams(input: SearchInput): ParsedSearchParams {
     hasRepository: parseBoolean(input.has_repository ?? undefined, "has_repository"),
     hasLicense: parseBoolean(input.has_license ?? undefined, "has_license"),
     sort: input.sort?.trim() ?? "",
-    order: input.order?.trim() ?? ""
+    order: input.order?.trim() ?? "",
+    expr: input.expr?.trim() ?? "",
+    ast: input.ast?.trim() ?? ""
   };
 
   validateSearchParams(params);
@@ -264,6 +276,58 @@ function tokenizeQuery(input: string): string[] {
   return tokens;
 }
 
+function validateFtsTokens(tokens: string[]): void {
+  if (tokens.length === 0) {
+    throw new HttpError(400, "Search query is empty");
+  }
+
+  let expectOperand = true;
+  let depth = 0;
+
+  for (const token of tokens) {
+    if (token === "(") {
+      if (!expectOperand) {
+        throw new HttpError(400, "Missing boolean operator before opening parenthesis");
+      }
+      depth += 1;
+      continue;
+    }
+    if (token === ")") {
+      if (expectOperand || depth === 0) {
+        throw new HttpError(400, "Unexpected closing parenthesis in search query");
+      }
+      depth -= 1;
+      continue;
+    }
+    if (isBooleanOperator(token)) {
+      const normalized = token.toUpperCase();
+      if (normalized === "NOT") {
+        if (!expectOperand) {
+          expectOperand = true;
+          continue;
+        }
+        continue;
+      }
+      if (expectOperand) {
+        throw new HttpError(400, `Search query cannot start with \`${normalized}\``);
+      }
+      expectOperand = true;
+      continue;
+    }
+    if (!expectOperand) {
+      throw new HttpError(400, "Missing boolean operator between search terms");
+    }
+    expectOperand = false;
+  }
+
+  if (depth !== 0) {
+    throw new HttpError(400, "Unbalanced parentheses in search query");
+  }
+  if (expectOperand) {
+    throw new HttpError(400, "Search query cannot end with a boolean operator");
+  }
+}
+
 function isBooleanOperator(token: string): boolean {
   const normalized = token.toUpperCase();
   return normalized === "AND" || normalized === "OR" || normalized === "NOT";
@@ -357,16 +421,103 @@ function compileGlobalToken(token: string): string {
 }
 
 function compileFtsExpression(input: string): string {
-  const compiled = tokenizeQuery(input).map((token) => {
+  const tokens = tokenizeQuery(input);
+  validateFtsTokens(tokens);
+  const compiled = tokens.map((token) => {
     if (isBooleanOperator(token) || token === "(" || token === ")") {
       return token.toUpperCase();
     }
     return compileGlobalToken(token);
   });
-  if (compiled.length === 0) {
-    throw new HttpError(400, "Search query is empty");
-  }
   return compiled.join(" ");
+}
+
+function toEpochMillis(value: string | null): number {
+  if (!value) return 0;
+  const epoch = Date.parse(value);
+  return Number.isNaN(epoch) ? 0 : epoch;
+}
+
+function parseSemverKey(version: string | null): readonly [readonly [number, number, number], readonly [number, readonly (readonly [number, number | string])[]]] {
+  if (!version) {
+    return [[0, 0, 0], [0, []]];
+  }
+
+  const splitVersion = version.split("-", 2);
+  const coreText = splitVersion[0] ?? "";
+  const prereleaseText = splitVersion[1] ?? "";
+  const coreParts = coreText.split(".");
+  const coreNumbers: [number, number, number] = [0, 0, 0];
+  for (let index = 0; index < 3; index += 1) {
+    const part = coreParts[index] ?? "";
+    coreNumbers[index] = /^\d+$/.test(part) ? Number(part) : 0;
+  }
+
+  if (!prereleaseText) {
+    return [coreNumbers, [1, []]];
+  }
+
+  const prereleaseParts = prereleaseText.split(".").map((identifier) => (
+    /^\d+$/.test(identifier)
+      ? [0, Number(identifier)] as const
+      : [1, identifier] as const
+  ));
+  return [coreNumbers, [0, prereleaseParts]];
+}
+
+function compareSemverDesc(left: string | null, right: string | null): number {
+  const leftKey = parseSemverKey(left);
+  const rightKey = parseSemverKey(right);
+
+  for (let index = 0; index < 3; index += 1) {
+    const leftCore = leftKey[0][index] ?? 0;
+    const rightCore = rightKey[0][index] ?? 0;
+    if (leftCore !== rightCore) {
+      return rightCore - leftCore;
+    }
+  }
+
+  if (leftKey[1][0] !== rightKey[1][0]) {
+    return rightKey[1][0] - leftKey[1][0];
+  }
+
+  const maxLength = Math.max(leftKey[1][1].length, rightKey[1][1].length);
+  for (let index = 0; index < maxLength; index += 1) {
+    const leftPart = leftKey[1][1][index];
+    const rightPart = rightKey[1][1][index];
+    if (!leftPart) return 1;
+    if (!rightPart) return -1;
+    if (leftPart[0] !== rightPart[0]) {
+      return rightPart[0] - leftPart[0];
+    }
+    if (leftPart[1] === rightPart[1]) continue;
+    if (typeof leftPart[1] === "number" && typeof rightPart[1] === "number") {
+      return rightPart[1] - leftPart[1];
+    }
+    return String(rightPart[1]).localeCompare(String(leftPart[1]));
+  }
+
+  return 0;
+}
+
+function sortVersionsDescending(versions: PackageVersion[]): PackageVersion[] {
+  return [...versions].sort((left, right) => {
+    const createdAtOrder = toEpochMillis(right.created_at) - toEpochMillis(left.created_at);
+    if (createdAtOrder !== 0) {
+      return createdAtOrder;
+    }
+    return compareSemverDesc(left.version, right.version);
+  });
+}
+
+function normalizeSqliteSearchError(error: unknown): never {
+  if (error instanceof HttpError) {
+    throw error;
+  }
+  if (error instanceof Error && error.message.includes("fts5:")) {
+    throw new HttpError(400, "Invalid full-text search syntax");
+  }
+  throw error;
 }
 
 function compileFieldExpression(field: string, input: string): string {
@@ -443,6 +594,134 @@ function resolveOrderBy(sort: string, order: string, hasFtsQuery: boolean): stri
   }
 
   return ORDER_BY_CLAUSES[normalizedSort][normalizedOrder as OrderKey];
+}
+
+function compileAstTextMatch(term: QueryTermNode): string {
+  if (term.field === "text") {
+    return compileFtsValue(term.value);
+  }
+  const mapped = mapFieldAlias(term.field);
+  if (!mapped) {
+    throw new HttpError(400, `Field \`${term.field}\` is not a text search field`);
+  }
+  return `${mapped} : ${compileLiteralFieldValue(term.value, term.field)}`;
+}
+
+function compileAstTermNode(term: QueryTermNode): { sql: string; values: Array<string | number> } {
+  switch (term.field) {
+    case "text":
+    case "owner":
+    case "package":
+    case "keyword":
+    case "description": {
+      if (term.operator !== "match") {
+        throw new HttpError(400, `Field \`${term.field}\` only supports text match`);
+      }
+      return {
+        sql: "EXISTS (SELECT 1 FROM search_index WHERE rowid = p.id AND search_index MATCH ?)",
+        values: [compileAstTextMatch(term)]
+      };
+    }
+    case "license":
+    case "repository": {
+      if (term.operator !== "match" && term.operator !== "eq") {
+        throw new HttpError(400, `Field \`${term.field}\` only supports text equality or match`);
+      }
+      return {
+        sql: `LOWER(COALESCE(p.${term.field}, '')) LIKE LOWER(?) ESCAPE '\\'`,
+        values: [`%${escapeLikePattern(term.value)}%`]
+      };
+    }
+    case "rank": {
+      if (term.operator !== "eq") throw new HttpError(400, "rank only supports =");
+      const normalized = normalizeRankLabel(term.value);
+      if (!normalized) throw new HttpError(400, "rank is empty");
+      return { sql: "s.rank_label = ?", values: [normalized] };
+    }
+    case "momentum": {
+      if (term.operator !== "eq") throw new HttpError(400, "momentum only supports =");
+      const normalized = normalizeMomentumLabel(term.value);
+      if (!normalized) throw new HttpError(400, "momentum is empty");
+      return { sql: "s.momentum_label = ?", values: [normalized] };
+    }
+    case "score":
+      return compileNumericTerm("s.score", term, "score");
+    case "dependents":
+      return compileNumericTerm("p.dependent_count", term, "dependents", true);
+    case "recent_dependents":
+      return compileNumericTerm("p.recent_dependent_count", term, "recent_dependents", true);
+    case "downloads":
+      return compileNumericTerm("p.download_count", term, "downloads", true);
+    case "year":
+      return compileNumericTerm("CAST(substr(COALESCE(p.latest_created_at, ''), 1, 4) AS INTEGER)", term, "year", true);
+    case "has_repository":
+      return compileBooleanPresenceTerm("p.repository", term, "has_repository");
+    case "has_license":
+      return compileBooleanPresenceTerm("p.license", term, "has_license");
+    default:
+      throw new HttpError(400, `Unsupported query field \`${term.field}\``);
+  }
+}
+
+function compileNumericTerm(
+  sqlField: string,
+  term: QueryTermNode,
+  label: string,
+  integer = false
+): { sql: string; values: Array<string | number> } {
+  const parsed = integer ? parseInteger(term.value, label) : parseNumeric(term.value, label);
+  if (parsed === null) {
+    throw new HttpError(400, `${label} is empty`);
+  }
+  if (term.operator === "eq") {
+    return { sql: `${sqlField} = ?`, values: [parsed] };
+  }
+  if (term.operator === "gte") {
+    return { sql: `${sqlField} >= ?`, values: [parsed] };
+  }
+  if (term.operator === "lte") {
+    return { sql: `${sqlField} <= ?`, values: [parsed] };
+  }
+  throw new HttpError(400, `${label} does not support text match`);
+}
+
+function compileBooleanPresenceTerm(
+  sqlField: string,
+  term: QueryTermNode,
+  label: string
+): { sql: string; values: Array<string | number> } {
+  if (term.operator !== "eq") {
+    throw new HttpError(400, `${label} only supports =`);
+  }
+  const parsed = parseBoolean(term.value, label);
+  if (parsed === null) {
+    throw new HttpError(400, `${label} is empty`);
+  }
+  return {
+    sql: parsed
+      ? `${sqlField} IS NOT NULL AND trim(${sqlField}) <> ''`
+      : `(${sqlField} IS NULL OR trim(${sqlField}) = '')`,
+    values: []
+  };
+}
+
+function compileAstNode(node: QueryNode): { sql: string; values: Array<string | number> } {
+  if (node.kind === "term") {
+    const compiled = compileAstTermNode(node);
+    return node.negated
+      ? { sql: `NOT (${compiled.sql})`, values: compiled.values }
+      : compiled;
+  }
+
+  if (node.children.length === 0) {
+    return { sql: "1 = 1", values: [] };
+  }
+
+  const parts = node.children.map(compileAstNode);
+  const glue = node.op === "and" ? " AND " : " OR ";
+  const sql = parts.map((part) => `(${part.sql})`).join(glue);
+  const values = parts.flatMap((part) => part.values);
+  return node.negated ? { sql: `NOT (${sql})`, values } : { sql, values };
 }
 
 function mapPackageSummary(row: RowRecord): PackageSummary {
@@ -550,13 +829,43 @@ export function getFeedPackages(source: FeedSource, limit = 40): PackageSummary[
 }
 
 export function searchPackagesFromInput(input: SearchInput): PackageSummary[] {
-  const params = parseSearchParams(input);
-  const ftsQuery = buildFtsQuery(params);
-  if (!ftsQuery && !hasNonTextFilters(params)) {
-    return getFeedPackages("top", params.limit);
-  }
+  try {
+    const params = parseSearchParams(input);
+    const astQuery = decodeQueryAstFromParams({ ast: params.ast, expr: params.expr });
 
-  let sql = `
+    if (astQuery && hasQueryAstIntent(astQuery)) {
+      let sql = `
+      SELECT
+        p.full_name,
+        p.owner,
+        p.package_name,
+        p.description,
+        p.latest_version,
+        p.dependent_count,
+        p.recent_dependent_count,
+        p.download_count,
+        s.score,
+        s.score_30d_ago,
+        s.score_growth_30d,
+        s.score_growth_ratio_30d,
+        s.rank_label,
+        s.momentum_label
+      FROM packages p
+      JOIN package_scores s ON s.package_id = p.id
+      WHERE `;
+      const compiled = compileAstNode(astQuery);
+      sql += `${compiled.sql}\n`;
+      sql += `ORDER BY ${resolveOrderBy(params.sort, params.order, false)}\nLIMIT ?`;
+      const values = [...compiled.values, params.limit];
+      return (getDatabase().prepare(sql).all(...values) as RowRecord[]).map(mapPackageSummary);
+    }
+
+    const ftsQuery = buildFtsQuery(params);
+    if (!ftsQuery && !hasNonTextFilters(params)) {
+      return getFeedPackages("top", params.limit);
+    }
+
+    let sql = `
     SELECT
       p.full_name,
       p.owner,
@@ -574,78 +883,81 @@ export function searchPackagesFromInput(input: SearchInput): PackageSummary[] {
       s.momentum_label
     FROM packages p
     JOIN package_scores s ON s.package_id = p.id
-  `;
-  if (ftsQuery) {
-    sql += "JOIN search_index si ON si.rowid = p.id\n";
-  }
-  sql += "WHERE 1 = 1\n";
+    `;
+    if (ftsQuery) {
+      sql += "JOIN search_index si ON si.rowid = p.id\n";
+    }
+    sql += "WHERE 1 = 1\n";
 
-  const values: Array<string | number> = [];
-  if (ftsQuery) {
-    sql += "  AND search_index MATCH ?\n";
-    values.push(ftsQuery);
-  }
-  if (params.license) {
-    sql += "  AND LOWER(COALESCE(p.license, '')) LIKE LOWER(?) ESCAPE '\\'\n";
-    values.push(`%${escapeLikePattern(params.license)}%`);
-  }
-  if (params.repository) {
-    sql += "  AND LOWER(COALESCE(p.repository, '')) LIKE LOWER(?) ESCAPE '\\'\n";
-    values.push(`%${escapeLikePattern(params.repository)}%`);
-  }
-  const rankLabel = normalizeRankLabel(params.rank);
-  if (rankLabel) {
-    sql += "  AND s.rank_label = ?\n";
-    values.push(rankLabel);
-  }
-  const momentumLabel = normalizeMomentumLabel(params.momentum);
-  if (momentumLabel) {
-    sql += "  AND s.momentum_label = ?\n";
-    values.push(momentumLabel);
-  }
-  if (params.minScore !== null) {
-    sql += "  AND s.score >= ?\n";
-    values.push(params.minScore);
-  }
-  if (params.maxScore !== null) {
-    sql += "  AND s.score <= ?\n";
-    values.push(params.maxScore);
-  }
-  if (params.minDependents !== null) {
-    sql += "  AND p.dependent_count >= ?\n";
-    values.push(params.minDependents);
-  }
-  if (params.minRecentDependents !== null) {
-    sql += "  AND p.recent_dependent_count >= ?\n";
-    values.push(params.minRecentDependents);
-  }
-  if (params.minDownloads !== null) {
-    sql += "  AND p.download_count >= ?\n";
-    values.push(params.minDownloads);
-  }
-  if (params.fromYear !== null) {
-    sql += "  AND CAST(substr(COALESCE(p.latest_created_at, ''), 1, 4) AS INTEGER) >= ?\n";
-    values.push(params.fromYear);
-  }
-  if (params.toYear !== null) {
-    sql += "  AND CAST(substr(COALESCE(p.latest_created_at, ''), 1, 4) AS INTEGER) <= ?\n";
-    values.push(params.toYear);
-  }
-  if (params.hasRepository !== null) {
-    sql += params.hasRepository
-      ? "  AND p.repository IS NOT NULL AND trim(p.repository) <> ''\n"
-      : "  AND (p.repository IS NULL OR trim(p.repository) = '')\n";
-  }
-  if (params.hasLicense !== null) {
-    sql += params.hasLicense
-      ? "  AND p.license IS NOT NULL AND trim(p.license) <> ''\n"
-      : "  AND (p.license IS NULL OR trim(p.license) = '')\n";
-  }
+    const values: Array<string | number> = [];
+    if (ftsQuery) {
+      sql += "  AND search_index MATCH ?\n";
+      values.push(ftsQuery);
+    }
+    if (params.license) {
+      sql += "  AND LOWER(COALESCE(p.license, '')) LIKE LOWER(?) ESCAPE '\\'\n";
+      values.push(`%${escapeLikePattern(params.license)}%`);
+    }
+    if (params.repository) {
+      sql += "  AND LOWER(COALESCE(p.repository, '')) LIKE LOWER(?) ESCAPE '\\'\n";
+      values.push(`%${escapeLikePattern(params.repository)}%`);
+    }
+    const rankLabel = normalizeRankLabel(params.rank);
+    if (rankLabel) {
+      sql += "  AND s.rank_label = ?\n";
+      values.push(rankLabel);
+    }
+    const momentumLabel = normalizeMomentumLabel(params.momentum);
+    if (momentumLabel) {
+      sql += "  AND s.momentum_label = ?\n";
+      values.push(momentumLabel);
+    }
+    if (params.minScore !== null) {
+      sql += "  AND s.score >= ?\n";
+      values.push(params.minScore);
+    }
+    if (params.maxScore !== null) {
+      sql += "  AND s.score <= ?\n";
+      values.push(params.maxScore);
+    }
+    if (params.minDependents !== null) {
+      sql += "  AND p.dependent_count >= ?\n";
+      values.push(params.minDependents);
+    }
+    if (params.minRecentDependents !== null) {
+      sql += "  AND p.recent_dependent_count >= ?\n";
+      values.push(params.minRecentDependents);
+    }
+    if (params.minDownloads !== null) {
+      sql += "  AND p.download_count >= ?\n";
+      values.push(params.minDownloads);
+    }
+    if (params.fromYear !== null) {
+      sql += "  AND CAST(substr(COALESCE(p.latest_created_at, ''), 1, 4) AS INTEGER) >= ?\n";
+      values.push(params.fromYear);
+    }
+    if (params.toYear !== null) {
+      sql += "  AND CAST(substr(COALESCE(p.latest_created_at, ''), 1, 4) AS INTEGER) <= ?\n";
+      values.push(params.toYear);
+    }
+    if (params.hasRepository !== null) {
+      sql += params.hasRepository
+        ? "  AND p.repository IS NOT NULL AND trim(p.repository) <> ''\n"
+        : "  AND (p.repository IS NULL OR trim(p.repository) = '')\n";
+    }
+    if (params.hasLicense !== null) {
+      sql += params.hasLicense
+        ? "  AND p.license IS NOT NULL AND trim(p.license) <> ''\n"
+        : "  AND (p.license IS NULL OR trim(p.license) = '')\n";
+    }
 
-  sql += `ORDER BY ${resolveOrderBy(params.sort, params.order, Boolean(ftsQuery))}\nLIMIT ?`;
-  values.push(params.limit);
+    sql += `ORDER BY ${resolveOrderBy(params.sort, params.order, Boolean(ftsQuery))}\nLIMIT ?`;
+    values.push(params.limit);
 
-  return (getDatabase().prepare(sql).all(...values) as RowRecord[]).map(mapPackageSummary);
+    return (getDatabase().prepare(sql).all(...values) as RowRecord[]).map(mapPackageSummary);
+  } catch (error: unknown) {
+    normalizeSqliteSearchError(error);
+  }
 }
 
 export function getPackageAnalysis(owner: string, packageName: string): { detail: PackageDetail; dependents: DependentItem[] } {
@@ -685,13 +997,13 @@ export function getPackageAnalysis(owner: string, packageName: string): { detail
   const detail = mapPackageDetail(detailRow);
   const packageId = Number(detailRow["id"]);
 
-  detail.versions = (db.prepare(`
+  detail.versions = sortVersionsDescending((db.prepare(`
     SELECT version, created_at, deps_json
     FROM versions
     WHERE package_id = ?
     ORDER BY created_at DESC, version DESC
     LIMIT 20
-  `).all(packageId) as RowRecord[]).map(mapVersion);
+  `).all(packageId) as RowRecord[]).map(mapVersion));
 
   const dependents = (db.prepare(`
     SELECT
@@ -715,4 +1027,11 @@ export function getPackageAnalysis(owner: string, packageName: string): { detail
 
 export function isHttpError(error: unknown): error is HttpError {
   return error instanceof HttpError;
+}
+
+export function resetDatabaseForTests(): void {
+  if (database) {
+    database.close();
+    database = null;
+  }
 }

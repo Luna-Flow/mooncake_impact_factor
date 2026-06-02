@@ -126,8 +126,9 @@ GET /api/packages/<owner>/<packageName>/analysis
 
 ```bash
 moon fmt
-moon check --target all
-moon test --target all
+moon check src/score --target all
+moon check src/cli --target js
+moon test src/score --target all
 npm run typecheck
 npm run build
 ```

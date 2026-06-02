@@ -1,0 +1,9 @@
+import {
+  "Luna-Flow/mooncake-impact-factor/score",
+  "moonbitlang/core/env",
+  "moonbitlang/core/json",
+}
+
+options(
+  "is-main": true,
+)

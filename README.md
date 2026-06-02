@@ -10,6 +10,7 @@ This documentation tracks the current **`0.1.1`** release baseline declared in
 ### Package Positioning
 
 - **`src/score`**: MoonBit package that exposes the reusable impact-score computation and rank mapping.
+- **`src/cli`**: MoonBit CLI bridge that serves score snapshot computation to non-MoonBit callers.
 - **`scripts/build_index.py`**: Local registry ingester that rebuilds SQLite state, computes package relationships, and materializes search data.
 - **`app` + `frontend/src` + `lib`**: Next.js full-stack research UI with route-handler APIs backed directly by SQLite.
 
@@ -17,9 +18,9 @@ This documentation tracks the current **`0.1.1`** release baseline declared in
 
 - **Local Registry Snapshot Ingestion**: Reads `~/.moon/registry/index/user/**/*.index` and rebuilds package, version, dependency, reverse-edge, score, and FTS tables.
 - **SQLite-Backed Search Surface**: Exposes ranked feeds, full-text search, structured filters, and per-package analysis endpoints from the Next.js app.
-- **Shared Score Formula**: Keeps the MoonBit package and Python index builder aligned on the same score equation and rank thresholds.
+- **Shared Score Formula**: Uses the MoonBit score package plus a local MoonBit CLI bridge so the Python index builder consumes the same score, rank, and momentum rules.
 - **Download Signal Support**: Can fetch per-package download counts from `mooncakes.io`, reuse a local cache, or apply a local override JSON file.
-- **Momentum Layer**: Computes `Rising`, `Hot`, and `Stable` labels in the Python build pipeline for the serving layer.
+- **Momentum Layer**: Uses MoonBit-exported momentum rules through the local CLI bridge, then materializes `Rising`, `Hot`, and `Stable` labels in the Python build pipeline.
 - **Release-Aligned Documentation**: `README.md`, `CONTRIBUTING.md`, and localized docs are intended to describe the real branch state rather than a speculative roadmap.
 
 ### API Guidance & Data Semantics
@@ -80,8 +81,9 @@ Then open `http://127.0.0.1:3000`.
 
 ```bash
 moon fmt
-moon check --target all
-moon test --target all
+moon check src/score --target all
+moon check src/cli --target js
+moon test src/score --target all
 npm run typecheck
 npm run build
 ```
@@ -118,7 +120,9 @@ npm run build
 - **Score Model**:
   - `compute_score()` combines total dependents, recent dependents, downloads, and release age.
   - `rank_label()` maps the raw score to `S`, `A`, `B`, `C`, or `D`.
-  - Python additionally computes `score_30d_ago`, growth, growth ratio, momentum label, and activity multiplier for serving.
+  - `compute_momentum_label()` maps score deltas to `Rising`, `Hot`, or `Stable`.
+  - `compute_score_snapshot()` returns score, historical score, growth, growth ratio, rank label, momentum label, and activity multiplier in one MoonBit call.
+  - Python keeps the indexing and SQLite materialization flow, but delegates score snapshot and momentum-rule evaluation to the MoonBit CLI.
 
 - **Serving Surface**:
   - `GET /api/feeds/top?limit=<n>`
@@ -140,8 +144,9 @@ just web-build
 just serve
 just dev
 moon fmt
-moon check --target all
-moon test --target all
+moon check src/score --target all
+moon check src/cli --target js
+moon test src/score --target all
 npm run typecheck
 npm run build
 ./run_test.sh
@@ -156,7 +161,7 @@ Before publishing:
 
 1. Bump the version in `moon.mod`.
 2. Keep `README.md`, `CONTRIBUTING.md`, and `doc/*` aligned with the branch.
-3. Run `moon fmt`, `moon check --target all`, `moon test --target all`, `npm run typecheck`, and `npm run build`.
+3. Run `moon fmt`, `moon check src/score --target all`, `moon check src/cli --target js`, `moon test src/score --target all`, `npm run typecheck`, and `npm run build`.
 4. Ensure `README.md` exists and `moon.mod.json` does not exist.
 5. Trigger `publish-package`; it installs MoonBit, runs checks, and calls `moon publish` with the `LUNA_MOONCAKE` secret.
 

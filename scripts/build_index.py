@@ -6,8 +6,11 @@ import argparse
 import datetime as dt
 import json
 import math
+import os
 import sqlite3
+import subprocess
 import sys
+import tempfile
 import time
 import urllib.error
 import urllib.parse
@@ -21,6 +24,7 @@ DEFAULT_INDEX_ROOT = Path.home() / ".moon" / "registry" / "index" / "user"
 DEFAULT_DB_PATH = Path("data/mooncake.db")
 DEFAULT_DOWNLOAD_CACHE_PATH = Path("data/download_cache.json")
 MOONCAKES_MANIFEST_BASE = "https://mooncakes.io/api/v0/manifest/"
+MOONBIT_CLI_JS_PATH = Path("_build/js/debug/build/cli/cli.js")
 
 
 SCHEMA_SQL = """
@@ -127,9 +131,36 @@ def split_name(full_name: str) -> tuple[str, str]:
     return owner, package_name
 
 
+def parse_semver_key(version: str | None) -> tuple[tuple[int, int, int], tuple[int, tuple[tuple[int, object], ...]]]:
+    if not version:
+        return (0, 0, 0), (0, ())
+
+    core_text, _, prerelease_text = version.partition("-")
+    core_parts = core_text.split(".")
+    core_numbers = []
+    for index in range(3):
+        if index < len(core_parts) and core_parts[index].isdigit():
+            core_numbers.append(int(core_parts[index]))
+        else:
+            core_numbers.append(0)
+
+    if not prerelease_text:
+        return tuple(core_numbers), (1, ())
+
+    prerelease_parts = []
+    for identifier in prerelease_text.split("."):
+        if identifier.isdigit():
+            prerelease_parts.append((0, int(identifier)))
+        else:
+            prerelease_parts.append((1, identifier))
+    return tuple(core_numbers), (0, tuple(prerelease_parts))
+
+
 def choose_latest(records: list[dict]) -> dict:
-    def key(record: dict) -> tuple[str, str]:
-        return record.get("created_at") or "", record.get("version") or ""
+    def key(record: dict) -> tuple[int, tuple[int, int, int], tuple[int, tuple[tuple[int, object], ...]]]:
+        created_at_ms = to_epoch_millis(record.get("created_at")) or 0
+        version_key = parse_semver_key(record.get("version"))
+        return created_at_ms, version_key[0], version_key[1]
 
     return max(records, key=key)
 
@@ -154,6 +185,73 @@ def save_download_cache(path: Path, downloads: dict[str, int]) -> None:
         json.dumps(dict(sorted(downloads.items())), ensure_ascii=True, indent=2) + "\n",
         encoding="utf-8",
     )
+
+
+def parse_iso_datetime(value: str | None) -> dt.datetime | None:
+    if not value:
+        return None
+    return dt.datetime.fromisoformat(value)
+
+
+def to_epoch_millis(value: str | None) -> int | None:
+    parsed = parse_iso_datetime(value)
+    if parsed is None:
+        return None
+    if parsed.tzinfo is None:
+        parsed = parsed.replace(tzinfo=dt.timezone.utc)
+    else:
+        parsed = parsed.astimezone(dt.timezone.utc)
+    return int(parsed.timestamp() * 1000)
+
+
+def ensure_moonbit_cli() -> Path:
+    cli_path = Path.cwd() / MOONBIT_CLI_JS_PATH
+    if cli_path.exists():
+        return cli_path
+    subprocess.run(
+        ["moon", "build", "src/cli", "--target", "js"],
+        check=True,
+    )
+    if not cli_path.exists():
+        raise RuntimeError(f"MoonBit CLI not found at {cli_path}")
+    return cli_path
+
+
+def compute_score_snapshot_via_moonbit(
+    *,
+    dependents: int,
+    recent_dependents: int,
+    downloads: int,
+    days_since_release: int,
+    historical_dependents: int,
+    historical_recent_dependents: int,
+    historical_downloads: int,
+    historical_days_since_release: int,
+) -> dict[str, float | str]:
+    cli_path = ensure_moonbit_cli()
+    payload = {
+        "dependents": dependents,
+        "recent_dependents": recent_dependents,
+        "downloads": downloads,
+        "days_since_release": days_since_release,
+        "historical_dependents": historical_dependents,
+        "historical_recent_dependents": historical_recent_dependents,
+        "historical_downloads": historical_downloads,
+        "historical_days_since_release": historical_days_since_release,
+    }
+    with tempfile.NamedTemporaryFile("w", encoding="utf-8", suffix=".json", delete=False) as handle:
+        json.dump(payload, handle, ensure_ascii=True)
+        temp_path = handle.name
+    try:
+        completed = subprocess.run(
+            ["node", os.fspath(cli_path), "score-snapshot", "--input", temp_path],
+            check=True,
+            capture_output=True,
+            text=True,
+        )
+    finally:
+        Path(temp_path).unlink(missing_ok=True)
+    return json.loads(completed.stdout)
 
 
 def render_progress(current: int, total: int, success_count: int, width: int = 32) -> None:
@@ -283,12 +381,6 @@ def compute_score(
     return score, multiplier, rank
 
 
-def parse_iso_datetime(value: str | None) -> dt.datetime | None:
-    if not value:
-        return None
-    return dt.datetime.fromisoformat(value)
-
-
 def compute_momentum_label(score: float, score_30d_ago: float, growth_ratio: float, recent_dependents: int) -> str:
     growth_abs = score - score_30d_ago
     if growth_abs >= 35.0 and growth_ratio >= 0.35 and recent_dependents >= 3:
@@ -296,6 +388,24 @@ def compute_momentum_label(score: float, score_30d_ago: float, growth_ratio: flo
     if growth_abs >= 18.0 and growth_ratio >= 0.18 and recent_dependents >= 2:
         return "Hot"
     return "Stable"
+
+
+def compute_history_window_bounds(now: dt.datetime) -> tuple[dt.datetime, dt.datetime, dt.datetime]:
+    score_30d_cutoff = now - dt.timedelta(days=30)
+    historical_recent_start = now - dt.timedelta(days=210)
+    recent_cutoff = now - dt.timedelta(days=180)
+    return score_30d_cutoff, historical_recent_start, recent_cutoff
+
+
+def compute_historical_snapshot_inputs(
+    *,
+    now: dt.datetime,
+    released_at: dt.datetime | None,
+) -> tuple[int, int]:
+    score_30d_cutoff = now - dt.timedelta(days=30)
+    if released_at is None or released_at > score_30d_cutoff:
+        return 0, 0
+    return max(0, (score_30d_cutoff - released_at).days), 0
 
 
 def build_database(
@@ -314,6 +424,7 @@ def build_database(
 
         package_rows: dict[str, list[dict]] = {}
         for record in iter_index_records(index_root):
+            record["created_at_ms"] = to_epoch_millis(record.get("created_at"))
             package_rows.setdefault(record["name"], []).append(record)
         print(f"[build] loaded {len(package_rows)} packages from local index")
 
@@ -440,10 +551,8 @@ def build_database(
                 )
         print("[build] computed package-level dependency edges")
 
-        recent_cutoff = (dt.datetime.now(dt.timezone.utc) - dt.timedelta(days=180)).isoformat()
         now = dt.datetime.now(dt.timezone.utc)
-        score_30d_cutoff = now - dt.timedelta(days=30)
-        score_180d_cutoff = now - dt.timedelta(days=180)
+        score_30d_cutoff, historical_recent_start, recent_cutoff = compute_history_window_bounds(now)
         dependent_counts = {
             row["target_package_id"]: (row["dependent_count"], row["recent_dependent_count"])
             for row in conn.execute(
@@ -455,7 +564,7 @@ def build_database(
                 FROM package_edges
                 GROUP BY target_package_id
                 """,
-                (recent_cutoff,),
+                (recent_cutoff.isoformat(),),
             )
         }
 
@@ -474,12 +583,6 @@ def build_database(
                 (dependent_count, recent_dependent_count, row["id"]),
             )
 
-            score, multiplier, rank = compute_score(
-                dependents=dependent_count,
-                recent_dependents=recent_dependent_count,
-                downloads=row["download_count"],
-                days_since_release=days_since_release,
-            )
             historical = conn.execute(
                 """
                 SELECT
@@ -490,22 +593,26 @@ def build_database(
                   AND first_seen_at <= ?
                 """,
                 (
-                    score_180d_cutoff.isoformat(),
+                    historical_recent_start.isoformat(),
                     score_30d_cutoff.isoformat(),
                     row["id"],
                     score_30d_cutoff.isoformat(),
                 ),
             ).fetchone()
-            released_30d_ago_days = max(0, (score_30d_cutoff - released_at).days) if released_at and released_at <= score_30d_cutoff else 3650
-            score_30d_ago, _, _ = compute_score(
-                dependents=historical["dependents_30d_ago"] or 0,
-                recent_dependents=historical["recent_dependents_30d_ago"] or 0,
-                downloads=row["download_count"],
-                days_since_release=released_30d_ago_days,
+            historical_days_since_release, historical_downloads = compute_historical_snapshot_inputs(
+                now=now,
+                released_at=released_at,
             )
-            score_growth_30d = score - score_30d_ago
-            score_growth_ratio_30d = score_growth_30d / score_30d_ago if score_30d_ago > 0 else (1.0 if score_growth_30d > 0 else 0.0)
-            momentum_label = compute_momentum_label(score, score_30d_ago, score_growth_ratio_30d, recent_dependent_count)
+            snapshot = compute_score_snapshot_via_moonbit(
+                dependents=dependent_count,
+                recent_dependents=recent_dependent_count,
+                downloads=row["download_count"],
+                days_since_release=days_since_release,
+                historical_dependents=historical["dependents_30d_ago"] or 0,
+                historical_recent_dependents=historical["recent_dependents_30d_ago"] or 0,
+                historical_downloads=historical_downloads,
+                historical_days_since_release=historical_days_since_release,
+            )
             conn.execute(
                 """
                 INSERT INTO package_scores (
@@ -516,13 +623,13 @@ def build_database(
                 """,
                 (
                     row["id"],
-                    score,
-                    score_30d_ago,
-                    score_growth_30d,
-                    score_growth_ratio_30d,
-                    rank,
-                    momentum_label,
-                    multiplier,
+                    snapshot["score"],
+                    snapshot["score_30d_ago"],
+                    snapshot["score_growth_30d"],
+                    snapshot["score_growth_ratio_30d"],
+                    snapshot["rank_label"],
+                    snapshot["momentum_label"],
+                    snapshot["activity_multiplier"],
                     now.isoformat(),
                 ),
             )

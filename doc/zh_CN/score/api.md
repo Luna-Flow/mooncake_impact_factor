@@ -53,6 +53,14 @@
 - `C`：`score >= 50.0`
 - `D`：其余情况
 
+### `compute_momentum_label(score : Double, score_30d_ago : Double, growth_ratio : Double, recent_dependents : Int) -> String`
+
+把分数增长画像映射到 `Rising`、`Hot`、`Stable`。
+
+### `compute_score_snapshot(...) -> ScoreSnapshot`
+
+一次性返回当前分数快照、历史比较字段、等级标签、动量标签和活跃度乘数。
+
 ## 稳定 HTTP 接口
 
 ### `GET /api/feeds/top?limit=<n>`

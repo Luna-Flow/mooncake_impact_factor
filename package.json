@@ -6,7 +6,8 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "typecheck": "tsc --project tsconfig.json --noEmit"
+    "typecheck": "tsc --project tsconfig.json --noEmit",
+    "test": "node --experimental-specifier-resolution=node --test tests/*.test.mjs"
   },
   "dependencies": {
     "@gsap/react": "^2.1.2",

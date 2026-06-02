@@ -11,7 +11,7 @@ export async function GET(
 ) {
   try {
     const { owner, packageName } = await context.params;
-    const analysis = getPackageAnalysis(decodeURIComponent(owner), decodeURIComponent(packageName));
+    const analysis = getPackageAnalysis(owner, packageName);
     return NextResponse.json(analysis);
   } catch (error: unknown) {
     if (isHttpError(error)) {
