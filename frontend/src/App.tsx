@@ -2,6 +2,7 @@
 
 import { useEffect, useId, useMemo, useRef, useState } from "react";
 import type { FormEvent, KeyboardEvent as ReactKeyboardEvent, ReactNode, RefObject } from "react";
+import { createPortal } from "react-dom";
 import { useRouter } from "next/navigation";
 import { useGSAP } from "@gsap/react";
 import gsap from "gsap";
@@ -19,9 +20,6 @@ import {
 
 import {
   DEFAULT_SEARCH_PARAMS,
-  fetchFeed,
-  fetchPackageAnalysis,
-  searchPackages,
   type AdvancedSearchParams,
   type FeedSource,
   type SearchMomentum,
@@ -29,33 +27,29 @@ import {
   type SearchRank,
   type SearchSort
 } from "./api";
-import { dictionaries, detectLanguage, type Language, type ThemePreference } from "./i18n";
-import type { DependentItem, PackageDetail, PackageSummary } from "./types";
+import { dictionaries, type Language, type ThemePreference } from "./i18n";
+import {
+  buildSearchHref,
+  normalizeSearchParams,
+  type AppInitialData,
+  type AppView,
+  type DetailState,
+  type SearchState
+} from "./app-state";
+import { useAppController } from "./useAppController";
+import type { PackageSummary } from "./types";
 
 type AppProps = {
   initialTopPackages: PackageSummary[];
-  initialView: "landing" | "search" | "advanced-search";
+  initialView: AppView;
   initialSearchParams?: Partial<AdvancedSearchParams>;
   initialSource?: FeedSource | null;
   initialSearchItems?: PackageSummary[];
 };
 
-type WorkspaceSource = FeedSource | "search";
-type SearchState =
-  | { status: "idle"; source: null; items: PackageSummary[]; params: AdvancedSearchParams }
-  | { status: "loading"; source: WorkspaceSource; items: PackageSummary[]; params: AdvancedSearchParams }
-  | { status: "ready"; source: WorkspaceSource; items: PackageSummary[]; params: AdvancedSearchParams }
-  | { status: "error"; source: WorkspaceSource; items: PackageSummary[]; params: AdvancedSearchParams; message: string };
-type DetailState =
-  | { status: "closed" }
-  | { status: "loading"; packageName: string }
-  | { status: "ready"; detail: PackageDetail; dependents: DependentItem[] }
-  | { status: "error"; packageName: string; message: string };
 type PromptPreset = { label: string; params: Partial<AdvancedSearchParams> };
 type SelectOption<T extends string> = { value: T; label: string; hint?: string };
 
-const LANGUAGE_STORAGE_KEY = "mooncake-impact-language";
-const THEME_STORAGE_KEY = "mooncake-impact-theme";
 const FOCUSABLE_SELECTOR =
   'a[href], button:not([disabled]), textarea:not([disabled]), input:not([disabled]), [tabindex]:not([tabindex="-1"])';
 
@@ -74,61 +68,17 @@ function formatDate(language: Language, value: string | null): string {
   return new Intl.DateTimeFormat(language, { year: "numeric", month: "short", day: "numeric" }).format(parsed);
 }
 
-function splitFullName(fullName: string): { owner: string; packageName: string } {
-  const parts = fullName.split("/");
-  if (parts.length !== 2 || !parts[0] || !parts[1]) {
-    throw new Error(`Invalid package name: ${fullName}`);
-  }
-  return { owner: parts[0], packageName: parts[1] };
-}
-
-function cloneSearchParams(params: AdvancedSearchParams): AdvancedSearchParams {
-  return { ...params };
-}
-
-function normalizeSearchParams(params?: Partial<AdvancedSearchParams>): AdvancedSearchParams {
-  return {
-    ...cloneSearchParams(DEFAULT_SEARCH_PARAMS),
-    ...params
-  };
-}
-
-function detectStoredTheme(): ThemePreference {
-  if (typeof window === "undefined") return "system";
-  const stored = window.localStorage.getItem(THEME_STORAGE_KEY);
-  if (stored === "system" || stored === "light" || stored === "dark") {
-    return stored;
-  }
-  return "system";
-}
-
-function resolveTheme(preference: ThemePreference): "light" | "dark" {
-  if (preference === "light" || preference === "dark") {
-    return preference;
-  }
-  if (typeof window === "undefined") return "light";
-  return window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
-}
-
 function shouldReduceMotion(): boolean {
   if (typeof window === "undefined") return true;
   return window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 }
 
-function getSearchErrorMessage(error: unknown, fallback: string): string {
-  return error instanceof Error ? error.message : fallback;
-}
-
-function getSourceCopy(language: Language, source: WorkspaceSource): string {
+function getSourceCopy(language: Language, source: FeedSource | null): string {
   const copy = dictionaries[language];
   if (source === "top") return copy.workspace.topFeed;
   if (source === "hot") return copy.workspace.hotFeed;
   if (source === "rising") return copy.workspace.risingFeed;
   return copy.workspace.searchResults;
-}
-
-function hasSearchIntent(params: AdvancedSearchParams): boolean {
-  return Object.values(params).some((value) => typeof value === "string" && value.trim().length > 0);
 }
 
 function hasActiveFilters(params: AdvancedSearchParams): boolean {
@@ -218,47 +168,6 @@ function useDialogBehavior(props: {
   }, [initialFocusRef, onClose, open, rootRef]);
 }
 
-function appendIfPresent(query: URLSearchParams, key: string, value: string): void {
-  const trimmed = value.trim();
-  if (trimmed) query.set(key, trimmed);
-}
-
-function appendBooleanIfPresent(query: URLSearchParams, key: string, value: "" | "true" | "false"): void {
-  if (value) query.set(key, value);
-}
-
-function buildSearchHref(params: AdvancedSearchParams, source?: FeedSource | null, pathname = "/search"): string {
-  const query = new URLSearchParams();
-
-  if (source) {
-    query.set("source", source);
-  } else {
-    appendIfPresent(query, "q", params.q);
-    appendIfPresent(query, "owner", params.owner);
-    appendIfPresent(query, "package", params.packageName);
-    appendIfPresent(query, "keyword", params.keyword);
-    appendIfPresent(query, "description", params.description);
-    appendIfPresent(query, "license", params.license);
-    appendIfPresent(query, "repository", params.repository);
-    appendIfPresent(query, "rank", params.rank);
-    appendIfPresent(query, "momentum", params.momentum);
-    appendIfPresent(query, "min_score", params.minScore);
-    appendIfPresent(query, "max_score", params.maxScore);
-    appendIfPresent(query, "min_dependents", params.minDependents);
-    appendIfPresent(query, "min_recent_dependents", params.minRecentDependents);
-    appendIfPresent(query, "min_downloads", params.minDownloads);
-    appendIfPresent(query, "from_year", params.fromYear);
-    appendIfPresent(query, "to_year", params.toYear);
-    appendBooleanIfPresent(query, "has_repository", params.hasRepository);
-    appendBooleanIfPresent(query, "has_license", params.hasLicense);
-    appendIfPresent(query, "sort", params.sort);
-    appendIfPresent(query, "order", params.order);
-  }
-
-  const suffix = query.toString();
-  return `${pathname}${suffix ? `?${suffix}` : ""}`;
-}
-
 function createPromptPresets(language: Language): PromptPreset[] {
   const copy = dictionaries[language];
   return [
@@ -277,28 +186,8 @@ function createPromptPresets(language: Language): PromptPreset[] {
   ];
 }
 
-function buildInitialSearchState(props: AppProps): SearchState {
-  const params = normalizeSearchParams(props.initialSearchParams);
-  if (props.initialView === "landing") {
-    return { status: "idle", source: null, items: [], params };
-  }
-  if (props.initialSource) {
-    return { status: "ready", source: props.initialSource, items: props.initialSearchItems ?? [], params };
-  }
-  if (hasSearchIntent(params)) {
-    return { status: "ready", source: "search", items: props.initialSearchItems ?? [], params };
-  }
-  return { status: "idle", source: null, items: [], params };
-}
-
 function pickLeadMetric(language: Language, item: PackageSummary): { label: string; value: string } {
   const copy = dictionaries[language];
-  if (item.momentum_label === "Hot" || item.momentum_label === "Rising") {
-    return { label: copy.detail.scoreGrowth, value: formatDecimal(language, item.score_growth_30d) };
-  }
-  if (item.dependent_count >= item.download_count / 2) {
-    return { label: copy.detail.dependentsMetric, value: formatNumber(language, item.dependent_count) };
-  }
   return { label: copy.detail.score, value: formatDecimal(language, item.score) };
 }
 
@@ -318,15 +207,60 @@ function SelectMenu<T extends string>(props: {
   });
   const rootRef = useRef<HTMLDivElement | null>(null);
   const triggerRef = useRef<HTMLButtonElement | null>(null);
+  const panelRef = useRef<HTMLDivElement | null>(null);
   const optionRefs = useRef<Array<HTMLButtonElement | null>>([]);
   const panelId = useId();
   const selectedOption = options.find((option) => option.value === value) ?? options[0];
+  const selectedIndex = options.findIndex((option) => option.value === value);
+  const panelStyleRef = useRef<{ top: number; left: number; minWidth: number } | null>(null);
+  const [panelStyle, setPanelStyle] = useState<{
+    top: number;
+    left: number;
+    minWidth: number;
+  } | null>(null);
+
+  useEffect(() => {
+    if (!open) return;
+
+    const updatePanelPosition = () => {
+      const trigger = triggerRef.current;
+      if (!trigger) return;
+      const rect = trigger.getBoundingClientRect();
+      const minWidth = Math.max(rect.width, 220);
+      const left = align === "end" ? rect.right - minWidth : rect.left;
+      const nextStyle = {
+        top: rect.bottom + 8,
+        left: Math.max(12, left),
+        minWidth
+      };
+      const previous = panelStyleRef.current;
+      if (
+        previous &&
+        previous.top === nextStyle.top &&
+        previous.left === nextStyle.left &&
+        previous.minWidth === nextStyle.minWidth
+      ) {
+        return;
+      }
+      panelStyleRef.current = nextStyle;
+      setPanelStyle(nextStyle);
+    };
+
+    updatePanelPosition();
+    window.addEventListener("resize", updatePanelPosition);
+    window.addEventListener("scroll", updatePanelPosition, true);
+    return () => {
+      window.removeEventListener("resize", updatePanelPosition);
+      window.removeEventListener("scroll", updatePanelPosition, true);
+    };
+  }, [align, open]);
 
   useEffect(() => {
     if (!open) return;
 
     const handlePointerDown = (event: MouseEvent) => {
-      if (!rootRef.current?.contains(event.target as Node)) {
+      const target = event.target as Node;
+      if (!rootRef.current?.contains(target) && !panelRef.current?.contains(target)) {
         setOpen(false);
       }
     };
@@ -371,9 +305,19 @@ function SelectMenu<T extends string>(props: {
   }, [activeIndex, open]);
 
   useEffect(() => {
-    const selected = options.findIndex((option) => option.value === value);
-    if (selected >= 0) setActiveIndex(selected);
-  }, [options, value]);
+    if (!open) return;
+    if (selectedIndex >= 0 && selectedIndex !== activeIndex) {
+      setActiveIndex(selectedIndex);
+    }
+  }, [activeIndex, open, selectedIndex]);
+
+  useEffect(() => {
+    if (open) return;
+    const fallbackIndex = selectedIndex >= 0 ? selectedIndex : 0;
+    if (fallbackIndex !== activeIndex) {
+      setActiveIndex(fallbackIndex);
+    }
+  }, [activeIndex, open, selectedIndex]);
 
   function handleTriggerKeyDown(event: ReactKeyboardEvent<HTMLButtonElement>): void {
     if (event.key === "ArrowDown" || event.key === "Enter" || event.key === " ") {
@@ -399,34 +343,49 @@ function SelectMenu<T extends string>(props: {
         <span className="control-select__value">{selectedOption?.label ?? label}</span>
         <ChevronDown size={16} strokeWidth={2} aria-hidden="true" />
       </button>
-      {open ? (
-        <div id={panelId} className="select-menu__panel" role="listbox" aria-label={label}>
-          {options.map((option, index) => (
-            <button
-              key={option.value}
-              ref={(element) => {
-                optionRefs.current[index] = element;
-              }}
-              type="button"
-              role="option"
-              aria-selected={option.value === value}
-              className={`select-menu__option${option.value === value ? " is-selected" : ""}${index === activeIndex ? " is-active" : ""}`}
-              onMouseEnter={() => setActiveIndex(index)}
-              onClick={() => {
-                onChange(option.value);
-                setOpen(false);
-                triggerRef.current?.focus();
+      {open && panelStyle && typeof document !== "undefined"
+        ? createPortal(
+            <div
+              id={panelId}
+              ref={panelRef}
+              className="select-menu__panel"
+              role="listbox"
+              aria-label={label}
+              style={{
+                position: "fixed",
+                top: panelStyle.top,
+                left: panelStyle.left,
+                minWidth: panelStyle.minWidth
               }}
             >
-              <span>
-                <strong>{option.label}</strong>
-                {option.hint ? <small>{option.hint}</small> : null}
-              </span>
-              {option.value === value ? <Check size={16} strokeWidth={2} aria-hidden="true" /> : null}
-            </button>
-          ))}
-        </div>
-      ) : null}
+              {options.map((option, index) => (
+                <button
+                  key={option.value}
+                  ref={(element) => {
+                    optionRefs.current[index] = element;
+                  }}
+                  type="button"
+                  role="option"
+                  aria-selected={option.value === value}
+                  className={`select-menu__option${option.value === value ? " is-selected" : ""}${index === activeIndex ? " is-active" : ""}`}
+                  onMouseEnter={() => setActiveIndex(index)}
+                  onClick={() => {
+                    onChange(option.value);
+                    setOpen(false);
+                    triggerRef.current?.focus();
+                  }}
+                >
+                  <span>
+                    <strong>{option.label}</strong>
+                    {option.hint ? <small>{option.hint}</small> : null}
+                  </span>
+                  {option.value === value ? <Check size={16} strokeWidth={2} aria-hidden="true" /> : null}
+                </button>
+              ))}
+            </div>,
+            document.body
+          )
+        : null}
     </div>
   );
 }
@@ -441,29 +400,35 @@ function ThemeSwitcher(props: {
   const copy = dictionaries[language];
   const icon = resolvedTheme === "dark" ? <SunMedium size={16} strokeWidth={2} aria-hidden="true" /> : <MoonStar size={16} strokeWidth={2} aria-hidden="true" />;
 
-  const options: SelectOption<ThemePreference>[] = [
-    { value: "system", label: copy.toolbar.themeSystem },
-    { value: "light", label: copy.toolbar.themeLight },
-    { value: "dark", label: copy.toolbar.themeDark }
-  ];
+  const options = useMemo<SelectOption<ThemePreference>[]>(
+    () => [
+      { value: "system", label: copy.toolbar.themeSystem },
+      { value: "light", label: copy.toolbar.themeLight },
+      { value: "dark", label: copy.toolbar.themeDark }
+    ],
+    [copy.toolbar.themeDark, copy.toolbar.themeLight, copy.toolbar.themeSystem]
+  );
 
   return <SelectMenu label={copy.common.theme} value={preference} options={options} onChange={onChange} icon={icon} align="end" />;
 }
 
 function LanguageSwitcher(props: { language: Language; onChange: (language: Language) => void }) {
   const { language, onChange } = props;
-  const options: SelectOption<Language>[] = [
-    { value: "zh-CN", label: "中文" },
-    { value: "ja-JP", label: "日本語" },
-    { value: "en-US", label: "English" }
-  ];
+  const options = useMemo<SelectOption<Language>[]>(
+    () => [
+      { value: "zh-CN", label: "中文" },
+      { value: "ja-JP", label: "日本語" },
+      { value: "en-US", label: "English" }
+    ],
+    []
+  );
 
   return <SelectMenu label={dictionaries[language].common.language} value={language} options={options} onChange={onChange} icon={<Globe size={16} strokeWidth={2} aria-hidden="true" />} align="end" />;
 }
 
 function SourceTabs(props: {
   language: Language;
-  currentSource: FeedSource;
+  currentSource: FeedSource | null;
   onSelectSource: (source: FeedSource) => void;
 }) {
   const { language, currentSource, onSelectSource } = props;
@@ -714,7 +679,7 @@ function SearchHero(props: {
 
 function SearchControlRail(props: {
   language: Language;
-  currentSource: FeedSource;
+  currentSource: FeedSource | null;
   params: AdvancedSearchParams;
   onChange: (params: AdvancedSearchParams) => void;
   onSubmit: () => Promise<void>;
@@ -725,31 +690,40 @@ function SearchControlRail(props: {
 }) {
   const { language, currentSource, params, onChange, onSubmit, onSelectSource, onOpenAdvanced, onOpenAdvancedSearch, onReset } = props;
   const copy = dictionaries[language];
-  const rankOptions: SelectOption<SearchRank>[] = [
-    { value: "", label: copy.filters.any },
-    { value: "S", label: "S" },
-    { value: "A", label: "A" },
-    { value: "B", label: "B" },
-    { value: "C", label: "C" },
-    { value: "D", label: "D" }
-  ];
-  const momentumOptions: SelectOption<SearchMomentum>[] = [
-    { value: "", label: copy.filters.any },
-    { value: "Hot", label: "Hot" },
-    { value: "Rising", label: "Rising" },
-    { value: "Stable", label: "Stable" }
-  ];
-  const sortOptions: SelectOption<SearchSort | "">[] = [
-    { value: "", label: copy.filters.any },
-    { value: "relevance", label: "Relevance" },
-    { value: "score", label: "Score" },
-    { value: "growth", label: "Growth" },
-    { value: "downloads", label: "Downloads" },
-    { value: "dependents", label: "Dependents" },
-    { value: "recent", label: "Recent" },
-    { value: "updated", label: "Updated" },
-    { value: "name", label: "Name" }
-  ];
+  const rankOptions = useMemo<SelectOption<SearchRank>[]>(
+    () => [
+      { value: "", label: copy.filters.any },
+      { value: "S", label: "S" },
+      { value: "A", label: "A" },
+      { value: "B", label: "B" },
+      { value: "C", label: "C" },
+      { value: "D", label: "D" }
+    ],
+    [copy.filters.any]
+  );
+  const momentumOptions = useMemo<SelectOption<SearchMomentum>[]>(
+    () => [
+      { value: "", label: copy.filters.any },
+      { value: "Hot", label: "Hot" },
+      { value: "Rising", label: "Rising" },
+      { value: "Stable", label: "Stable" }
+    ],
+    [copy.filters.any]
+  );
+  const sortOptions = useMemo<SelectOption<SearchSort | "">[]>(
+    () => [
+      { value: "", label: copy.filters.any },
+      { value: "relevance", label: "Relevance" },
+      { value: "score", label: "Score" },
+      { value: "growth", label: "Growth" },
+      { value: "downloads", label: "Downloads" },
+      { value: "dependents", label: "Dependents" },
+      { value: "recent", label: "Recent" },
+      { value: "updated", label: "Updated" },
+      { value: "name", label: "Name" }
+    ],
+    [copy.filters.any]
+  );
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>): Promise<void> {
     event.preventDefault();
@@ -784,9 +758,18 @@ function SearchControlRail(props: {
         </div>
 
         <div className="query-stage__filters">
-          <SelectMenu label={copy.filters.rank} value={params.rank} options={rankOptions} onChange={(value) => onChange({ ...params, rank: value })} />
-          <SelectMenu label={copy.filters.momentum} value={params.momentum} options={momentumOptions} onChange={(value) => onChange({ ...params, momentum: value })} />
-          <SelectMenu label={copy.filters.sort} value={params.sort} options={sortOptions} onChange={(value) => onChange({ ...params, sort: value })} />
+          <div className="facet-control query-stage__filter-select">
+            <span>{copy.filters.rank}</span>
+            <SelectMenu label={copy.filters.rank} value={params.rank} options={rankOptions} onChange={(value) => onChange({ ...params, rank: value })} />
+          </div>
+          <div className="facet-control query-stage__filter-select">
+            <span>{copy.filters.momentum}</span>
+            <SelectMenu label={copy.filters.momentum} value={params.momentum} options={momentumOptions} onChange={(value) => onChange({ ...params, momentum: value })} />
+          </div>
+          <div className="facet-control query-stage__filter-select">
+            <span>{copy.filters.sort}</span>
+            <SelectMenu label={copy.filters.sort} value={params.sort} options={sortOptions} onChange={(value) => onChange({ ...params, sort: value })} />
+          </div>
           <label className="facet-control">
             <span>{copy.filters.minScore}</span>
             <input inputMode="decimal" value={params.minScore} onChange={(event) => onChange({ ...params, minScore: event.target.value })} />
@@ -882,7 +865,7 @@ function DetailContent(props: { language: Language; state: DetailState; onRetry:
     return (
       <div className="analysis-state">
         <strong>{copy.detail.errorTitle}</strong>
-        <p>{state.message}</p>
+        <p>{state.errorMessage}</p>
         <button type="button" className="button button--primary" onClick={() => void onRetry()}>{copy.workspace.retry}</button>
       </div>
     );
@@ -898,6 +881,7 @@ function DetailContent(props: { language: Language; state: DetailState; onRetry:
   }
 
   const pkg = state.detail;
+  if (!pkg) return null;
 
   return (
     <div className="analysis-content">
@@ -1000,7 +984,7 @@ function DetailContent(props: { language: Language; state: DetailState; onRetry:
 
 function WorkspaceScreen(props: {
   language: Language;
-  currentSource: FeedSource;
+  currentSource: FeedSource | null;
   state: SearchState;
   selectedFullName: string | null;
   params: AdvancedSearchParams;
@@ -1010,7 +994,7 @@ function WorkspaceScreen(props: {
   onSelectSource: (source: FeedSource) => void;
   onOpenAdvanced: () => void;
   onOpenAdvancedSearch: () => void;
-  onResetParams: () => void;
+  onReset: () => void;
   onSelect: (fullName: string) => void;
   onRetry: () => Promise<void>;
   detailState: DetailState;
@@ -1028,7 +1012,7 @@ function WorkspaceScreen(props: {
     onSelectSource,
     onOpenAdvanced,
     onOpenAdvancedSearch,
-    onResetParams,
+    onReset,
     onSelect,
     onRetry,
     detailState,
@@ -1036,7 +1020,7 @@ function WorkspaceScreen(props: {
   } = props;
   const copy = dictionaries[language];
   const rootRef = useRef<HTMLElement | null>(null);
-  const filterSummary = state.status === "idle" ? [] : buildFilterSummary(language, state.params);
+  const filterSummary = state.mode === "idle" ? [] : buildFilterSummary(language, state.appliedParams);
 
   useGSAP(
     () => {
@@ -1048,8 +1032,8 @@ function WorkspaceScreen(props: {
     { scope: rootRef, dependencies: [state.status, state.items.length, selectedFullName], revertOnUpdate: true }
   );
 
-  const sourceLabel = state.source ? getSourceCopy(language, state.source) : copy.workspace.searchResults;
-  const resultCount = state.status === "idle" ? 0 : state.items.length;
+  const sourceLabel = getSourceCopy(language, state.activeSource);
+  const resultCount = state.mode === "idle" ? 0 : state.items.length;
 
   return (
     <section className="screen screen--workspace" ref={rootRef}>
@@ -1077,7 +1061,7 @@ function WorkspaceScreen(props: {
             onSelectSource={onSelectSource}
             onOpenAdvanced={onOpenAdvanced}
             onOpenAdvancedSearch={onOpenAdvancedSearch}
-            onReset={onResetParams}
+            onReset={onReset}
           />
 
           <section className="workspace-results" aria-live="polite">
@@ -1089,7 +1073,7 @@ function WorkspaceScreen(props: {
             ) : state.status === "error" ? (
               <div className="state-card">
                 <strong>{copy.workspace.errorTitle}</strong>
-                <p>{state.message}</p>
+                <p>{state.errorMessage}</p>
                 <div className="state-card__actions">
                   <button type="button" className="button button--primary" onClick={() => void onRetry()}>{copy.workspace.retry}</button>
                   <button type="button" className="button button--secondary" onClick={onBack}>{copy.workspace.back}</button>
@@ -1170,12 +1154,30 @@ function AdvancedSearchPanel(props: {
     await onApply();
   }
 
-  const anyOption: SelectOption<"">[] = [{ value: "", label: copy.filters.any }];
-  const booleanOptions = [...anyOption, { value: "true" as const, label: copy.filters.yes }, { value: "false" as const, label: copy.filters.no }];
-  const rankOptions = [...anyOption, ...(["S", "A", "B", "C", "D"] as SearchRank[]).filter(Boolean).map((rank) => ({ value: rank, label: rank }))] as SelectOption<SearchRank>[];
-  const momentumOptions = [...anyOption, { value: "Hot" as const, label: "Hot" }, { value: "Rising" as const, label: "Rising" }, { value: "Stable" as const, label: "Stable" }] as SelectOption<SearchMomentum>[];
-  const sortOptions = [...anyOption, ...(["relevance", "score", "growth", "downloads", "dependents", "recent", "updated", "name"] as const).map((value) => ({ value, label: value }))] as SelectOption<SearchSort | "">[];
-  const orderOptions = [...anyOption, { value: "asc" as const, label: copy.filters.orderAscending }, { value: "desc" as const, label: copy.filters.orderDescending }] as SelectOption<SearchOrder | "">[];
+  const anyOption = useMemo<SelectOption<"">[]>(
+    () => [{ value: "", label: copy.filters.any }],
+    [copy.filters.any]
+  );
+  const booleanOptions = useMemo(
+    () => [...anyOption, { value: "true" as const, label: copy.filters.yes }, { value: "false" as const, label: copy.filters.no }],
+    [anyOption, copy.filters.no, copy.filters.yes]
+  );
+  const rankOptions = useMemo(
+    () => [...anyOption, ...(["S", "A", "B", "C", "D"] as SearchRank[]).filter(Boolean).map((rank) => ({ value: rank, label: rank }))] as SelectOption<SearchRank>[],
+    [anyOption]
+  );
+  const momentumOptions = useMemo(
+    () => [...anyOption, { value: "Hot" as const, label: "Hot" }, { value: "Rising" as const, label: "Rising" }, { value: "Stable" as const, label: "Stable" }] as SelectOption<SearchMomentum>[],
+    [anyOption]
+  );
+  const sortOptions = useMemo(
+    () => [...anyOption, ...(["relevance", "score", "growth", "downloads", "dependents", "recent", "updated", "name"] as const).map((value) => ({ value, label: value }))] as SelectOption<SearchSort | "">[],
+    [anyOption]
+  );
+  const orderOptions = useMemo(
+    () => [...anyOption, { value: "asc" as const, label: copy.filters.orderAscending }, { value: "desc" as const, label: copy.filters.orderDescending }] as SelectOption<SearchOrder | "">[],
+    [anyOption, copy.filters.orderAscending, copy.filters.orderDescending]
+  );
 
   if (standalone) {
     return (
@@ -1351,160 +1353,51 @@ function AdvancedSearchPanel(props: {
 export function App(props: AppProps) {
   const { initialTopPackages, initialView, initialSource = null } = props;
   const router = useRouter();
-  const initialParams = useMemo(() => normalizeSearchParams(props.initialSearchParams), [props.initialSearchParams]);
-  const [language, setLanguage] = useState<Language>("zh-CN");
-  const [themePreference, setThemePreference] = useState<ThemePreference>("system");
-  const [resolvedTheme, setResolvedTheme] = useState<"light" | "dark">("light");
-  const [draftParams, setDraftParams] = useState<AdvancedSearchParams>(initialParams);
-  const [advancedOpen, setAdvancedOpen] = useState(false);
-  const [searchState, setSearchState] = useState<SearchState>(() => buildInitialSearchState(props));
-  const [selectedFullName, setSelectedFullName] = useState<string | null>(null);
-  const [detailState, setDetailState] = useState<DetailState>({ status: "closed" });
-  const [currentSource, setCurrentSource] = useState<FeedSource>(initialSource ?? "top");
-
-  useEffect(() => {
-    const stored = typeof window !== "undefined" ? window.localStorage.getItem(LANGUAGE_STORAGE_KEY) : null;
-    if (stored === "zh-CN" || stored === "ja-JP" || stored === "en-US") {
-      setLanguage(stored);
-    } else {
-      setLanguage(detectLanguage());
-    }
-
-    const storedTheme = detectStoredTheme();
-    setThemePreference(storedTheme);
-    setResolvedTheme(resolveTheme(storedTheme));
-  }, []);
-
-  useEffect(() => {
-    document.title = dictionaries[language].appName;
-    document.documentElement.lang = language;
-    window.localStorage.setItem(LANGUAGE_STORAGE_KEY, language);
-  }, [language]);
-
-  useEffect(() => {
-    if (typeof window === "undefined") return;
-    const media = window.matchMedia("(prefers-color-scheme: dark)");
-    const apply = () => setResolvedTheme(resolveTheme(themePreference));
-    apply();
-    media.addEventListener("change", apply);
-    return () => media.removeEventListener("change", apply);
-  }, [themePreference]);
-
-  useEffect(() => {
-    if (typeof window === "undefined") return;
-    document.documentElement.dataset["theme"] = resolvedTheme;
-    window.localStorage.setItem(THEME_STORAGE_KEY, themePreference);
-  }, [resolvedTheme, themePreference]);
-
-  useEffect(() => {
-    if (searchState.status !== "ready" || searchState.items.length === 0) return;
-    if (selectedFullName && searchState.items.some((item) => item.full_name === selectedFullName)) return;
-    const firstItem = searchState.items[0];
-    if (!firstItem) return;
-    void showPackage(firstItem.full_name);
-  }, [searchState, selectedFullName]);
-
-  async function showPackage(fullName: string): Promise<void> {
-    setSelectedFullName(fullName);
-    setDetailState({ status: "loading", packageName: fullName });
-    try {
-      const { owner, packageName } = splitFullName(fullName);
-      const { detail, dependents } = await fetchPackageAnalysis(owner, packageName);
-      setDetailState({ status: "ready", detail, dependents });
-    } catch (error: unknown) {
-      const message = getSearchErrorMessage(error, dictionaries[language].detail.unknownError);
-      setDetailState({ status: "error", packageName: fullName, message });
-    }
-  }
-
-  async function submitSearch(nextParams = draftParams): Promise<void> {
-    const params = cloneSearchParams(nextParams);
-    if (!hasSearchIntent(params)) {
-      router.replace("/search", { scroll: false });
-      setSearchState({ status: "idle", source: null, items: [], params });
-      setSelectedFullName(null);
-      setDetailState({ status: "closed" });
-      return;
-    }
-
-    setCurrentSource("top");
-    router.replace(buildSearchHref(params), { scroll: false });
-    setSelectedFullName(null);
-    setDetailState({ status: "closed" });
-    setSearchState({ status: "loading", source: "search", items: [], params });
-
-    try {
-      const items = await searchPackages(params);
-      setSearchState({ status: "ready", source: "search", items, params });
-    } catch (error: unknown) {
-      const message = getSearchErrorMessage(error, dictionaries[language].workspace.unknownError);
-      setSearchState({ status: "error", source: "search", items: [], params, message });
-    }
-  }
-
-  async function openFeed(source: FeedSource): Promise<void> {
-    const params = cloneSearchParams(DEFAULT_SEARCH_PARAMS);
-    setDraftParams(params);
-    setCurrentSource(source);
-    router.replace(buildSearchHref(params, source), { scroll: false });
-    setSelectedFullName(null);
-    setDetailState({ status: "closed" });
-    setSearchState({ status: "loading", source, items: [], params });
-
-    try {
-      const items = await fetchFeed(source, source === "top" ? 40 : 24);
-      setSearchState({ status: "ready", source, items, params });
-    } catch (error: unknown) {
-      const message = getSearchErrorMessage(error, dictionaries[language].workspace.unknownError);
-      setSearchState({ status: "error", source, items: [], params, message });
-    }
-  }
-
-  function resetDraftParams(): void {
-    setDraftParams(cloneSearchParams(DEFAULT_SEARCH_PARAMS));
-  }
-
-  async function applyPrompt(params: Partial<AdvancedSearchParams>): Promise<void> {
-    const next = normalizeSearchParams(params);
-    setDraftParams(next);
-    await submitSearch(next);
-  }
-
-  async function retryCurrentSearch(): Promise<void> {
-    if (searchState.status === "idle" || searchState.source === null) return;
-    if (searchState.source === "search") {
-      await submitSearch(searchState.params);
-      return;
-    }
-    await openFeed(searchState.source);
-  }
-
-  async function retryDetail(): Promise<void> {
-    if (detailState.status === "loading" || detailState.status === "error") {
-      await showPackage(detailState.packageName);
-    }
-  }
+  const initialData = useMemo(
+    () => {
+      const data: AppInitialData = {
+        initialView: props.initialView
+      };
+      if (props.initialSearchParams) data.initialSearchParams = props.initialSearchParams;
+      if (props.initialSource !== undefined) data.initialSource = props.initialSource;
+      if (props.initialSearchItems) data.initialSearchItems = props.initialSearchItems;
+      return data;
+    },
+    [props.initialSearchItems, props.initialSearchParams, props.initialSource, props.initialView]
+  );
+  const { state, commands } = useAppController(initialData, router, {
+    workspaceUnknownError: dictionaries["zh-CN"].workspace.unknownError,
+    detailUnknownError: dictionaries["zh-CN"].detail.unknownError
+  });
+  const { language, themePreference, resolvedTheme } = state.preferences;
+  const { search, detail } = state;
 
   function navigate(href: "/" | "/search" | "/advanced-search"): void {
     router.push(href);
   }
 
   function openAdvancedSearchPage(): void {
-    if (hasSearchIntent(draftParams)) {
-      router.push(buildSearchHref(draftParams, null, "/advanced-search"));
+    if (search.mode === "search") {
+      router.push(buildSearchHref(search.draftParams, null, "/advanced-search"));
       return;
     }
 
-    const source =
-      searchState.status !== "idle" && searchState.source && searchState.source !== "search"
-        ? searchState.source
-        : currentSource;
-    router.push(buildSearchHref(normalizeSearchParams(DEFAULT_SEARCH_PARAMS), source, "/advanced-search"));
+    router.push(buildSearchHref(normalizeSearchParams(DEFAULT_SEARCH_PARAMS), search.activeSource, "/advanced-search"));
   }
 
   function openLandingPackage(item: PackageSummary): void {
     router.push(buildSearchHref(normalizeSearchParams({ owner: item.owner, packageName: item.package_name })));
   }
+
+  async function applyPrompt(params: Partial<AdvancedSearchParams>): Promise<void> {
+    const next = normalizeSearchParams(params);
+    commands.changeDraftParams(next);
+    await commands.submitSearch(next);
+  }
+
+  useEffect(() => {
+    document.title = dictionaries[language].appName;
+  }, [language]);
 
   return (
     <main className="app-shell">
@@ -1517,25 +1410,29 @@ export function App(props: AppProps) {
         language={language}
         themePreference={themePreference}
         resolvedTheme={resolvedTheme}
-        onLanguageChange={setLanguage}
-        onThemeChange={setThemePreference}
+        onLanguageChange={commands.changeLanguage}
+        onThemeChange={commands.changeThemePreference}
         onNavigate={navigate}
       />
 
       <AdvancedSearchPanel
         language={language}
-        params={draftParams}
-        open={advancedOpen || initialView === "advanced-search"}
+        params={search.draftParams}
+        open={state.ui.advancedOpen || initialView === "advanced-search"}
         standalone={initialView === "advanced-search"}
-        onChange={setDraftParams}
-        onApply={() => submitSearch(draftParams)}
-        onReset={resetDraftParams}
+        onChange={commands.changeDraftParams}
+        onApply={() => commands.submitSearch(search.draftParams, initialView === "advanced-search" ? "/advanced-search" : "/search")}
+        onReset={
+          initialView === "advanced-search"
+            ? () => commands.clearSearchResults("/advanced-search")
+            : commands.resetDraftParams
+        }
         onClose={() => {
           if (initialView === "advanced-search") {
             navigate("/search");
             return;
           }
-          setAdvancedOpen(false);
+          commands.closeAdvanced();
         }}
       />
 
@@ -1547,34 +1444,34 @@ export function App(props: AppProps) {
           onBrowseTop={() => router.push("/search?source=top")}
           onOpenPackage={openLandingPackage}
         />
-      ) : searchState.status === "idle" ? (
+      ) : search.status === "idle" ? (
         <SearchHero
           language={language}
-          params={draftParams}
-          onChange={setDraftParams}
-          onSubmit={() => submitSearch(draftParams)}
+          params={search.draftParams}
+          onChange={commands.changeDraftParams}
+          onSubmit={() => commands.submitSearch(search.draftParams, initialView === "advanced-search" ? "/advanced-search" : "/search")}
           onApplyPrompt={applyPrompt}
-          onOpenFeed={openFeed}
+          onOpenFeed={(source) => commands.openFeed(source, initialView === "advanced-search" ? "/advanced-search" : "/search")}
           onOpenAdvancedSearch={openAdvancedSearchPage}
         />
       ) : (
         <WorkspaceScreen
           language={language}
-          currentSource={currentSource}
-          state={searchState}
-          selectedFullName={selectedFullName}
-          params={draftParams}
+          currentSource={search.activeSource}
+          state={search}
+          selectedFullName={detail.selectedFullName}
+          params={search.draftParams}
           onBack={() => navigate("/")}
-          onChangeParams={setDraftParams}
-          onSubmit={() => submitSearch(draftParams)}
-          onSelectSource={(source) => void openFeed(source)}
-          onOpenAdvanced={() => setAdvancedOpen(true)}
+          onChangeParams={commands.changeDraftParams}
+          onSubmit={() => commands.submitSearch(search.draftParams, initialView === "advanced-search" ? "/advanced-search" : "/search")}
+          onSelectSource={(source) => void commands.openFeed(source, initialView === "advanced-search" ? "/advanced-search" : "/search")}
+          onOpenAdvanced={commands.openAdvanced}
           onOpenAdvancedSearch={openAdvancedSearchPage}
-          onResetParams={resetDraftParams}
-          onSelect={(fullName) => void showPackage(fullName)}
-          onRetry={retryCurrentSearch}
-          detailState={detailState}
-          onRetryDetail={retryDetail}
+          onReset={() => commands.clearSearchResults(initialView === "advanced-search" ? "/advanced-search" : "/search")}
+          onSelect={(fullName) => void commands.selectPackage(fullName)}
+          onRetry={() => commands.retryCurrentSearch(initialView === "advanced-search" ? "/advanced-search" : "/search")}
+          detailState={detail}
+          onRetryDetail={commands.retryDetail}
         />
       )}
     </main>

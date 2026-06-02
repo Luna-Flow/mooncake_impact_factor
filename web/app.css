@@ -13,6 +13,11 @@
   --accent-strong: #622028;
   --accent-soft: rgba(127, 48, 58, 0.08);
   --shadow: 0 8px 24px rgba(20, 18, 16, 0.04);
+  --z-page-background: 0;
+  --z-masthead: 20;
+  --z-dropdown: 40;
+  --z-modal-backdrop: 50;
+  --z-modal-panel: 60;
   --font-body: Inter, "SF Pro Text", "Segoe UI", Arial, sans-serif;
   --font-display: "Iowan Old Style", "Palatino Linotype", "Book Antiqua", Georgia, serif;
 }
@@ -112,6 +117,7 @@ input[type="search"]::-webkit-search-results-decoration {
 .page-background {
   position: fixed;
   inset: 0;
+  z-index: var(--z-page-background);
   pointer-events: none;
 }
 
@@ -141,7 +147,7 @@ input[type="search"]::-webkit-search-results-decoration {
 .masthead {
   position: sticky;
   top: 14px;
-  z-index: 20;
+  z-index: var(--z-masthead);
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto auto;
   gap: 18px;
@@ -259,20 +265,13 @@ input[type="search"]::-webkit-search-results-decoration {
 }
 
 .select-menu__panel {
-  position: absolute;
-  top: calc(100% + 8px);
-  left: 0;
   min-width: 220px;
   padding: 8px;
   border: 1px solid var(--line);
   border-radius: 14px;
   background: var(--surface-strong);
   box-shadow: var(--shadow);
-}
-
-.select-menu--end .select-menu__panel {
-  left: auto;
-  right: 0;
+  z-index: var(--z-dropdown);
 }
 
 .select-menu__option {
@@ -846,6 +845,24 @@ input[type="search"]::-webkit-search-results-decoration {
   border-radius: 12px;
 }
 
+.query-stage__filter-select {
+  align-content: start;
+}
+
+.query-stage__filter-select .select-menu {
+  width: 100%;
+}
+
+.query-stage__filter-select .control-select {
+  width: 100%;
+  justify-content: space-between;
+  min-height: auto;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+}
+
 .result-card {
   position: relative;
   display: grid;
@@ -936,13 +953,43 @@ input[type="search"]::-webkit-search-results-decoration {
 
 .analysis-pane {
   position: relative;
+  display: flex;
+  align-items: flex-start;
+  align-self: stretch;
 }
 
 .analysis-pane__inner {
   position: sticky;
-  top: 94px;
+  top: 50vh;
+  transform: translateY(calc(-50% + 48px));
   display: grid;
   gap: 18px;
+  width: 100%;
+  max-height: calc(100vh - 128px);
+  overflow-y: scroll;
+  overscroll-behavior: contain;
+  scrollbar-gutter: stable;
+}
+
+.analysis-pane__inner::-webkit-scrollbar {
+  width: 10px;
+}
+
+.analysis-pane__inner::-webkit-scrollbar-track {
+  background: color-mix(in srgb, var(--surface), transparent 22%);
+  border-radius: 999px;
+}
+
+.analysis-pane__inner::-webkit-scrollbar-thumb {
+  background: color-mix(in srgb, var(--line-strong), var(--accent) 26%);
+  border-radius: 999px;
+  border: 2px solid transparent;
+  background-clip: padding-box;
+}
+
+.analysis-pane__inner::-webkit-scrollbar-thumb:hover {
+  background: color-mix(in srgb, var(--line-strong), var(--accent) 40%);
+  background-clip: padding-box;
 }
 
 .analysis-pane__head {
@@ -1021,7 +1068,7 @@ input[type="search"]::-webkit-search-results-decoration {
 .dialog-shell {
   position: fixed;
   inset: 0;
-  z-index: 30;
+  z-index: var(--z-modal-backdrop);
 }
 
 .dialog-shell__backdrop {
@@ -1037,6 +1084,7 @@ input[type="search"]::-webkit-search-results-decoration {
   max-height: calc(100vh - 72px);
   overflow: auto;
   border-radius: 18px;
+  z-index: var(--z-modal-panel);
 }
 
 .advanced-dialog--standalone {
@@ -1074,7 +1122,7 @@ input[type="search"]::-webkit-search-results-decoration {
   background: var(--surface-strong);
 }
 
-.advanced-form .select-menu__trigger {
+.advanced-form .control-select {
   border-color: var(--line-strong);
   background: var(--surface-strong);
 }
@@ -1101,6 +1149,9 @@ input[type="search"]::-webkit-search-results-decoration {
 
   .analysis-pane__inner {
     position: static;
+    transform: none;
+    max-height: none;
+    overflow-y: visible;
   }
 }
 

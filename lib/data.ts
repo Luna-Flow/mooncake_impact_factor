@@ -218,6 +218,10 @@ function hasNonTextFilters(params: ParsedSearchParams): boolean {
   );
 }
 
+function escapeLikePattern(input: string): string {
+  return input.replaceAll("\\", "\\\\").replaceAll("%", "\\%").replaceAll("_", "\\_");
+}
+
 function tokenizeQuery(input: string): string[] {
   const tokens: string[] = [];
   let current = "";
@@ -299,6 +303,23 @@ function compileFtsValue(token: string): string {
   if (normalized.includes(" ")) {
     return `"${normalized}"`;
   }
+  if (/[^A-Za-z0-9_*]/.test(normalized)) {
+    return `"${normalized}"`;
+  }
+  if (normalized.endsWith("*")) {
+    return normalized;
+  }
+  return `${normalized}*`;
+}
+
+function compileLiteralFieldValue(input: string, label: string): string {
+  const normalized = normalizeFtsText(input.trim());
+  if (!normalized) {
+    throw new HttpError(400, `Search field \`${label}\` is empty`);
+  }
+  if (normalized.includes(" ") || /[^A-Za-z0-9_*]/.test(normalized)) {
+    return `"${normalized}"`;
+  }
   if (normalized.endsWith("*")) {
     return normalized;
   }
@@ -349,16 +370,49 @@ function compileFtsExpression(input: string): string {
 }
 
 function compileFieldExpression(field: string, input: string): string {
-  const compiled = tokenizeQuery(input).map((token) => {
-    if (isBooleanOperator(token) || token === "(" || token === ")") {
-      return token.toUpperCase();
-    }
-    return `${field} : ${compileFtsValue(token)}`;
-  });
-  if (compiled.length === 0) {
-    throw new HttpError(400, `Search field \`${field}\` is empty`);
+  return `${field} : ${compileLiteralFieldValue(input, field)}`;
+}
+
+const ORDER_BY_CLAUSES = {
+  relevance: {
+    withFts: "bm25(search_index) ASC, s.score DESC, p.full_name ASC",
+    withoutFts: "s.score DESC, p.full_name ASC"
+  },
+  score: {
+    asc: "s.score ASC, p.full_name ASC",
+    desc: "s.score DESC, p.full_name ASC"
+  },
+  growth: {
+    asc: "s.score_growth_30d ASC, s.score DESC, p.full_name ASC",
+    desc: "s.score_growth_30d DESC, s.score DESC, p.full_name ASC"
+  },
+  downloads: {
+    asc: "p.download_count ASC, s.score DESC, p.full_name ASC",
+    desc: "p.download_count DESC, s.score DESC, p.full_name ASC"
+  },
+  dependents: {
+    asc: "p.dependent_count ASC, s.score DESC, p.full_name ASC",
+    desc: "p.dependent_count DESC, s.score DESC, p.full_name ASC"
+  },
+  recent: {
+    asc: "p.recent_dependent_count ASC, s.score DESC, p.full_name ASC",
+    desc: "p.recent_dependent_count DESC, s.score DESC, p.full_name ASC"
+  },
+  updated: {
+    asc: "COALESCE(p.latest_created_at, '') ASC, p.full_name ASC",
+    desc: "COALESCE(p.latest_created_at, '') DESC, p.full_name ASC"
+  },
+  name: {
+    asc: "p.full_name ASC",
+    desc: "p.full_name DESC"
   }
-  return compiled.join(" ");
+} as const;
+
+type SortKey = keyof typeof ORDER_BY_CLAUSES;
+type OrderKey = "asc" | "desc";
+
+function isSortKey(value: string): value is SortKey {
+  return value in ORDER_BY_CLAUSES;
 }
 
 function buildFtsQuery(params: ParsedSearchParams): string | null {
@@ -378,29 +432,17 @@ function resolveOrderBy(sort: string, order: string, hasFtsQuery: boolean): stri
   if (normalizedOrder !== "asc" && normalizedOrder !== "desc") {
     throw new HttpError(400, "order must be either asc or desc");
   }
-
-  switch (normalizedSort) {
-    case "relevance":
-      return hasFtsQuery
-        ? "bm25(search_index) ASC, s.score DESC, p.full_name ASC"
-        : "s.score DESC, p.full_name ASC";
-    case "score":
-      return `s.score ${normalizedOrder.toUpperCase()}, p.full_name ASC`;
-    case "growth":
-      return `s.score_growth_30d ${normalizedOrder.toUpperCase()}, s.score DESC, p.full_name ASC`;
-    case "downloads":
-      return `p.download_count ${normalizedOrder.toUpperCase()}, s.score DESC, p.full_name ASC`;
-    case "dependents":
-      return `p.dependent_count ${normalizedOrder.toUpperCase()}, s.score DESC, p.full_name ASC`;
-    case "recent":
-      return `p.recent_dependent_count ${normalizedOrder.toUpperCase()}, s.score DESC, p.full_name ASC`;
-    case "updated":
-      return `COALESCE(p.latest_created_at, '') ${normalizedOrder.toUpperCase()}, p.full_name ASC`;
-    case "name":
-      return `p.full_name ${normalizedOrder.toUpperCase()}`;
-    default:
-      throw new HttpError(400, "sort must be one of relevance, score, growth, downloads, dependents, recent, updated, name");
+  if (!isSortKey(normalizedSort)) {
+    throw new HttpError(400, "sort must be one of relevance, score, growth, downloads, dependents, recent, updated, name");
   }
+
+  if (normalizedSort === "relevance") {
+    return hasFtsQuery
+      ? ORDER_BY_CLAUSES.relevance.withFts
+      : ORDER_BY_CLAUSES.relevance.withoutFts;
+  }
+
+  return ORDER_BY_CLAUSES[normalizedSort][normalizedOrder as OrderKey];
 }
 
 function mapPackageSummary(row: RowRecord): PackageSummary {
@@ -544,12 +586,12 @@ export function searchPackagesFromInput(input: SearchInput): PackageSummary[] {
     values.push(ftsQuery);
   }
   if (params.license) {
-    sql += "  AND LOWER(COALESCE(p.license, '')) LIKE LOWER(?)\n";
-    values.push(`%${params.license}%`);
+    sql += "  AND LOWER(COALESCE(p.license, '')) LIKE LOWER(?) ESCAPE '\\'\n";
+    values.push(`%${escapeLikePattern(params.license)}%`);
   }
   if (params.repository) {
-    sql += "  AND LOWER(COALESCE(p.repository, '')) LIKE LOWER(?)\n";
-    values.push(`%${params.repository}%`);
+    sql += "  AND LOWER(COALESCE(p.repository, '')) LIKE LOWER(?) ESCAPE '\\'\n";
+    values.push(`%${escapeLikePattern(params.repository)}%`);
   }
   const rankLabel = normalizeRankLabel(params.rank);
   if (rankLabel) {
