@@ -187,6 +187,7 @@ export function useAppController(
 ): { state: AppState; commands: ControllerCommands } {
   const [state, dispatch] = useReducer(reduceAppState, initialData, createInitialAppState);
   const commandsRef = useRef<ControllerCommands | null>(null);
+  const lastStaticLocationRef = useRef<string | null>(null);
   const preferencesHydrated = usePreferenceHydration(dispatch);
 
   usePreferenceEffects(state, preferencesHydrated);
@@ -223,17 +224,6 @@ export function useAppController(
         return;
       }
       router.replace(href, options);
-    }
-
-    function pushUrl(href: string, options?: { scroll?: boolean }): void {
-      if (isStaticMode) {
-        navigateStaticUrl(href, "push");
-        if (options?.scroll !== false && typeof window !== "undefined") {
-          window.scrollTo({ top: 0, behavior: "auto" });
-        }
-        return;
-      }
-      router.push(href, options);
     }
 
     async function submitSearch(
@@ -351,31 +341,37 @@ export function useAppController(
 
   useEffect(() => {
     if (state.dataMode !== "static") return;
-    if (state.search.status !== "loading") return;
-    const pathname = initialData.initialView === "advanced-search" ? "/advanced-search" : "/search";
-    if (state.search.mode === "feed" && state.search.activeSource) {
-      void commandsRef.current?.openFeed(state.search.activeSource, pathname);
-      return;
-    }
-    if (state.search.mode === "search") {
-      void commandsRef.current?.submitSearch(state.search.appliedParams, pathname);
-    }
-  }, [initialData.initialView, state.dataMode, state.search.activeSource, state.search.appliedParams, state.search.mode, state.search.status]);
-
-  useEffect(() => {
-    if (state.dataMode !== "static") return;
     if (initialData.initialView !== "search" && initialData.initialView !== "advanced-search") return;
-    if (state.search.mode !== "idle") return;
-    const params = normalizeSearchParams(getCurrentSearchParams());
-    if (hasSearchIntent(params)) {
-      dispatch({ type: "submitSearchStarted", params });
-      return;
-    }
-    const source = typeof window !== "undefined" ? new URLSearchParams(window.location.search).get("source") : null;
-    if (source === "top" || source === "hot" || source === "rising") {
-      dispatch({ type: "openFeedStarted", source, params: normalizeSearchParams(DEFAULT_SEARCH_PARAMS) });
-    }
-  }, [initialData.initialView, state.dataMode, state.search.mode]);
+
+    const pathname = initialData.initialView === "advanced-search" ? "/advanced-search" : "/search";
+    const syncFromLocation = () => {
+      if (typeof window === "undefined") return;
+      const href = `${window.location.pathname}${window.location.search}`;
+      if (lastStaticLocationRef.current === href) {
+        return;
+      }
+      lastStaticLocationRef.current = href;
+
+      const params = normalizeSearchParams(getCurrentSearchParams());
+      const source = new URLSearchParams(window.location.search).get("source");
+
+      if (source === "top" || source === "hot" || source === "rising") {
+        void commandsRef.current?.openFeed(source, pathname);
+        return;
+      }
+
+      if (hasSearchIntent(params)) {
+        void commandsRef.current?.submitSearch(params, pathname);
+        return;
+      }
+
+      dispatch({ type: "clearSearch", params: normalizeSearchParams(DEFAULT_SEARCH_PARAMS) });
+    };
+
+    syncFromLocation();
+    window.addEventListener("popstate", syncFromLocation);
+    return () => window.removeEventListener("popstate", syncFromLocation);
+  }, [initialData.initialView, state.dataMode]);
 
   commandsRef.current = commands;
 
