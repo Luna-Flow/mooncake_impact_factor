@@ -29,6 +29,17 @@ type RouterLike = {
   replace: (href: string, options?: { scroll?: boolean }) => void;
 };
 
+function navigateStaticUrl(href: string, mode: "push" | "replace"): void {
+  if (typeof window === "undefined") return;
+  const url = new URL(href, window.location.origin);
+  if (mode === "replace") {
+    window.history.replaceState(null, "", url.pathname + url.search + url.hash);
+  } else {
+    window.history.pushState(null, "", url.pathname + url.search + url.hash);
+    window.dispatchEvent(new PopStateEvent("popstate"));
+  }
+}
+
 type ControllerCommands = {
   changeLanguage: (language: Language) => void;
   changeThemePreference: (themePreference: ThemePreference) => void;
@@ -203,6 +214,28 @@ export function useAppController(
     const runtimeCopy = dictionaries[state.preferences.language];
     const isStaticMode = state.dataMode === "static";
 
+    function replaceUrl(href: string, options?: { scroll?: boolean }): void {
+      if (isStaticMode) {
+        navigateStaticUrl(href, "replace");
+        if (options?.scroll !== false && typeof window !== "undefined") {
+          window.scrollTo({ top: 0, behavior: "auto" });
+        }
+        return;
+      }
+      router.replace(href, options);
+    }
+
+    function pushUrl(href: string, options?: { scroll?: boolean }): void {
+      if (isStaticMode) {
+        navigateStaticUrl(href, "push");
+        if (options?.scroll !== false && typeof window !== "undefined") {
+          window.scrollTo({ top: 0, behavior: "auto" });
+        }
+        return;
+      }
+      router.push(href, options);
+    }
+
     async function submitSearch(
       params = state.search.draftParams,
       pathname: "/search" | "/advanced-search" = "/search"
@@ -210,12 +243,12 @@ export function useAppController(
       const nextParams = cloneSearchParams(params);
       if (!hasSearchIntent(nextParams)) {
         dispatch({ type: "clearSearch", params: normalizeSearchParams(DEFAULT_SEARCH_PARAMS) });
-        router.replace(pathname, { scroll: false });
+        replaceUrl(pathname, { scroll: false });
         return;
       }
 
       dispatch({ type: "submitSearchStarted", params: nextParams });
-      router.replace(buildSearchHref(nextParams, null, pathname), { scroll: false });
+      replaceUrl(buildSearchHref(nextParams, null, pathname), { scroll: false });
 
       try {
         const items = isStaticMode
@@ -236,7 +269,7 @@ export function useAppController(
     ): Promise<void> {
       const params = normalizeSearchParams(DEFAULT_SEARCH_PARAMS);
       dispatch({ type: "openFeedStarted", source, params });
-      router.replace(buildSearchHref(params, source, pathname), { scroll: false });
+      replaceUrl(buildSearchHref(params, source, pathname), { scroll: false });
 
       try {
         const items = isStaticMode
@@ -300,7 +333,7 @@ export function useAppController(
       },
       clearSearchResults(pathname = "/search") {
         dispatch({ type: "clearSearch", params: normalizeSearchParams(DEFAULT_SEARCH_PARAMS) });
-        router.replace(pathname, { scroll: false });
+        replaceUrl(pathname, { scroll: false });
       },
       submitSearch,
       openFeed,

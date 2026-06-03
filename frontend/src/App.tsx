@@ -68,6 +68,12 @@ type AppProps = {
   initialSearchError?: string | null;
 };
 
+function navigateStatic(href: string): void {
+  if (typeof window === "undefined") return;
+  const url = new URL(href, window.location.origin);
+  window.location.assign(url.pathname + url.search + url.hash);
+}
+
 type PromptPreset = { label: string; params: Partial<AdvancedSearchParams> };
 type SelectOption<T extends string> = { value: T; label: string; hint?: string };
 
@@ -1759,6 +1765,7 @@ export function App(props: AppProps) {
   const { initialTopPackages, initialView, initialSource = null } = props;
   const router = useRouter();
   const [landingItems, setLandingItems] = useState(initialTopPackages);
+  const isStaticMode = (props.dataMode ?? "dynamic") === "static";
   const initialData = useMemo(
     () => {
       const data: AppInitialData = {
@@ -1778,20 +1785,39 @@ export function App(props: AppProps) {
   const { search, detail } = state;
 
   function navigate(href: "/" | "/search" | "/advanced-search"): void {
+    if (isStaticMode) {
+      navigateStatic(href);
+      return;
+    }
     router.push(href);
   }
 
   function openAdvancedSearchPage(): void {
     if (search.mode === "search") {
-      router.push(buildSearchHref(search.draftParams, null, "/advanced-search"));
+      const href = buildSearchHref(search.draftParams, null, "/advanced-search");
+      if (isStaticMode) {
+        navigateStatic(href);
+        return;
+      }
+      router.push(href);
       return;
     }
 
-    router.push(buildSearchHref(normalizeSearchParams(DEFAULT_SEARCH_PARAMS), search.activeSource, "/advanced-search"));
+    const href = buildSearchHref(normalizeSearchParams(DEFAULT_SEARCH_PARAMS), search.activeSource, "/advanced-search");
+    if (isStaticMode) {
+      navigateStatic(href);
+      return;
+    }
+    router.push(href);
   }
 
   function openLandingPackage(item: PackageSummary): void {
-    router.push(buildSearchHref(normalizeSearchParams({ owner: item.owner, packageName: item.package_name })));
+    const href = buildSearchHref(normalizeSearchParams({ owner: item.owner, packageName: item.package_name }));
+    if (isStaticMode) {
+      navigateStatic(href);
+      return;
+    }
+    router.push(href);
   }
 
   async function applyPrompt(params: Partial<AdvancedSearchParams>): Promise<void> {
@@ -1853,7 +1879,13 @@ export function App(props: AppProps) {
           language={language}
           items={landingItems}
           onOpenSearch={() => navigate("/search")}
-          onBrowseTop={() => router.push("/search?source=top")}
+          onBrowseTop={() => {
+            if (isStaticMode) {
+              navigateStatic("/search?source=top");
+              return;
+            }
+            router.push("/search?source=top");
+          }}
           onOpenPackage={openLandingPackage}
         />
       ) : search.status === "idle" ? (
