@@ -6,7 +6,7 @@ readme = "README.md"
 
 repository = "https://github.com/Luna-Flow/mooncake_impact_factor"
 
-license = "MIT"
+license = "Apache-2.0"
 
 keywords = [ "moonbit", "mooncakes", "ranking", "search" ]
 
