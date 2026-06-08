@@ -10,7 +10,7 @@ license = "Apache-2.0"
 
 keywords = [ "moonbit", "mooncakes", "ranking", "search" ]
 
-description = "A MoonBit package impact-factor prototype for mooncakes.io."
+description = "Local ranking and search toolkit for MoonBit packages, combining dependency, release, and download signals."
 
 options(
   source: "src",

@@ -26,5 +26,6 @@
     "@types/react": "^19.1.8",
     "@types/react-dom": "^19.1.6",
     "typescript": "^5.9.2"
-  }
+  },
+  "description": "Web interface for the Mooncake Impact Factor toolkit, exposing package ranking, search, and analysis views over a local MoonBit registry snapshot."
 }
