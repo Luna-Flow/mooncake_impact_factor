@@ -132,7 +132,7 @@ async function handleInit(id: number, indexUrl: string): Promise<WorkerResponse>
   if (indexedPackages) {
     return { type: "ready", id };
   }
-  const response = await fetch(indexUrl, { cache: "force-cache" });
+  const response = await fetch(indexUrl, { cache: "no-store" });
   if (!response.ok) {
     throw new Error(`Failed to load static search index: HTTP ${response.status}`);
   }

@@ -18,11 +18,11 @@ type StaticSearchResponse = {
 };
 
 const STATIC_DATA_PREFIX = `${process.env["NEXT_PUBLIC_BASE_PATH"] ?? ""}/data`;
-const SEARCH_INDEX_URL = `${STATIC_DATA_PREFIX}/search/search-index.json`;
 
 let manifestPromise: Promise<StaticManifest> | null = null;
 let workerPromise: Promise<Worker> | null = null;
 let workerReadyPromise: Promise<void> | null = null;
+let workerManifestVersion: string | null = null;
 let workerRequestId = 0;
 const pendingWorkerRequests = new Map<number, {
   resolve: (items: PackageSummary[]) => void;
@@ -47,6 +47,12 @@ async function requestJson<T>(url: string, schema: z.ZodSchema<T>): Promise<T> {
 
 function staticAsset(pathname: string): string {
   return `${STATIC_DATA_PREFIX}/${pathname}`;
+}
+
+function versionedStaticAsset(pathname: string, version: string): string {
+  const url = new URL(staticAsset(pathname), "https://static.invalid");
+  url.searchParams.set("v", version);
+  return `${url.pathname}${url.search}`;
 }
 
 export async function fetchStaticManifest(): Promise<StaticManifest> {
@@ -148,7 +154,22 @@ async function getStaticSearchWorker(): Promise<Worker> {
   return workerPromise;
 }
 
+async function resetStaticSearchWorker(): Promise<void> {
+  if (workerPromise) {
+    const worker = await workerPromise;
+    worker.terminate();
+  }
+  workerPromise = null;
+  workerReadyPromise = null;
+  workerManifestVersion = null;
+}
+
 async function ensureStaticSearchWorkerReady(): Promise<void> {
+  const manifest = await fetchStaticManifest();
+  if (workerManifestVersion !== manifest.generated_at) {
+    await resetStaticSearchWorker();
+    workerManifestVersion = manifest.generated_at;
+  }
   if (!workerReadyPromise) {
     workerReadyPromise = (async () => {
       const worker = await getStaticSearchWorker();
@@ -170,7 +191,7 @@ async function ensureStaticSearchWorkerReady(): Promise<void> {
         worker.postMessage({
           type: "init",
           id: requestId,
-          indexUrl: SEARCH_INDEX_URL
+          indexUrl: versionedStaticAsset("search/search-index.json", manifest.generated_at)
         } satisfies WorkerInitRequest);
       });
     })();
