@@ -1,0 +1,8 @@
+{
+  "title": "mooncake_impact_factor",
+  "summary": "Local ranking and search toolkit for MoonBit packages, combining dependency, release, and download signals.",
+  "locales": [
+    "zh_CN",
+    "ja_JP"
+  ]
+}

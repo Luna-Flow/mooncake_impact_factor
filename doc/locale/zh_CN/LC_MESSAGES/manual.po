@@ -1,0 +1,742 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: Luna-Flow documentation\n"
+"Report-Msgid-Bugs-To: https://github.com/Luna-Flow\n"
+"Language: zh_CN\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: conf.json:summary
+msgid "Local ranking and search toolkit for MoonBit packages, combining dependency, release, and download signals."
+msgstr "面向 MoonBit 包的本地排名与搜索工具集，综合依赖、发布和下载信号。"
+
+#: manual/api/score.md:1
+msgid "Score API"
+msgstr "评分 API"
+
+#: manual/api/score.md:3
+msgid "Package"
+msgstr "包"
+
+#: manual/api/score.md:7
+msgid "Exported MoonBit Functions"
+msgstr "导出的 MoonBit 函数"
+
+#: manual/api/score.md:11
+msgid "Returns `0` for negative inputs and otherwise returns the original integer."
+msgstr "把负数截断为 `0`，其余整数原样返回。"
+
+#: manual/api/score.md:13
+msgid "Current intent:"
+msgstr "当前用途："
+
+#: manual/api/score.md:15
+msgid "keep score inputs safe before logarithmic transforms"
+msgstr "在进入对数计算前兜底非负输入"
+
+#: manual/api/score.md:16
+msgid "expose a small reusable helper for callers that mirror Python-side logic"
+msgstr "作为与 Python 评分逻辑对齐的基础辅助函数"
+
+#: manual/api/score.md:20
+msgid "Computes the package impact score from dependency count, recent dependency growth, optional download snapshot data, and release recency."
+msgstr "根据总被依赖数、近期新增依赖、可选下载量快照和发布时间活跃度计算包影响分。"
+
+#: manual/api/score.md:23
+msgid "Current formula:"
+msgstr "当前公式："
+
+#: manual/api/score.md:32
+msgid "Input semantics:"
+msgstr "参数语义："
+
+#: manual/api/score.md:34
+msgid "`dependents`: total reverse-dependent package count"
+msgstr "`dependents`：总反向依赖包数"
+
+#: manual/api/score.md:35
+msgid "`recent_dependents`: reverse dependents first seen in the rolling recent window"
+msgstr "`recent_dependents`：近期窗口内首次出现的反向依赖数"
+
+#: manual/api/score.md:36
+msgid "`downloads`: non-negative download snapshot count"
+msgstr "`downloads`：非负下载量快照"
+
+#: manual/api/score.md:37
+msgid "`days_since_release`: days since the package's latest release"
+msgstr "`days_since_release`：距离最新版本发布时间的天数"
+
+#: manual/api/score.md:39
+msgid "Behavior notes:"
+msgstr "行为说明："
+
+#: manual/api/score.md:41
+msgid "negative inputs are clamped to `0`"
+msgstr "负数输入会先被截断为 `0`"
+
+#: manual/api/score.md:42
+msgid "the return value is a raw floating-point score"
+msgstr "返回值是原始浮点分数"
+
+#: manual/api/score.md:43
+msgid "the MoonBit implementation intentionally matches the Python builder formula"
+msgstr "当前 MoonBit 实现故意与 Python 构建脚本保持同一公式"
+
+#: manual/api/score.md:47
+msgid "Maps a computed score to one of `S`, `A`, `B`, `C`, or `D`."
+msgstr "把分数映射到 `S`、`A`、`B`、`C`、`D` 五档。"
+
+#: manual/api/score.md:49
+msgid "Current thresholds:"
+msgstr "当前阈值："
+
+#: manual/api/score.md:55
+msgid "`D`: otherwise"
+msgstr "`D`：其余情况"
+
+#: manual/api/score.md:59
+msgid "Maps a score delta profile to `Rising`, `Hot`, or `Stable`."
+msgstr "把分数增长画像映射到 `Rising`、`Hot`、`Stable`。"
+
+#: manual/api/score.md:63
+msgid "Returns the current score snapshot, historical comparison fields, rank label, momentum label, and activity multiplier in a single MoonBit call."
+msgstr "一次性返回当前分数快照、历史比较字段、等级标签、动量标签和活跃度乘数。"
+
+#: manual/api/score.md:66
+msgid "Stable HTTP Endpoints"
+msgstr "稳定 HTTP 接口"
+
+#: manual/api/score.md:70
+msgid "Returns top-ranked packages ordered by current score."
+msgstr "返回按当前分数排序的头部包列表。"
+
+#: manual/api/score.md:74
+msgid "Returns packages with the strongest current hot momentum profile."
+msgstr "返回当前 `Hot` 动量表现最强的包列表。"
+
+#: manual/api/score.md:78
+msgid "Returns packages with the strongest current rising momentum profile."
+msgstr "返回当前 `Rising` 动量表现最强的包列表。"
+
+#: manual/api/score.md:82
+msgid "Returns `{ \"items\": [...] }` with ranked package summaries."
+msgstr "返回 `{ \"items\": [...] }` 形式的包摘要列表。"
+
+#: manual/api/score.md:84
+msgid "Stable query parameters:"
+msgstr "稳定查询参数："
+
+#: manual/api/score.md:110
+msgid "Query compatibility rules:"
+msgstr "查询兼容规则："
+
+#: manual/api/score.md:112
+msgid "`ast` has highest priority when present."
+msgstr "存在 `ast` 时优先使用 `ast`。"
+
+#: manual/api/score.md:113
+msgid "`expr` is used when `ast` is absent."
+msgstr "不存在 `ast` 但存在 `expr` 时使用 `expr`。"
+
+#: manual/api/score.md:114
+msgid "Legacy structured parameters remain supported for compatibility and simple links."
+msgstr "旧的结构化参数仍然保留，用于兼容已有链接和简单筛选。"
+
+#: manual/api/score.md:118
+msgid "Returns `{ \"detail\": ..., \"dependents\": [...] }` for a single package."
+msgstr "返回单个包的 `{ \"detail\": ..., \"dependents\": [...] }` 分析结果。"
+
+#: manual/conventions.md:1
+msgid "Repository conventions"
+msgstr "仓库约定"
+
+#: manual/conventions.md:3
+msgid "These rules add to the Luna-Flow documentation standard for `mooncake_impact_factor`. The repository combines a MoonBit score package, a Python index builder, and a Next.js application, so its documentation must keep all three in step."
+msgstr "以下规则是 `mooncake_impact_factor` 在 Luna-Flow 文档标准之外补充的约定。本仓库由 MoonBit 评分包、Python 索引构建器和 Next.js 应用三部分组成，因此文档必须让三者保持一致。"
+
+#: manual/conventions.md:8
+msgid "Scope"
+msgstr "范围"
+
+#: manual/conventions.md:10
+msgid "Describe the current **`0.1.2`** baseline on the branch."
+msgstr "描述当前分支上的 **`0.1.2`** 基线。"
+
+#: manual/conventions.md:11
+msgid "Do not document unpublished commands, routes, fields, or MoonBit exports."
+msgstr "不要记录尚未发布的命令、路由、字段或 MoonBit 导出。"
+
+#: manual/conventions.md:12
+msgid "When behavior is local-only, say so directly instead of implying a global service contract."
+msgstr "行为只在本地生效时要直接说明，不要暗示存在全局服务契约。"
+
+#: manual/conventions.md:15
+msgid "Consistency"
+msgstr "一致性"
+
+#: manual/conventions.md:17
+msgid "`README.md`, `CONTRIBUTING.md`, and the manual must tell the same release story."
+msgstr "`README.md`、`CONTRIBUTING.md` 和手册必须讲同一个版本故事。"
+
+#: manual/conventions.md:18
+msgid "API docs must match the actual MoonBit package name, function signatures, and Next.js route contracts."
+msgstr "API 文档必须匹配真实的 MoonBit 包名、函数签名和 Next.js 路由契约。"
+
+#: manual/conventions.md:19
+msgid "If Python scripts expose stable CLI flags, database behavior, or search semantics, document them explicitly."
+msgstr "如果 Python 脚本暴露了稳定 CLI 参数、数据库行为或搜索语义，要明确写出来。"
+
+#: manual/conventions.md:20
+msgid "Distinguish local registry facts from authoritative mooncakes facts."
+msgstr "要区分“本地注册表事实”和“mooncakes 权威事实”。"
+
+#: manual/conventions.md:21
+msgid "If Python and MoonBit intentionally share the score formula, keep both docs and code paths aligned."
+msgstr "如果 Python 和 MoonBit 有意共享评分公式，文档和代码都要同步维护。"
+
+#: manual/design/score.md:1
+msgid "Score Design"
+msgstr "评分设计"
+
+#: manual/design/score.md:3
+msgid "The current scoring model combines four signals:"
+msgstr "当前评分模型组合了四类信号："
+
+#: manual/design/score.md:5
+msgid "total package dependents"
+msgstr "总反向依赖包数"
+
+#: manual/design/score.md:6
+msgid "recent dependents inside the rolling 180-day activity window"
+msgstr "180 天滚动窗口内的近期反向依赖数"
+
+#: manual/design/score.md:7
+msgid "optional download snapshot volume"
+msgstr "可选的下载量快照"
+
+#: manual/design/score.md:8
+msgid "release recency multiplier"
+msgstr "基于最新发布时间的活跃度乘数"
+
+#: manual/design/score.md:10
+msgid "Why These Inputs Exist"
+msgstr "为什么使用这些信号"
+
+#: manual/design/score.md:12
+msgid "Total dependents capture established ecosystem adoption."
+msgstr "总反向依赖代表已经形成的生态采用度。"
+
+#: manual/design/score.md:13
+msgid "Recent dependents reward active new integration, not only historical weight."
+msgstr "近期反向依赖用于捕捉新增集成速度，而不只看历史积累。"
+
+#: manual/design/score.md:14
+msgid "Download counts provide an external popularity hint when available."
+msgstr "下载量在可用时提供额外的人气线索。"
+
+#: manual/design/score.md:15
+msgid "Release recency reduces stale-package bias without making age the primary ranking factor."
+msgstr "发布时间乘数用于抑制长期停更包长期霸榜，但不会让“新”成为唯一优势。"
+
+#: manual/design/score.md:17
+msgid "Current Formula"
+msgstr "当前公式"
+
+#: manual/design/score.md:27
+msgid "The logarithms intentionally compress very large packages so the ranking does not become a pure dependent-count leaderboard."
+msgstr "这里使用对数是为了压缩超大包的量级差异，避免榜单退化成单纯的依赖数排序。"
+
+#: manual/design/score.md:30
+msgid "Current Release Multipliers"
+msgstr "当前活跃度乘数"
+
+#: manual/design/score.md:32
+msgid "`<= 30` days: `1.12`"
+msgstr "`<= 30` 天：`1.12`"
+
+#: manual/design/score.md:33
+msgid "`<= 90` days: `1.06`"
+msgstr "`<= 90` 天：`1.06`"
+
+#: manual/design/score.md:34
+msgid "`<= 180` days: `1.00`"
+msgstr "`<= 180` 天：`1.00`"
+
+#: manual/design/score.md:35
+msgid "`<= 365` days: `0.94`"
+msgstr "`<= 365` 天：`0.94`"
+
+#: manual/design/score.md:36
+msgid "`> 365` days: `0.88`"
+msgstr "`> 365` 天：`0.88`"
+
+#: manual/design/score.md:38
+msgid "Rank And Momentum Layers"
+msgstr "分档与动量标签"
+
+#: manual/design/score.md:40
+msgid "Rank labels are coarse score buckets:"
+msgstr "分档是对分数的粗粒度映射："
+
+#: manual/design/score.md:48
+msgid "Momentum labels use score-delta rules exported from MoonBit and are materialized by the Python index builder:"
+msgstr "动量标签规则由 MoonBit 导出，并在 Python 构建流程里物化为服务层数据："
+
+#: manual/design/score.md:51
+msgid "`Rising`: growth `>= 35`, ratio `>= 0.35`, recent dependents `>= 3`"
+msgstr "`Rising`：增长值 `>= 35`、增长比 `>= 0.35`、近期反向依赖 `>= 3`"
+
+#: manual/design/score.md:52
+msgid "`Hot`: growth `>= 18`, ratio `>= 0.18`, recent dependents `>= 2`"
+msgstr "`Hot`：增长值 `>= 18`、增长比 `>= 0.18`、近期反向依赖 `>= 2`"
+
+#: manual/design/score.md:53
+msgid "`Stable`: otherwise"
+msgstr "`Stable`：其余情况"
+
+#: manual/design/score.md:55
+msgid "The build pipeline persists momentum labels for serving, while MoonBit remains the source of truth for the rule definitions."
+msgstr "因此动量标签会作为索引与服务层数据持久化，但规则定义以 MoonBit 为准。"
+
+#: manual/design/score.md:58
+msgid "Data Flow"
+msgstr "数据流"
+
+#: manual/design/score.md:60
+msgid "`scripts/build_index.py` reads local `*.index` records from the MoonBit registry snapshot."
+msgstr "`scripts/build_index.py` 从本地 MoonBit 注册表快照读取 `*.index` 记录。"
+
+#: manual/design/score.md:61
+msgid "The builder reconstructs packages, versions, dependencies, package edges, and the FTS search index in SQLite."
+msgstr "构建器在 SQLite 中重建 packages、versions、dependencies、package_edges 和全文检索索引。"
+
+#: manual/design/score.md:62
+msgid "The Python pipeline calls the local MoonBit CLI to compute score snapshots, rank labels, activity multipliers, and momentum labels."
+msgstr "Python 管线通过本地 MoonBit CLI 计算评分快照、等级标签、活动系数和动量标签。"
+
+#: manual/design/score.md:63
+msgid "`src/score` exposes the score, rank, momentum, and snapshot logic for MoonBit consumers and local CLI reuse."
+msgstr "`src/score` 对外暴露评分、等级和动量相关逻辑，`src/cli` 通过本地 CLI 形式把这些规则提供给 Python 构建流程。"
+
+#: manual/design/score.md:64
+msgid "`lib/query.ts` defines the shared query AST, native-expression parser, serializer, and compatibility helpers used by both server and client."
+msgstr "`lib/query.ts` 定义了服务端与前端共用的查询 AST、原生表达式解析器、序列化器和兼容辅助逻辑。"
+
+#: manual/design/score.md:65
+msgid "The Next.js app reads the generated SQLite database and serves feeds, search results, advanced query building, and package analysis views."
+msgstr "Next.js 应用读取生成后的 SQLite 数据库，提供榜单、搜索、图形化高级检索和包分析页面与 API。"
+
+#: manual/design/score.md:67
+msgid "Implementation Constraint"
+msgstr "实现约束"
+
+#: manual/design/score.md:69
+msgid "The repository intentionally keeps Python responsible for database generation and SQLite materialization, while MoonBit owns the reusable score, rank, momentum, and snapshot rules that the local CLI forwards into the build flow."
+msgstr "仓库当前让 Python 保留索引与 SQLite 物化职责，但将评分快照、等级映射和动量分类规则集中到 MoonBit，并通过本地 CLI 供构建流程调用。"
+
+#: manual/getting_started.md:1
+msgid "Getting started"
+msgstr "快速上手"
+
+#: manual/getting_started.md:3
+msgid "This guide covers the current local workflow for the **`0.1.2`** branch."
+msgstr "这份文档覆盖当前 **`0.1.2`** 分支的本地工作流。"
+
+#: manual/getting_started.md:5
+msgid "Prerequisites"
+msgstr "前置条件"
+
+#: manual/getting_started.md:7
+msgid "Python 3"
+msgstr ""
+
+#: manual/getting_started.md:8
+msgid "MoonBit toolchain"
+msgstr "MoonBit 工具链"
+
+#: manual/getting_started.md:9
+msgid "Node.js and npm"
+msgstr "Node.js 和 npm"
+
+#: manual/getting_started.md:10
+msgid "A local MoonBit registry snapshot under `~/.moon/registry/index/user`"
+msgstr "`~/.moon/registry/index/user` 下的本地 MoonBit 注册表快照"
+
+#: manual/getting_started.md:12
+msgid "1. Build the database"
+msgstr "1. 构建数据库"
+
+#: manual/getting_started.md:14
+msgid "Build with live mooncakes download lookup enabled:"
+msgstr "启用 mooncakes 下载量抓取："
+
+#: manual/getting_started.md:20
+msgid "This command:"
+msgstr "这个命令会："
+
+#: manual/getting_started.md:22
+msgid "reads every `*.index` record under the local registry"
+msgstr "读取本地注册表下的所有 `*.index` 记录"
+
+#: manual/getting_started.md:23
+msgid "recreates the SQLite schema from scratch"
+msgstr "从头重建 SQLite schema"
+
+#: manual/getting_started.md:24
+msgid "fetches missing download counts from mooncakes unless disabled"
+msgstr "在未禁用时从 mooncakes 拉取缺失的下载量"
+
+#: manual/getting_started.md:25
+msgid "computes package edges, reverse-dependent counts, score snapshots, and the FTS index"
+msgstr "计算包边、反向依赖数量、评分快照和全文检索索引"
+
+#: manual/getting_started.md:27
+msgid "Build without live mooncakes requests:"
+msgstr "不访问 mooncakes、离线构建："
+
+#: manual/getting_started.md:33
+msgid "Apply a local download override file:"
+msgstr "叠加本地下载量覆盖文件："
+
+#: manual/getting_started.md:41
+msgid "The override file must be a JSON object keyed by full package name:"
+msgstr "覆盖文件必须是一个以完整包名为键的 JSON 对象："
+
+#: manual/getting_started.md:49
+msgid "2. Run the local app"
+msgstr "2. 运行本地应用"
+
+#: manual/getting_started.md:51
+msgid "Install dependencies:"
+msgstr "先安装依赖："
+
+#: manual/getting_started.md:57
+msgid "Run the full-stack Next.js app:"
+msgstr "启动 Next.js 全栈应用："
+
+#: manual/getting_started.md:63
+msgid "Then open `http://127.0.0.1:3000`."
+msgstr "然后打开 `http://127.0.0.1:3000`。"
+
+#: manual/getting_started.md:65
+msgid "The app currently serves:"
+msgstr "当前应用提供："
+
+#: manual/getting_started.md:67
+msgid "`/`: ranked package browsing UI"
+msgstr "`/`：包榜单浏览界面"
+
+#: manual/getting_started.md:68
+msgid "`/search`: main search results page"
+msgstr "`/search`：主搜索结果页"
+
+#: manual/getting_started.md:69
+msgid "`/advanced-search`: graphical advanced-search UI with grouped conditions and native-expression editing"
+msgstr "`/advanced-search`：支持条件分组与原生表达式的图形化高级检索页"
+
+#: manual/getting_started.md:70
+msgid "`/api/*`: JSON APIs backed directly by SQLite"
+msgstr "`/api/*`：直接读取 SQLite 的 JSON API"
+
+#: manual/getting_started.md:72
+msgid "3. Query the APIs"
+msgstr "3. 调用 API"
+
+#: manual/getting_started.md:74
+msgid "Search:"
+msgstr "搜索："
+
+#: manual/getting_started.md:80
+msgid "Supported search parameters:"
+msgstr "支持的搜索参数："
+
+#: manual/getting_started.md:82
+msgid "`ast`: serialized grouped query AST used by the advanced query builder"
+msgstr "`ast`：供高级检索构建器使用的序列化查询 AST"
+
+#: manual/getting_started.md:83
+msgid "`expr`: native boolean search expression compiled into the shared query AST"
+msgstr "`expr`：会被编译到共享查询 AST 的原生布尔表达式"
+
+#: manual/getting_started.md:84
+msgid "`q`: global full-text query with `AND`, `OR`, `NOT`, parentheses, quoted phrases, and field prefixes such as `owner:`, `author:`, `package:`, `keyword:`, `description:`, and `name:`"
+msgstr "`q`：全局全文检索，支持 `AND`、`OR`、`NOT`、括号、引号短语，以及 `owner:`、`author:`、`package:`、`keyword:`、`description:`、`name:` 等字段前缀"
+
+#: manual/getting_started.md:85
+msgid "`owner`, `package`, `keyword`, `description`: field-specific full-text filters combined with `AND`"
+msgstr "`owner`、`package`、`keyword`、`description`：字段级全文检索，彼此按 `AND` 组合"
+
+#: manual/getting_started.md:86
+msgid "`license`, `repository`: metadata substring filters"
+msgstr "`license`、`repository`：元数据子串过滤"
+
+#: manual/getting_started.md:92
+msgid "`has_repository`, `has_license`: `true` or `false`"
+msgstr "`has_repository`、`has_license`：`true` 或 `false`"
+
+#: manual/getting_started.md:94
+msgid "`order`: `asc` or `desc`"
+msgstr "`order`：`asc` 或 `desc`"
+
+#: manual/getting_started.md:95
+msgid "`limit`: maximum `100`"
+msgstr "`limit`：最大 `100`"
+
+#: manual/getting_started.md:97
+msgid "Field semantics:"
+msgstr "字段语义："
+
+#: manual/getting_started.md:99
+msgid "`owner` means the package namespace owner from local registry metadata."
+msgstr "`owner` 表示本地注册表元数据里的包命名空间所有者。"
+
+#: manual/getting_started.md:100
+msgid "`author:` is currently only an alias for `owner:`."
+msgstr "`author:` 目前只是 `owner:` 的别名。"
+
+#: manual/getting_started.md:101
+msgid "The index does not yet store a separate author list, maintainer list, or institution field."
+msgstr "当前索引还没有单独的作者列表、维护者列表或机构字段。"
+
+#: manual/getting_started.md:103
+msgid "Examples:"
+msgstr "示例："
+
+#: manual/getting_started.md:115
+msgid "Feeds:"
+msgstr "榜单："
+
+#: manual/getting_started.md:123
+msgid "Package analysis:"
+msgstr "包分析："
+
+#: manual/getting_started.md:129
+msgid "4. Validate changes"
+msgstr "4. 验证改动"
+
+#: manual/getting_started.md:142
+msgid "Repository shortcuts:"
+msgstr "仓库快捷命令："
+
+#: manual/getting_started.md:154
+#: manual/index.md:24
+msgid "Notes"
+msgstr "说明"
+
+#: manual/getting_started.md:156
+msgid "The SQLite database is rebuilt from scratch on each index build."
+msgstr "每次构建索引都会从头重建 SQLite 数据库。"
+
+#: manual/getting_started.md:157
+msgid "Download counts may come from live mooncakes responses, `data/download_cache.json`, or a local override file."
+msgstr "下载量可能来自在线 mooncakes 响应、`data/download_cache.json` 或本地覆盖文件。"
+
+#: manual/getting_started.md:158
+msgid "When `sort=relevance` and at least one full-text condition is present, results are ordered by SQLite `bm25` relevance first."
+msgstr "当 `sort=relevance` 且存在任意全文条件时，搜索结果会优先按 SQLite `bm25` 相关性排序。"
+
+#: manual/getting_started.md:159
+msgid "The advanced query builder and the native `expr` input both compile through the same shared query AST layer."
+msgstr "图形化高级检索和原生 `expr` 输入都会编译到同一套共享查询 AST。"
+
+#: manual/index.md:1
+msgid "Mooncake Impact Factor"
+msgstr "Mooncake Impact Factor"
+
+#: manual/index.md:3
+msgid "This manual describes the current **`0.1.2`** baseline."
+msgstr "本手册描述当前 **`0.1.2`** 基线。"
+
+#: manual/index.md:5
+msgid "Where to start"
+msgstr "从哪里开始"
+
+#: manual/index.md:7
+msgid "[Getting started](getting_started.md) builds the local index, runs the web app, and queries its HTTP APIs."
+msgstr "[快速上手](getting_started.md)介绍如何构建本地索引、运行 Web 应用并调用其 HTTP API。"
+
+#: manual/index.md:9
+msgid "The `score` package has an [API reference](api/score.md), a [design note](design/score.md), and a [tutorial](tutorial/score.md)."
+msgstr "`score` 包有 [API 参考](api/score.md)、[设计说明](design/score.md)和[教程](tutorial/score.md)。"
+
+#: manual/index.md:11
+msgid "[Repository conventions](conventions.md) lists the consistency rules for this repository's documentation."
+msgstr "[仓库约定](conventions.md)列出本仓库文档的一致性规则。"
+
+#: manual/index.md:14
+msgid "Coverage"
+msgstr "覆盖范围"
+
+#: manual/index.md:16
+msgid "These docs describe the implementation currently present in this repository:"
+msgstr "这套文档描述的是仓库里已经实现的内容："
+
+#: manual/index.md:18
+msgid "MoonBit score computation in `src/score`"
+msgstr "`src/score` 中的 MoonBit 评分核心"
+
+#: manual/index.md:19
+msgid "SQLite index building in `scripts/build_index.py`"
+msgstr "`scripts/build_index.py` 中的 SQLite 索引构建流程"
+
+#: manual/index.md:20
+msgid "Next.js route-handler APIs in `app/api`"
+msgstr "`app/api` 中的 Next.js Route Handler API"
+
+#: manual/index.md:21
+msgid "Browser UI and shared frontend logic in `app` and `frontend/src`"
+msgstr "`app` 和 `frontend/src` 中的浏览器界面与共享前端逻辑"
+
+#: manual/index.md:22
+msgid "Graphical advanced query building and native-expression search support"
+msgstr "图形化高级检索构建器与原生表达式检索能力"
+
+#: manual/index.md:26
+msgid "The ranking is derived from a local registry snapshot, not a globally authoritative ecosystem index."
+msgstr "排名来自本地 MoonBit 注册表快照，不是 mooncakes 生态的全局权威榜单。"
+
+#: manual/index.md:27
+msgid "Download counts may come from live mooncakes responses, the local download cache, or a local override JSON file."
+msgstr "下载量可能来自在线 mooncakes 响应、本地缓存文件，或本地覆盖 JSON 文件。"
+
+#: manual/tutorial/score.md:1
+msgid "Score tutorial"
+msgstr "Score 教程"
+
+#: manual/tutorial/score.md:3
+msgid "This tutorial computes the impact score of one package from its dependency, download, and release signals, and then reads the rank and momentum labels that the web application displays."
+msgstr "本教程根据一个包的依赖、下载和发布信号计算其影响力分数，然后读取 Web 应用中显示的分档标签和动量标签。"
+
+#: manual/tutorial/score.md:7
+msgid "Import the package"
+msgstr "导入包"
+
+#: manual/tutorial/score.md:9
+msgid "Add the score package to the `import` list of your `moon.pkg`:"
+msgstr "在 `moon.pkg` 的 `import` 列表中加入 score 包："
+
+#: manual/tutorial/score.md:17
+msgid "Compute a score"
+msgstr "计算分数"
+
+#: manual/tutorial/score.md:19
+msgid "`compute_score` takes the total dependents, the recent dependents, the download count, and the days since the latest release. Negative inputs are clamped to `0`."
+msgstr "`compute_score` 接收总反向依赖数、近期反向依赖数、下载量以及距最新发布的天数。负数输入会被截断为 `0`。"
+
+#: manual/tutorial/score.md:30
+msgid "The score is a raw floating-point value. `rank_label` turns it into one of the coarse buckets `S`, `A`, `B`, `C`, or `D`."
+msgstr "分数是原始浮点值。`rank_label` 把它映射到 `S`、`A`、`B`、`C`、`D` 之一的粗粒度分档。"
+
+#: manual/tutorial/score.md:33
+msgid "Compare with 30 days ago"
+msgstr "与 30 天前比较"
+
+#: manual/tutorial/score.md:35
+msgid "`compute_score_snapshot` takes the same four signals twice: first for today, then for the state 30 days earlier. It returns a `ScoreSnapshot` with both scores, the growth, the rank label, the momentum label, and the activity multiplier."
+msgstr "`compute_score_snapshot` 接收两组相同的四个信号：第一组对应今天，第二组对应 30 天前的状态。它返回一个 `ScoreSnapshot`，其中包含两个分数、增长量、分档标签、动量标签以及活跃度乘数。"
+
+#: manual/tutorial/score.md:48
+msgid "The package is `Rising` because its score grew by more than 35 points and 35 percent, and it gained at least three recent dependents."
+msgstr "该包被标为 `Rising`，因为它的分数增长超过 35 分且超过 35%，并且至少新增了三个近期反向依赖。"
+
+#: manual/tutorial/score.md:51
+msgid "Use the score from other languages"
+msgstr "在其他语言中使用分数"
+
+#: manual/tutorial/score.md:53
+msgid "The index builder does not reimplement the formula. It builds the `cli` package for the JS target and passes the same eight signals as a JSON object:"
+msgstr "索引构建器不会重新实现评分公式。它为 JS 目标构建 `cli` 包，并以 JSON 对象传入同样的八个信号："
+
+#: manual/tutorial/score.md:61
+msgid "The command prints the snapshot as JSON, or an object with an `error` field when the input is missing or malformed."
+msgstr "该命令以 JSON 输出快照；当输入缺失或格式错误时，输出一个带有 `error` 字段的对象。"
+
+#: manual/tutorial/score.md:64
+msgid "Next steps"
+msgstr "下一步"
+
+#: manual/tutorial/score.md:66
+msgid "Read the [design note](../design/score.md) for why each signal is weighted as it is, and the [API reference](../api/score.md) for the thresholds behind every label."
+msgstr "阅读[设计说明](../design/score.md)了解各信号权重的由来，阅读 [API 参考](../api/score.md)了解每个标签背后的阈值。"
+
+#~ msgid "Documentation Standard"
+#~ msgstr "文档标准"
+
+#~ msgid "Required Document Types"
+#~ msgstr "必需的文档类型"
+
+#~ msgid "Each language set should cover the current stable surface:"
+#~ msgstr "每种语言的文档都应该覆盖当前稳定的用户侧内容："
+
+#~ msgid "`README.md`: repository purpose, quick start, and document entry points"
+#~ msgstr "`README.md`：仓库用途、快速开始和文档入口"
+
+#~ msgid "`tutorial.md`: local setup, index-build flow, and runtime usage"
+#~ msgstr "`tutorial.md`：本地环境、索引构建流程和运行方式"
+
+#~ msgid "`score/api.md`: exported MoonBit functions and stable HTTP contracts"
+#~ msgstr "`score/api.md`：导出的 MoonBit 函数和稳定 HTTP 契约"
+
+#~ msgid "`score/design.md`: score model, data flow, and implementation constraints"
+#~ msgstr "`score/design.md`：评分模型、数据流和实现约束"
+
+#~ msgid "Organization Rules"
+#~ msgstr "组织规则"
+
+#~ msgid "Organize docs by language and subsystem."
+#~ msgstr "按语言和子系统组织文档。"
+
+#~ msgid "Keep the documentation tree aligned with the repository layout."
+#~ msgstr "文档树要和仓库布局对应。"
+
+#~ msgid "Prefer one document per stable concern instead of mixing tutorial, API, and design material into one long page."
+#~ msgstr "优先按稳定关注点拆分文档，不要把教程、API 和设计说明混成一篇长文。"
+
+#~ msgid "Recommended structure:"
+#~ msgstr "推荐结构："
+
+#~ msgid "Tutorial"
+#~ msgstr "使用教程"
+
+#~ msgid "English documentation entry point for the current **`0.1.2`** baseline."
+#~ msgstr "当前 **`0.1.2`** 基线的中文文档入口。"
+
+#~ msgid "Documentation Map"
+#~ msgstr "文档目录"
+
+#~ msgid "[Documentation standard](./conventions.md)"
+#~ msgstr "[文档标准](./conventions.md)"
+
+#~ msgid "[Tutorial](./getting_started.md)"
+#~ msgstr "[使用教程](./getting_started.md)"
+
+#~ msgid "[Score API](./api/score.md)"
+#~ msgstr "[评分 API](./api/score.md)"
+
+#~ msgid "[Score design](./design/score.md)"
+#~ msgstr "[评分设计](./design/score.md)"
+
+#~ msgid "Use this page as the starting point for practical workflows around this module. score in Luna-Flow/mooncake_impact_factor."
+#~ msgstr "本页用于说明这个模块的实际使用路径。 这里聚焦 Luna-Flow/mooncake_impact_factor 中的 score。"
+
+#~ msgid "Suggested Flow"
+#~ msgstr "建议阅读顺序"
+
+#~ msgid "Read the repository README and the score API reference."
+#~ msgstr "先看仓库 README 和 score 的 API 文档。"
+
+#~ msgid "Start from the constructors or entry points under `src/score`."
+#~ msgstr "从 `src/score` 中的构造入口或主入口开始。"
+
+#~ msgid "Validate behavior with the existing tests or examples before depending on edge-case semantics."
+#~ msgstr "在依赖边界行为之前，先结合已有测试或示例验证语义。"
+
+#~ msgid "Practical Guidance"
+#~ msgstr "实践建议"
+
+#~ msgid "Prefer the documented entry points over internal helpers."
+#~ msgstr "优先使用已文档化的入口，而不是内部辅助函数。"
+
+#~ msgid "Record runtime, numeric, or proof-state assumptions explicitly in downstream code."
+#~ msgstr "下游代码里显式记录运行时、数值或证明状态前提。"

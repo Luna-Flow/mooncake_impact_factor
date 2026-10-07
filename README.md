@@ -107,25 +107,16 @@ npm run serve:static
 
 ## Documentation Map
 
-### Core
+The manual is published at <https://luna-flow.github.io/en/mooncake_impact_factor/>,
+with Chinese and Japanese translations. Its English source lives in
+[`doc/manual/`](./doc/manual/index.md).
 
-- Contribution workflow: `CONTRIBUTING.md`
-- English docs index: `doc/en_US/README.md`
-- Chinese docs index: `doc/zh_CN/README.md`
-
-### English
-
-- Documentation standard: `doc/en_US/doc_standard.md`
-- Tutorial: `doc/en_US/tutorial.md`
-- Score API: `doc/en_US/score/api.md`
-- Score design: `doc/en_US/score/design.md`
-
-### 简体中文
-
-- 文档标准: `doc/zh_CN/doc_standard.md`
-- 使用教程: `doc/zh_CN/tutorial.md`
-- 评分 API: `doc/zh_CN/score/api.md`
-- 评分设计: `doc/zh_CN/score/design.md`
+- Contribution workflow: [`CONTRIBUTING.md`](./CONTRIBUTING.md)
+- Getting started: [`doc/manual/getting_started.md`](./doc/manual/getting_started.md)
+- Score API: [`doc/manual/api/score.md`](./doc/manual/api/score.md)
+- Score design: [`doc/manual/design/score.md`](./doc/manual/design/score.md)
+- Score tutorial: [`doc/manual/tutorial/score.md`](./doc/manual/tutorial/score.md)
+- Repository conventions: [`doc/manual/conventions.md`](./doc/manual/conventions.md)
 
 ## Current Repository Highlights
 

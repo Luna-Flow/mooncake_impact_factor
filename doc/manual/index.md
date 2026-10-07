@@ -1,13 +1,15 @@
-# Mooncake Impact Factor Docs
+# Mooncake Impact Factor
 
-English documentation entry point for the current **`0.1.2`** baseline.
+This manual describes the current **`0.1.2`** baseline.
 
-## Documentation Map
+## Where to start
 
-- [Documentation standard](./doc_standard.md)
-- [Tutorial](./tutorial.md)
-- [Score API](./score/api.md)
-- [Score design](./score/design.md)
+- [Getting started](getting_started.md) builds the local index, runs the web
+  app, and queries its HTTP APIs.
+- The `score` package has an [API reference](api/score.md), a
+  [design note](design/score.md), and a [tutorial](tutorial/score.md).
+- [Repository conventions](conventions.md) lists the consistency rules for this
+  repository's documentation.
 
 ## Coverage
 

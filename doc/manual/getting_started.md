@@ -1,4 +1,4 @@
-# Tutorial
+# Getting started
 
 This guide covers the current local workflow for the **`0.1.2`** branch.
 
@@ -9,7 +9,7 @@ This guide covers the current local workflow for the **`0.1.2`** branch.
 - Node.js and npm
 - A local MoonBit registry snapshot under `~/.moon/registry/index/user`
 
-## 1. Build The Database
+## 1. Build the database
 
 Build with live mooncakes download lookup enabled:
 
@@ -46,7 +46,7 @@ The override file must be a JSON object keyed by full package name:
 }
 ```
 
-## 2. Run The Local App
+## 2. Run the local app
 
 Install dependencies:
 
@@ -69,7 +69,7 @@ The app currently serves:
 - `/advanced-search`: graphical advanced-search UI with grouped conditions and native-expression editing
 - `/api/*`: JSON APIs backed directly by SQLite
 
-## 3. Query The APIs
+## 3. Query the APIs
 
 Search:
 
@@ -126,7 +126,7 @@ Package analysis:
 GET /api/packages/<owner>/<packageName>/analysis
 ```
 
-## 4. Validate Changes
+## 4. Validate changes
 
 ```bash
 moon fmt

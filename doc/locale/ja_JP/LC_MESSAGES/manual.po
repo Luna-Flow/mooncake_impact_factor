@@ -1,0 +1,661 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: Luna-Flow documentation\n"
+"Report-Msgid-Bugs-To: https://github.com/Luna-Flow\n"
+"Language: ja_JP\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: conf.json:summary
+msgid "Local ranking and search toolkit for MoonBit packages, combining dependency, release, and download signals."
+msgstr "依存、リリース、ダウンロードのシグナルを組み合わせた、MoonBit パッケージ向けのローカルなランキング・検索ツールキット。"
+
+#: manual/api/score.md:1
+msgid "Score API"
+msgstr "score API"
+
+#: manual/api/score.md:3
+msgid "Package"
+msgstr ""
+
+#: manual/api/score.md:7
+msgid "Exported MoonBit Functions"
+msgstr ""
+
+#: manual/api/score.md:11
+msgid "Returns `0` for negative inputs and otherwise returns the original integer."
+msgstr ""
+
+#: manual/api/score.md:13
+msgid "Current intent:"
+msgstr ""
+
+#: manual/api/score.md:15
+msgid "keep score inputs safe before logarithmic transforms"
+msgstr ""
+
+#: manual/api/score.md:16
+msgid "expose a small reusable helper for callers that mirror Python-side logic"
+msgstr ""
+
+#: manual/api/score.md:20
+msgid "Computes the package impact score from dependency count, recent dependency growth, optional download snapshot data, and release recency."
+msgstr ""
+
+#: manual/api/score.md:23
+msgid "Current formula:"
+msgstr ""
+
+#: manual/api/score.md:32
+msgid "Input semantics:"
+msgstr ""
+
+#: manual/api/score.md:34
+msgid "`dependents`: total reverse-dependent package count"
+msgstr ""
+
+#: manual/api/score.md:35
+msgid "`recent_dependents`: reverse dependents first seen in the rolling recent window"
+msgstr ""
+
+#: manual/api/score.md:36
+msgid "`downloads`: non-negative download snapshot count"
+msgstr ""
+
+#: manual/api/score.md:37
+msgid "`days_since_release`: days since the package's latest release"
+msgstr ""
+
+#: manual/api/score.md:39
+msgid "Behavior notes:"
+msgstr ""
+
+#: manual/api/score.md:41
+msgid "negative inputs are clamped to `0`"
+msgstr ""
+
+#: manual/api/score.md:42
+msgid "the return value is a raw floating-point score"
+msgstr ""
+
+#: manual/api/score.md:43
+msgid "the MoonBit implementation intentionally matches the Python builder formula"
+msgstr ""
+
+#: manual/api/score.md:47
+msgid "Maps a computed score to one of `S`, `A`, `B`, `C`, or `D`."
+msgstr ""
+
+#: manual/api/score.md:49
+msgid "Current thresholds:"
+msgstr ""
+
+#: manual/api/score.md:55
+msgid "`D`: otherwise"
+msgstr ""
+
+#: manual/api/score.md:59
+msgid "Maps a score delta profile to `Rising`, `Hot`, or `Stable`."
+msgstr ""
+
+#: manual/api/score.md:63
+msgid "Returns the current score snapshot, historical comparison fields, rank label, momentum label, and activity multiplier in a single MoonBit call."
+msgstr ""
+
+#: manual/api/score.md:66
+msgid "Stable HTTP Endpoints"
+msgstr ""
+
+#: manual/api/score.md:70
+msgid "Returns top-ranked packages ordered by current score."
+msgstr ""
+
+#: manual/api/score.md:74
+msgid "Returns packages with the strongest current hot momentum profile."
+msgstr ""
+
+#: manual/api/score.md:78
+msgid "Returns packages with the strongest current rising momentum profile."
+msgstr ""
+
+#: manual/api/score.md:82
+msgid "Returns `{ \"items\": [...] }` with ranked package summaries."
+msgstr ""
+
+#: manual/api/score.md:84
+msgid "Stable query parameters:"
+msgstr ""
+
+#: manual/api/score.md:110
+msgid "Query compatibility rules:"
+msgstr ""
+
+#: manual/api/score.md:112
+msgid "`ast` has highest priority when present."
+msgstr ""
+
+#: manual/api/score.md:113
+msgid "`expr` is used when `ast` is absent."
+msgstr ""
+
+#: manual/api/score.md:114
+msgid "Legacy structured parameters remain supported for compatibility and simple links."
+msgstr ""
+
+#: manual/api/score.md:118
+msgid "Returns `{ \"detail\": ..., \"dependents\": [...] }` for a single package."
+msgstr ""
+
+#: manual/conventions.md:1
+msgid "Repository conventions"
+msgstr "リポジトリ規約"
+
+#: manual/conventions.md:3
+msgid "These rules add to the Luna-Flow documentation standard for `mooncake_impact_factor`. The repository combines a MoonBit score package, a Python index builder, and a Next.js application, so its documentation must keep all three in step."
+msgstr "以下は、Luna-Flow のドキュメント標準に加えて `mooncake_impact_factor` が定めるルールです。このリポジトリは MoonBit のスコアパッケージ、Python のインデックスビルダー、Next.js アプリケーションから成るため、ドキュメントでは三者の整合を保つ必要があります。"
+
+#: manual/conventions.md:8
+msgid "Scope"
+msgstr "範囲"
+
+#: manual/conventions.md:10
+msgid "Describe the current **`0.1.2`** baseline on the branch."
+msgstr "ブランチ上の現在の **`0.1.2`** ベースラインを説明します。"
+
+#: manual/conventions.md:11
+msgid "Do not document unpublished commands, routes, fields, or MoonBit exports."
+msgstr "未公開のコマンド、ルート、フィールド、MoonBit のエクスポートは記述しません。"
+
+#: manual/conventions.md:12
+msgid "When behavior is local-only, say so directly instead of implying a global service contract."
+msgstr "ローカル限定の挙動は、グローバルなサービス契約があるかのように書かず、その旨を明記します。"
+
+#: manual/conventions.md:15
+msgid "Consistency"
+msgstr "整合性"
+
+#: manual/conventions.md:17
+msgid "`README.md`, `CONTRIBUTING.md`, and the manual must tell the same release story."
+msgstr "`README.md`、`CONTRIBUTING.md`、マニュアルは同じリリースの経緯を説明しなければなりません。"
+
+#: manual/conventions.md:18
+msgid "API docs must match the actual MoonBit package name, function signatures, and Next.js route contracts."
+msgstr "API ドキュメントは、実際の MoonBit パッケージ名、関数シグネチャ、Next.js のルート契約と一致しなければなりません。"
+
+#: manual/conventions.md:19
+msgid "If Python scripts expose stable CLI flags, database behavior, or search semantics, document them explicitly."
+msgstr "Python スクリプトが安定した CLI フラグ、データベースの挙動、検索セマンティクスを公開する場合は、それを明示的に記述します。"
+
+#: manual/conventions.md:20
+msgid "Distinguish local registry facts from authoritative mooncakes facts."
+msgstr "ローカルレジストリ上の事実と、mooncakes が権威を持つ事実を区別します。"
+
+#: manual/conventions.md:21
+msgid "If Python and MoonBit intentionally share the score formula, keep both docs and code paths aligned."
+msgstr "Python と MoonBit が意図的にスコア式を共有する場合は、両方のドキュメントとコードパスを揃えます。"
+
+#: manual/design/score.md:1
+msgid "Score Design"
+msgstr "score 設計"
+
+#: manual/design/score.md:3
+msgid "The current scoring model combines four signals:"
+msgstr ""
+
+#: manual/design/score.md:5
+msgid "total package dependents"
+msgstr ""
+
+#: manual/design/score.md:6
+msgid "recent dependents inside the rolling 180-day activity window"
+msgstr ""
+
+#: manual/design/score.md:7
+msgid "optional download snapshot volume"
+msgstr ""
+
+#: manual/design/score.md:8
+msgid "release recency multiplier"
+msgstr ""
+
+#: manual/design/score.md:10
+msgid "Why These Inputs Exist"
+msgstr ""
+
+#: manual/design/score.md:12
+msgid "Total dependents capture established ecosystem adoption."
+msgstr ""
+
+#: manual/design/score.md:13
+msgid "Recent dependents reward active new integration, not only historical weight."
+msgstr ""
+
+#: manual/design/score.md:14
+msgid "Download counts provide an external popularity hint when available."
+msgstr ""
+
+#: manual/design/score.md:15
+msgid "Release recency reduces stale-package bias without making age the primary ranking factor."
+msgstr ""
+
+#: manual/design/score.md:17
+msgid "Current Formula"
+msgstr ""
+
+#: manual/design/score.md:27
+msgid "The logarithms intentionally compress very large packages so the ranking does not become a pure dependent-count leaderboard."
+msgstr ""
+
+#: manual/design/score.md:30
+msgid "Current Release Multipliers"
+msgstr ""
+
+#: manual/design/score.md:32
+msgid "`<= 30` days: `1.12`"
+msgstr ""
+
+#: manual/design/score.md:33
+msgid "`<= 90` days: `1.06`"
+msgstr ""
+
+#: manual/design/score.md:34
+msgid "`<= 180` days: `1.00`"
+msgstr ""
+
+#: manual/design/score.md:35
+msgid "`<= 365` days: `0.94`"
+msgstr ""
+
+#: manual/design/score.md:36
+msgid "`> 365` days: `0.88`"
+msgstr ""
+
+#: manual/design/score.md:38
+msgid "Rank And Momentum Layers"
+msgstr ""
+
+#: manual/design/score.md:40
+msgid "Rank labels are coarse score buckets:"
+msgstr ""
+
+#: manual/design/score.md:48
+msgid "Momentum labels use score-delta rules exported from MoonBit and are materialized by the Python index builder:"
+msgstr ""
+
+#: manual/design/score.md:51
+msgid "`Rising`: growth `>= 35`, ratio `>= 0.35`, recent dependents `>= 3`"
+msgstr ""
+
+#: manual/design/score.md:52
+msgid "`Hot`: growth `>= 18`, ratio `>= 0.18`, recent dependents `>= 2`"
+msgstr ""
+
+#: manual/design/score.md:53
+msgid "`Stable`: otherwise"
+msgstr ""
+
+#: manual/design/score.md:55
+msgid "The build pipeline persists momentum labels for serving, while MoonBit remains the source of truth for the rule definitions."
+msgstr ""
+
+#: manual/design/score.md:58
+msgid "Data Flow"
+msgstr ""
+
+#: manual/design/score.md:60
+msgid "`scripts/build_index.py` reads local `*.index` records from the MoonBit registry snapshot."
+msgstr ""
+
+#: manual/design/score.md:61
+msgid "The builder reconstructs packages, versions, dependencies, package edges, and the FTS search index in SQLite."
+msgstr ""
+
+#: manual/design/score.md:62
+msgid "The Python pipeline calls the local MoonBit CLI to compute score snapshots, rank labels, activity multipliers, and momentum labels."
+msgstr ""
+
+#: manual/design/score.md:63
+msgid "`src/score` exposes the score, rank, momentum, and snapshot logic for MoonBit consumers and local CLI reuse."
+msgstr ""
+
+#: manual/design/score.md:64
+msgid "`lib/query.ts` defines the shared query AST, native-expression parser, serializer, and compatibility helpers used by both server and client."
+msgstr ""
+
+#: manual/design/score.md:65
+msgid "The Next.js app reads the generated SQLite database and serves feeds, search results, advanced query building, and package analysis views."
+msgstr ""
+
+#: manual/design/score.md:67
+msgid "Implementation Constraint"
+msgstr ""
+
+#: manual/design/score.md:69
+msgid "The repository intentionally keeps Python responsible for database generation and SQLite materialization, while MoonBit owns the reusable score, rank, momentum, and snapshot rules that the local CLI forwards into the build flow."
+msgstr ""
+
+#: manual/getting_started.md:1
+msgid "Getting started"
+msgstr "はじめに"
+
+#: manual/getting_started.md:3
+msgid "This guide covers the current local workflow for the **`0.1.2`** branch."
+msgstr ""
+
+#: manual/getting_started.md:5
+msgid "Prerequisites"
+msgstr ""
+
+#: manual/getting_started.md:7
+msgid "Python 3"
+msgstr ""
+
+#: manual/getting_started.md:8
+msgid "MoonBit toolchain"
+msgstr ""
+
+#: manual/getting_started.md:9
+msgid "Node.js and npm"
+msgstr ""
+
+#: manual/getting_started.md:10
+msgid "A local MoonBit registry snapshot under `~/.moon/registry/index/user`"
+msgstr ""
+
+#: manual/getting_started.md:12
+msgid "1. Build the database"
+msgstr ""
+
+#: manual/getting_started.md:14
+msgid "Build with live mooncakes download lookup enabled:"
+msgstr ""
+
+#: manual/getting_started.md:20
+msgid "This command:"
+msgstr ""
+
+#: manual/getting_started.md:22
+msgid "reads every `*.index` record under the local registry"
+msgstr ""
+
+#: manual/getting_started.md:23
+msgid "recreates the SQLite schema from scratch"
+msgstr ""
+
+#: manual/getting_started.md:24
+msgid "fetches missing download counts from mooncakes unless disabled"
+msgstr ""
+
+#: manual/getting_started.md:25
+msgid "computes package edges, reverse-dependent counts, score snapshots, and the FTS index"
+msgstr ""
+
+#: manual/getting_started.md:27
+msgid "Build without live mooncakes requests:"
+msgstr ""
+
+#: manual/getting_started.md:33
+msgid "Apply a local download override file:"
+msgstr ""
+
+#: manual/getting_started.md:41
+msgid "The override file must be a JSON object keyed by full package name:"
+msgstr ""
+
+#: manual/getting_started.md:49
+msgid "2. Run the local app"
+msgstr ""
+
+#: manual/getting_started.md:51
+msgid "Install dependencies:"
+msgstr ""
+
+#: manual/getting_started.md:57
+msgid "Run the full-stack Next.js app:"
+msgstr ""
+
+#: manual/getting_started.md:63
+msgid "Then open `http://127.0.0.1:3000`."
+msgstr ""
+
+#: manual/getting_started.md:65
+msgid "The app currently serves:"
+msgstr ""
+
+#: manual/getting_started.md:67
+msgid "`/`: ranked package browsing UI"
+msgstr ""
+
+#: manual/getting_started.md:68
+msgid "`/search`: main search results page"
+msgstr ""
+
+#: manual/getting_started.md:69
+msgid "`/advanced-search`: graphical advanced-search UI with grouped conditions and native-expression editing"
+msgstr ""
+
+#: manual/getting_started.md:70
+msgid "`/api/*`: JSON APIs backed directly by SQLite"
+msgstr ""
+
+#: manual/getting_started.md:72
+msgid "3. Query the APIs"
+msgstr ""
+
+#: manual/getting_started.md:74
+msgid "Search:"
+msgstr ""
+
+#: manual/getting_started.md:80
+msgid "Supported search parameters:"
+msgstr ""
+
+#: manual/getting_started.md:82
+msgid "`ast`: serialized grouped query AST used by the advanced query builder"
+msgstr ""
+
+#: manual/getting_started.md:83
+msgid "`expr`: native boolean search expression compiled into the shared query AST"
+msgstr ""
+
+#: manual/getting_started.md:84
+msgid "`q`: global full-text query with `AND`, `OR`, `NOT`, parentheses, quoted phrases, and field prefixes such as `owner:`, `author:`, `package:`, `keyword:`, `description:`, and `name:`"
+msgstr ""
+
+#: manual/getting_started.md:85
+msgid "`owner`, `package`, `keyword`, `description`: field-specific full-text filters combined with `AND`"
+msgstr ""
+
+#: manual/getting_started.md:86
+msgid "`license`, `repository`: metadata substring filters"
+msgstr ""
+
+#: manual/getting_started.md:92
+msgid "`has_repository`, `has_license`: `true` or `false`"
+msgstr ""
+
+#: manual/getting_started.md:94
+msgid "`order`: `asc` or `desc`"
+msgstr ""
+
+#: manual/getting_started.md:95
+msgid "`limit`: maximum `100`"
+msgstr ""
+
+#: manual/getting_started.md:97
+msgid "Field semantics:"
+msgstr ""
+
+#: manual/getting_started.md:99
+msgid "`owner` means the package namespace owner from local registry metadata."
+msgstr ""
+
+#: manual/getting_started.md:100
+msgid "`author:` is currently only an alias for `owner:`."
+msgstr ""
+
+#: manual/getting_started.md:101
+msgid "The index does not yet store a separate author list, maintainer list, or institution field."
+msgstr ""
+
+#: manual/getting_started.md:103
+msgid "Examples:"
+msgstr ""
+
+#: manual/getting_started.md:115
+msgid "Feeds:"
+msgstr ""
+
+#: manual/getting_started.md:123
+msgid "Package analysis:"
+msgstr ""
+
+#: manual/getting_started.md:129
+msgid "4. Validate changes"
+msgstr ""
+
+#: manual/getting_started.md:142
+msgid "Repository shortcuts:"
+msgstr ""
+
+#: manual/getting_started.md:154
+#: manual/index.md:24
+msgid "Notes"
+msgstr "注意事項"
+
+#: manual/getting_started.md:156
+msgid "The SQLite database is rebuilt from scratch on each index build."
+msgstr ""
+
+#: manual/getting_started.md:157
+msgid "Download counts may come from live mooncakes responses, `data/download_cache.json`, or a local override file."
+msgstr ""
+
+#: manual/getting_started.md:158
+msgid "When `sort=relevance` and at least one full-text condition is present, results are ordered by SQLite `bm25` relevance first."
+msgstr ""
+
+#: manual/getting_started.md:159
+msgid "The advanced query builder and the native `expr` input both compile through the same shared query AST layer."
+msgstr ""
+
+#: manual/index.md:1
+msgid "Mooncake Impact Factor"
+msgstr "Mooncake Impact Factor"
+
+#: manual/index.md:3
+msgid "This manual describes the current **`0.1.2`** baseline."
+msgstr "このマニュアルは現在の **`0.1.2`** ベースラインを説明します。"
+
+#: manual/index.md:5
+msgid "Where to start"
+msgstr "はじめに読むページ"
+
+#: manual/index.md:7
+msgid "[Getting started](getting_started.md) builds the local index, runs the web app, and queries its HTTP APIs."
+msgstr "[はじめに](getting_started.md)では、ローカルインデックスを構築し、Web アプリを起動して HTTP API を呼び出す手順を説明します。"
+
+#: manual/index.md:9
+msgid "The `score` package has an [API reference](api/score.md), a [design note](design/score.md), and a [tutorial](tutorial/score.md)."
+msgstr "`score` パッケージには [API リファレンス](api/score.md)、[設計ノート](design/score.md)、[チュートリアル](tutorial/score.md)があります。"
+
+#: manual/index.md:11
+msgid "[Repository conventions](conventions.md) lists the consistency rules for this repository's documentation."
+msgstr "[リポジトリ規約](conventions.md)では、このリポジトリのドキュメントに適用される整合性ルールを示します。"
+
+#: manual/index.md:14
+msgid "Coverage"
+msgstr "対象範囲"
+
+#: manual/index.md:16
+msgid "These docs describe the implementation currently present in this repository:"
+msgstr "このドキュメントは、リポジトリに現在実装されている内容を説明します。"
+
+#: manual/index.md:18
+msgid "MoonBit score computation in `src/score`"
+msgstr "`src/score` における MoonBit のスコア計算"
+
+#: manual/index.md:19
+msgid "SQLite index building in `scripts/build_index.py`"
+msgstr "`scripts/build_index.py` における SQLite インデックスの構築"
+
+#: manual/index.md:20
+msgid "Next.js route-handler APIs in `app/api`"
+msgstr "`app/api` における Next.js の Route Handler API"
+
+#: manual/index.md:21
+msgid "Browser UI and shared frontend logic in `app` and `frontend/src`"
+msgstr "`app` と `frontend/src` におけるブラウザ UI と共有フロントエンドロジック"
+
+#: manual/index.md:22
+msgid "Graphical advanced query building and native-expression search support"
+msgstr "グラフィカルな高度検索クエリビルダーとネイティブ式による検索"
+
+#: manual/index.md:26
+msgid "The ranking is derived from a local registry snapshot, not a globally authoritative ecosystem index."
+msgstr "ランキングはローカルのレジストリスナップショットから算出されるもので、エコシステム全体の権威あるインデックスではありません。"
+
+#: manual/index.md:27
+msgid "Download counts may come from live mooncakes responses, the local download cache, or a local override JSON file."
+msgstr "ダウンロード数は、mooncakes のライブ応答、ローカルのダウンロードキャッシュ、またはローカルの上書き用 JSON ファイルから取得される場合があります。"
+
+#: manual/tutorial/score.md:1
+msgid "Score tutorial"
+msgstr "Score チュートリアル"
+
+#: manual/tutorial/score.md:3
+msgid "This tutorial computes the impact score of one package from its dependency, download, and release signals, and then reads the rank and momentum labels that the web application displays."
+msgstr "このチュートリアルでは、パッケージの依存・ダウンロード・リリースのシグナルからインパクトスコアを計算し、Web アプリケーションに表示されるランクラベルとモメンタムラベルを読み取ります。"
+
+#: manual/tutorial/score.md:7
+msgid "Import the package"
+msgstr "パッケージをインポートする"
+
+#: manual/tutorial/score.md:9
+msgid "Add the score package to the `import` list of your `moon.pkg`:"
+msgstr "`moon.pkg` の `import` リストに score パッケージを追加します。"
+
+#: manual/tutorial/score.md:17
+msgid "Compute a score"
+msgstr "スコアを計算する"
+
+#: manual/tutorial/score.md:19
+msgid "`compute_score` takes the total dependents, the recent dependents, the download count, and the days since the latest release. Negative inputs are clamped to `0`."
+msgstr "`compute_score` は、依存パッケージの総数、最近の依存パッケージ数、ダウンロード数、最新リリースからの日数を受け取ります。負の入力は `0` に切り詰められます。"
+
+#: manual/tutorial/score.md:30
+msgid "The score is a raw floating-point value. `rank_label` turns it into one of the coarse buckets `S`, `A`, `B`, `C`, or `D`."
+msgstr "スコアは生の浮動小数点値です。`rank_label` はこれを `S`、`A`、`B`、`C`、`D` のいずれかの大まかな区分に変換します。"
+
+#: manual/tutorial/score.md:33
+msgid "Compare with 30 days ago"
+msgstr "30 日前と比較する"
+
+#: manual/tutorial/score.md:35
+msgid "`compute_score_snapshot` takes the same four signals twice: first for today, then for the state 30 days earlier. It returns a `ScoreSnapshot` with both scores, the growth, the rank label, the momentum label, and the activity multiplier."
+msgstr "`compute_score_snapshot` は同じ 4 つのシグナルを 2 組受け取ります。1 組目は現在、2 組目は 30 日前の状態です。両方のスコア、増加量、ランクラベル、モメンタムラベル、アクティビティ乗数を含む `ScoreSnapshot` を返します。"
+
+#: manual/tutorial/score.md:48
+msgid "The package is `Rising` because its score grew by more than 35 points and 35 percent, and it gained at least three recent dependents."
+msgstr "このパッケージが `Rising` になるのは、スコアが 35 ポイントかつ 35% を超えて増加し、最近の依存パッケージが 3 つ以上増えたためです。"
+
+#: manual/tutorial/score.md:51
+msgid "Use the score from other languages"
+msgstr "他の言語からスコアを使う"
+
+#: manual/tutorial/score.md:53
+msgid "The index builder does not reimplement the formula. It builds the `cli` package for the JS target and passes the same eight signals as a JSON object:"
+msgstr "インデックスビルダーはスコア式を再実装しません。`cli` パッケージを JS ターゲット向けにビルドし、同じ 8 つのシグナルを JSON オブジェクトとして渡します。"
+
+#: manual/tutorial/score.md:61
+msgid "The command prints the snapshot as JSON, or an object with an `error` field when the input is missing or malformed."
+msgstr "このコマンドはスナップショットを JSON として出力します。入力がない場合や形式が不正な場合は、`error` フィールドを持つオブジェクトを出力します。"
+
+#: manual/tutorial/score.md:64
+msgid "Next steps"
+msgstr "次のステップ"
+
+#: manual/tutorial/score.md:66
+msgid "Read the [design note](../design/score.md) for why each signal is weighted as it is, and the [API reference](../api/score.md) for the thresholds behind every label."
+msgstr "各シグナルの重み付けの理由は[設計ノート](../design/score.md)を、各ラベルの閾値は [API リファレンス](../api/score.md)を参照してください。"
