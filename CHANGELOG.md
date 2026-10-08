@@ -31,6 +31,14 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
   promotions in `src/score/extends.mbt`. Use `Json(s)`,
   `@json.from_json(json)` and `Repr(s)` instead.
 
+### Fixed
+
+- The static search no longer counts negated terms in its relevance order:
+  a term under `NOT`, directly or through a negated group, adds no
+  relevance, so `NOT rank=D OR json` no longer ranks the rank-`D` packages
+  first (#4). The query evaluation moved to `lib/static-search.ts`, where
+  `tests/static-search.test.mjs` tests it.
+
 ### Documentation
 
 - Documentation rewritten: API, tutorial and design pages for `score`, `cli`
