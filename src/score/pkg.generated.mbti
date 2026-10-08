@@ -1,0 +1,37 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "Luna-Flow/mooncake-impact-factor/score"
+
+import {
+  "moonbitlang/core/debug",
+  "moonbitlang/core/json",
+}
+
+// Values
+pub fn activity_multiplier(Int) -> Double
+
+pub fn clamp_non_negative(Int) -> Int
+
+pub fn compute_momentum_label(Double, Double, Double, Int) -> String
+
+pub fn compute_score(Int, Int, Int, Int) -> Double
+
+pub fn compute_score_snapshot(Int, Int, Int, Int, Int, Int, Int, Int) -> ScoreSnapshot
+
+pub fn rank_label(Double) -> String
+
+// Errors
+
+// Types and methods
+pub struct ScoreSnapshot {
+  score : Double
+  score_30d_ago : Double
+  score_growth_30d : Double
+  score_growth_ratio_30d : Double
+  rank_label : String
+  momentum_label : String
+  activity_multiplier : Double
+} derive(ToJson, @debug.Debug, @json.FromJson)
+
+// Type aliases
+
+// Traits

@@ -101,10 +101,7 @@ pub fn compute_score_snapshot(
     dependents, recent_dependents, downloads, days_since_release,
   )
   let score_30d_ago = compute_score(
-    historical_dependents,
-    historical_recent_dependents,
-    historical_downloads,
-    historical_days_since_release,
+    historical_dependents, historical_recent_dependents, historical_downloads, historical_days_since_release,
   )
   let score_growth_30d = score - score_30d_ago
   let score_growth_ratio_30d = if score_30d_ago > 0.0 {
