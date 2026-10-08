@@ -186,10 +186,9 @@ from a sub-path, so that the worker fetches `/<base>/data/...`.
   `score>=180`.
 - **Labels are exact.** `rank=s` matches nothing on the static site; write
   `rank=S` and `momentum=Rising`.
-- **`NOT` inside `OR` reorders.** The relevance count also counts negated
-  terms that match, so for `NOT rank=D OR json` the packages of rank `D`
-  that mention `json` come first. Sort by score when you combine `NOT` with
-  `OR`.
+- **`NOT` does not raise relevance.** Only positive terms count, so for
+  `NOT rank=D OR json` every package that mentions `json` ranks above the
+  rest, by score among themselves, whatever its rank.
 - **Wrong target.** Importing `static_search` from a package that builds for
   `wasm-gc` or `native` fails, because the package uses JavaScript foreign
   functions.

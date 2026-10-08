@@ -54,9 +54,9 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
   importing sections on the API pages; task tables and `inspect`-checked
   examples in the tutorials. The design pages now derive the smallest
   positive score, why the recency multiplier crosses at most one rank
-  boundary, and how negated terms under `OR` affect the static relevance;
-  they list every difference between static and server search and the
-  multiplier mismatch for packages with an unknown release date.
+  boundary, and why negated terms add no static relevance; they list every
+  difference between static and server search. The pages describe the
+  fixes of #4 and #5.
 
 ## 0.1.2
 

@@ -334,8 +334,7 @@ orderings of the browser search.
   and no confidence interval: a score is a deterministic function of four
   integers.
 - Counts of `2147483647` are not supported (the score becomes `NaN`).
-- The builder passes `0` as the historical days since release when the
-  release date is unknown, while the current value is `3650`; such packages
-  get the multiplier $1.12$ 30 days ago and $0.88$ now, which shows as
-  negative growth. The [architecture guide](../architecture.md) gives the
+- A package whose release date is unknown is scored as released `3650`
+  days ago, now and 30 days ago, so it gets the lowest multiplier $0.88$ in
+  both snapshots. The [architecture guide](../architecture.md) gives the
   signal definitions.

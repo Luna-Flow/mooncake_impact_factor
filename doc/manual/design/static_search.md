@@ -13,7 +13,8 @@ Three pieces work together:
 | --- | --- | --- |
 | [`src/static_search`](../../../src/static_search/search.mbt) | MoonBit (JS) | Version tag and lower-case normalisation. |
 | [`scripts/export_static_json.py`](../../../scripts/export_static_json.py) | Python | Writes the index and the other static files from the SQLite database. |
-| [`frontend/src/static-search.worker.ts`](../../../frontend/src/static-search.worker.ts) | TypeScript | Loads the index into a Web Worker and answers queries. |
+| [`frontend/src/static-search.worker.ts`](../../../frontend/src/static-search.worker.ts) | TypeScript | Loads the index into a Web Worker, filters and sorts. |
+| [`lib/static-search.ts`](../../../lib/static-search.ts) | TypeScript | Evaluates query terms and counts relevance for the worker. |
 
 ## Design goal
 
@@ -81,14 +82,15 @@ matches every record.
 ### Relevance
 
 When there is a query and no explicit sort, the worker orders results by a
-relevance count. With $L(\varphi)$ the multiset of term leaves of the AST,
+relevance count. With $L^{+}(\varphi)$ the multiset of *positive* term
+leaves of the AST,
 
 $$
-\operatorname{rel}(p) = \bigl|\{\, t \in L(\varphi) : p \models t \,\}\bigr| ,
+\operatorname{rel}(p) = \bigl|\{\, t \in L^{+}(\varphi) : p \models t \,\}\bigr| ,
 $$
 
-where negations are ignored: a leaf under `NOT` counts when its *un-negated*
-term matches. Ties are broken by score (descending) and then by `full_name`
+where a leaf is positive when it lies below an even number of negations,
+counting its own `NOT` and those of the groups above it. Ties are broken by score (descending) and then by `full_name`
 (ascending, by `localeCompare`).
 
 Two consequences are worth deriving because they explain what users see.
@@ -103,21 +105,19 @@ score order. Relevance only has an effect when the formula contains `OR` or
 with positive terms, $\operatorname{rel}(p)$ is the number of alternatives
 that $p$ satisfies, so a package that matches every alternative comes first.
 
-**Negated leaves count against the user.** A negated leaf $\lnot t$
-contributes $1$ to $\operatorname{rel}(p)$ exactly when $p \models t$, the
-case the user wanted to exclude. When $\lnot t$ must hold for every result,
-for example as a conjunct of the root, no result satisfies $t$ and the leaf
-contributes $0$ to all of them, so the order is unaffected. Under a
-disjunction it is not: for $\varphi = \lnot t_1 \lor t_2$,
+**Negated leaves add nothing.** A negative leaf contributes $0$ to every
+package. For $\varphi = \lnot t_1 \lor t_2$,
 
 $$
-\operatorname{rel}(p) = [\,p \models t_1\,] + [\,p \models t_2\,],
+\operatorname{rel}(p) = [\,p \models t_2\,],
 $$
 
-so a result that satisfies both $t_1$ and $t_2$ (relevance $2$) comes before one
-that satisfies only $t_2$ (relevance $1$), and results that satisfy neither (relevance
-$0$) come last, although $\lnot t_1$ holds for them. The same applies to
-every leaf below a negated group.
+so the packages that satisfy $t_2$ come first, ordered by score, whether or
+not they also satisfy the excluded $t_1$. Counting the un-negated leaf
+instead would add $[\,p \models t_1\,]$ and rank first exactly the packages
+the query excludes; releases before the fix of
+[#4](https://github.com/Luna-Flow/mooncake_impact_factor/issues/4) did
+that.
 
 Relevance is therefore a coordination-level match[^coord], not a text
 statistic: it ignores term frequency, field length and how rare a term is.
