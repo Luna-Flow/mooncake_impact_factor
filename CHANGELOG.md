@@ -42,6 +42,9 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
   the current and the 30-days-ago snapshot when the release date is unknown.
   Before, the historical value was `0`, so such packages got the multiplier
   `1.12` 30 days ago and `0.88` now and always showed negative growth (#5).
+- Opening the advanced search dialog from the search page no longer crashes
+  the page: a hook in the dialog ran only while it was open, which changed
+  the hook order between renders.
 
 ### Documentation
 
