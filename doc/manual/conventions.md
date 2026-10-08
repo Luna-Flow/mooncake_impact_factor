@@ -1,9 +1,9 @@
 # Repository conventions
 
 These rules add to the Luna-Flow documentation standard for
-`mooncake_impact_factor`. The repository combines a MoonBit score package, a
-Python index builder, and a Next.js application, so its documentation must keep
-all three in step.
+`mooncake_impact_factor`. The repository combines three MoonBit packages
+(`score`, `cli` and `static_search`), a Python index builder, and a Next.js
+application, so its documentation must keep all of them in step.
 
 ## Scope
 
@@ -18,4 +18,5 @@ all three in step.
 - API docs must match the actual MoonBit package name, function signatures, and Next.js route contracts.
 - If Python scripts expose stable CLI flags, database behavior, or search semantics, document them explicitly.
 - Distinguish local registry facts from authoritative mooncakes facts.
-- If Python and MoonBit intentionally share the score formula, keep both docs and code paths aligned.
+- The score formula, rank thresholds and momentum rules are owned by `src/score`. The design page derives their properties from the code; change both in the same commit.
+- Behaviour implemented outside MoonBit (signal counting, query evaluation) is documented in the guide or design page that uses it, with a link to the file that implements it.

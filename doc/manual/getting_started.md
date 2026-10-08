@@ -1,19 +1,26 @@
 # Getting started
 
-This guide covers the current local workflow for the **`0.1.2`** branch.
+This guide takes you from a fresh checkout to a running web application with
+your own rankings, and shows how to query its HTTP API. It describes version
+`0.1.2`. The [architecture guide](architecture.md) explains what each step
+does.
 
 ## Prerequisites
 
 - Python 3
-- MoonBit toolchain
-- Node.js and npm
-- A local MoonBit registry snapshot under `~/.moon/registry/index/user`
+- MoonBit toolchain with `moonc` 0.10 or later
+- Node.js 20.16, 22.3 or later, and npm
+- A local MoonBit registry snapshot under `~/.moon/registry/index/user`;
+  `moon update` creates or refreshes it
 
 ## 1. Build the database
 
-Build with live mooncakes download lookup enabled:
+Build the `cli` command that scores packages, then the database, with live
+mooncakes download lookup enabled:
 
 ```bash
+moon update
+moon build src/cli --target js
 python3 scripts/build_index.py --db data/mooncake.db
 ```
 
@@ -22,7 +29,8 @@ This command:
 - reads every `*.index` record under the local registry
 - recreates the SQLite schema from scratch
 - fetches missing download counts from mooncakes unless disabled
-- computes package edges, reverse-dependent counts, score snapshots, and the FTS index
+- computes package edges, reverse-dependent counts, score snapshots (through
+  the MoonBit `cli` command), and the FTS index
 
 Build without live mooncakes requests:
 
@@ -130,8 +138,8 @@ GET /api/packages/<owner>/<packageName>/analysis
 
 ```bash
 moon fmt
-moon check src/score --target all
-moon check src/cli --target js
+moon check --target all
+moon test --target js
 moon test src/score --target all
 python3 -m unittest scripts/build_index_test.py
 npm run typecheck
@@ -157,3 +165,5 @@ just dev
 - Download counts may come from live mooncakes responses, `data/download_cache.json`, or a local override file.
 - When `sort=relevance` and at least one full-text condition is present, results are ordered by SQLite `bm25` relevance first.
 - The advanced query builder and the native `expr` input both compile through the same shared query AST layer.
+- Static publishing (`npm run build:static-data`, `npm run build:static`) is
+  described in the [static_search tutorial](tutorial/static_search.md).
