@@ -25,6 +25,9 @@ DEFAULT_DB_PATH = Path("data/mooncake.db")
 DEFAULT_DOWNLOAD_CACHE_PATH = Path("data/download_cache.json")
 MOONCAKES_MANIFEST_BASE = "https://mooncakes.io/api/v0/manifest/"
 MOONBIT_CLI_JS_PATH = Path("_build/js/debug/build/cli/cli.js")
+# Days since release used when the latest release date is unknown, in both the
+# current and the 30-days-ago snapshot.
+UNKNOWN_RELEASE_AGE_DAYS = 3650
 
 
 SCHEMA_SQL = """
@@ -403,7 +406,11 @@ def compute_historical_snapshot_inputs(
     released_at: dt.datetime | None,
 ) -> tuple[int, int]:
     score_30d_cutoff = now - dt.timedelta(days=30)
-    if released_at is None or released_at > score_30d_cutoff:
+    if released_at is None:
+        # Same rule as the current snapshot, so that an unknown date does not
+        # change the activity multiplier between the two snapshots.
+        return UNKNOWN_RELEASE_AGE_DAYS, 0
+    if released_at > score_30d_cutoff:
         return 0, 0
     return max(0, (score_30d_cutoff - released_at).days), 0
 
@@ -571,7 +578,7 @@ def build_database(
         for row in conn.execute("SELECT id, latest_created_at, dependent_count, recent_dependent_count, download_count FROM packages"):
             latest_created_at = row["latest_created_at"]
             released_at = parse_iso_datetime(latest_created_at)
-            days_since_release = max(0, (now - released_at).days) if released_at else 3650
+            days_since_release = max(0, (now - released_at).days) if released_at else UNKNOWN_RELEASE_AGE_DAYS
 
             dependent_count, recent_dependent_count = dependent_counts.get(row["id"], (0, 0))
             conn.execute(

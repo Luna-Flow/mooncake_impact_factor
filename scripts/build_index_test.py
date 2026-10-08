@@ -2,6 +2,7 @@ import datetime as dt
 import unittest
 
 from scripts.build_index import (
+    UNKNOWN_RELEASE_AGE_DAYS,
     choose_latest,
     compute_historical_snapshot_inputs,
     compute_history_window_bounds,
@@ -60,6 +61,17 @@ class BuildIndexVersionTests(unittest.TestCase):
         )
 
         self.assertEqual(historical_days, 122)
+        self.assertEqual(historical_downloads, 0)
+
+    def test_unknown_release_date_keeps_the_same_age_in_both_snapshots(self) -> None:
+        now = dt.datetime(2026, 6, 2, tzinfo=dt.timezone.utc)
+
+        historical_days, historical_downloads = compute_historical_snapshot_inputs(
+            now=now,
+            released_at=None,
+        )
+
+        self.assertEqual(historical_days, UNKNOWN_RELEASE_AGE_DAYS)
         self.assertEqual(historical_downloads, 0)
 
 

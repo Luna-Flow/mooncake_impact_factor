@@ -38,6 +38,10 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
   relevance, so `NOT rank=D OR json` no longer ranks the rank-`D` packages
   first (#4). The query evaluation moved to `lib/static-search.ts`, where
   `tests/static-search.test.mjs` tests it.
+- `scripts/build_index.py` uses the same days since release, `3650`, for
+  the current and the 30-days-ago snapshot when the release date is unknown.
+  Before, the historical value was `0`, so such packages got the multiplier
+  `1.12` 30 days ago and `0.88` now and always showed negative growth (#5).
 
 ### Documentation
 
