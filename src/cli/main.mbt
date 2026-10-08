@@ -1,4 +1,5 @@
 ///|
+#borrow(path)
 extern "js" fn read_file(path : String) -> String =
   #| (path) => {
   #|   const fs = process.getBuiltinModule("fs");
@@ -38,7 +39,7 @@ fn handle_score_snapshot(payload : Json) -> Json {
     json_number(payload, "historical_downloads"),
     json_number(payload, "historical_days_since_release"),
   )
-  result.to_json()
+  Json(result)
 }
 
 ///|
