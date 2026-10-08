@@ -1,4 +1,5 @@
 ///|
+#borrow(input)
 extern "js" fn lower(input : String) -> String =
   #| (input) => input.toLowerCase()
 
