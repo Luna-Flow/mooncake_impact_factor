@@ -24,3 +24,14 @@ data/*.sqlite3
 data/downloads*.json
 data/download_cache.json
 coverage_summary.txt
+
+# AI agent / assistant local state (never track)
+.claude/
+.codex/
+.codex-tmp/
+.cursor/
+.gemini/
+.kiro/
+.windsurf/
+.aider*
+CLAUDE.local.md
