@@ -16,121 +16,127 @@ msgid "cli API"
 msgstr ""
 
 #: manual/api/cli.md:3
+#: manual/api/score.md:3
+#: manual/api/static_search.md:3
+msgid "Purpose"
+msgstr ""
+
+#: manual/api/cli.md:5
 msgid "The package `Luna-Flow/mooncake-impact-factor/cli` is an executable for the JavaScript target. It reads the eight signals of a score snapshot from a JSON file, calls [`compute_score_snapshot`](score.md#compute_score_snapshot) and prints the result as JSON. It exists so that programs outside MoonBit, above all the Python index builder, use the MoonBit score rules instead of copying them."
 msgstr ""
 
-#: manual/api/cli.md:10
+#: manual/api/cli.md:12
 msgid "Source: [`src/cli/main.mbt`](../../../src/cli/main.mbt). Its interface file is empty: the package exports no MoonBit names, and its interface is the command line described here."
 msgstr ""
 
-#: manual/api/cli.md:14
+#: manual/api/cli.md:16
 msgid "Building"
 msgstr ""
 
-#: manual/api/cli.md:16
-msgid "The package declares `supported_targets = \"js\"` and `pkgtype(kind: \"executable\")`. Build it from the repository root:"
+#: manual/api/cli.md:18
+msgid "The package cannot be imported: it is an executable with no exported names. It declares `supported_targets = \"js\"` and `pkgtype(kind: \"executable\")`. Build it from the repository root:"
 msgstr ""
 
-#: manual/api/cli.md:23
+#: manual/api/cli.md:26
 msgid "The index builder expects the result at `_build/js/debug/build/cli/cli.js` and builds it when the file is missing. The script needs a Node.js version with `process.getBuiltinModule` (20.16, 22.3 or later)."
 msgstr ""
 
-#: manual/api/cli.md:30
+#: manual/api/cli.md:33
 msgid "`score-snapshot` computes one score snapshot from a JSON input file."
 msgstr ""
 
-#: manual/api/cli.md:36
+#: manual/api/cli.md:39
 msgid "The first argument after the script must be `score-snapshot`. `--input` may appear anywhere after it; the first `--input` that is followed by a value wins, and other arguments are ignored."
 msgstr ""
 
-#: manual/api/cli.md:40
+#: manual/api/cli.md:43
 msgid "Input"
 msgstr ""
 
-#: manual/api/cli.md:42
+#: manual/api/cli.md:45
 msgid "The file must contain one JSON object. Each key is optional:"
 msgstr ""
 
-#: manual/api/cli.md:44
+#: manual/api/cli.md:47
 #: manual/design/static_search.md:43
 msgid "Key"
 msgstr ""
 
-#: manual/api/cli.md:44
+#: manual/api/cli.md:47
 #: manual/architecture.md:44
 msgid "Signal"
 msgstr ""
 
-#: manual/api/cli.md:46
+#: manual/api/cli.md:49
 msgid "Current dependents."
 msgstr ""
 
-#: manual/api/cli.md:47
+#: manual/api/cli.md:50
 msgid "Current recent dependents."
 msgstr ""
 
-#: manual/api/cli.md:48
+#: manual/api/cli.md:51
 msgid "Current downloads."
 msgstr ""
 
-#: manual/api/cli.md:49
+#: manual/api/cli.md:52
 msgid "Days since the latest release, now."
 msgstr ""
 
-#: manual/api/cli.md:50
+#: manual/api/cli.md:53
 msgid "Dependents 30 days ago."
 msgstr ""
 
-#: manual/api/cli.md:51
+#: manual/api/cli.md:54
 msgid "Recent dependents 30 days ago."
 msgstr ""
 
-#: manual/api/cli.md:52
+#: manual/api/cli.md:55
 msgid "Downloads 30 days ago."
 msgstr ""
 
-#: manual/api/cli.md:53
+#: manual/api/cli.md:56
 msgid "Days since the latest release, 30 days ago."
 msgstr ""
 
-#: manual/api/cli.md:55
+#: manual/api/cli.md:58
 msgid "A value is used when it is a JSON number; it is converted to `Int` by truncation toward zero (`12.9` becomes `12`), and values beyond the `Int` range saturate at its bounds. A missing key, a value of any other JSON type (including a numeric string such as `\"20\"`) and a top-level value that is not an object all count as `0`. The score functions then clamp negative values to `0`. Unknown keys are ignored."
 msgstr ""
 
-#: manual/api/cli.md:75
-#: manual/api/cli.md:92
+#: manual/api/cli.md:78
+#: manual/api/cli.md:95
 msgid "Output"
 msgstr ""
 
-#: manual/api/cli.md:77
+#: manual/api/cli.md:80
 msgid "On success the command prints one line, the JSON form of the [`ScoreSnapshot`](score.md#scoresnapshot), and exits with status `0`. Fields appear in declaration order. A `NaN` field, which only arises from a count of `2147483647` or more, is written as the string `\"NaN\"`. For the input above the output is:"
 msgstr ""
 
-#: manual/api/cli.md:87
+#: manual/api/cli.md:90
 msgid "Errors"
 msgstr ""
 
-#: manual/api/cli.md:89
+#: manual/api/cli.md:92
 msgid "Usage and parse errors print one JSON object with an `error` key to standard output and exit with status `1`:"
 msgstr ""
 
-#: manual/api/cli.md:92
+#: manual/api/cli.md:95
 msgid "Situation"
 msgstr ""
 
-#: manual/api/cli.md:94
+#: manual/api/cli.md:97
 msgid "No arguments, or the first argument is not `score-snapshot`"
 msgstr ""
 
-#: manual/api/cli.md:95
+#: manual/api/cli.md:98
 msgid "No `--input` followed by a value"
 msgstr ""
 
-#: manual/api/cli.md:96
+#: manual/api/cli.md:99
 msgid "The file is not valid JSON"
 msgstr ""
 
-#: manual/api/cli.md:98
+#: manual/api/cli.md:101
 msgid "A file that cannot be read is not reported this way: Node.js raises an uncaught `ENOENT` (or similar) error, prints a stack trace to standard error and exits with status `1`. Callers should treat any non-zero status as a failure and parse standard output only on status `0`."
 msgstr ""
 
@@ -138,230 +144,235 @@ msgstr ""
 msgid "score API"
 msgstr ""
 
-#: manual/api/score.md:3
+#: manual/api/score.md:5
 msgid "The package `Luna-Flow/mooncake-impact-factor/score` computes the impact score of a MoonBit package from four integer signals, labels the score with a rank and a momentum class, and bundles everything into a `ScoreSnapshot`. Every function is pure and total: it never aborts and has no hidden state."
 msgstr ""
 
-#: manual/api/score.md:8
+#: manual/api/score.md:10
 msgid "Source: [`src/score/impact_factor.mbt`](../../../src/score/impact_factor.mbt). The mathematics behind the formula is in the [score design](../design/score.md)."
 msgstr ""
 
-#: manual/api/score.md:11
-msgid "Import the package in `moon.pkg`:"
+#: manual/api/score.md:13
+#: manual/api/static_search.md:15
+msgid "Importing"
 msgstr ""
 
-#: manual/api/score.md:19
+#: manual/api/score.md:15
+msgid "Add the package to your `moon.pkg`. The examples on this page call it as `@score`; the JSON examples also import `moonbitlang/core/json`."
+msgstr ""
+
+#: manual/api/score.md:24
 msgid "Signals"
 msgstr ""
 
-#: manual/api/score.md:21
+#: manual/api/score.md:26
 msgid "Every scoring function takes the same four signals, in this order:"
 msgstr ""
 
-#: manual/api/score.md:23
+#: manual/api/score.md:28
 msgid "Parameter"
 msgstr ""
 
-#: manual/api/score.md:23
-#: manual/api/score.md:191
+#: manual/api/score.md:28
+#: manual/api/score.md:196
 msgid "Meaning"
 msgstr ""
 
-#: manual/api/score.md:25
+#: manual/api/score.md:30
 msgid "Number of packages that depend on this package."
 msgstr ""
 
-#: manual/api/score.md:26
+#: manual/api/score.md:31
 msgid "Number of those dependents that first appeared in the recent window."
 msgstr ""
 
-#: manual/api/score.md:27
+#: manual/api/score.md:32
 msgid "Download count, or `0` when unknown."
 msgstr ""
 
-#: manual/api/score.md:28
+#: manual/api/score.md:33
 msgid "Whole days since the latest release."
 msgstr ""
 
-#: manual/api/score.md:30
+#: manual/api/score.md:35
 msgid "The functions do not check that the signals are consistent, for example that `recent_dependents <= dependents`. Negative values are clamped to `0`. The index builder fills the signals from a local registry snapshot; see the [architecture guide](../architecture.md)."
 msgstr ""
 
-#: manual/api/score.md:35
+#: manual/api/score.md:40
 msgid "Scores"
 msgstr ""
 
-#: manual/api/score.md:39
+#: manual/api/score.md:44
 msgid "`compute_score` returns the impact score of a package."
 msgstr ""
 
-#: manual/api/score.md:45
+#: manual/api/score.md:50
 msgid "With $\\sigma(n) = \\ln(1 + \\max(n, 0))$, $D$ dependents, $R$ recent dependents, $W$ downloads and $t$ days since release, the result is"
 msgstr ""
 
-#: manual/api/score.md:52
+#: manual/api/score.md:57
 msgid "where $m(t)$ is `activity_multiplier(t)`. The score is $0$ exactly when all three counts are $0$ or negative, and it never decreases when a count grows. It has no upper limit by design, but for counts below $2^{31} - 1$ it stays below about $2094$."
 msgstr ""
 
-#: manual/api/score.md:57
+#: manual/api/score.md:62
 msgid "[!WARNING] A count equal to `2147483647` (the largest `Int`) overflows when $1$ is added, and the score becomes `NaN`. Real registry counts are far below this."
 msgstr ""
 
-#: manual/api/score.md:71
+#: manual/api/score.md:76
 msgid "`activity_multiplier` returns the release-recency factor $m(t)$ applied to the whole score."
 msgstr ""
 
-#: manual/api/score.md:78
+#: manual/api/score.md:83
 msgid "A negative `days_since_release` counts as `0`."
 msgstr ""
 
-#: manual/api/score.md:80
+#: manual/api/score.md:85
 msgid "Days since release"
 msgstr ""
 
-#: manual/api/score.md:80
+#: manual/api/score.md:85
 msgid "Multiplier"
 msgstr ""
 
-#: manual/api/score.md:82
+#: manual/api/score.md:87
 msgid "`0` to `30`"
 msgstr ""
 
-#: manual/api/score.md:83
+#: manual/api/score.md:88
 msgid "`31` to `90`"
 msgstr ""
 
-#: manual/api/score.md:84
+#: manual/api/score.md:89
 msgid "`91` to `180`"
 msgstr ""
 
-#: manual/api/score.md:85
+#: manual/api/score.md:90
 msgid "`181` to `365`"
 msgstr ""
 
-#: manual/api/score.md:86
+#: manual/api/score.md:91
 msgid "`366` or more"
 msgstr ""
 
-#: manual/api/score.md:98
+#: manual/api/score.md:103
 msgid "`clamp_non_negative` returns `value` when it is non-negative and `0` otherwise."
 msgstr ""
 
-#: manual/api/score.md:105
+#: manual/api/score.md:110
 msgid "The scoring functions apply it to every signal. It is public so that callers can prepare signals the same way."
 msgstr ""
 
-#: manual/api/score.md:115
+#: manual/api/score.md:120
 msgid "Labels"
 msgstr ""
 
-#: manual/api/score.md:119
+#: manual/api/score.md:124
 msgid "`rank_label` maps a score to one of the rank buckets `S`, `A`, `B`, `C` and `D`."
 msgstr ""
 
-#: manual/api/score.md:126
+#: manual/api/score.md:131
 msgid "Rank"
 msgstr ""
 
-#: manual/api/score.md:126
-#: manual/api/score.md:155
+#: manual/api/score.md:131
+#: manual/api/score.md:160
 msgid "Condition"
 msgstr ""
 
-#: manual/api/score.md:132
+#: manual/api/score.md:137
 msgid "`score < 50.0`, or `score` is `NaN`"
 msgstr ""
 
-#: manual/api/score.md:144
+#: manual/api/score.md:149
 msgid "`compute_momentum_label` classifies how fast a score grew as `Rising`, `Hot` or `Stable`."
 msgstr ""
 
-#: manual/api/score.md:151
+#: manual/api/score.md:156
 msgid "The arguments are the current score $S$, the score 30 days ago $S_{30}$, the growth ratio $r$ and the number of recent dependents $R$. With the growth $G = S - S_{30}$:"
 msgstr ""
 
-#: manual/api/score.md:155
+#: manual/api/score.md:160
 msgid "Label"
 msgstr ""
 
-#: manual/api/score.md:157
+#: manual/api/score.md:162
 msgid "$G \\ge 35$ and $r \\ge 0.35$ and $R \\ge 3$"
 msgstr ""
 
-#: manual/api/score.md:158
+#: manual/api/score.md:163
 msgid "not `Rising`, and $G \\ge 18$ and $r \\ge 0.18$ and $R \\ge 2$"
 msgstr ""
 
-#: manual/api/score.md:159
+#: manual/api/score.md:164
 msgid "otherwise, including any `NaN` argument"
 msgstr ""
 
-#: manual/api/score.md:161
+#: manual/api/score.md:166
 msgid "The function does not check that `growth_ratio` matches the two scores; `compute_score_snapshot` computes it for you."
 msgstr ""
 
-#: manual/api/score.md:172
+#: manual/api/score.md:177
 msgid "Snapshots"
 msgstr ""
 
-#: manual/api/score.md:176
+#: manual/api/score.md:181
 msgid "`ScoreSnapshot` is the full result of scoring one package at one point in time."
 msgstr ""
 
-#: manual/api/score.md:191
+#: manual/api/score.md:196
 msgid "Field"
 msgstr ""
 
-#: manual/api/score.md:193
+#: manual/api/score.md:198
 msgid "The current score $S$."
 msgstr ""
 
-#: manual/api/score.md:194
+#: manual/api/score.md:199
 msgid "The score $S_{30}$ computed from the historical signals."
 msgstr ""
 
-#: manual/api/score.md:195
+#: manual/api/score.md:200
 msgid "$G = S - S_{30}$; negative when the score fell."
 msgstr ""
 
-#: manual/api/score.md:196
+#: manual/api/score.md:201
 msgid "$G / S_{30}$ when $S_{30} > 0$; otherwise $1$ when $G > 0$ and $0$ when $G \\le 0$."
 msgstr ""
 
-#: manual/api/score.md:199
+#: manual/api/score.md:204
 msgid "`activity_multiplier(days_since_release)` for the current signals."
 msgstr ""
 
-#: manual/api/score.md:201
+#: manual/api/score.md:206
 msgid "The fields are read-only outside the package; build a snapshot with `compute_score_snapshot`. `ToJson` writes an object whose keys are the field names, which is the output format of the [`cli` command](cli.md). `FromJson` reads the same format back and raises `@json.JsonDecodeError` when a field is missing or has the wrong type. `Debug` supports `debug_inspect` and `Repr(...)`. The struct does not implement `Eq`; compare snapshots through their fields or their JSON form."
 msgstr ""
 
-#: manual/api/score.md:221
+#: manual/api/score.md:226
 msgid "`compute_score_snapshot` scores a package now and 30 days ago, and derives the growth, both labels and the multiplier in one call."
 msgstr ""
 
-#: manual/api/score.md:228
+#: manual/api/score.md:233
 msgid "The first four arguments are the current signals, the last four the signals as they were 30 days ago, both in the order of the [signals table](#signals):"
 msgstr ""
 
-#: manual/api/score.md:239
+#: manual/api/score.md:244
 msgid "The momentum label uses the current `recent_dependents`. A package that did not exist 30 days ago is described by historical signals of `0`; its `score_30d_ago` is then $0$ and its growth ratio is $1$."
 msgstr ""
 
-#: manual/api/score.md:263
-#: manual/api/score.md:269
+#: manual/api/score.md:268
+#: manual/api/score.md:274
 msgid "Deprecated"
 msgstr ""
 
-#: manual/api/score.md:265
+#: manual/api/score.md:270
 msgid "`ScoreSnapshot` still has three methods that earlier MoonBit versions created implicitly from its derived traits. They are hidden from the interface file and warn when used."
 msgstr ""
 
-#: manual/api/score.md:269
+#: manual/api/score.md:274
 msgid "Use instead"
 msgstr ""
 
-#: manual/api/score.md:273
+#: manual/api/score.md:278
 msgid "`Repr(s)`, `debug_inspect` or `@debug.to_string`"
 msgstr ""
 
@@ -369,55 +380,55 @@ msgstr ""
 msgid "static_search API"
 msgstr ""
 
-#: manual/api/static_search.md:3
+#: manual/api/static_search.md:5
 msgid "The package `Luna-Flow/mooncake-impact-factor/static_search` holds the MoonBit side of the static publishing mode: a version tag for the static search runtime and the text normalisation used to make search case-insensitive. It builds only for the JavaScript target and is also linked as an ES module that JavaScript code can import."
 msgstr ""
 
-#: manual/api/static_search.md:9
+#: manual/api/static_search.md:11
 msgid "Source: [`src/static_search/search.mbt`](../../../src/static_search/search.mbt). The search index and the query algorithm that run in the browser are described in the [static_search design](../design/static_search.md)."
 msgstr ""
 
-#: manual/api/static_search.md:13
-msgid "Import the package in `moon.pkg`; the importing package must build for the JavaScript target as well:"
+#: manual/api/static_search.md:17
+msgid "Add the package to your `moon.pkg`; the importing package must build for the JavaScript target as well, and its tests run with `moon test --target js`:"
 msgstr ""
 
-#: manual/api/static_search.md:26
+#: manual/api/static_search.md:30
 msgid "`runtime_version` returns the version tag of the static search runtime."
 msgstr ""
 
-#: manual/api/static_search.md:32
+#: manual/api/static_search.md:36
 msgid "The current tag is `\"static-search-js-v1\"`. JavaScript code that loads the compiled module can read it to tell which runtime it got."
 msgstr ""
 
-#: manual/api/static_search.md:43
+#: manual/api/static_search.md:47
 msgid "`normalize_text` returns `input` converted to lower case."
 msgstr ""
 
-#: manual/api/static_search.md:49
+#: manual/api/static_search.md:53
 msgid "The conversion is JavaScript's `String.prototype.toLowerCase`: the Unicode default lower-case mapping, independent of the user's locale. It may change the length of the string (`\"İ\"` becomes `\"i̇\"`, two UTF-16 code units). It does not trim or collapse white space and does not remove accents."
 msgstr ""
 
-#: manual/api/static_search.md:61
+#: manual/api/static_search.md:65
 msgid "JavaScript module"
 msgstr ""
 
-#: manual/api/static_search.md:63
+#: manual/api/static_search.md:67
 msgid "`moon build src/static_search --target js` also writes an ES module, because the package's `moon.pkg` links it with"
 msgstr ""
 
-#: manual/api/static_search.md:77
+#: manual/api/static_search.md:81
 msgid "The module exports two functions under their MoonBit names:"
 msgstr ""
 
-#: manual/api/static_search.md:79
+#: manual/api/static_search.md:83
 msgid "Export"
 msgstr ""
 
-#: manual/api/static_search.md:79
+#: manual/api/static_search.md:83
 msgid "JavaScript signature"
 msgstr ""
 
-#: manual/api/static_search.md:92
+#: manual/api/static_search.md:96
 msgid "[!NOTE] In this release the browser search worker (`frontend/src/static-search.worker.ts`) normalises text in TypeScript and does not import this module; the static site build compiles it to keep it in step with the MoonBit sources."
 msgstr ""
 
@@ -578,114 +589,114 @@ msgid "Always `0`; the registry has no download history."
 msgstr ""
 
 #: manual/architecture.md:53
-msgid "`days_since_release` $- 30$ when the latest release is at least 30 days old, else `0`."
+msgid "`days_since_release` $- 30$ when the latest release is at least 30 days old, else `0`; also `0` when the release date is unknown."
 msgstr ""
 
 #: manual/architecture.md:55
-msgid "The historical window is the recent window shifted 30 days back, so the two snapshots are computed the same way."
+msgid "The historical window is the recent window shifted 30 days back, so the two snapshots are computed the same way, with two exceptions. Downloads have no history, so the whole download term counts as growth. A package whose release date is unknown gets the multiplier $0.88$ now ($t = 3650$) but $1.12$ for 30 days ago ($t = 0$). With the same counts in both windows and no downloads, its `score_30d_ago` is $1.12 / 0.88 \\approx 1.27$ times its current score, and its growth is negative."
 msgstr ""
 
-#: manual/architecture.md:57
+#: manual/architecture.md:63
 msgid "**Score.** For each package the builder runs the [`cli`](api/cli.md) command with these eight signals and stores the returned snapshot in the `package_scores` table. The score rules therefore live only in [`src/score`](api/score.md)."
 msgstr ""
 
-#: manual/architecture.md:61
+#: manual/architecture.md:67
 msgid "**Index text.** An SQLite FTS5 table holds full name, owner, package name, description and keywords for full-text search."
 msgstr ""
 
-#: manual/architecture.md:64
+#: manual/architecture.md:70
 msgid "The database tables are `packages`, `versions`, `dependencies`, `package_edges`, `package_scores` and `search_index`."
 msgstr ""
 
-#: manual/architecture.md:67
+#: manual/architecture.md:73
 msgid "Serving"
 msgstr ""
 
-#: manual/architecture.md:69
+#: manual/architecture.md:75
 msgid "Dynamic mode"
 msgstr ""
 
-#: manual/architecture.md:71
+#: manual/architecture.md:77
 msgid "`npm run dev` or `npm run start` with `MOONCAKE_DB_PATH` serves pages and JSON route handlers backed by the database:"
 msgstr ""
 
-#: manual/architecture.md:74
+#: manual/architecture.md:80
 msgid "Route"
 msgstr ""
 
-#: manual/architecture.md:74
+#: manual/architecture.md:80
 msgid "Returns"
 msgstr ""
 
-#: manual/architecture.md:76
+#: manual/architecture.md:82
 msgid "Packages by score descending, then name."
 msgstr ""
 
-#: manual/architecture.md:77
+#: manual/architecture.md:83
 msgid "`Hot` packages by 30-day growth, then score, then name."
 msgstr ""
 
-#: manual/architecture.md:78
+#: manual/architecture.md:84
 msgid "`Rising` packages, ordered like `hot`."
 msgstr ""
 
-#: manual/architecture.md:79
+#: manual/architecture.md:85
 msgid "`{ \"items\": [...] }`, at most 100 package summaries."
 msgstr ""
 
-#: manual/architecture.md:82
+#: manual/architecture.md:88
 msgid "The [getting started guide](getting_started.md#3-query-the-apis) lists the search parameters. Queries in the `ast` or `expr` parameters are compiled to SQL `WHERE` clauses; text terms use FTS5."
 msgstr ""
 
-#: manual/architecture.md:86
+#: manual/architecture.md:92
 msgid "Static mode"
 msgstr ""
 
-#: manual/architecture.md:88
+#: manual/architecture.md:94
 msgid "`npm run build:static-data` runs the index builder and then `scripts/export_static_json.py`, which writes the feeds, a search index, one file per package and a manifest to `public/data`. `npm run build:static` compiles `static_search` and runs `next build` with `NEXT_PUBLIC_APP_MODE=static`, which exports the site to `out/` without route handlers. In the browser, feeds and package pages are plain file fetches and search runs in a Web Worker; the [static_search design](design/static_search.md) describes it. The `deploy-static` workflow rebuilds and publishes this site daily."
 msgstr ""
 
-#: manual/architecture.md:98
+#: manual/architecture.md:104
 msgid "Where the rules live"
 msgstr ""
 
-#: manual/architecture.md:100
+#: manual/architecture.md:106
 msgid "Every rule has one owner, and the others call it:"
 msgstr ""
 
-#: manual/architecture.md:102
+#: manual/architecture.md:108
 msgid "Rule"
 msgstr ""
 
-#: manual/architecture.md:102
+#: manual/architecture.md:108
 msgid "Owner"
 msgstr ""
 
-#: manual/architecture.md:104
+#: manual/architecture.md:110
 msgid "Score, rank and momentum"
 msgstr ""
 
-#: manual/architecture.md:104
+#: manual/architecture.md:110
 msgid "`src/score` (called through `src/cli`)"
 msgstr ""
 
-#: manual/architecture.md:105
+#: manual/architecture.md:111
 msgid "Signal definitions and time windows"
 msgstr ""
 
-#: manual/architecture.md:106
+#: manual/architecture.md:112
 msgid "Query language and AST"
 msgstr ""
 
-#: manual/architecture.md:107
+#: manual/architecture.md:113
 msgid "SQL compilation and dynamic ordering"
 msgstr ""
 
-#: manual/architecture.md:108
+#: manual/architecture.md:114
 msgid "Static evaluation and ordering"
 msgstr ""
 
-#: manual/architecture.md:110
+#: manual/architecture.md:116
 msgid "`scripts/build_index.py` still contains Python functions `compute_score` and `compute_momentum_label` that mirror the MoonBit rules; the build does not call them."
 msgstr ""
 
@@ -698,7 +709,6 @@ msgid "These rules add to the Luna-Flow documentation standard for `mooncake_imp
 msgstr ""
 
 #: manual/conventions.md:8
-#: manual/index.md:72
 msgid "Scope"
 msgstr ""
 
@@ -791,8 +801,8 @@ msgid "**Agreement with the library.** For an input object with integer values i
 msgstr ""
 
 #: manual/design/cli.md:53
-#: manual/design/score.md:149
-#: manual/design/static_search.md:131
+#: manual/design/score.md:165
+#: manual/design/static_search.md:146
 msgid "Design decisions"
 msgstr ""
 
@@ -845,8 +855,8 @@ msgid "The command returns labels, not only numbers. If the builder computed `ra
 msgstr ""
 
 #: manual/design/cli.md:102
-#: manual/design/score.md:209
-#: manual/design/static_search.md:177
+#: manual/design/score.md:230
+#: manual/design/static_search.md:192
 msgid "Correctness / invariants"
 msgstr ""
 
@@ -863,8 +873,8 @@ msgid "The output does not depend on the current time, the environment or any fi
 msgstr ""
 
 #: manual/design/cli.md:113
-#: manual/design/score.md:285
-#: manual/design/static_search.md:222
+#: manual/design/score.md:306
+#: manual/design/static_search.md:245
 msgid "Alternatives rejected"
 msgstr ""
 
@@ -881,8 +891,8 @@ msgid "**Command-line flags for each signal** (`--dependents 20`) would make the
 msgstr ""
 
 #: manual/design/cli.md:125
-#: manual/design/score.md:300
-#: manual/design/static_search.md:232
+#: manual/design/score.md:321
+#: manual/design/static_search.md:255
 msgid "Boundaries"
 msgstr ""
 
@@ -955,219 +965,227 @@ msgid "**Diminishing returns.** One more dependent adds"
 msgstr ""
 
 #: manual/design/score.md:84
-msgid "using $\\ln(1+x) \\le x$ with $x = 1/(D+1)$. The marginal value of a dependent falls like $1/D$, so no single signal can dominate the ranking."
+msgid "using $\\ln(1+x) \\le x$ with $x = 1/(D+1)$. The marginal value of a dependent falls like $1/D$. Inflating one count therefore buys little: multiplying $1 + W$ by ten adds exactly $22 \\ln 10 \\approx 50.66$ points to $B$, whatever $W$ was, which is less than the distance between any two neighbouring rank thresholds ($60$, $70$ and $80$ points)."
 msgstr ""
 
-#: manual/design/score.md:87
+#: manual/design/score.md:90
 msgid "Rank thresholds as counts"
 msgstr ""
 
-#: manual/design/score.md:89
+#: manual/design/score.md:92
 msgid "The rank buckets are thresholds on $S$: `S` from $260$, `A` from $180$, `B` from $110$, `C` from $50$. Inverting $\\sigma$ shows what they mean in counts. With $m = 1$ and a single non-zero signal of weight $w$, the score reaches a threshold $T$ when"
 msgstr ""
 
-#: manual/design/score.md:99
+#: manual/design/score.md:102
 msgid "so the smallest integer count is $\\lceil e^{T/w} - 1 \\rceil$:"
 msgstr ""
 
-#: manual/design/score.md:101
+#: manual/design/score.md:104
 msgid "Threshold"
 msgstr ""
 
-#: manual/design/score.md:101
+#: manual/design/score.md:104
 msgid "Dependents only ($w = 38$)"
 msgstr ""
 
-#: manual/design/score.md:101
+#: manual/design/score.md:104
 msgid "Recent dependents only ($w = 27$)"
 msgstr ""
 
-#: manual/design/score.md:101
+#: manual/design/score.md:104
 msgid "Downloads only ($w = 22$)"
 msgstr ""
 
-#: manual/design/score.md:108
+#: manual/design/score.md:111
 msgid "For example $38\\ln 937 \\approx 260.02$ while $38\\ln 936 \\approx 259.98$, so 936 dependents are the first count to reach `S` on their own. In practice the signals combine: 20 dependents, 4 recent dependents and 300 downloads already give $B \\approx 284.7$."
 msgstr ""
 
-#: manual/design/score.md:113
+#: manual/design/score.md:116
 msgid "Growth and momentum"
 msgstr ""
 
-#: manual/design/score.md:115
+#: manual/design/score.md:118
 msgid "A snapshot evaluates the score twice, on the current signals and on the signals of 30 days ago, and defines"
 msgstr ""
 
-#: manual/design/score.md:128
-msgid "Since $m(t) > 0$, $S_{30} = 0$ exactly when every historical count is $0$: the package had no dependents and no downloads 30 days ago. For such a package the relative growth $G / S_{30}$ is undefined, and the implementation uses $1$ (that is, 100 %) instead of $+\\infty$ so that $r$ stays finite and can be stored and sorted."
+#: manual/design/score.md:131
+msgid "Since $m(t) > 0$ and every term of $B$ is non-negative, $S_{30} = 0$ exactly when every historical count is $0$ (or negative, which clamps to $0$): the package had no dependents and no downloads 30 days ago. Otherwise at least one $\\sigma$ is at least $\\sigma(1) = \\ln 2$, so"
 msgstr ""
 
-#: manual/design/score.md:134
+#: manual/design/score.md:140
+msgid "the smallest weight times the smallest multiplier. The score therefore takes no values in $(0, 13.42)$, and $G / S_{30}$ is never divided by a tiny denominator. For $S_{30} = 0$ the relative growth is undefined, and the implementation uses $1$ (that is, 100 %) instead of $+\\infty$ so that $r$ stays finite and can be stored and sorted. A new package with $S \\ge 35$ and three recent dependents is therefore `Rising`."
+msgstr ""
+
+#: manual/design/score.md:147
 msgid "The momentum label tests three conditions at two levels:"
 msgstr ""
 
-#: manual/design/score.md:141
-msgid "The `Rising` conditions imply the `Hot` conditions, so the classes are nested levels of one scale rather than independent tags. When $S_{30} > 0$, $r \\ge \\rho$ is the same as $S \\ge (1 + \\rho) S_{30}$, so `Rising` asks for a score at least $1.35$ times the old one *and* an absolute gain of $35$ points. The absolute bound stops tiny packages from rising by going from $1$ to $2$ points; the relative bound stops large packages from rising through the noise of a big base."
+#: manual/design/score.md:154
+msgid "The `Rising` conditions imply the `Hot` conditions, so the classes are nested levels of one scale rather than independent tags. When $S_{30} > 0$, $r \\ge \\rho$ is the same as $S \\ge (1 + \\rho) S_{30}$, so `Rising` asks for a score at least $1.35$ times the old one *and* an absolute gain of $35$ points. Each bound covers a case the other misses. The absolute bound stops small packages from rising on a small change: a package that goes from one download to three ($S$ from about $15.2$ to $30.5$ with $m = 1$) doubles its score, $r = 1$, but gains only about $15$ points. The relative bound stops large packages from rising through the noise of a big base: at $S_{30} = 1000$, a gain of $35$ points is $r = 0.035$."
 msgstr ""
 
-#: manual/design/score.md:151
+#: manual/design/score.md:167
 msgid "Logarithms of counts"
 msgstr ""
 
-#: manual/design/score.md:153
+#: manual/design/score.md:169
 msgid "**Problem.** Dependent and download counts are heavy-tailed: a few packages have thousands, most have none. A linear score would make the ranking a leaderboard of the largest package in each signal."
 msgstr ""
 
-#: manual/design/score.md:157
+#: manual/design/score.md:173
 msgid "**Options.** Raw counts; ranks or percentiles within the registry; square roots; logarithms."
 msgstr ""
 
-#: manual/design/score.md:160
+#: manual/design/score.md:176
 msgid "**Choice.** $\\ln(1 + n)$. The shift by one keeps $\\sigma(0) = 0$ finite and makes $S = 0$ exactly when a package has no signal at all. Percentiles would need the whole registry and change a package's score when other packages appear, which breaks the CLI's one-package-at-a-time contract. Square roots still grow without the scale invariance derived above."
 msgstr ""
 
-#: manual/design/score.md:166
+#: manual/design/score.md:182
 msgid "Additive weights"
 msgstr ""
 
-#: manual/design/score.md:168
+#: manual/design/score.md:184
 msgid "**Problem.** The three signals must be combined into one number."
 msgstr ""
 
-#: manual/design/score.md:170
+#: manual/design/score.md:186
 msgid "**Choice.** A weighted sum of logarithms with weights $38 : 27 : 22$. Total dependents capture established adoption and weigh most. Downloads are an external popularity hint that is missing for packages the builder could not look up, so they weigh least. Recent dependents are counted *on top of* total dependents, so a dependent from the recent window contributes to both terms: the recent term is a bonus for current adoption, not a separate population. The weights are editorial choices of this project, not fitted parameters."
 msgstr ""
 
-#: manual/design/score.md:178
+#: manual/design/score.md:194
 msgid "A recency multiplier, not a recency term"
 msgstr ""
 
-#: manual/design/score.md:180
+#: manual/design/score.md:196
 msgid "**Problem.** Old, unmaintained packages should not hold their rank forever, but age must not outweigh adoption."
 msgstr ""
 
-#: manual/design/score.md:183
-msgid "**Choice.** A multiplicative step function between $0.88$ and $1.12$. Because it multiplies $B$, it changes the score by at most $\\pm 12\\,\\%$, and the ratio between the freshest and the oldest package with the same signals is $1.12 / 0.88 \\approx 1.27$. That can move a package across one rank boundary (for example $B = 240$ gives `S` at $1.12$ and `A` at $0.88$) but never turns an unused package into a ranked one: $B = 0$ stays $0$. An additive age term would give unused but freshly released packages a positive score."
+#: manual/design/score.md:199
+msgid "**Choice.** A multiplicative step function between $0.88$ and $1.12$. Because it multiplies $B$, it changes the score by at most $\\pm 12\\,\\%$, and the ratio between the freshest and the oldest package with the same signals is $1.12 / 0.88 \\approx 1.27$. That can move a package across one rank boundary (for example $B = 240$ gives `S` at $1.12$ and `A` at $0.88$), but never across two: the scores $m(t)\\,B$ of one package lie in $[0.88\\,B,\\ 1.12\\,B]$, an interval whose ends differ by the factor $1.27$, while neighbouring thresholds differ by at least $260 / 180 \\approx 1.44$ ($180 / 110 \\approx 1.64$, $110 / 50 = 2.2$), so the interval contains at most one threshold. Nor does it turn an unused package into a ranked one: $B = 0$ stays $0$. An additive age term would give unused but freshly released packages a positive score."
 msgstr ""
 
-#: manual/design/score.md:191
+#: manual/design/score.md:212
 msgid "Fixed thresholds for labels"
 msgstr ""
 
-#: manual/design/score.md:193
+#: manual/design/score.md:214
 msgid "**Problem.** The web pages need short, stable labels."
 msgstr ""
 
-#: manual/design/score.md:195
+#: manual/design/score.md:216
 msgid "**Choice.** Constant thresholds on $S$ and $G$. Labels therefore mean the same in every snapshot and need no registry-wide statistics. Quantile buckets (\"top 5 %\") would need the whole registry, like percentile scores."
 msgstr ""
 
-#: manual/design/score.md:199
+#: manual/design/score.md:220
 msgid "Integers in, `Double` out"
 msgstr ""
 
-#: manual/design/score.md:201
+#: manual/design/score.md:222
 msgid "**Problem.** The signals are counts, but the score is real-valued."
 msgstr ""
 
-#: manual/design/score.md:203
+#: manual/design/score.md:224
 msgid "**Choice.** All inputs are `Int`, and negative values are clamped instead of rejected, so every function is total and can be called on raw database values. The scoring functions never abort and return no `Result`; the only non-finite output is the overflow described under [numerical accuracy](#numerical-accuracy)."
 msgstr ""
 
-#: manual/design/score.md:211
+#: manual/design/score.md:232
 msgid "Monotonicity"
 msgstr ""
 
-#: manual/design/score.md:213
+#: manual/design/score.md:234
 msgid "For counts in $[0, 2^{31} - 2]$, $S$ is non-decreasing in $D$, $R$ and $W$, and strictly increasing as long as the count stays below $2^{24}$: $\\sigma$ is strictly increasing, the weights are positive and $m(t) > 0$, so"
 msgstr ""
 
-#: manual/design/score.md:221
+#: manual/design/score.md:242
 msgid "Above $2^{24}$ the conversion through `Float` (below) can map neighbouring counts to the same value, so strict growth degrades to non-decreasing. $S$ is non-increasing in $t$ because $m$ is. The blackbox tests in `impact_factor_test.mbt` check instances of this for dependents, downloads and release age."
 msgstr ""
 
-#: manual/design/score.md:227
+#: manual/design/score.md:248
 msgid "Range"
 msgstr ""
 
-#: manual/design/score.md:229
+#: manual/design/score.md:250
 msgid "$S \\ge 0$, with equality exactly when $D, R, W \\le 0$. For counts up to $2^{31} - 2$, $\\sigma \\le \\ln 2^{31} \\approx 21.49$, so"
 msgstr ""
 
-#: manual/design/score.md:236
+#: manual/design/score.md:257
 msgid "Labels are total"
 msgstr ""
 
-#: manual/design/score.md:238
+#: manual/design/score.md:259
 msgid "`rank_label` and `compute_momentum_label` return one of their labels for every input. Every comparison with `NaN` is false, so a `NaN` score is ranked `D` and has `Stable` momentum."
 msgstr ""
 
-#: manual/design/score.md:242
+#: manual/design/score.md:263
 msgid "Numerical accuracy"
 msgstr ""
 
-#: manual/design/score.md:244
+#: manual/design/score.md:265
 msgid "`log_signal` converts $n + 1$ to `Float` before taking the logarithm in `Double`. Every integer up to $2^{24}$ is exact in `Float`; above it the conversion rounds to nearest with relative error $|\\delta| \\le u = 2^{-24}$. Then"
 msgstr ""
 
-#: manual/design/score.md:257
+#: manual/design/score.md:278
 msgid "and the error in $S$ from this conversion is at most $1.12 \\cdot 87 \\cdot u/(1-u) \\approx 5.8 \\times 10^{-6}$, on top of the ordinary `Double` rounding of a few operations. The index builder still contains an unused Python copy of the formula (`compute_score` in `scripts/build_index.py`) that calls `math.log1p` without the `Float` step; it agrees with the MoonBit result to this bound plus a few units in the last place. The database itself is filled through the MoonBit CLI."
 msgstr ""
 
-#: manual/design/score.md:265
+#: manual/design/score.md:286
 msgid "The addition $n + 1$ is done in `Int`. For $n = 2^{31} - 1$ it wraps to $-2^{31}$, the logarithm of a negative number is `NaN`, and the score is `NaN`."
 msgstr ""
 
-#: manual/design/score.md:269
+#: manual/design/score.md:290
 msgid "Snapshot consistency"
 msgstr ""
 
-#: manual/design/score.md:271
+#: manual/design/score.md:292
 msgid "`compute_score_snapshot` computes every field from the same two calls of `compute_score`, so `score_growth_30d == score - score_30d_ago` holds exactly (it is the same floating-point subtraction), and `rank_label` and `momentum_label` are always the labels of the stored numbers."
 msgstr ""
 
-#: manual/design/score.md:276
+#: manual/design/score.md:297
 msgid "How scores are ranked"
 msgstr ""
 
-#: manual/design/score.md:278
+#: manual/design/score.md:299
 msgid "The package only computes scores; consumers sort them. Every ordering in the repository breaks ties deterministically: the ranked feeds and the default search order use `score` descending, then `full_name` ascending, and the `Hot` and `Rising` feeds use `score_growth_30d` descending, then `score`, then `full_name`. The [static_search design](static_search.md) gives the orderings of the browser search."
 msgstr ""
 
-#: manual/design/score.md:287
+#: manual/design/score.md:308
 msgid "**PageRank-style centrality** on the dependency graph would reward being depended on by important packages, but it needs the whole graph, an iterative solver and a damping parameter, and it cannot be explained on a package page. The direct dependent count is the first step of that iteration and is enough for a registry of this size."
 msgstr ""
 
-#: manual/design/score.md:292
+#: manual/design/score.md:313
 msgid "**Transitive dependents** were not used: they count the same downstream package many times through every path and favour low-level packages even more than the logarithm can correct."
 msgstr ""
 
-#: manual/design/score.md:295
+#: manual/design/score.md:316
 msgid "**Learning the weights** from a labelled ranking would need labels that do not exist; the fixed weights are stated in the code and in this page."
 msgstr ""
 
-#: manual/design/score.md:297
+#: manual/design/score.md:318
 msgid "**Returning `Result` for negative inputs** would push error handling into every caller for a condition that has an obvious meaning (no signal)."
 msgstr ""
 
-#: manual/design/score.md:302
+#: manual/design/score.md:323
 msgid "The score measures adoption inside one registry snapshot. It does not measure code quality, correctness, security or maintenance effort."
 msgstr ""
 
-#: manual/design/score.md:304
+#: manual/design/score.md:325
 msgid "The package takes the signals as given. Collecting them, deciding which dependents are recent and which downloads are trusted is the index builder's job, described in the [architecture guide](../architecture.md)."
 msgstr ""
 
-#: manual/design/score.md:307
+#: manual/design/score.md:328
 msgid "The builder currently passes `0` as the historical download count, so `score_growth_30d` contains the whole download term $22\\,m(t)\\,\\sigma(W)$ of the current score. Read growth together with the dependent counts, which the momentum label does by requiring recent dependents."
 msgstr ""
 
-#: manual/design/score.md:312
+#: manual/design/score.md:333
 msgid "There is no normalisation across packages, no time decay inside a window and no confidence interval: a score is a deterministic function of four integers."
 msgstr ""
 
-#: manual/design/score.md:315
+#: manual/design/score.md:336
 msgid "Counts of `2147483647` are not supported (the score becomes `NaN`)."
+msgstr ""
+
+#: manual/design/score.md:337
+msgid "The builder passes `0` as the historical days since release when the release date is unknown, while the current value is `3650`; such packages get the multiplier $1.12$ 30 days ago and $0.88$ now, which shows as negative growth. The [architecture guide](../architecture.md) gives the signal definitions."
 msgstr ""
 
 #: manual/design/static_search.md:1
@@ -1308,7 +1326,7 @@ msgid "the label equals $v$ exactly."
 msgstr ""
 
 #: manual/design/static_search.md:74
-msgid "$x \\ge v$ for `>=`, $x \\le v$ for `<=`, $x = v$ otherwise; false when $v$ is not a number."
+msgid "$x \\ge v$ for `>=`, $x \\le v$ for `<=`, $x = v$ otherwise, with $v$ converted by JavaScript `Number`; false when the conversion is not finite. An empty $v$ converts to $0$."
 msgstr ""
 
 #: manual/design/static_search.md:75
@@ -1340,148 +1358,166 @@ msgid "**Conjunctions do not reorder.** Let $\\varphi = t_1 \\land \\dots \\land
 msgstr ""
 
 #: manual/design/static_search.md:102
-msgid ""
-"**Disjunctions rank by coverage.** For $\\varphi = t_1 \\lor \\dots \\lor t_k$, $\\operatorname{rel}(p)$ is the number of alternatives that $p$ satisfies, so a package that matches every alternative comes first. Under a negated leaf $\\lnot t$, every result has $p \\n"
-"ot\\models t$, so that leaf contributes $0$."
+msgid "**Disjunctions rank by coverage.** For $\\varphi = t_1 \\lor \\dots \\lor t_k$ with positive terms, $\\operatorname{rel}(p)$ is the number of alternatives that $p$ satisfies, so a package that matches every alternative comes first."
 msgstr ""
 
-#: manual/design/static_search.md:107
-msgid "Relevance is therefore a coordination-level match[^coord], not a text statistic: it ignores term frequency, field length and how rare a term is."
-msgstr ""
-
-#: manual/design/static_search.md:110
-msgid "Coordination-level matching ranks documents by the number of query terms they contain; it is the simplest ranked retrieval model and predates tf–idf weighting (Salton and McGill, *Introduction to Modern Information Retrieval*, 1983)."
-msgstr ""
-
-#: manual/design/static_search.md:115
-msgid "Sort orders and tie-breaking"
+#: manual/design/static_search.md:106
+msgid "**Negated leaves count against the user.** A negated leaf $\\lnot t$ contributes $1$ to $\\operatorname{rel}(p)$ exactly when $p \\models t$, the case the user wanted to exclude. When $\\lnot t$ must hold for every result, for example as a conjunct of the root, no result satisfies $t$ and the leaf contributes $0$ to all of them, so the order is unaffected. Under a disjunction it is not: for $\\varphi = \\lnot t_1 \\lor t_2$,"
 msgstr ""
 
 #: manual/design/static_search.md:117
+msgid "so a result that satisfies both $t_1$ and $t_2$ (relevance $2$) comes before one that satisfies only $t_2$ (relevance $1$), and results that satisfy neither (relevance $0$) come last, although $\\lnot t_1$ holds for them. The same applies to every leaf below a negated group."
+msgstr ""
+
+#: manual/design/static_search.md:122
+msgid "Relevance is therefore a coordination-level match[^coord], not a text statistic: it ignores term frequency, field length and how rare a term is."
+msgstr ""
+
+#: manual/design/static_search.md:125
+msgid "Coordination-level matching ranks documents by the number of query terms they contain; it is the simplest ranked retrieval model and predates tf–idf weighting (Salton and McGill, *Introduction to Modern Information Retrieval*, 1983)."
+msgstr ""
+
+#: manual/design/static_search.md:130
+msgid "Sort orders and tie-breaking"
+msgstr ""
+
+#: manual/design/static_search.md:132
 msgid "The other sort keys are `score`, `growth`, `downloads`, `dependents`, `recent`, `updated` (the release year) and `name`. Each comparison is"
 msgstr ""
 
-#: manual/design/static_search.md:124
+#: manual/design/static_search.md:139
 msgid "where $x \\Vert y$ means \"$x$ if non-zero, else $y$\" and $s = -1$ for descending, $+1$ for ascending order. The default order is ascending for `name` and descending for the other keys. Because $s$ multiplies the whole expression, a descending sort also reverses the name order of ties. Full names are unique, so ties are always resolved and the same index and query give the same order."
 msgstr ""
 
-#: manual/design/static_search.md:133
+#: manual/design/static_search.md:148
 msgid "Scan a forward index instead of building an inverted one"
 msgstr ""
 
-#: manual/design/static_search.md:135
+#: manual/design/static_search.md:150
 msgid "**Problem.** The browser needs to answer substring, numeric and Boolean queries without a database."
 msgstr ""
 
-#: manual/design/static_search.md:138
+#: manual/design/static_search.md:153
 msgid "**Options.** Ship SQLite compiled to WebAssembly with the FTS5 index; build an inverted index (term → packages) at export time; scan an array of records."
 msgstr ""
 
-#: manual/design/static_search.md:142
+#: manual/design/static_search.md:157
 msgid "**Choice.** A linear scan. The registry has a few thousand packages, so one query touches a few thousand short records, which is cheap for a worker. Substring matching (`pars` finds `parser`) and numeric filters need no tokenizer and no posting lists, and the index stays a plain JSON file that the export script writes in a few lines. A WebAssembly database would add a large download to every visit."
 msgstr ""
 
-#: manual/design/static_search.md:148
+#: manual/design/static_search.md:163
 msgid "Run the search in a Web Worker"
 msgstr ""
 
-#: manual/design/static_search.md:150
+#: manual/design/static_search.md:165
 msgid "**Problem.** Parsing the whole index and sorting it on the main thread would block rendering."
 msgstr ""
 
-#: manual/design/static_search.md:153
+#: manual/design/static_search.md:168
 msgid "**Choice.** The worker loads `search-index.json` once and keeps the records in memory; queries are messages with an `id`, and each reply resolves the request with the same `id`, so concurrent queries cannot be confused. The URL carries `generated_at` from the manifest as a version parameter, and a new manifest terminates and restarts the worker, so a stale index is never mixed with new feeds."
 msgstr ""
 
-#: manual/design/static_search.md:159
+#: manual/design/static_search.md:174
 msgid "Normalise once, at export"
 msgstr ""
 
-#: manual/design/static_search.md:161
+#: manual/design/static_search.md:176
 msgid "**Problem.** Case-insensitive matching needs lower-cased text on both sides."
 msgstr ""
 
-#: manual/design/static_search.md:163
+#: manual/design/static_search.md:178
 msgid "**Choice.** Python lower-cases the records at export (`str.strip().lower()`); the worker lower-cases only the needle (`trim().toLowerCase()`). Both apply the Unicode default case mapping, so for ordinary package metadata the two sides agree. The MoonBit `normalize_text` implements the lower-casing step through the same JavaScript function, so that MoonBit code compiled for the static site normalises text exactly as the worker does."
 msgstr ""
 
-#: manual/design/static_search.md:170
+#: manual/design/static_search.md:185
 msgid "Keep the version tag in MoonBit"
 msgstr ""
 
-#: manual/design/static_search.md:172
+#: manual/design/static_search.md:187
 msgid "`runtime_version` gives the compiled JavaScript module a fixed identity. The static build (`scripts/build_static_site.mjs`) compiles the package before `next build`, so a MoonBit change that breaks the module stops the static build."
 msgstr ""
 
-#: manual/design/static_search.md:179
+#: manual/design/static_search.md:194
 msgid "Agreement with the dynamic site"
 msgstr ""
 
-#: manual/design/static_search.md:181
+#: manual/design/static_search.md:196
 msgid "The worker and the server decode `ast` and `expr` with the same functions from `lib/query.ts`, so a query means the same formula in both modes. The term semantics differ on purpose:"
 msgstr ""
 
-#: manual/design/static_search.md:185
+#: manual/design/static_search.md:200
 msgid "Text terms (`text`, `owner`, `package`, `keyword`, `description`) are substring tests in the static site, so `pars` also finds `sparse`. The server sends them to SQLite FTS5, which matches token prefixes (`pars*`). `license` and `repository` are substring tests in both modes."
 msgstr ""
 
-#: manual/design/static_search.md:189
+#: manual/design/static_search.md:204
 msgid "The server rejects a term whose operator does not fit its field (for example `rank>=A`) with HTTP 400; the worker evaluates it anyway, using equality for labels and numbers and a substring test for text."
 msgstr ""
 
-#: manual/design/static_search.md:192
+#: manual/design/static_search.md:207
 msgid "With a query and no explicit sort, the static site orders by the coordination count above. The server orders AST queries by score and ranks legacy text queries by FTS5 `bm25`."
 msgstr ""
 
-#: manual/design/static_search.md:195
-msgid "`updated` sorts by year in the static site and by the full timestamp on the server."
+#: manual/design/static_search.md:210
+msgid "Rank and momentum values must match the label exactly in the static site (`rank=s` matches nothing). The server accepts them in any case and rejects unknown labels with HTTP 400."
 msgstr ""
 
-#: manual/design/static_search.md:197
-msgid "Ties in a descending static sort are broken by name descending, while the server breaks them by score descending and then name ascending."
-msgstr ""
-
-#: manual/design/static_search.md:200
-msgid "Complexity"
-msgstr ""
-
-#: manual/design/static_search.md:202
-msgid "Let $N$ be the number of records, $L$ the number of term leaves of the query and $\\ell$ the length of the longest normalised field. One term test costs $O(\\ell)$ for numeric and label terms and at most $O(\\ell\\,|v|)$ for a substring test. Then"
+#: manual/design/static_search.md:213
+msgid "An empty numeric value compares with $0$ in the static site; the server rejects it with HTTP 400."
 msgstr ""
 
 #: manual/design/static_search.md:215
+msgid "`updated` sorts by year in the static site and by the full timestamp on the server."
+msgstr ""
+
+#: manual/design/static_search.md:217
+msgid "Ties in a descending static sort are broken by name descending. The server breaks ties by name ascending, after score descending for the `growth`, `downloads`, `dependents` and `recent` sorts."
+msgstr ""
+
+#: manual/design/static_search.md:220
+msgid "The server returns at most `limit` results (20 by default, at most 100); the static site returns every match."
+msgstr ""
+
+#: manual/design/static_search.md:223
+msgid "Complexity"
+msgstr ""
+
+#: manual/design/static_search.md:225
+msgid "Let $N$ be the number of records, $L$ the number of term leaves of the query and $\\ell$ the length of the longest normalised field. One term test costs $O(\\ell)$ for numeric and label terms and at most $O(\\ell\\,|v|)$ for a substring test. Then"
+msgstr ""
+
+#: manual/design/static_search.md:238
 msgid "A comparison costs $O(1)$ for the key sorts but $O(L \\ell |v|)$ for relevance, because the comparator recomputes $\\operatorname{rel}$ for both records instead of caching it. Relevance sorting is therefore $O(N \\log N \\cdot L \\ell |v|)$, a factor of $\\log N$ more term tests than the filter. Memory is $O(N F \\ell)$ for the resident index. All results are returned; there is no limit in static mode."
 msgstr ""
 
-#: manual/design/static_search.md:224
+#: manual/design/static_search.md:247
 msgid "**SQLite in WebAssembly** would make static and dynamic results identical but costs a large download and a WebAssembly runtime on every visit."
 msgstr ""
 
-#: manual/design/static_search.md:226
+#: manual/design/static_search.md:249
 msgid "**A client-side full-text library** (inverted index with tf–idf or BM25) would rank better for free text but needs a tokenizer that agrees with the FTS5 tokenizer to be consistent, and loses substring matching."
 msgstr ""
 
-#: manual/design/static_search.md:229
+#: manual/design/static_search.md:252
 msgid "**Splitting the index per owner or per letter** would shrink the first download but make OR queries across shards fetch many files."
 msgstr ""
 
-#: manual/design/static_search.md:234
+#: manual/design/static_search.md:257
 msgid "The static search does not tokenise, stem or rank by text statistics, and it does not correct spelling."
 msgstr ""
 
-#: manual/design/static_search.md:236
+#: manual/design/static_search.md:259
 msgid "It returns every match; paging and limits are left to the interface."
 msgstr ""
 
-#: manual/design/static_search.md:237
+#: manual/design/static_search.md:260
 msgid "The MoonBit package does not implement the index or the query evaluation; those are in Python and TypeScript."
 msgstr ""
 
-#: manual/design/static_search.md:239
+#: manual/design/static_search.md:262
 msgid "In this release the worker does not import the MoonBit module; its TypeScript normalisation additionally trims the needle, which `normalize_text` does not."
 msgstr ""
 
-#: manual/design/static_search.md:242
+#: manual/design/static_search.md:265
 msgid "The data is as fresh as the last export; there is no incremental update."
 msgstr ""
 
@@ -1698,118 +1734,174 @@ msgid "mooncake_impact_factor"
 msgstr ""
 
 #: manual/index.md:3
+msgid "This manual documents version `v0.1.2` of `Luna-Flow/mooncake-impact-factor`."
+msgstr ""
+
+#: manual/index.md:5
+msgid "Overview"
+msgstr ""
+
+#: manual/index.md:7
 msgid "`mooncake_impact_factor` ranks the packages of the MoonBit registry by how much the ecosystem relies on them. It scores every package from its dependents, recent dependents, downloads and release date, labels the score with a rank and a momentum class, and lets you search and filter the result in a web application that runs locally against SQLite or as a static site."
 msgstr ""
 
-#: manual/index.md:9
-msgid "This manual describes version `0.1.2` of the module `Luna-Flow/mooncake-impact-factor`."
-msgstr ""
-
-#: manual/index.md:12
-msgid "Packages"
-msgstr ""
-
-#: manual/index.md:14
-msgid "The MoonBit module has three packages. Each has an API reference, a tutorial and a design note."
-msgstr ""
-
-#: manual/index.md:17
-msgid "Package"
-msgstr ""
-
-#: manual/index.md:17
-msgid "Purpose"
-msgstr ""
-
-#: manual/index.md:17
-msgid "Pages"
-msgstr ""
-
-#: manual/index.md:19
-msgid "The impact score, rank labels, momentum labels and score snapshots."
-msgstr ""
-
-#: manual/index.md:19
-msgid "[API](api/score.md) · [tutorial](tutorial/score.md) · [design](design/score.md)"
+#: manual/index.md:13
+msgid "The MoonBit module owns the rules: the score formula, the rank thresholds and the momentum classes live in `score`, and every other part of the repository calls them. The rest is not MoonBit: the Python index builder and static exporter in `scripts/`, and the Next.js application in `app/`, `frontend/src/` and `lib/`. The [architecture guide](architecture.md) shows how they fit together."
 msgstr ""
 
 #: manual/index.md:20
-msgid "A JavaScript command that computes a score snapshot from a JSON file, used by the Python index builder."
-msgstr ""
-
-#: manual/index.md:20
-msgid "[API](api/cli.md) · [tutorial](tutorial/cli.md) · [design](design/cli.md)"
-msgstr ""
-
-#: manual/index.md:21
-msgid "The version tag and text normalisation of the browser search in static mode."
-msgstr ""
-
-#: manual/index.md:21
-msgid "[API](api/static_search.md) · [tutorial](tutorial/static_search.md) · [design](design/static_search.md)"
-msgstr ""
-
-#: manual/index.md:23
-msgid "The rest of the repository is not MoonBit: the Python index builder and static exporter in `scripts/`, and the Next.js application in `app/`, `frontend/src/` and `lib/`. The [architecture guide](architecture.md) shows how they fit together."
-msgstr ""
-
-#: manual/index.md:28
-msgid "Guides"
-msgstr ""
-
-#: manual/index.md:30
-msgid "[Getting started](getting_started.md): build the database, run the web application and query its HTTP API."
-msgstr ""
-
-#: manual/index.md:32
-msgid "[Architecture](architecture.md): the data pipeline from the registry to the browser, and which file owns which rule."
-msgstr ""
-
-#: manual/index.md:34
-msgid "[Conventions](conventions.md): the documentation rules specific to this repository."
-msgstr ""
-
-#: manual/index.md:37
-msgid "Reading paths"
-msgstr ""
-
-#: manual/index.md:39
-msgid "**I want to see the rankings.** Follow [getting started](getting_started.md) to build the database and open the web application, then read the [score tutorial](tutorial/score.md) to understand what the numbers mean."
-msgstr ""
-
-#: manual/index.md:43
-msgid "**I want to use the score in MoonBit.** Start with the [score tutorial](tutorial/score.md) and keep the [score API](api/score.md) at hand. Use the [cli tutorial](tutorial/cli.md) when the caller is not MoonBit."
-msgstr ""
-
-#: manual/index.md:48
-msgid "**I want to change the model or the search.** Read the [score design](design/score.md) for the derivation of the formula and its invariants, the [static_search design](design/static_search.md) for the browser index and its ranking, and the [architecture guide](architecture.md) for how the signals are counted. The repository's `CONTRIBUTING.md` lists the checks to run."
-msgstr ""
-
-#: manual/index.md:55
 msgid "Install"
 msgstr ""
 
-#: manual/index.md:61
-msgid "Then import the package you need in `moon.pkg`, for example `\"Luna-Flow/mooncake-impact-factor/score\"`. `score` builds for every target; `cli` and `static_search` build only for the JavaScript target."
+#: manual/index.md:26
+msgid "Then import the package you need in your `moon.pkg`, for example `\"Luna-Flow/mooncake-impact-factor/score\"`. `score` builds for every target; `cli` and `static_search` build only for the JavaScript target. The module needs the MoonBit toolchain 0.10 or later (`moonc` ≥ 0.10). Running `cli` and the web application also needs Node.js 20.16, 22.3 or later, and the index builder needs Python 3."
 msgstr ""
 
-#: manual/index.md:65
-msgid "Toolchain"
+#: manual/index.md:33
+msgid "Pages"
 msgstr ""
 
-#: manual/index.md:67
-msgid "MoonBit with `moonc` 0.10 or later. The module uses the `moon.mod` and `moon.pkg` manifest formats."
+#: manual/index.md:35
+msgid "The MoonBit module has three packages, each with a tutorial, an API reference and a design page. Three guides cover the rest of the repository."
+msgstr ""
+
+#: manual/index.md:38
+msgid "Part"
+msgstr ""
+
+#: manual/index.md:38
+msgid "Tutorial"
+msgstr ""
+
+#: manual/index.md:38
+msgid "API"
+msgstr ""
+
+#: manual/index.md:38
+msgid "Design"
+msgstr ""
+
+#: manual/index.md:40
+msgid "`score`: impact score, rank and momentum labels, snapshots"
+msgstr ""
+
+#: manual/index.md:40
+msgid "[tutorial](tutorial/score.md)"
+msgstr ""
+
+#: manual/index.md:40
+msgid "[API](api/score.md)"
+msgstr ""
+
+#: manual/index.md:40
+msgid "[design](design/score.md)"
+msgstr ""
+
+#: manual/index.md:41
+msgid "`cli`: a JavaScript command that scores one package from a JSON file"
+msgstr ""
+
+#: manual/index.md:41
+msgid "[tutorial](tutorial/cli.md)"
+msgstr ""
+
+#: manual/index.md:41
+msgid "[API](api/cli.md)"
+msgstr ""
+
+#: manual/index.md:41
+msgid "[design](design/cli.md)"
+msgstr ""
+
+#: manual/index.md:42
+msgid "`static_search`: version tag and text normalisation of the static search"
+msgstr ""
+
+#: manual/index.md:42
+msgid "[tutorial](tutorial/static_search.md)"
+msgstr ""
+
+#: manual/index.md:42
+msgid "[API](api/static_search.md)"
+msgstr ""
+
+#: manual/index.md:42
+msgid "[design](design/static_search.md)"
+msgstr ""
+
+#: manual/index.md:43
+msgid "Guide: build the database, run the application, query its HTTP API"
+msgstr ""
+
+#: manual/index.md:43
+msgid "[getting started](getting_started.md)"
+msgstr ""
+
+#: manual/index.md:44
+msgid "Guide: the data pipeline from the registry to the browser"
+msgstr ""
+
+#: manual/index.md:44
+msgid "[architecture](architecture.md)"
+msgstr ""
+
+#: manual/index.md:45
+msgid "Guide: documentation rules of this repository"
+msgstr ""
+
+#: manual/index.md:45
+msgid "[conventions](conventions.md)"
+msgstr ""
+
+#: manual/index.md:47
+msgid "Exported items"
+msgstr ""
+
+#: manual/index.md:49
+msgid "`score`: `compute_score`, `activity_multiplier`, `clamp_non_negative`, `rank_label`, `compute_momentum_label`, `compute_score_snapshot` and the struct `ScoreSnapshot`"
+msgstr ""
+
+#: manual/index.md:52
+msgid "`static_search`: `runtime_version`, `normalize_text`, also exported from the compiled ES module"
+msgstr ""
+
+#: manual/index.md:54
+msgid "`cli`: no MoonBit names; its interface is the command `score-snapshot --input <path>`"
+msgstr ""
+
+#: manual/index.md:57
+msgid "Where to read next"
+msgstr ""
+
+#: manual/index.md:59
+msgid "The [score tutorial](tutorial/score.md) computes, ranks and explains scores, the [score API](api/score.md) lists every function and threshold, and the [score design](design/score.md) derives the formula and its invariants."
+msgstr ""
+
+#: manual/index.md:63
+msgid "New to the project: follow [getting started](getting_started.md) to build the database and open the web application, then read the [score tutorial](tutorial/score.md) to understand what the numbers mean."
+msgstr ""
+
+#: manual/index.md:66
+msgid "Using the score in a library: keep the [score API](api/score.md) at hand, and use the [cli tutorial](tutorial/cli.md) when the caller is not MoonBit."
 msgstr ""
 
 #: manual/index.md:69
-msgid "Node.js 20.16, 22.3 or later to run `cli` and the web application."
+msgid "Contributing: read the [score design](design/score.md), the [static_search design](design/static_search.md) for the browser index and its ranking, and the [architecture guide](architecture.md) for how the signals are counted. The repository's `CONTRIBUTING.md` lists the checks to run."
 msgstr ""
 
-#: manual/index.md:70
-msgid "Python 3 for the index builder and the static exporter."
+#: manual/index.md:75
+msgid "Validation"
 msgstr ""
 
-#: manual/index.md:74
+#: manual/index.md:77
+msgid "Recommended release checks:"
+msgstr ""
+
+#: manual/index.md:87
+msgid "`CONTRIBUTING.md` adds the Python, TypeScript and static-site checks."
+msgstr ""
+
+#: manual/index.md:89
 msgid "The rankings come from a local copy of the registry index plus optional download counts from mooncakes.io. They are not an authoritative ranking of the MoonBit ecosystem, and they change whenever the database is rebuilt from a newer snapshot."
 msgstr ""
 
@@ -1824,130 +1916,174 @@ msgstr ""
 #: manual/tutorial/cli.md:8
 #: manual/tutorial/score.md:9
 #: manual/tutorial/static_search.md:9
-msgid "Quick start"
+msgid "I want to"
+msgstr ""
+
+#: manual/tutorial/cli.md:8
+#: manual/tutorial/score.md:9
+#: manual/tutorial/static_search.md:9
+msgid "Use"
 msgstr ""
 
 #: manual/tutorial/cli.md:10
-msgid "Build the executable from the repository root:"
+msgid "build the command"
+msgstr ""
+
+#: manual/tutorial/cli.md:11
+msgid "score one package from a shell"
+msgstr ""
+
+#: manual/tutorial/cli.md:12
+msgid "score from Python or Node.js"
+msgstr ""
+
+#: manual/tutorial/cli.md:12
+msgid "write a JSON file, run the command, parse standard output"
+msgstr ""
+
+#: manual/tutorial/cli.md:13
+msgid "leave out unknown signals"
+msgstr ""
+
+#: manual/tutorial/cli.md:13
+msgid "omit the key; it counts as `0`"
+msgstr ""
+
+#: manual/tutorial/cli.md:14
+msgid "detect failures"
+msgstr ""
+
+#: manual/tutorial/cli.md:14
+msgid "a non-zero exit status"
 msgstr ""
 
 #: manual/tutorial/cli.md:16
+#: manual/tutorial/score.md:17
+#: manual/tutorial/static_search.md:17
+msgid "Quick start"
+msgstr ""
+
+#: manual/tutorial/cli.md:18
+msgid "Build the executable from the repository root:"
+msgstr ""
+
+#: manual/tutorial/cli.md:24
 msgid "Write the signals of one package to a file:"
 msgstr ""
 
-#: manual/tutorial/cli.md:28
+#: manual/tutorial/cli.md:36
 msgid "The command prints the snapshot on one line:"
 msgstr ""
 
-#: manual/tutorial/cli.md:34
+#: manual/tutorial/cli.md:42
 msgid "These are the same numbers as `@score.compute_score_snapshot(20, 4, 300, 40, 10, 2, 0, 10)` in MoonBit."
 msgstr ""
 
-#: manual/tutorial/cli.md:37
-#: manual/tutorial/score.md:41
-#: manual/tutorial/static_search.md:44
+#: manual/tutorial/cli.md:45
+#: manual/tutorial/score.md:46
+#: manual/tutorial/static_search.md:48
 msgid "Everyday tasks"
 msgstr ""
 
-#: manual/tutorial/cli.md:39
+#: manual/tutorial/cli.md:47
 msgid "Leave out what you do not know"
 msgstr ""
 
-#: manual/tutorial/cli.md:41
+#: manual/tutorial/cli.md:49
 msgid "Every key is optional and defaults to `0`. A package released five days ago with three dependents and nothing else known:"
 msgstr ""
 
-#: manual/tutorial/cli.md:53
+#: manual/tutorial/cli.md:61
 msgid "The historical signals are all `0`, so `score_30d_ago` is `0` and the growth ratio is reported as `1`."
 msgstr ""
 
-#: manual/tutorial/cli.md:56
+#: manual/tutorial/cli.md:64
 msgid "Call it from Python"
 msgstr ""
 
-#: manual/tutorial/cli.md:58
+#: manual/tutorial/cli.md:66
 msgid "The index builder runs the command once per package. A minimal version of its helper:"
 msgstr ""
 
-#: manual/tutorial/cli.md:87
+#: manual/tutorial/cli.md:95
 msgid "`check=True` turns every non-zero exit status into an exception, which covers both the JSON error messages and a missing input file."
 msgstr ""
 
-#: manual/tutorial/cli.md:90
+#: manual/tutorial/cli.md:98
 msgid "Call it from Node.js"
 msgstr ""
 
-#: manual/tutorial/cli.md:107
+#: manual/tutorial/cli.md:115
 msgid "936 dependents alone are enough for rank `S` when the multiplier is $1$; the [score design](../design/score.md#rank-thresholds-as-counts) derives why."
 msgstr ""
 
-#: manual/tutorial/cli.md:110
+#: manual/tutorial/cli.md:118
 msgid "Handle errors"
 msgstr ""
 
-#: manual/tutorial/cli.md:112
+#: manual/tutorial/cli.md:120
 msgid "Errors print a JSON object with an `error` key and exit with status `1`:"
 msgstr ""
 
-#: manual/tutorial/cli.md:124
+#: manual/tutorial/cli.md:132
 msgid "Check the exit status before you parse the output. A missing file also exits with `1` but prints a Node.js stack trace to standard error instead of JSON."
 msgstr ""
 
-#: manual/tutorial/cli.md:127
-#: manual/tutorial/score.md:194
-#: manual/tutorial/static_search.md:160
+#: manual/tutorial/cli.md:135
+#: manual/tutorial/score.md:192
+#: manual/tutorial/static_search.md:159
 msgid "Going further"
 msgstr ""
 
-#: manual/tutorial/cli.md:129
+#: manual/tutorial/cli.md:137
 msgid "**Batch work.** Each call starts a Node.js process, which costs far more than the score itself. For many packages in one MoonBit program, call `@score.compute_score_snapshot` directly, as in the [score tutorial](score.md)."
 msgstr ""
 
-#: manual/tutorial/cli.md:133
+#: manual/tutorial/cli.md:141
 msgid "**Where the signals come from.** The [architecture guide](../architecture.md) explains how the index builder counts dependents, recent dependents and historical values before it calls this command."
 msgstr ""
 
-#: manual/tutorial/cli.md:137
+#: manual/tutorial/cli.md:145
 msgid "**Strict inputs.** The command accepts sloppy input: strings and `null` become `0`, fractions are truncated. Validate the payload in the caller if a silent `0` would hide a bug."
 msgstr ""
 
-#: manual/tutorial/cli.md:141
-#: manual/tutorial/score.md:224
-#: manual/tutorial/static_search.md:179
+#: manual/tutorial/cli.md:149
+#: manual/tutorial/score.md:222
+#: manual/tutorial/static_search.md:178
 msgid "Common pitfalls"
 msgstr ""
 
-#: manual/tutorial/cli.md:143
+#: manual/tutorial/cli.md:151
 msgid "**Numbers as strings.** `{\"dependents\": \"20\"}` scores as zero dependents. Write `20`, not `\"20\"`."
 msgstr ""
 
-#: manual/tutorial/cli.md:145
+#: manual/tutorial/cli.md:153
 msgid "**Wrong argument order.** `score-snapshot` must be the first argument after the script; `--input file.json score-snapshot` prints the usage error."
 msgstr ""
 
-#: manual/tutorial/cli.md:147
+#: manual/tutorial/cli.md:155
 msgid "**Stale build.** The index builder reuses an existing `cli.js`. Rebuild after you change `src/score`, or the database is scored with the old rules."
 msgstr ""
 
-#: manual/tutorial/cli.md:149
+#: manual/tutorial/cli.md:157
 msgid "**Large counts.** A count of `2147483647`, or any larger number (the conversion saturates at the largest `Int`), makes the score `NaN`. JSON has no `NaN`, so the output then contains the string `\"NaN\"` where a number is expected: `{\"score\":\"NaN\",...}`."
 msgstr ""
 
-#: manual/tutorial/cli.md:154
-#: manual/tutorial/score.md:239
-#: manual/tutorial/static_search.md:194
+#: manual/tutorial/cli.md:162
+#: manual/tutorial/score.md:237
+#: manual/tutorial/static_search.md:197
 msgid "Next steps"
 msgstr ""
 
-#: manual/tutorial/cli.md:156
+#: manual/tutorial/cli.md:164
 msgid "[cli API](../api/cli.md) for the exact input, output and error contract."
 msgstr ""
 
-#: manual/tutorial/cli.md:157
+#: manual/tutorial/cli.md:165
 msgid "[cli design](../design/cli.md) for why the bridge is a file-based command."
 msgstr ""
 
-#: manual/tutorial/cli.md:158
+#: manual/tutorial/cli.md:166
 msgid "[score API](../api/score.md) for the meaning of every output field."
 msgstr ""
 
@@ -1960,39 +2096,71 @@ msgid "This tutorial shows you how to compute the impact score of a MoonBit pack
 msgstr ""
 
 #: manual/tutorial/score.md:11
-#: manual/tutorial/static_search.md:11
+msgid "score one package"
+msgstr ""
+
+#: manual/tutorial/score.md:12
+msgid "turn a score into a rank"
+msgstr ""
+
+#: manual/tutorial/score.md:13
+msgid "measure 30-day growth and momentum"
+msgstr ""
+
+#: manual/tutorial/score.md:13
+msgid "`@score.compute_score_snapshot(...)` with current and historical signals"
+msgstr ""
+
+#: manual/tutorial/score.md:14
+msgid "explain a score"
+msgstr ""
+
+#: manual/tutorial/score.md:14
+msgid "score each signal alone; the parts add up"
+msgstr ""
+
+#: manual/tutorial/score.md:15
+msgid "pass a snapshot to another tool"
+msgstr ""
+
+#: manual/tutorial/score.md:15
+msgid "`Json(snapshot)`, or the [`cli` command](cli.md)"
+msgstr ""
+
+#: manual/tutorial/score.md:19
+#: manual/tutorial/static_search.md:19
 msgid "Add the module to your project:"
 msgstr ""
 
-#: manual/tutorial/score.md:17
+#: manual/tutorial/score.md:25
 msgid "Import the package in the `moon.pkg` of the package that uses it:"
 msgstr ""
 
-#: manual/tutorial/score.md:25
+#: manual/tutorial/score.md:33
 msgid "Score a package with 20 dependents, 4 of them recent, 300 downloads and a release 40 days ago:"
 msgstr ""
 
-#: manual/tutorial/score.md:39
+#: manual/tutorial/score.md:44
 msgid "The score is a plain `Double`. Anything from $260$ up is rank `S`."
 msgstr ""
 
-#: manual/tutorial/score.md:43
+#: manual/tutorial/score.md:48
 msgid "Rank a list of packages"
 msgstr ""
 
-#: manual/tutorial/score.md:45
+#: manual/tutorial/score.md:50
 msgid "Scores from different packages are directly comparable, because each score depends only on that package's signals. Sort by score, highest first, and break ties by name so that the order is reproducible. This is the order the web application uses for its top feed."
 msgstr ""
 
-#: manual/tutorial/score.md:80
+#: manual/tutorial/score.md:87
 msgid "`bob/http` and `carol/csv` have identical signals and therefore identical scores; the name decides their order."
 msgstr ""
 
-#: manual/tutorial/score.md:83
+#: manual/tutorial/score.md:90
 msgid "Explain where a score comes from"
 msgstr ""
 
-#: manual/tutorial/score.md:85
+#: manual/tutorial/score.md:92
 msgid "The base score is a sum of one term per signal, and the release multiplier scales the whole sum. Scoring each signal on its own therefore splits a score into its parts:"
 msgstr ""
 
@@ -2008,83 +2176,83 @@ msgstr ""
 msgid "`activity_multiplier` rewards a recent release with up to 12 % and penalises an old one with up to 12 %:"
 msgstr ""
 
-#: manual/tutorial/score.md:135
+#: manual/tutorial/score.md:138
 msgid "The same signals are rank `S` while the latest release is less than a year old and rank `A` after that."
 msgstr ""
 
-#: manual/tutorial/score.md:138
+#: manual/tutorial/score.md:141
 msgid "Measure growth over 30 days"
 msgstr ""
 
-#: manual/tutorial/score.md:140
+#: manual/tutorial/score.md:143
 msgid "`compute_score_snapshot` takes the four signals twice: as they are now and as they were 30 days ago. A package that did not exist 30 days ago has historical signals of `0`:"
 msgstr ""
 
-#: manual/tutorial/score.md:159
+#: manual/tutorial/score.md:156
 msgid "The score grew from $0$, so the growth ratio is reported as $1$ (100 %). The package is `Hot`, not `Rising`, because `Rising` needs at least three recent dependents and it has two."
 msgstr ""
 
-#: manual/tutorial/score.md:163
+#: manual/tutorial/score.md:160
 msgid "Hand a snapshot to other tools"
 msgstr ""
 
-#: manual/tutorial/score.md:165
+#: manual/tutorial/score.md:162
 msgid "`ScoreSnapshot` converts to JSON with `Json(...)`. This is exactly the output of the [`cli` command](cli.md):"
 msgstr ""
 
-#: manual/tutorial/score.md:179
+#: manual/tutorial/score.md:177
 msgid "Read it back with `@json.from_json`, which needs `moonbitlang/core/json` in your imports:"
 msgstr ""
 
-#: manual/tutorial/score.md:191
+#: manual/tutorial/score.md:189
 msgid "`ScoreSnapshot` has no `Eq` implementation, so the check compares the JSON forms."
 msgstr ""
 
-#: manual/tutorial/score.md:196
+#: manual/tutorial/score.md:194
 msgid "**Prepare signals like the index builder.** The functions accept any integers, but the scores in the web application come from specific definitions: `dependents` counts packages with at least one version that depends on this package, `recent_dependents` counts those whose first such version is at most 180 days old, and the historical signals repeat the count as of 30 days ago with downloads set to `0`. The [architecture guide](../architecture.md) describes the whole pipeline. If you compare your own scores with the published ones, use the same definitions."
 msgstr ""
 
-#: manual/tutorial/score.md:205
+#: manual/tutorial/score.md:203
 msgid "**Keep labels and scores together.** `rank_label` and `compute_momentum_label` are separate functions so that you can label scores computed elsewhere, but `compute_score_snapshot` is the only way to get labels that are guaranteed to match the numbers. Store snapshots rather than recomputing labels from rounded numbers."
 msgstr ""
 
-#: manual/tutorial/score.md:211
+#: manual/tutorial/score.md:209
 msgid "**Guard against overflow at the edge.** No real package has `2147483647` dependents, but if your signals come from untrusted input, clamp them first: a count of exactly `2147483647` makes the score `NaN`, which ranks as `D`."
 msgstr ""
 
-#: manual/tutorial/score.md:226
+#: manual/tutorial/score.md:224
 msgid "**Swapped arguments.** All signals are `Int`, so the compiler cannot tell `downloads` from `dependents`. Keep the order of the [signals table](../api/score.md#signals)."
 msgstr ""
 
-#: manual/tutorial/score.md:229
+#: manual/tutorial/score.md:227
 msgid "**Days, not dates.** `days_since_release` is a count of whole days, not a timestamp. A negative value counts as `0` and gets the highest multiplier."
 msgstr ""
 
-#: manual/tutorial/score.md:231
+#: manual/tutorial/score.md:229
 msgid "**Growth ratio of new packages.** A ratio of `1` can mean \"doubled\" or \"appeared from nothing\". Check `score_30d_ago == 0.0` to tell them apart."
 msgstr ""
 
-#: manual/tutorial/score.md:233
+#: manual/tutorial/score.md:231
 msgid "**Comparing with `==`.** Scores are floating-point numbers; compare computed sums with a tolerance."
 msgstr ""
 
-#: manual/tutorial/score.md:235
+#: manual/tutorial/score.md:233
 msgid "**Momentum needs the snapshot ratio.** `compute_momentum_label` trusts the ratio you pass. Passing a percentage (`35.0`) instead of a fraction (`0.35`) makes the ratio condition pass for any real growth."
 msgstr ""
 
-#: manual/tutorial/score.md:241
+#: manual/tutorial/score.md:239
 msgid "[score API](../api/score.md) for every function and threshold."
 msgstr ""
 
-#: manual/tutorial/score.md:242
+#: manual/tutorial/score.md:240
 msgid "[score design](../design/score.md) for the derivation of the formula, the rank thresholds in counts and the accuracy bounds."
 msgstr ""
 
-#: manual/tutorial/score.md:244
+#: manual/tutorial/score.md:242
 msgid "[cli tutorial](cli.md) to compute snapshots from Python or a shell."
 msgstr ""
 
-#: manual/tutorial/score.md:245
+#: manual/tutorial/score.md:243
 msgid "[static_search tutorial](static_search.md) to search the scored packages in the browser."
 msgstr ""
 
@@ -2096,23 +2264,51 @@ msgstr ""
 msgid "This tutorial shows you how to use the MoonBit `static_search` package to normalise text the way the static site's search does, how to build and serve the static site with its search index, and how to write queries for it. The [static_search design](../design/static_search.md) explains the index and the ranking in detail."
 msgstr ""
 
-#: manual/tutorial/static_search.md:17
+#: manual/tutorial/static_search.md:11
+msgid "lower-case text like the static search"
+msgstr ""
+
+#: manual/tutorial/static_search.md:12
+msgid "tell which static search runtime is loaded"
+msgstr ""
+
+#: manual/tutorial/static_search.md:13
+msgid "build and serve the static site"
+msgstr ""
+
+#: manual/tutorial/static_search.md:14
+msgid "find packages"
+msgstr ""
+
+#: manual/tutorial/static_search.md:14
+msgid "the native expression language, for example `json AND score>=180`"
+msgstr ""
+
+#: manual/tutorial/static_search.md:15
+msgid "predict the order of results"
+msgstr ""
+
+#: manual/tutorial/static_search.md:15
+msgid "the coordination count, then score, then name"
+msgstr ""
+
+#: manual/tutorial/static_search.md:25
 msgid "The package builds only for the JavaScript target, so the package that imports it must do so as well:"
 msgstr ""
 
-#: manual/tutorial/static_search.md:28
+#: manual/tutorial/static_search.md:36
 msgid "Case-insensitive matching is a substring test on lower-cased text:"
 msgstr ""
 
-#: manual/tutorial/static_search.md:42
+#: manual/tutorial/static_search.md:46
 msgid "Run it with `moon test --target js`."
 msgstr ""
 
-#: manual/tutorial/static_search.md:46
+#: manual/tutorial/static_search.md:50
 msgid "Normalise a search box value"
 msgstr ""
 
-#: manual/tutorial/static_search.md:48
+#: manual/tutorial/static_search.md:52
 msgid "The search worker trims the query value and lower-cases it. `normalize_text` only lower-cases, so trim first:"
 msgstr ""
 
@@ -2180,54 +2376,58 @@ msgstr ""
 msgid "Without an explicit sort, the static site orders results by how many terms of the query a package matches, then by score, then by name. The following MoonBit program reproduces this for an `OR` of words:"
 msgstr ""
 
-#: manual/tutorial/static_search.md:155
+#: manual/tutorial/static_search.md:154
 msgid "The query `json OR parser` gives the same order on the static site: `alice/json` matches both words, and the other two tie on one match and are ordered by score. For `json AND parser` every result matches both words, so the order is the plain score order."
 msgstr ""
 
-#: manual/tutorial/static_search.md:162
+#: manual/tutorial/static_search.md:161
 msgid "**Use the compiled module from JavaScript.** `moon build src/static_search --target js` writes an ES module with `runtime_version` and `normalize_text`; see the [static_search API](../api/static_search.md) for the import path. Check `runtime_version()` when your JavaScript code depends on the behaviour of a particular release."
 msgstr ""
 
-#: manual/tutorial/static_search.md:168
+#: manual/tutorial/static_search.md:167
 msgid "**Compare with the dynamic site.** The local server (`npm run dev`) runs the same query language against SQLite. Text terms there match word prefixes through FTS5 instead of substrings, and results without an explicit sort are ordered differently. The [design page](../design/static_search.md#agreement-with-the-dynamic-site) lists every difference."
 msgstr ""
 
-#: manual/tutorial/static_search.md:175
+#: manual/tutorial/static_search.md:174
 msgid "**Publish to GitHub Pages.** The `deploy-static` workflow runs the same commands on a schedule. Set `NEXT_PUBLIC_BASE_PATH` when the site is served from a sub-path, so that the worker fetches `/<base>/data/...`."
 msgstr ""
 
-#: manual/tutorial/static_search.md:181
+#: manual/tutorial/static_search.md:180
 msgid "**Implicit AND.** `json parser` without `AND` is a syntax error in the expression language. In the simple search field (`q`) the same text is one substring, `json parser`."
 msgstr ""
 
-#: manual/tutorial/static_search.md:184
+#: manual/tutorial/static_search.md:183
 msgid "**Trimming.** `normalize_text` keeps spaces. A needle with a trailing space matches less than the trimmed one."
 msgstr ""
 
-#: manual/tutorial/static_search.md:186
+#: manual/tutorial/static_search.md:185
 msgid "**Field operators.** `score:180` means `score = 180`, not at least 180. Use `score>=180`."
 msgstr ""
 
-#: manual/tutorial/static_search.md:188
+#: manual/tutorial/static_search.md:187
 msgid "**Labels are exact.** `rank=s` matches nothing on the static site; write `rank=S` and `momentum=Rising`."
 msgstr ""
 
-#: manual/tutorial/static_search.md:190
+#: manual/tutorial/static_search.md:189
+msgid "**`NOT` inside `OR` reorders.** The relevance count also counts negated terms that match, so for `NOT rank=D OR json` the packages of rank `D` that mention `json` come first. Sort by score when you combine `NOT` with `OR`."
+msgstr ""
+
+#: manual/tutorial/static_search.md:193
 msgid "**Wrong target.** Importing `static_search` from a package that builds for `wasm-gc` or `native` fails, because the package uses JavaScript foreign functions."
 msgstr ""
 
-#: manual/tutorial/static_search.md:196
+#: manual/tutorial/static_search.md:199
 msgid "[static_search design](../design/static_search.md) for the index layout, the relevance count and the complexity of a query."
 msgstr ""
 
-#: manual/tutorial/static_search.md:198
+#: manual/tutorial/static_search.md:201
 msgid "[static_search API](../api/static_search.md) for the MoonBit and JavaScript functions."
 msgstr ""
 
-#: manual/tutorial/static_search.md:200
+#: manual/tutorial/static_search.md:203
 msgid "[score tutorial](score.md) for the numbers that the search filters and sorts."
 msgstr ""
 
-#: manual/tutorial/static_search.md:202
+#: manual/tutorial/static_search.md:205
 msgid "[architecture guide](../architecture.md) for the whole data pipeline."
 msgstr ""

@@ -16,121 +16,127 @@ msgid "cli API"
 msgstr "cli API"
 
 #: manual/api/cli.md:3
+#: manual/api/score.md:3
+#: manual/api/static_search.md:3
+msgid "Purpose"
+msgstr "用途"
+
+#: manual/api/cli.md:5
 msgid "The package `Luna-Flow/mooncake-impact-factor/cli` is an executable for the JavaScript target. It reads the eight signals of a score snapshot from a JSON file, calls [`compute_score_snapshot`](score.md#compute_score_snapshot) and prints the result as JSON. It exists so that programs outside MoonBit, above all the Python index builder, use the MoonBit score rules instead of copying them."
 msgstr "包 `Luna-Flow/mooncake-impact-factor/cli` 是面向 JavaScript 目标的可执行程序。它从 JSON 文件读取分数快照的八个信号，调用 [`compute_score_snapshot`](score.md#compute_score_snapshot)，并以 JSON 输出结果。它的存在是为了让 MoonBit 之外的程序（首先是 Python 索引构建器）直接使用 MoonBit 的评分规则，而不是复制一份。"
 
-#: manual/api/cli.md:10
+#: manual/api/cli.md:12
 msgid "Source: [`src/cli/main.mbt`](../../../src/cli/main.mbt). Its interface file is empty: the package exports no MoonBit names, and its interface is the command line described here."
 msgstr "源码：[`src/cli/main.mbt`](../../../src/cli/main.mbt)。它的接口文件为空：该包不导出任何 MoonBit 名称，其接口就是本页描述的命令行。"
 
-#: manual/api/cli.md:14
+#: manual/api/cli.md:16
 msgid "Building"
 msgstr "构建"
 
-#: manual/api/cli.md:16
-msgid "The package declares `supported_targets = \"js\"` and `pkgtype(kind: \"executable\")`. Build it from the repository root:"
-msgstr "该包声明了 `supported_targets = \"js\"` 和 `pkgtype(kind: \"executable\")`。在仓库根目录下构建："
+#: manual/api/cli.md:18
+msgid "The package cannot be imported: it is an executable with no exported names. It declares `supported_targets = \"js\"` and `pkgtype(kind: \"executable\")`. Build it from the repository root:"
+msgstr "该包无法被导入：它是一个没有导出名称的可执行包。它声明了 `supported_targets = \"js\"` 和 `pkgtype(kind: \"executable\")`。在仓库根目录下构建："
 
-#: manual/api/cli.md:23
+#: manual/api/cli.md:26
 msgid "The index builder expects the result at `_build/js/debug/build/cli/cli.js` and builds it when the file is missing. The script needs a Node.js version with `process.getBuiltinModule` (20.16, 22.3 or later)."
 msgstr "索引构建器期望构建结果位于 `_build/js/debug/build/cli/cli.js`，文件不存在时会自动构建。该脚本需要支持 `process.getBuiltinModule` 的 Node.js 版本（20.16、22.3 或更高）。"
 
-#: manual/api/cli.md:30
+#: manual/api/cli.md:33
 msgid "`score-snapshot` computes one score snapshot from a JSON input file."
 msgstr "`score-snapshot` 根据一个 JSON 输入文件计算一个分数快照。"
 
-#: manual/api/cli.md:36
+#: manual/api/cli.md:39
 msgid "The first argument after the script must be `score-snapshot`. `--input` may appear anywhere after it; the first `--input` that is followed by a value wins, and other arguments are ignored."
 msgstr "脚本之后的第一个参数必须是 `score-snapshot`。`--input` 可以出现在其后的任意位置；以第一个后面跟有值的 `--input` 为准，其他参数会被忽略。"
 
-#: manual/api/cli.md:40
+#: manual/api/cli.md:43
 msgid "Input"
 msgstr "输入"
 
-#: manual/api/cli.md:42
+#: manual/api/cli.md:45
 msgid "The file must contain one JSON object. Each key is optional:"
 msgstr "文件必须包含一个 JSON 对象。每个键都是可选的："
 
-#: manual/api/cli.md:44
+#: manual/api/cli.md:47
 #: manual/design/static_search.md:43
 msgid "Key"
 msgstr "键"
 
-#: manual/api/cli.md:44
+#: manual/api/cli.md:47
 #: manual/architecture.md:44
 msgid "Signal"
 msgstr "信号"
 
-#: manual/api/cli.md:46
+#: manual/api/cli.md:49
 msgid "Current dependents."
 msgstr "当前的依赖方数量。"
 
-#: manual/api/cli.md:47
+#: manual/api/cli.md:50
 msgid "Current recent dependents."
 msgstr "当前的近期依赖方数量。"
 
-#: manual/api/cli.md:48
+#: manual/api/cli.md:51
 msgid "Current downloads."
 msgstr "当前的下载量。"
 
-#: manual/api/cli.md:49
+#: manual/api/cli.md:52
 msgid "Days since the latest release, now."
 msgstr "当前距最新发布的天数。"
 
-#: manual/api/cli.md:50
+#: manual/api/cli.md:53
 msgid "Dependents 30 days ago."
 msgstr "30 天前的依赖方数量。"
 
-#: manual/api/cli.md:51
+#: manual/api/cli.md:54
 msgid "Recent dependents 30 days ago."
 msgstr "30 天前的近期依赖方数量。"
 
-#: manual/api/cli.md:52
+#: manual/api/cli.md:55
 msgid "Downloads 30 days ago."
 msgstr "30 天前的下载量。"
 
-#: manual/api/cli.md:53
+#: manual/api/cli.md:56
 msgid "Days since the latest release, 30 days ago."
 msgstr "30 天前距最新发布的天数。"
 
-#: manual/api/cli.md:55
+#: manual/api/cli.md:58
 msgid "A value is used when it is a JSON number; it is converted to `Int` by truncation toward zero (`12.9` becomes `12`), and values beyond the `Int` range saturate at its bounds. A missing key, a value of any other JSON type (including a numeric string such as `\"20\"`) and a top-level value that is not an object all count as `0`. The score functions then clamp negative values to `0`. Unknown keys are ignored."
 msgstr "值为 JSON 数字时才会被采用：它通过向零截断转换为 `Int`（`12.9` 变为 `12`），超出 `Int` 范围的值会饱和到其边界。缺失的键、其他任何 JSON 类型的值（包括 `\"20\"` 这样的数字字符串）以及顶层不是对象的值都按 `0` 处理。随后评分函数会把负值截为 `0`。未知的键会被忽略。"
 
-#: manual/api/cli.md:75
-#: manual/api/cli.md:92
+#: manual/api/cli.md:78
+#: manual/api/cli.md:95
 msgid "Output"
 msgstr "输出"
 
-#: manual/api/cli.md:77
+#: manual/api/cli.md:80
 msgid "On success the command prints one line, the JSON form of the [`ScoreSnapshot`](score.md#scoresnapshot), and exits with status `0`. Fields appear in declaration order. A `NaN` field, which only arises from a count of `2147483647` or more, is written as the string `\"NaN\"`. For the input above the output is:"
 msgstr "成功时，命令输出一行内容，即 [`ScoreSnapshot`](score.md#scoresnapshot) 的 JSON 形式，并以状态 `0` 退出。字段按声明顺序排列。值为 `NaN` 的字段（只会由 `2147483647` 或更大的计数产生）会写成字符串 `\"NaN\"`。对于上面的输入，输出为："
 
-#: manual/api/cli.md:87
+#: manual/api/cli.md:90
 msgid "Errors"
 msgstr "错误"
 
-#: manual/api/cli.md:89
+#: manual/api/cli.md:92
 msgid "Usage and parse errors print one JSON object with an `error` key to standard output and exit with status `1`:"
 msgstr "用法错误和解析错误会向标准输出打印一个带 `error` 键的 JSON 对象，并以状态 `1` 退出："
 
-#: manual/api/cli.md:92
+#: manual/api/cli.md:95
 msgid "Situation"
 msgstr "情形"
 
-#: manual/api/cli.md:94
+#: manual/api/cli.md:97
 msgid "No arguments, or the first argument is not `score-snapshot`"
 msgstr "没有参数，或第一个参数不是 `score-snapshot`"
 
-#: manual/api/cli.md:95
+#: manual/api/cli.md:98
 msgid "No `--input` followed by a value"
 msgstr "没有后面跟有值的 `--input`"
 
-#: manual/api/cli.md:96
+#: manual/api/cli.md:99
 msgid "The file is not valid JSON"
 msgstr "文件不是合法的 JSON"
 
-#: manual/api/cli.md:98
+#: manual/api/cli.md:101
 msgid "A file that cannot be read is not reported this way: Node.js raises an uncaught `ENOENT` (or similar) error, prints a stack trace to standard error and exits with status `1`. Callers should treat any non-zero status as a failure and parse standard output only on status `0`."
 msgstr "无法读取的文件不会以这种方式报告：Node.js 会抛出未捕获的 `ENOENT`（或类似）错误，向标准错误打印堆栈跟踪，并以状态 `1` 退出。调用方应把任何非零状态视为失败，并且只在状态为 `0` 时解析标准输出。"
 
@@ -138,230 +144,235 @@ msgstr "无法读取的文件不会以这种方式报告：Node.js 会抛出未�
 msgid "score API"
 msgstr "score API"
 
-#: manual/api/score.md:3
+#: manual/api/score.md:5
 msgid "The package `Luna-Flow/mooncake-impact-factor/score` computes the impact score of a MoonBit package from four integer signals, labels the score with a rank and a momentum class, and bundles everything into a `ScoreSnapshot`. Every function is pure and total: it never aborts and has no hidden state."
 msgstr "包 `Luna-Flow/mooncake-impact-factor/score` 根据四个整数信号计算 MoonBit 包的影响力分数，为分数加上等级和势头类别标签，并把所有结果打包成一个 `ScoreSnapshot`。每个函数都是纯函数且是全函数：从不中止，也没有隐藏状态。"
 
-#: manual/api/score.md:8
+#: manual/api/score.md:10
 msgid "Source: [`src/score/impact_factor.mbt`](../../../src/score/impact_factor.mbt). The mathematics behind the formula is in the [score design](../design/score.md)."
 msgstr "源码：[`src/score/impact_factor.mbt`](../../../src/score/impact_factor.mbt)。公式背后的数学见 [score 设计](../design/score.md)。"
 
-#: manual/api/score.md:11
-msgid "Import the package in `moon.pkg`:"
-msgstr "在 `moon.pkg` 中导入该包："
+#: manual/api/score.md:13
+#: manual/api/static_search.md:15
+msgid "Importing"
+msgstr "导入"
 
-#: manual/api/score.md:19
+#: manual/api/score.md:15
+msgid "Add the package to your `moon.pkg`. The examples on this page call it as `@score`; the JSON examples also import `moonbitlang/core/json`."
+msgstr "在你的 `moon.pkg` 中加入本包。本页示例以 `@score` 调用它；JSON 相关示例还导入了 `moonbitlang/core/json`。"
+
+#: manual/api/score.md:24
 msgid "Signals"
 msgstr "信号"
 
-#: manual/api/score.md:21
+#: manual/api/score.md:26
 msgid "Every scoring function takes the same four signals, in this order:"
 msgstr "每个评分函数都按以下顺序接收同样的四个信号："
 
-#: manual/api/score.md:23
+#: manual/api/score.md:28
 msgid "Parameter"
 msgstr "参数"
 
-#: manual/api/score.md:23
-#: manual/api/score.md:191
+#: manual/api/score.md:28
+#: manual/api/score.md:196
 msgid "Meaning"
 msgstr "含义"
 
-#: manual/api/score.md:25
+#: manual/api/score.md:30
 msgid "Number of packages that depend on this package."
 msgstr "依赖本包的包的数量。"
 
-#: manual/api/score.md:26
+#: manual/api/score.md:31
 msgid "Number of those dependents that first appeared in the recent window."
 msgstr "这些依赖方中首次出现在近期窗口内的数量。"
 
-#: manual/api/score.md:27
+#: manual/api/score.md:32
 msgid "Download count, or `0` when unknown."
 msgstr "下载次数，未知时为 `0`。"
 
-#: manual/api/score.md:28
+#: manual/api/score.md:33
 msgid "Whole days since the latest release."
 msgstr "距最新发布的整天数。"
 
-#: manual/api/score.md:30
+#: manual/api/score.md:35
 msgid "The functions do not check that the signals are consistent, for example that `recent_dependents <= dependents`. Negative values are clamped to `0`. The index builder fills the signals from a local registry snapshot; see the [architecture guide](../architecture.md)."
 msgstr "这些函数不检查信号之间是否一致，例如是否满足 `recent_dependents <= dependents`。负值会被截为 `0`。索引构建器根据本地注册表快照填写这些信号；参见[架构指南](../architecture.md)。"
 
-#: manual/api/score.md:35
+#: manual/api/score.md:40
 msgid "Scores"
 msgstr "分数"
 
-#: manual/api/score.md:39
+#: manual/api/score.md:44
 msgid "`compute_score` returns the impact score of a package."
 msgstr "`compute_score` 返回一个包的影响力分数。"
 
-#: manual/api/score.md:45
+#: manual/api/score.md:50
 msgid "With $\\sigma(n) = \\ln(1 + \\max(n, 0))$, $D$ dependents, $R$ recent dependents, $W$ downloads and $t$ days since release, the result is"
 msgstr "设 $\\sigma(n) = \\ln(1 + \\max(n, 0))$，$D$ 为依赖方数量，$R$ 为近期依赖方数量，$W$ 为下载量，$t$ 为距发布的天数，则结果为"
 
-#: manual/api/score.md:52
+#: manual/api/score.md:57
 msgid "where $m(t)$ is `activity_multiplier(t)`. The score is $0$ exactly when all three counts are $0$ or negative, and it never decreases when a count grows. It has no upper limit by design, but for counts below $2^{31} - 1$ it stays below about $2094$."
 msgstr "其中 $m(t)$ 是 `activity_multiplier(t)`。当且仅当三个计数都为 $0$ 或负数时分数为 $0$，并且任何计数增大时分数都不会减小。按设计分数没有上限，但当计数小于 $2^{31} - 1$ 时，分数始终低于约 $2094$。"
 
-#: manual/api/score.md:57
+#: manual/api/score.md:62
 msgid "[!WARNING] A count equal to `2147483647` (the largest `Int`) overflows when $1$ is added, and the score becomes `NaN`. Real registry counts are far below this."
 msgstr "[!WARNING] 等于 `2147483647`（最大的 `Int`）的计数在加 $1$ 时会溢出，分数变为 `NaN`。真实注册表中的计数远低于这个值。"
 
-#: manual/api/score.md:71
+#: manual/api/score.md:76
 msgid "`activity_multiplier` returns the release-recency factor $m(t)$ applied to the whole score."
 msgstr "`activity_multiplier` 返回作用于整个分数的发布时效因子 $m(t)$。"
 
-#: manual/api/score.md:78
+#: manual/api/score.md:83
 msgid "A negative `days_since_release` counts as `0`."
 msgstr "负的 `days_since_release` 按 `0` 处理。"
 
-#: manual/api/score.md:80
+#: manual/api/score.md:85
 msgid "Days since release"
 msgstr "距发布的天数"
 
-#: manual/api/score.md:80
+#: manual/api/score.md:85
 msgid "Multiplier"
 msgstr "乘数"
 
-#: manual/api/score.md:82
+#: manual/api/score.md:87
 msgid "`0` to `30`"
 msgstr "`0` 到 `30`"
 
-#: manual/api/score.md:83
+#: manual/api/score.md:88
 msgid "`31` to `90`"
 msgstr "`31` 到 `90`"
 
-#: manual/api/score.md:84
+#: manual/api/score.md:89
 msgid "`91` to `180`"
 msgstr "`91` 到 `180`"
 
-#: manual/api/score.md:85
+#: manual/api/score.md:90
 msgid "`181` to `365`"
 msgstr "`181` 到 `365`"
 
-#: manual/api/score.md:86
+#: manual/api/score.md:91
 msgid "`366` or more"
 msgstr "`366` 或更多"
 
-#: manual/api/score.md:98
+#: manual/api/score.md:103
 msgid "`clamp_non_negative` returns `value` when it is non-negative and `0` otherwise."
 msgstr "`clamp_non_negative` 在 `value` 非负时返回 `value`，否则返回 `0`。"
 
-#: manual/api/score.md:105
+#: manual/api/score.md:110
 msgid "The scoring functions apply it to every signal. It is public so that callers can prepare signals the same way."
 msgstr "评分函数会对每个信号应用它。它是公开的，以便调用方用同样的方式准备信号。"
 
-#: manual/api/score.md:115
+#: manual/api/score.md:120
 msgid "Labels"
 msgstr "标签"
 
-#: manual/api/score.md:119
+#: manual/api/score.md:124
 msgid "`rank_label` maps a score to one of the rank buckets `S`, `A`, `B`, `C` and `D`."
 msgstr "`rank_label` 把分数映射到等级桶 `S`、`A`、`B`、`C`、`D` 之一。"
 
-#: manual/api/score.md:126
+#: manual/api/score.md:131
 msgid "Rank"
 msgstr "等级"
 
-#: manual/api/score.md:126
-#: manual/api/score.md:155
+#: manual/api/score.md:131
+#: manual/api/score.md:160
 msgid "Condition"
 msgstr "条件"
 
-#: manual/api/score.md:132
+#: manual/api/score.md:137
 msgid "`score < 50.0`, or `score` is `NaN`"
 msgstr "`score < 50.0`，或 `score` 为 `NaN`"
 
-#: manual/api/score.md:144
+#: manual/api/score.md:149
 msgid "`compute_momentum_label` classifies how fast a score grew as `Rising`, `Hot` or `Stable`."
 msgstr "`compute_momentum_label` 把分数增长的快慢分类为 `Rising`、`Hot` 或 `Stable`。"
 
-#: manual/api/score.md:151
+#: manual/api/score.md:156
 msgid "The arguments are the current score $S$, the score 30 days ago $S_{30}$, the growth ratio $r$ and the number of recent dependents $R$. With the growth $G = S - S_{30}$:"
 msgstr "参数依次为当前分数 $S$、30 天前的分数 $S_{30}$、增长率 $r$ 和近期依赖方数量 $R$。设增长量 $G = S - S_{30}$："
 
-#: manual/api/score.md:155
+#: manual/api/score.md:160
 msgid "Label"
 msgstr "标签"
 
-#: manual/api/score.md:157
+#: manual/api/score.md:162
 msgid "$G \\ge 35$ and $r \\ge 0.35$ and $R \\ge 3$"
 msgstr "$G \\ge 35$ 且 $r \\ge 0.35$ 且 $R \\ge 3$"
 
-#: manual/api/score.md:158
+#: manual/api/score.md:163
 msgid "not `Rising`, and $G \\ge 18$ and $r \\ge 0.18$ and $R \\ge 2$"
 msgstr "不是 `Rising`，且 $G \\ge 18$、$r \\ge 0.18$、$R \\ge 2$"
 
-#: manual/api/score.md:159
+#: manual/api/score.md:164
 msgid "otherwise, including any `NaN` argument"
 msgstr "其他情况，包括任一参数为 `NaN`"
 
-#: manual/api/score.md:161
+#: manual/api/score.md:166
 msgid "The function does not check that `growth_ratio` matches the two scores; `compute_score_snapshot` computes it for you."
 msgstr "该函数不检查 `growth_ratio` 是否与两个分数相符；`compute_score_snapshot` 会替你计算它。"
 
-#: manual/api/score.md:172
+#: manual/api/score.md:177
 msgid "Snapshots"
 msgstr "快照"
 
-#: manual/api/score.md:176
+#: manual/api/score.md:181
 msgid "`ScoreSnapshot` is the full result of scoring one package at one point in time."
 msgstr "`ScoreSnapshot` 是对一个包在某一时间点评分的完整结果。"
 
-#: manual/api/score.md:191
+#: manual/api/score.md:196
 msgid "Field"
 msgstr "字段"
 
-#: manual/api/score.md:193
+#: manual/api/score.md:198
 msgid "The current score $S$."
 msgstr "当前分数 $S$。"
 
-#: manual/api/score.md:194
+#: manual/api/score.md:199
 msgid "The score $S_{30}$ computed from the historical signals."
 msgstr "由历史信号计算出的分数 $S_{30}$。"
 
-#: manual/api/score.md:195
+#: manual/api/score.md:200
 msgid "$G = S - S_{30}$; negative when the score fell."
 msgstr "$G = S - S_{30}$；分数下降时为负。"
 
-#: manual/api/score.md:196
+#: manual/api/score.md:201
 msgid "$G / S_{30}$ when $S_{30} > 0$; otherwise $1$ when $G > 0$ and $0$ when $G \\le 0$."
 msgstr "当 $S_{30} > 0$ 时为 $G / S_{30}$；否则 $G > 0$ 时为 $1$，$G \\le 0$ 时为 $0$。"
 
-#: manual/api/score.md:199
+#: manual/api/score.md:204
 msgid "`activity_multiplier(days_since_release)` for the current signals."
 msgstr "当前信号对应的 `activity_multiplier(days_since_release)`。"
 
-#: manual/api/score.md:201
+#: manual/api/score.md:206
 msgid "The fields are read-only outside the package; build a snapshot with `compute_score_snapshot`. `ToJson` writes an object whose keys are the field names, which is the output format of the [`cli` command](cli.md). `FromJson` reads the same format back and raises `@json.JsonDecodeError` when a field is missing or has the wrong type. `Debug` supports `debug_inspect` and `Repr(...)`. The struct does not implement `Eq`; compare snapshots through their fields or their JSON form."
 msgstr "这些字段在包外是只读的；请用 `compute_score_snapshot` 构造快照。`ToJson` 写出一个以字段名为键的对象，这正是 [`cli` 命令](cli.md)的输出格式。`FromJson` 读回同样的格式，字段缺失或类型错误时抛出 `@json.JsonDecodeError`。`Debug` 支持 `debug_inspect` 和 `Repr(...)`。该结构体没有实现 `Eq`；请通过字段或 JSON 形式比较快照。"
 
-#: manual/api/score.md:221
+#: manual/api/score.md:226
 msgid "`compute_score_snapshot` scores a package now and 30 days ago, and derives the growth, both labels and the multiplier in one call."
 msgstr "`compute_score_snapshot` 对一个包分别计算当前和 30 天前的分数，并在一次调用中得出增长量、两个标签和乘数。"
 
-#: manual/api/score.md:228
+#: manual/api/score.md:233
 msgid "The first four arguments are the current signals, the last four the signals as they were 30 days ago, both in the order of the [signals table](#signals):"
 msgstr "前四个参数是当前信号，后四个是 30 天前的信号，二者都按[信号表](#signals)的顺序排列："
 
-#: manual/api/score.md:239
+#: manual/api/score.md:244
 msgid "The momentum label uses the current `recent_dependents`. A package that did not exist 30 days ago is described by historical signals of `0`; its `score_30d_ago` is then $0$ and its growth ratio is $1$."
 msgstr "势头标签使用当前的 `recent_dependents`。30 天前尚不存在的包，其历史信号都为 `0`；此时它的 `score_30d_ago` 为 $0$，增长率为 $1$。"
 
-#: manual/api/score.md:263
-#: manual/api/score.md:269
+#: manual/api/score.md:268
+#: manual/api/score.md:274
 msgid "Deprecated"
 msgstr "已弃用"
 
-#: manual/api/score.md:265
+#: manual/api/score.md:270
 msgid "`ScoreSnapshot` still has three methods that earlier MoonBit versions created implicitly from its derived traits. They are hidden from the interface file and warn when used."
 msgstr "`ScoreSnapshot` 仍保留三个方法，它们是早期 MoonBit 版本根据其派生 trait 隐式生成的。这些方法已从接口文件中隐藏，使用时会产生警告。"
 
-#: manual/api/score.md:269
+#: manual/api/score.md:274
 msgid "Use instead"
 msgstr "替代方案"
 
-#: manual/api/score.md:273
+#: manual/api/score.md:278
 msgid "`Repr(s)`, `debug_inspect` or `@debug.to_string`"
 msgstr "`Repr(s)`、`debug_inspect` 或 `@debug.to_string`"
 
@@ -369,55 +380,55 @@ msgstr "`Repr(s)`、`debug_inspect` 或 `@debug.to_string`"
 msgid "static_search API"
 msgstr "static_search API"
 
-#: manual/api/static_search.md:3
+#: manual/api/static_search.md:5
 msgid "The package `Luna-Flow/mooncake-impact-factor/static_search` holds the MoonBit side of the static publishing mode: a version tag for the static search runtime and the text normalisation used to make search case-insensitive. It builds only for the JavaScript target and is also linked as an ES module that JavaScript code can import."
 msgstr "包 `Luna-Flow/mooncake-impact-factor/static_search` 承载静态发布模式中的 MoonBit 部分：静态搜索运行时的版本标记，以及使搜索不区分大小写的文本规范化。它只为 JavaScript 目标构建，同时还会被链接为一个可供 JavaScript 代码导入的 ES 模块。"
 
-#: manual/api/static_search.md:9
+#: manual/api/static_search.md:11
 msgid "Source: [`src/static_search/search.mbt`](../../../src/static_search/search.mbt). The search index and the query algorithm that run in the browser are described in the [static_search design](../design/static_search.md)."
 msgstr "源码：[`src/static_search/search.mbt`](../../../src/static_search/search.mbt)。在浏览器中运行的搜索索引和查询算法见 [static_search 设计](../design/static_search.md)。"
 
-#: manual/api/static_search.md:13
-msgid "Import the package in `moon.pkg`; the importing package must build for the JavaScript target as well:"
-msgstr "在 `moon.pkg` 中导入该包；导入它的包也必须为 JavaScript 目标构建："
+#: manual/api/static_search.md:17
+msgid "Add the package to your `moon.pkg`; the importing package must build for the JavaScript target as well, and its tests run with `moon test --target js`:"
+msgstr "在你的 `moon.pkg` 中加入本包；导入它的包也必须为 JavaScript 目标构建，其测试用 `moon test --target js` 运行："
 
-#: manual/api/static_search.md:26
+#: manual/api/static_search.md:30
 msgid "`runtime_version` returns the version tag of the static search runtime."
 msgstr "`runtime_version` 返回静态搜索运行时的版本标记。"
 
-#: manual/api/static_search.md:32
+#: manual/api/static_search.md:36
 msgid "The current tag is `\"static-search-js-v1\"`. JavaScript code that loads the compiled module can read it to tell which runtime it got."
 msgstr "当前标记为 `\"static-search-js-v1\"`。加载编译后模块的 JavaScript 代码可以读取它来判断拿到的是哪个运行时。"
 
-#: manual/api/static_search.md:43
+#: manual/api/static_search.md:47
 msgid "`normalize_text` returns `input` converted to lower case."
 msgstr "`normalize_text` 返回转换为小写的 `input`。"
 
-#: manual/api/static_search.md:49
+#: manual/api/static_search.md:53
 msgid "The conversion is JavaScript's `String.prototype.toLowerCase`: the Unicode default lower-case mapping, independent of the user's locale. It may change the length of the string (`\"İ\"` becomes `\"i̇\"`, two UTF-16 code units). It does not trim or collapse white space and does not remove accents."
 msgstr "转换使用 JavaScript 的 `String.prototype.toLowerCase`：Unicode 默认小写映射，与用户的区域设置无关。它可能改变字符串长度（`\"İ\"` 变为 `\"i̇\"`，即两个 UTF-16 码元）。它不会去除或合并空白，也不会移除重音符号。"
 
-#: manual/api/static_search.md:61
+#: manual/api/static_search.md:65
 msgid "JavaScript module"
 msgstr "JavaScript 模块"
 
-#: manual/api/static_search.md:63
+#: manual/api/static_search.md:67
 msgid "`moon build src/static_search --target js` also writes an ES module, because the package's `moon.pkg` links it with"
 msgstr "`moon build src/static_search --target js` 还会写出一个 ES 模块，因为该包的 `moon.pkg` 用以下配置链接它"
 
-#: manual/api/static_search.md:77
+#: manual/api/static_search.md:81
 msgid "The module exports two functions under their MoonBit names:"
 msgstr "该模块以 MoonBit 中的名称导出两个函数："
 
-#: manual/api/static_search.md:79
+#: manual/api/static_search.md:83
 msgid "Export"
 msgstr "导出项"
 
-#: manual/api/static_search.md:79
+#: manual/api/static_search.md:83
 msgid "JavaScript signature"
 msgstr "JavaScript 签名"
 
-#: manual/api/static_search.md:92
+#: manual/api/static_search.md:96
 msgid "[!NOTE] In this release the browser search worker (`frontend/src/static-search.worker.ts`) normalises text in TypeScript and does not import this module; the static site build compiles it to keep it in step with the MoonBit sources."
 msgstr "[!NOTE] 在此版本中，浏览器搜索 worker（`frontend/src/static-search.worker.ts`）用 TypeScript 进行文本规范化，并不导入这个模块；静态站点构建会编译它，使其与 MoonBit 源码保持同步。"
 
@@ -578,114 +589,114 @@ msgid "Always `0`; the registry has no download history."
 msgstr "始终为 `0`；注册表没有下载历史。"
 
 #: manual/architecture.md:53
-msgid "`days_since_release` $- 30$ when the latest release is at least 30 days old, else `0`."
-msgstr "最新发布至少已有 30 天时为 `days_since_release` $- 30$，否则为 `0`。"
+msgid "`days_since_release` $- 30$ when the latest release is at least 30 days old, else `0`; also `0` when the release date is unknown."
+msgstr "最新发布至少已有 30 天时为 `days_since_release` $- 30$，否则为 `0`；发布日期未知时也为 `0`。"
 
 #: manual/architecture.md:55
-msgid "The historical window is the recent window shifted 30 days back, so the two snapshots are computed the same way."
-msgstr "历史窗口就是把近期窗口向前平移 30 天，因此两个快照以同样的方式计算。"
+msgid "The historical window is the recent window shifted 30 days back, so the two snapshots are computed the same way, with two exceptions. Downloads have no history, so the whole download term counts as growth. A package whose release date is unknown gets the multiplier $0.88$ now ($t = 3650$) but $1.12$ for 30 days ago ($t = 0$). With the same counts in both windows and no downloads, its `score_30d_ago` is $1.12 / 0.88 \\approx 1.27$ times its current score, and its growth is negative."
+msgstr "历史窗口是把最近窗口向前平移 30 天，因此两个快照按相同方式计算，但有两个例外。下载量没有历史，因此整个下载项都计入增长。发布日期未知的包当前得到乘数 $0.88$（$t = 3650$），而 30 天前得到 $1.12$（$t = 0$）。在两个窗口计数相同且没有下载量时，它的 `score_30d_ago` 是当前分数的 $1.12 / 0.88 \\approx 1.27$ 倍，增长为负。"
 
-#: manual/architecture.md:57
+#: manual/architecture.md:63
 msgid "**Score.** For each package the builder runs the [`cli`](api/cli.md) command with these eight signals and stores the returned snapshot in the `package_scores` table. The score rules therefore live only in [`src/score`](api/score.md)."
 msgstr "**评分。** 构建器对每个包用这八个信号运行 [`cli`](api/cli.md) 命令，并把返回的快照存入 `package_scores` 表。因此评分规则只存在于 [`src/score`](api/score.md) 中。"
 
-#: manual/architecture.md:61
+#: manual/architecture.md:67
 msgid "**Index text.** An SQLite FTS5 table holds full name, owner, package name, description and keywords for full-text search."
 msgstr "**索引文本。** 一个 SQLite FTS5 表保存完整名称、所有者、包名、描述和关键词，用于全文搜索。"
 
-#: manual/architecture.md:64
+#: manual/architecture.md:70
 msgid "The database tables are `packages`, `versions`, `dependencies`, `package_edges`, `package_scores` and `search_index`."
 msgstr "数据库表包括 `packages`、`versions`、`dependencies`、`package_edges`、`package_scores` 和 `search_index`。"
 
-#: manual/architecture.md:67
+#: manual/architecture.md:73
 msgid "Serving"
 msgstr "服务"
 
-#: manual/architecture.md:69
+#: manual/architecture.md:75
 msgid "Dynamic mode"
 msgstr "动态模式"
 
-#: manual/architecture.md:71
+#: manual/architecture.md:77
 msgid "`npm run dev` or `npm run start` with `MOONCAKE_DB_PATH` serves pages and JSON route handlers backed by the database:"
 msgstr "设置 `MOONCAKE_DB_PATH` 后运行 `npm run dev` 或 `npm run start`，即可提供基于数据库的页面和 JSON 路由处理器："
 
-#: manual/architecture.md:74
+#: manual/architecture.md:80
 msgid "Route"
 msgstr "路由"
 
-#: manual/architecture.md:74
+#: manual/architecture.md:80
 msgid "Returns"
 msgstr "返回"
 
-#: manual/architecture.md:76
+#: manual/architecture.md:82
 msgid "Packages by score descending, then name."
 msgstr "按分数降序、再按名称排列的包。"
 
-#: manual/architecture.md:77
+#: manual/architecture.md:83
 msgid "`Hot` packages by 30-day growth, then score, then name."
 msgstr "按 30 天增长量、再按分数、再按名称排列的 `Hot` 包。"
 
-#: manual/architecture.md:78
+#: manual/architecture.md:84
 msgid "`Rising` packages, ordered like `hot`."
 msgstr "`Rising` 包，排序方式与 `hot` 相同。"
 
-#: manual/architecture.md:79
+#: manual/architecture.md:85
 msgid "`{ \"items\": [...] }`, at most 100 package summaries."
 msgstr "`{ \"items\": [...] }`，最多 100 条包摘要。"
 
-#: manual/architecture.md:82
+#: manual/architecture.md:88
 msgid "The [getting started guide](getting_started.md#3-query-the-apis) lists the search parameters. Queries in the `ast` or `expr` parameters are compiled to SQL `WHERE` clauses; text terms use FTS5."
 msgstr "[入门指南](getting_started.md#3-query-the-apis)列出了搜索参数。`ast` 或 `expr` 参数中的查询会被编译成 SQL `WHERE` 子句；文本项使用 FTS5。"
 
-#: manual/architecture.md:86
+#: manual/architecture.md:92
 msgid "Static mode"
 msgstr "静态模式"
 
-#: manual/architecture.md:88
+#: manual/architecture.md:94
 msgid "`npm run build:static-data` runs the index builder and then `scripts/export_static_json.py`, which writes the feeds, a search index, one file per package and a manifest to `public/data`. `npm run build:static` compiles `static_search` and runs `next build` with `NEXT_PUBLIC_APP_MODE=static`, which exports the site to `out/` without route handlers. In the browser, feeds and package pages are plain file fetches and search runs in a Web Worker; the [static_search design](design/static_search.md) describes it. The `deploy-static` workflow rebuilds and publishes this site daily."
 msgstr "`npm run build:static-data` 先运行索引构建器，再运行 `scripts/export_static_json.py`，后者把各个 feed、一个搜索索引、每个包一个文件以及一个清单写入 `public/data`。`npm run build:static` 编译 `static_search`，并以 `NEXT_PUBLIC_APP_MODE=static` 运行 `next build`，把站点导出到不含路由处理器的 `out/`。在浏览器中，feed 和包页面只是普通的文件请求，搜索则在 Web Worker 中运行；[static_search 设计](design/static_search.md)对此有详细说明。`deploy-static` 工作流每天重建并发布这个站点。"
 
-#: manual/architecture.md:98
+#: manual/architecture.md:104
 msgid "Where the rules live"
 msgstr "规则归属"
 
-#: manual/architecture.md:100
+#: manual/architecture.md:106
 msgid "Every rule has one owner, and the others call it:"
 msgstr "每条规则都只有一个归属者，其他部分调用它："
 
-#: manual/architecture.md:102
+#: manual/architecture.md:108
 msgid "Rule"
 msgstr "规则"
 
-#: manual/architecture.md:102
+#: manual/architecture.md:108
 msgid "Owner"
 msgstr "归属"
 
-#: manual/architecture.md:104
+#: manual/architecture.md:110
 msgid "Score, rank and momentum"
 msgstr "分数、等级和势头"
 
-#: manual/architecture.md:104
+#: manual/architecture.md:110
 msgid "`src/score` (called through `src/cli`)"
 msgstr "`src/score`（通过 `src/cli` 调用）"
 
-#: manual/architecture.md:105
+#: manual/architecture.md:111
 msgid "Signal definitions and time windows"
 msgstr "信号定义和时间窗口"
 
-#: manual/architecture.md:106
+#: manual/architecture.md:112
 msgid "Query language and AST"
 msgstr "查询语言和 AST"
 
-#: manual/architecture.md:107
+#: manual/architecture.md:113
 msgid "SQL compilation and dynamic ordering"
 msgstr "SQL 编译和动态排序"
 
-#: manual/architecture.md:108
+#: manual/architecture.md:114
 msgid "Static evaluation and ordering"
 msgstr "静态求值和排序"
 
-#: manual/architecture.md:110
+#: manual/architecture.md:116
 msgid "`scripts/build_index.py` still contains Python functions `compute_score` and `compute_momentum_label` that mirror the MoonBit rules; the build does not call them."
 msgstr "`scripts/build_index.py` 中仍有与 MoonBit 规则对应的 Python 函数 `compute_score` 和 `compute_momentum_label`；构建过程不会调用它们。"
 
@@ -698,7 +709,6 @@ msgid "These rules add to the Luna-Flow documentation standard for `mooncake_imp
 msgstr "这些规则是对 Luna-Flow 文档标准针对 `mooncake_impact_factor` 的补充。本仓库包含三个 MoonBit 包（`score`、`cli` 和 `static_search`）、一个 Python 索引构建器和一个 Next.js 应用，因此其文档必须让所有这些部分保持一致。"
 
 #: manual/conventions.md:8
-#: manual/index.md:72
 msgid "Scope"
 msgstr "范围"
 
@@ -791,8 +801,8 @@ msgid "**Agreement with the library.** For an input object with integer values i
 msgstr "**与库一致。** 对于值为 `Int` 范围内整数的输入对象，$d$ 在这些值上是恒等映射，因此命令输出的恰好是 `Json(@score.compute_score_snapshot(...))`。"
 
 #: manual/design/cli.md:53
-#: manual/design/score.md:149
-#: manual/design/static_search.md:131
+#: manual/design/score.md:165
+#: manual/design/static_search.md:146
 msgid "Design decisions"
 msgstr "设计决策"
 
@@ -845,8 +855,8 @@ msgid "The command returns labels, not only numbers. If the builder computed `ra
 msgstr "该命令返回标签，而不仅仅是数字。如果构建器根据存储的分数自行计算 `rank_label`，MoonBit 中阈值的修改就会悄无声息地无法反映到数据库中。返回完整快照可以让标签和数字来自同一次求值，因此[快照一致性](score.md#snapshot-consistency)不变量在数据库中同样成立。"
 
 #: manual/design/cli.md:102
-#: manual/design/score.md:209
-#: manual/design/static_search.md:177
+#: manual/design/score.md:230
+#: manual/design/static_search.md:192
 msgid "Correctness / invariants"
 msgstr "正确性与不变量"
 
@@ -863,8 +873,8 @@ msgid "The output does not depend on the current time, the environment or any fi
 msgstr "输出不依赖于当前时间、环境或输入之外的任何文件：所有与时间相关的信号都由调用方计算。"
 
 #: manual/design/cli.md:113
-#: manual/design/score.md:285
-#: manual/design/static_search.md:222
+#: manual/design/score.md:306
+#: manual/design/static_search.md:245
 msgid "Alternatives rejected"
 msgstr "被否决的方案"
 
@@ -881,8 +891,8 @@ msgid "**Command-line flags for each signal** (`--dependents 20`) would make the
 msgstr "**为每个信号提供命令行标志**（`--dependents 20`）会让调用变长，还需要解析器；JSON 与构建器已有的字典直接对应。"
 
 #: manual/design/cli.md:125
-#: manual/design/score.md:300
-#: manual/design/static_search.md:232
+#: manual/design/score.md:321
+#: manual/design/static_search.md:255
 msgid "Boundaries"
 msgstr "边界"
 
@@ -955,220 +965,228 @@ msgid "**Diminishing returns.** One more dependent adds"
 msgstr "**收益递减。** 多一个依赖方会增加"
 
 #: manual/design/score.md:84
-msgid "using $\\ln(1+x) \\le x$ with $x = 1/(D+1)$. The marginal value of a dependent falls like $1/D$, so no single signal can dominate the ranking."
-msgstr "这里用到了 $\\ln(1+x) \\le x$，其中 $x = 1/(D+1)$。一个依赖方的边际价值按 $1/D$ 递减，因此没有哪个单一信号能主导排名。"
+msgid "using $\\ln(1+x) \\le x$ with $x = 1/(D+1)$. The marginal value of a dependent falls like $1/D$. Inflating one count therefore buys little: multiplying $1 + W$ by ten adds exactly $22 \\ln 10 \\approx 50.66$ points to $B$, whatever $W$ was, which is less than the distance between any two neighbouring rank thresholds ($60$, $70$ and $80$ points)."
+msgstr "这里用到了 $\\ln(1+x) \\le x$，取 $x = 1/(D+1)$。一个依赖方的边际价值按 $1/D$ 递减。因此单独抬高一个计数收效甚微：把 $1 + W$ 乘以十，无论 $W$ 原来是多少，都恰好给 $B$ 增加 $22 \\ln 10 \\approx 50.66$ 分，小于任意两个相邻等级阈值之间的距离（$60$、$70$ 和 $80$ 分）。"
 
-#: manual/design/score.md:87
+#: manual/design/score.md:90
 msgid "Rank thresholds as counts"
 msgstr "以计数表示的等级阈值"
 
-#: manual/design/score.md:89
+#: manual/design/score.md:92
 msgid "The rank buckets are thresholds on $S$: `S` from $260$, `A` from $180$, `B` from $110$, `C` from $50$. Inverting $\\sigma$ shows what they mean in counts. With $m = 1$ and a single non-zero signal of weight $w$, the score reaches a threshold $T$ when"
 msgstr "等级桶是 $S$ 上的阈值：`S` 从 $260$ 起，`A` 从 $180$ 起，`B` 从 $110$ 起，`C` 从 $50$ 起。对 $\\sigma$ 求逆即可看出它们对应的计数。当 $m = 1$ 且只有一个权重为 $w$ 的非零信号时，分数在以下条件下达到阈值 $T$"
 
-#: manual/design/score.md:99
+#: manual/design/score.md:102
 msgid "so the smallest integer count is $\\lceil e^{T/w} - 1 \\rceil$:"
 msgstr "所以最小的整数计数是 $\\lceil e^{T/w} - 1 \\rceil$："
 
-#: manual/design/score.md:101
+#: manual/design/score.md:104
 msgid "Threshold"
 msgstr "阈值"
 
-#: manual/design/score.md:101
+#: manual/design/score.md:104
 msgid "Dependents only ($w = 38$)"
 msgstr "仅依赖方（$w = 38$）"
 
-#: manual/design/score.md:101
+#: manual/design/score.md:104
 msgid "Recent dependents only ($w = 27$)"
 msgstr "仅近期依赖方（$w = 27$）"
 
-#: manual/design/score.md:101
+#: manual/design/score.md:104
 msgid "Downloads only ($w = 22$)"
 msgstr "仅下载量（$w = 22$）"
 
-#: manual/design/score.md:108
+#: manual/design/score.md:111
 msgid "For example $38\\ln 937 \\approx 260.02$ while $38\\ln 936 \\approx 259.98$, so 936 dependents are the first count to reach `S` on their own. In practice the signals combine: 20 dependents, 4 recent dependents and 300 downloads already give $B \\approx 284.7$."
 msgstr "例如 $38\\ln 937 \\approx 260.02$，而 $38\\ln 936 \\approx 259.98$，所以 936 是单凭依赖方就能达到 `S` 的最小计数。实际中各信号会叠加：20 个依赖方、4 个近期依赖方和 300 次下载已能得到 $B \\approx 284.7$。"
 
-#: manual/design/score.md:113
+#: manual/design/score.md:116
 msgid "Growth and momentum"
 msgstr "增长与势头"
 
-#: manual/design/score.md:115
+#: manual/design/score.md:118
 msgid "A snapshot evaluates the score twice, on the current signals and on the signals of 30 days ago, and defines"
 msgstr "快照对分数求值两次，一次基于当前信号，一次基于 30 天前的信号，并定义"
 
-#: manual/design/score.md:128
-msgid "Since $m(t) > 0$, $S_{30} = 0$ exactly when every historical count is $0$: the package had no dependents and no downloads 30 days ago. For such a package the relative growth $G / S_{30}$ is undefined, and the implementation uses $1$ (that is, 100 %) instead of $+\\infty$ so that $r$ stays finite and can be stored and sorted."
-msgstr "由于 $m(t) > 0$，$S_{30} = 0$ 当且仅当所有历史计数都为 $0$：该包在 30 天前既没有依赖方，也没有下载量。对这样的包，相对增长 $G / S_{30}$ 没有定义，实现用 $1$（即 100 %）代替 $+\\infty$，使 $r$ 保持有限，便于存储和排序。"
+#: manual/design/score.md:131
+msgid "Since $m(t) > 0$ and every term of $B$ is non-negative, $S_{30} = 0$ exactly when every historical count is $0$ (or negative, which clamps to $0$): the package had no dependents and no downloads 30 days ago. Otherwise at least one $\\sigma$ is at least $\\sigma(1) = \\ln 2$, so"
+msgstr "由于 $m(t) > 0$ 且 $B$ 的每一项都非负，$S_{30} = 0$ 当且仅当所有历史计数都为 $0$（或为负，负值会被截断为 $0$）：该包在 30 天前既没有依赖方，也没有下载量。否则至少有一个 $\\sigma$ 不小于 $\\sigma(1) = \\ln 2$，因此"
 
-#: manual/design/score.md:134
+#: manual/design/score.md:140
+msgid "the smallest weight times the smallest multiplier. The score therefore takes no values in $(0, 13.42)$, and $G / S_{30}$ is never divided by a tiny denominator. For $S_{30} = 0$ the relative growth is undefined, and the implementation uses $1$ (that is, 100 %) instead of $+\\infty$ so that $r$ stays finite and can be stored and sorted. A new package with $S \\ge 35$ and three recent dependents is therefore `Rising`."
+msgstr "即最小权重乘以最小乘数。因此分数不会取 $(0, 13.42)$ 中的值，$G / S_{30}$ 永远不会除以很小的分母。当 $S_{30} = 0$ 时，相对增长没有定义，实现用 $1$（即 100 %）代替 $+\\infty$，使 $r$ 保持有限，便于存储和排序。因此，一个 $S \\ge 35$ 且有三个最近依赖方的新包会被标为 `Rising`。"
+
+#: manual/design/score.md:147
 msgid "The momentum label tests three conditions at two levels:"
 msgstr "势头标签在两个层级上检验三个条件："
 
-#: manual/design/score.md:141
-msgid "The `Rising` conditions imply the `Hot` conditions, so the classes are nested levels of one scale rather than independent tags. When $S_{30} > 0$, $r \\ge \\rho$ is the same as $S \\ge (1 + \\rho) S_{30}$, so `Rising` asks for a score at least $1.35$ times the old one *and* an absolute gain of $35$ points. The absolute bound stops tiny packages from rising by going from $1$ to $2$ points; the relative bound stops large packages from rising through the noise of a big base."
-msgstr "`Rising` 的条件蕴含 `Hot` 的条件，因此这些类别是同一刻度上嵌套的层级，而不是相互独立的标记。当 $S_{30} > 0$ 时，$r \\ge \\rho$ 等价于 $S \\ge (1 + \\rho) S_{30}$，所以 `Rising` 要求分数至少是旧分数的 $1.35$ 倍，*并且*绝对增长 $35$ 分。绝对下限防止很小的包从 $1$ 分涨到 $2$ 分就算作上升；相对下限防止大包仅凭庞大基数上的噪声就算作上升。"
+#: manual/design/score.md:154
+msgid "The `Rising` conditions imply the `Hot` conditions, so the classes are nested levels of one scale rather than independent tags. When $S_{30} > 0$, $r \\ge \\rho$ is the same as $S \\ge (1 + \\rho) S_{30}$, so `Rising` asks for a score at least $1.35$ times the old one *and* an absolute gain of $35$ points. Each bound covers a case the other misses. The absolute bound stops small packages from rising on a small change: a package that goes from one download to three ($S$ from about $15.2$ to $30.5$ with $m = 1$) doubles its score, $r = 1$, but gains only about $15$ points. The relative bound stops large packages from rising through the noise of a big base: at $S_{30} = 1000$, a gain of $35$ points is $r = 0.035$."
+msgstr "`Rising` 的条件蕴含 `Hot` 的条件，因此这些类别是同一刻度上嵌套的层级，而不是相互独立的标记。当 $S_{30} > 0$ 时，$r \\ge \\rho$ 等价于 $S \\ge (1 + \\rho) S_{30}$，所以 `Rising` 要求分数至少是旧分数的 $1.35$ 倍，*并且*绝对增长 $35$ 分。两个下限各自覆盖了对方漏掉的情形。绝对下限防止小包因很小的变化而上升：一个包的下载量从一次变为三次（$m = 1$ 时 $S$ 从约 $15.2$ 变为 $30.5$），分数翻倍，$r = 1$，但只增长约 $15$ 分。相对下限防止大包仅凭庞大基数上的噪声就上升：在 $S_{30} = 1000$ 时，增长 $35$ 分只是 $r = 0.035$。"
 
-#: manual/design/score.md:151
+#: manual/design/score.md:167
 msgid "Logarithms of counts"
 msgstr "对计数取对数"
 
-#: manual/design/score.md:153
+#: manual/design/score.md:169
 msgid "**Problem.** Dependent and download counts are heavy-tailed: a few packages have thousands, most have none. A linear score would make the ranking a leaderboard of the largest package in each signal."
 msgstr "**问题。** 依赖方数量和下载量呈重尾分布：少数包有成千上万，大多数包一个也没有。线性分数会让排名变成各信号中最大包的排行榜。"
 
-#: manual/design/score.md:157
+#: manual/design/score.md:173
 msgid "**Options.** Raw counts; ranks or percentiles within the registry; square roots; logarithms."
 msgstr "**选项。** 原始计数；注册表内的名次或百分位；平方根；对数。"
 
-#: manual/design/score.md:160
+#: manual/design/score.md:176
 msgid "**Choice.** $\\ln(1 + n)$. The shift by one keeps $\\sigma(0) = 0$ finite and makes $S = 0$ exactly when a package has no signal at all. Percentiles would need the whole registry and change a package's score when other packages appear, which breaks the CLI's one-package-at-a-time contract. Square roots still grow without the scale invariance derived above."
 msgstr "**选择。** $\\ln(1 + n)$。平移 1 让 $\\sigma(0) = 0$ 保持有限，并使 $S = 0$ 恰好对应一个包完全没有信号的情况。百分位需要整个注册表，并会在出现其他包时改变一个包的分数，从而破坏 CLI 一次一个包的约定。平方根仍然会增长，却没有上面推导出的尺度不变性。"
 
-#: manual/design/score.md:166
+#: manual/design/score.md:182
 msgid "Additive weights"
 msgstr "加性权重"
 
-#: manual/design/score.md:168
+#: manual/design/score.md:184
 msgid "**Problem.** The three signals must be combined into one number."
 msgstr "**问题。** 三个信号必须合并成一个数。"
 
-#: manual/design/score.md:170
+#: manual/design/score.md:186
 msgid "**Choice.** A weighted sum of logarithms with weights $38 : 27 : 22$. Total dependents capture established adoption and weigh most. Downloads are an external popularity hint that is missing for packages the builder could not look up, so they weigh least. Recent dependents are counted *on top of* total dependents, so a dependent from the recent window contributes to both terms: the recent term is a bonus for current adoption, not a separate population. The weights are editorial choices of this project, not fitted parameters."
 msgstr "**选择。** 以 $38 : 27 : 22$ 为权重的对数加权和。依赖方总数反映已经确立的采用度，权重最大。下载量是外部的流行度提示，对于构建器查不到的包会缺失，因此权重最小。近期依赖方是在依赖方总数*之上*额外计数的，所以近期窗口中的一个依赖方会同时贡献两项：近期项是对当前采用的奖励，而不是另一个独立的群体。这些权重是本项目的编辑性选择，而不是拟合得到的参数。"
 
-#: manual/design/score.md:178
+#: manual/design/score.md:194
 msgid "A recency multiplier, not a recency term"
 msgstr "用时效乘数而非时效项"
 
-#: manual/design/score.md:180
+#: manual/design/score.md:196
 msgid "**Problem.** Old, unmaintained packages should not hold their rank forever, but age must not outweigh adoption."
 msgstr "**问题。** 老旧、无人维护的包不应永远保持其等级，但年龄不能压过采用度。"
 
-#: manual/design/score.md:183
-msgid "**Choice.** A multiplicative step function between $0.88$ and $1.12$. Because it multiplies $B$, it changes the score by at most $\\pm 12\\,\\%$, and the ratio between the freshest and the oldest package with the same signals is $1.12 / 0.88 \\approx 1.27$. That can move a package across one rank boundary (for example $B = 240$ gives `S` at $1.12$ and `A` at $0.88$) but never turns an unused package into a ranked one: $B = 0$ stays $0$. An additive age term would give unused but freshly released packages a positive score."
-msgstr "**选择。** 一个介于 $0.88$ 与 $1.12$ 之间的乘性阶梯函数。因为它乘在 $B$ 上，最多使分数变化 $\\pm 12\\,\\%$，信号相同时最新与最旧的包之间的比值为 $1.12 / 0.88 \\approx 1.27$。这可以让一个包跨过一个等级边界（例如 $B = 240$ 在 $1.12$ 时为 `S`，在 $0.88$ 时为 `A`），但永远不会把无人使用的包变成有等级的包：$B = 0$ 仍然是 $0$。加性的年龄项则会给无人使用但刚发布的包一个正分。"
+#: manual/design/score.md:199
+msgid "**Choice.** A multiplicative step function between $0.88$ and $1.12$. Because it multiplies $B$, it changes the score by at most $\\pm 12\\,\\%$, and the ratio between the freshest and the oldest package with the same signals is $1.12 / 0.88 \\approx 1.27$. That can move a package across one rank boundary (for example $B = 240$ gives `S` at $1.12$ and `A` at $0.88$), but never across two: the scores $m(t)\\,B$ of one package lie in $[0.88\\,B,\\ 1.12\\,B]$, an interval whose ends differ by the factor $1.27$, while neighbouring thresholds differ by at least $260 / 180 \\approx 1.44$ ($180 / 110 \\approx 1.64$, $110 / 50 = 2.2$), so the interval contains at most one threshold. Nor does it turn an unused package into a ranked one: $B = 0$ stays $0$. An additive age term would give unused but freshly released packages a positive score."
+msgstr "**选择。** 一个介于 $0.88$ 与 $1.12$ 之间的乘性阶梯函数。因为它乘在 $B$ 上，最多使分数变化 $\\pm 12\\,\\%$，信号相同时最新与最旧的包之间的比值为 $1.12 / 0.88 \\approx 1.27$。这可以让一个包跨过一个等级边界（例如 $B = 240$ 在 $1.12$ 时为 `S`，在 $0.88$ 时为 `A`），但不会跨过两个：同一个包的分数 $m(t)\\,B$ 落在 $[0.88\\,B,\\ 1.12\\,B]$ 中，这个区间两端相差 $1.27$ 倍，而相邻阈值至少相差 $260 / 180 \\approx 1.44$ 倍（$180 / 110 \\approx 1.64$，$110 / 50 = 2.2$），所以该区间至多包含一个阈值。它也不会把无人使用的包变成有等级的包：$B = 0$ 仍然是 $0$。加性的年龄项则会给无人使用但刚发布的包一个正分。"
 
-#: manual/design/score.md:191
+#: manual/design/score.md:212
 msgid "Fixed thresholds for labels"
 msgstr "标签使用固定阈值"
 
-#: manual/design/score.md:193
+#: manual/design/score.md:214
 msgid "**Problem.** The web pages need short, stable labels."
 msgstr "**问题。** 网页需要简短、稳定的标签。"
 
-#: manual/design/score.md:195
+#: manual/design/score.md:216
 msgid "**Choice.** Constant thresholds on $S$ and $G$. Labels therefore mean the same in every snapshot and need no registry-wide statistics. Quantile buckets (\"top 5 %\") would need the whole registry, like percentile scores."
 msgstr "**选择。** 在 $S$ 和 $G$ 上使用常数阈值。因此标签在每个快照中含义相同，也不需要全注册表的统计量。分位数桶（\"前 5 %\"）和百分位分数一样，需要整个注册表。"
 
-#: manual/design/score.md:199
+#: manual/design/score.md:220
 msgid "Integers in, `Double` out"
 msgstr "整数输入，`Double` 输出"
 
-#: manual/design/score.md:201
+#: manual/design/score.md:222
 msgid "**Problem.** The signals are counts, but the score is real-valued."
 msgstr "**问题。** 信号是计数，而分数是实数。"
 
-#: manual/design/score.md:203
+#: manual/design/score.md:224
 msgid "**Choice.** All inputs are `Int`, and negative values are clamped instead of rejected, so every function is total and can be called on raw database values. The scoring functions never abort and return no `Result`; the only non-finite output is the overflow described under [numerical accuracy](#numerical-accuracy)."
 msgstr "**选择。** 所有输入都是 `Int`，负值被截断而不是拒绝，因此每个函数都是全函数，可以直接作用于数据库中的原始值。评分函数从不中止，也不返回 `Result`；唯一的非有限输出是[数值精度](#numerical-accuracy)中描述的溢出。"
 
-#: manual/design/score.md:211
+#: manual/design/score.md:232
 msgid "Monotonicity"
 msgstr "单调性"
 
-#: manual/design/score.md:213
+#: manual/design/score.md:234
 msgid "For counts in $[0, 2^{31} - 2]$, $S$ is non-decreasing in $D$, $R$ and $W$, and strictly increasing as long as the count stays below $2^{24}$: $\\sigma$ is strictly increasing, the weights are positive and $m(t) > 0$, so"
 msgstr "对于 $[0, 2^{31} - 2]$ 内的计数，$S$ 关于 $D$、$R$ 和 $W$ 单调不减，并且只要计数保持在 $2^{24}$ 以下就严格递增：$\\sigma$ 严格递增，权重为正，且 $m(t) > 0$，因此"
 
-#: manual/design/score.md:221
+#: manual/design/score.md:242
 msgid "Above $2^{24}$ the conversion through `Float` (below) can map neighbouring counts to the same value, so strict growth degrades to non-decreasing. $S$ is non-increasing in $t$ because $m$ is. The blackbox tests in `impact_factor_test.mbt` check instances of this for dependents, downloads and release age."
 msgstr "超过 $2^{24}$ 后，经由 `Float` 的转换（见下文）可能把相邻计数映射到同一个值，严格递增因此退化为单调不减。$S$ 关于 $t$ 单调不增，因为 $m$ 如此。`impact_factor_test.mbt` 中的黑盒测试针对依赖方、下载量和发布年龄检查了这一性质的实例。"
 
-#: manual/design/score.md:227
+#: manual/design/score.md:248
 msgid "Range"
 msgstr "取值范围"
 
-#: manual/design/score.md:229
+#: manual/design/score.md:250
 msgid "$S \\ge 0$, with equality exactly when $D, R, W \\le 0$. For counts up to $2^{31} - 2$, $\\sigma \\le \\ln 2^{31} \\approx 21.49$, so"
 msgstr "$S \\ge 0$，且当且仅当 $D, R, W \\le 0$ 时取等号。对于不超过 $2^{31} - 2$ 的计数，$\\sigma \\le \\ln 2^{31} \\approx 21.49$，因此"
 
-#: manual/design/score.md:236
+#: manual/design/score.md:257
 msgid "Labels are total"
 msgstr "标签是全函数"
 
-#: manual/design/score.md:238
+#: manual/design/score.md:259
 msgid "`rank_label` and `compute_momentum_label` return one of their labels for every input. Every comparison with `NaN` is false, so a `NaN` score is ranked `D` and has `Stable` momentum."
 msgstr "`rank_label` 和 `compute_momentum_label` 对每个输入都返回它们的某个标签。与 `NaN` 的任何比较都为假，所以 `NaN` 分数的等级为 `D`，势头为 `Stable`。"
 
-#: manual/design/score.md:242
+#: manual/design/score.md:263
 msgid "Numerical accuracy"
 msgstr "数值精度"
 
-#: manual/design/score.md:244
+#: manual/design/score.md:265
 msgid "`log_signal` converts $n + 1$ to `Float` before taking the logarithm in `Double`. Every integer up to $2^{24}$ is exact in `Float`; above it the conversion rounds to nearest with relative error $|\\delta| \\le u = 2^{-24}$. Then"
 msgstr "`log_signal` 先把 $n + 1$ 转换为 `Float`，再在 `Double` 中取对数。不超过 $2^{24}$ 的每个整数在 `Float` 中都是精确的；超过之后，转换按就近舍入，相对误差为 $|\\delta| \\le u = 2^{-24}$。于是"
 
-#: manual/design/score.md:257
+#: manual/design/score.md:278
 msgid "and the error in $S$ from this conversion is at most $1.12 \\cdot 87 \\cdot u/(1-u) \\approx 5.8 \\times 10^{-6}$, on top of the ordinary `Double` rounding of a few operations. The index builder still contains an unused Python copy of the formula (`compute_score` in `scripts/build_index.py`) that calls `math.log1p` without the `Float` step; it agrees with the MoonBit result to this bound plus a few units in the last place. The database itself is filled through the MoonBit CLI."
 msgstr "这一转换在 $S$ 中造成的误差至多为 $1.12 \\cdot 87 \\cdot u/(1-u) \\approx 5.8 \\times 10^{-6}$，此外还有几次运算中普通的 `Double` 舍入误差。索引构建器中仍有一份未被使用的 Python 公式副本（`scripts/build_index.py` 中的 `compute_score`），它调用 `math.log1p` 而没有经过 `Float`；它与 MoonBit 结果的差距在上述界限再加上末位几个单位以内。数据库本身是通过 MoonBit CLI 填充的。"
 
-#: manual/design/score.md:265
+#: manual/design/score.md:286
 msgid "The addition $n + 1$ is done in `Int`. For $n = 2^{31} - 1$ it wraps to $-2^{31}$, the logarithm of a negative number is `NaN`, and the score is `NaN`."
 msgstr "加法 $n + 1$ 在 `Int` 中进行。当 $n = 2^{31} - 1$ 时它会回绕为 $-2^{31}$，负数的对数是 `NaN`，于是分数为 `NaN`。"
 
-#: manual/design/score.md:269
+#: manual/design/score.md:290
 msgid "Snapshot consistency"
 msgstr "快照一致性"
 
-#: manual/design/score.md:271
+#: manual/design/score.md:292
 msgid "`compute_score_snapshot` computes every field from the same two calls of `compute_score`, so `score_growth_30d == score - score_30d_ago` holds exactly (it is the same floating-point subtraction), and `rank_label` and `momentum_label` are always the labels of the stored numbers."
 msgstr "`compute_score_snapshot` 的每个字段都来自同样的两次 `compute_score` 调用，所以 `score_growth_30d == score - score_30d_ago` 严格成立（这就是同一次浮点减法），并且 `rank_label` 与 `momentum_label` 始终是所存数值对应的标签。"
 
-#: manual/design/score.md:276
+#: manual/design/score.md:297
 msgid "How scores are ranked"
 msgstr "分数如何排序"
 
-#: manual/design/score.md:278
+#: manual/design/score.md:299
 msgid "The package only computes scores; consumers sort them. Every ordering in the repository breaks ties deterministically: the ranked feeds and the default search order use `score` descending, then `full_name` ascending, and the `Hot` and `Rising` feeds use `score_growth_30d` descending, then `score`, then `full_name`. The [static_search design](static_search.md) gives the orderings of the browser search."
 msgstr "本包只计算分数，由使用方进行排序。仓库中的每种排序都以确定的方式处理并列：排名 feed 和默认搜索顺序先按 `score` 降序，再按 `full_name` 升序；`Hot` 和 `Rising` feed 先按 `score_growth_30d` 降序，再按 `score`，最后按 `full_name`。浏览器搜索的排序见 [static_search 设计](static_search.md)。"
 
-#: manual/design/score.md:287
+#: manual/design/score.md:308
 msgid "**PageRank-style centrality** on the dependency graph would reward being depended on by important packages, but it needs the whole graph, an iterative solver and a damping parameter, and it cannot be explained on a package page. The direct dependent count is the first step of that iteration and is enough for a registry of this size."
 msgstr "依赖图上的 **PageRank 式中心性**会奖励被重要包依赖的包，但它需要整张图、迭代求解器和阻尼参数，而且无法在包页面上解释清楚。直接依赖方计数是该迭代的第一步，对这种规模的注册表已经足够。"
 
-#: manual/design/score.md:292
+#: manual/design/score.md:313
 msgid "**Transitive dependents** were not used: they count the same downstream package many times through every path and favour low-level packages even more than the logarithm can correct."
 msgstr "**传递依赖方**没有被采用：它们会沿每条路径把同一个下游包计算多次，比对数所能修正的更偏向底层包。"
 
-#: manual/design/score.md:295
+#: manual/design/score.md:316
 msgid "**Learning the weights** from a labelled ranking would need labels that do not exist; the fixed weights are stated in the code and in this page."
 msgstr "**从带标注的排名中学习权重**需要并不存在的标注；固定权重写在代码和本页中。"
 
-#: manual/design/score.md:297
+#: manual/design/score.md:318
 msgid "**Returning `Result` for negative inputs** would push error handling into every caller for a condition that has an obvious meaning (no signal)."
 msgstr "**对负输入返回 `Result`** 会把错误处理推给每个调用方，而这种情况本有显而易见的含义（没有信号）。"
 
-#: manual/design/score.md:302
+#: manual/design/score.md:323
 msgid "The score measures adoption inside one registry snapshot. It does not measure code quality, correctness, security or maintenance effort."
 msgstr "分数衡量的是单个注册表快照内的采用度。它不衡量代码质量、正确性、安全性或维护投入。"
 
-#: manual/design/score.md:304
+#: manual/design/score.md:325
 msgid "The package takes the signals as given. Collecting them, deciding which dependents are recent and which downloads are trusted is the index builder's job, described in the [architecture guide](../architecture.md)."
 msgstr "本包按原样接收信号。收集信号、判定哪些依赖方算近期以及哪些下载量可信，是索引构建器的工作，见[架构指南](../architecture.md)。"
 
-#: manual/design/score.md:307
+#: manual/design/score.md:328
 msgid "The builder currently passes `0` as the historical download count, so `score_growth_30d` contains the whole download term $22\\,m(t)\\,\\sigma(W)$ of the current score. Read growth together with the dependent counts, which the momentum label does by requiring recent dependents."
 msgstr "构建器目前把历史下载量传为 `0`，因此 `score_growth_30d` 包含了当前分数中完整的下载项 $22\\,m(t)\\,\\sigma(W)$。请把增长与依赖方计数一起解读，势头标签正是通过要求近期依赖方做到这一点的。"
 
-#: manual/design/score.md:312
+#: manual/design/score.md:333
 msgid "There is no normalisation across packages, no time decay inside a window and no confidence interval: a score is a deterministic function of four integers."
 msgstr "不存在跨包的规范化，不存在窗口内的时间衰减，也不存在置信区间：分数是四个整数的确定性函数。"
 
-#: manual/design/score.md:315
+#: manual/design/score.md:336
 msgid "Counts of `2147483647` are not supported (the score becomes `NaN`)."
 msgstr "不支持值为 `2147483647` 的计数（分数会变为 `NaN`）。"
+
+#: manual/design/score.md:337
+msgid "The builder passes `0` as the historical days since release when the release date is unknown, while the current value is `3650`; such packages get the multiplier $1.12$ 30 days ago and $0.88$ now, which shows as negative growth. The [architecture guide](../architecture.md) gives the signal definitions."
+msgstr "当发布日期未知时，构建器把历史发布天数传为 `0`，而当前值为 `3650`；这类包在 30 天前得到乘数 $1.12$，现在得到 $0.88$，表现为负增长。[架构指南](../architecture.md)给出了信号的定义。"
 
 #: manual/design/static_search.md:1
 msgid "static_search design"
@@ -1313,8 +1331,8 @@ msgid "the label equals $v$ exactly."
 msgstr "标签与 $v$ 完全相等。"
 
 #: manual/design/static_search.md:74
-msgid "$x \\ge v$ for `>=`, $x \\le v$ for `<=`, $x = v$ otherwise; false when $v$ is not a number."
-msgstr "`>=` 时为 $x \\ge v$，`<=` 时为 $x \\le v$，其他情况为 $x = v$；$v$ 不是数字时为假。"
+msgid "$x \\ge v$ for `>=`, $x \\le v$ for `<=`, $x = v$ otherwise, with $v$ converted by JavaScript `Number`; false when the conversion is not finite. An empty $v$ converts to $0$."
+msgstr "`>=` 时为 $x \\ge v$，`<=` 时为 $x \\le v$，其他情况为 $x = v$，其中 $v$ 用 JavaScript 的 `Number` 转换；转换结果不是有限数时为假。空的 $v$ 转换为 $0$。"
 
 #: manual/design/static_search.md:75
 msgid "the flag equals `v == \"true\"`."
@@ -1345,150 +1363,166 @@ msgid "**Conjunctions do not reorder.** Let $\\varphi = t_1 \\land \\dots \\land
 msgstr "**合取不会改变顺序。** 设 $\\varphi = t_1 \\land \\dots \\land t_k$，其中各项都为正项。每个结果都满足所有 $t_i$，所以对所有结果 $\\operatorname{rel}(p) = k$，顺序就是分数顺序。只有当公式含有 `OR` 或 `NOT` 时相关度才起作用。"
 
 #: manual/design/static_search.md:102
-msgid ""
-"**Disjunctions rank by coverage.** For $\\varphi = t_1 \\lor \\dots \\lor t_k$, $\\operatorname{rel}(p)$ is the number of alternatives that $p$ satisfies, so a package that matches every alternative comes first. Under a negated leaf $\\lnot t$, every result has $p \\n"
-"ot\\models t$, so that leaf contributes $0$."
-msgstr ""
-"**析取按覆盖度排序。** 对于 $\\varphi = t_1 \\lor \\dots \\lor t_k$，$\\operatorname{rel}(p)$ 是 $p$ 满足的备选项个数，所以匹配所有备选项的包排在最前。对于取反的叶子 $\\lnot t$，每个结果都有 $p \\n"
-"ot\\models t$，因此该叶子贡献 $0$。"
+msgid "**Disjunctions rank by coverage.** For $\\varphi = t_1 \\lor \\dots \\lor t_k$ with positive terms, $\\operatorname{rel}(p)$ is the number of alternatives that $p$ satisfies, so a package that matches every alternative comes first."
+msgstr "**析取按覆盖度排序。** 对于由正项构成的 $\\varphi = t_1 \\lor \\dots \\lor t_k$，$\\operatorname{rel}(p)$ 是 $p$ 满足的备选项个数，所以匹配所有备选项的包排在最前。"
 
-#: manual/design/static_search.md:107
+#: manual/design/static_search.md:106
+msgid "**Negated leaves count against the user.** A negated leaf $\\lnot t$ contributes $1$ to $\\operatorname{rel}(p)$ exactly when $p \\models t$, the case the user wanted to exclude. When $\\lnot t$ must hold for every result, for example as a conjunct of the root, no result satisfies $t$ and the leaf contributes $0$ to all of them, so the order is unaffected. Under a disjunction it is not: for $\\varphi = \\lnot t_1 \\lor t_2$,"
+msgstr "**取反的叶子反而加分。** 取反的叶子 $\\lnot t$ 恰在 $p \\models t$ 时为 $\\operatorname{rel}(p)$ 贡献 $1$，而这正是用户想排除的情形。当 $\\lnot t$ 必须对每个结果成立时（例如作为根节点的一个合取项），没有结果满足 $t$，该叶子对所有结果贡献 $0$，顺序不受影响。在析取之下则不然：对于 $\\varphi = \\lnot t_1 \\lor t_2$，"
+
+#: manual/design/static_search.md:117
+msgid "so a result that satisfies both $t_1$ and $t_2$ (relevance $2$) comes before one that satisfies only $t_2$ (relevance $1$), and results that satisfy neither (relevance $0$) come last, although $\\lnot t_1$ holds for them. The same applies to every leaf below a negated group."
+msgstr "因此同时满足 $t_1$ 和 $t_2$ 的结果（相关度 $2$）排在只满足 $t_2$ 的结果（相关度 $1$）之前，而两者都不满足的结果（相关度 $0$）排在最后，尽管 $\\lnot t_1$ 对它们成立。取反分组之下的每个叶子也是如此。"
+
+#: manual/design/static_search.md:122
 msgid "Relevance is therefore a coordination-level match[^coord], not a text statistic: it ignores term frequency, field length and how rare a term is."
 msgstr "因此相关度是一种协调级匹配[^coord]，而不是文本统计量：它忽略词频、字段长度以及词的稀有程度。"
 
-#: manual/design/static_search.md:110
+#: manual/design/static_search.md:125
 msgid "Coordination-level matching ranks documents by the number of query terms they contain; it is the simplest ranked retrieval model and predates tf–idf weighting (Salton and McGill, *Introduction to Modern Information Retrieval*, 1983)."
 msgstr "协调级匹配按文档包含的查询词数量为文档排序；它是最简单的排序检索模型，早于 tf–idf 加权（Salton 与 McGill，*Introduction to Modern Information Retrieval*，1983）。"
 
-#: manual/design/static_search.md:115
+#: manual/design/static_search.md:130
 msgid "Sort orders and tie-breaking"
 msgstr "排序方式与并列处理"
 
-#: manual/design/static_search.md:117
+#: manual/design/static_search.md:132
 msgid "The other sort keys are `score`, `growth`, `downloads`, `dependents`, `recent`, `updated` (the release year) and `name`. Each comparison is"
 msgstr "其他排序键为 `score`、`growth`、`downloads`、`dependents`、`recent`、`updated`（发布年份）和 `name`。每次比较为"
 
-#: manual/design/static_search.md:124
+#: manual/design/static_search.md:139
 msgid "where $x \\Vert y$ means \"$x$ if non-zero, else $y$\" and $s = -1$ for descending, $+1$ for ascending order. The default order is ascending for `name` and descending for the other keys. Because $s$ multiplies the whole expression, a descending sort also reverses the name order of ties. Full names are unique, so ties are always resolved and the same index and query give the same order."
 msgstr "其中 $x \\Vert y$ 表示\"$x$ 非零时取 $x$，否则取 $y$\"，降序时 $s = -1$，升序时 $s = +1$。`name` 默认升序，其他键默认降序。由于 $s$ 乘在整个表达式上，降序排序也会反转并列项的名称顺序。完整名称是唯一的，因此并列总能被打破，同样的索引和查询总是给出同样的顺序。"
 
-#: manual/design/static_search.md:133
+#: manual/design/static_search.md:148
 msgid "Scan a forward index instead of building an inverted one"
 msgstr "扫描正排索引，而不是构建倒排索引"
 
-#: manual/design/static_search.md:135
+#: manual/design/static_search.md:150
 msgid "**Problem.** The browser needs to answer substring, numeric and Boolean queries without a database."
 msgstr "**问题。** 浏览器需要在没有数据库的情况下回答子串、数值和布尔查询。"
 
-#: manual/design/static_search.md:138
+#: manual/design/static_search.md:153
 msgid "**Options.** Ship SQLite compiled to WebAssembly with the FTS5 index; build an inverted index (term → packages) at export time; scan an array of records."
 msgstr "**选项。** 携带编译为 WebAssembly 的 SQLite 及其 FTS5 索引；在导出时构建倒排索引（词 → 包）；扫描记录数组。"
 
-#: manual/design/static_search.md:142
+#: manual/design/static_search.md:157
 msgid "**Choice.** A linear scan. The registry has a few thousand packages, so one query touches a few thousand short records, which is cheap for a worker. Substring matching (`pars` finds `parser`) and numeric filters need no tokenizer and no posting lists, and the index stays a plain JSON file that the export script writes in a few lines. A WebAssembly database would add a large download to every visit."
 msgstr "**选择。** 线性扫描。注册表只有几千个包，所以一次查询只涉及几千条短记录，对 worker 来说开销很小。子串匹配（`pars` 能找到 `parser`）和数值过滤不需要分词器和倒排表，索引也保持为一个导出脚本几行代码就能写出的普通 JSON 文件。WebAssembly 数据库会给每次访问增加大量下载。"
 
-#: manual/design/static_search.md:148
+#: manual/design/static_search.md:163
 msgid "Run the search in a Web Worker"
 msgstr "在 Web Worker 中运行搜索"
 
-#: manual/design/static_search.md:150
+#: manual/design/static_search.md:165
 msgid "**Problem.** Parsing the whole index and sorting it on the main thread would block rendering."
 msgstr "**问题。** 在主线程上解析整个索引并排序会阻塞渲染。"
 
-#: manual/design/static_search.md:153
+#: manual/design/static_search.md:168
 msgid "**Choice.** The worker loads `search-index.json` once and keeps the records in memory; queries are messages with an `id`, and each reply resolves the request with the same `id`, so concurrent queries cannot be confused. The URL carries `generated_at` from the manifest as a version parameter, and a new manifest terminates and restarts the worker, so a stale index is never mixed with new feeds."
 msgstr "**选择。** worker 只加载一次 `search-index.json` 并把记录保存在内存中；查询是带 `id` 的消息，每个回复都只解决具有相同 `id` 的请求，因此并发查询不会混淆。URL 以清单中的 `generated_at` 作为版本参数，新的清单会终止并重启 worker，因此过期的索引永远不会与新的 feed 混用。"
 
-#: manual/design/static_search.md:159
+#: manual/design/static_search.md:174
 msgid "Normalise once, at export"
 msgstr "导出时一次性规范化"
 
-#: manual/design/static_search.md:161
+#: manual/design/static_search.md:176
 msgid "**Problem.** Case-insensitive matching needs lower-cased text on both sides."
 msgstr "**问题。** 不区分大小写的匹配需要两边都是小写文本。"
 
-#: manual/design/static_search.md:163
+#: manual/design/static_search.md:178
 msgid "**Choice.** Python lower-cases the records at export (`str.strip().lower()`); the worker lower-cases only the needle (`trim().toLowerCase()`). Both apply the Unicode default case mapping, so for ordinary package metadata the two sides agree. The MoonBit `normalize_text` implements the lower-casing step through the same JavaScript function, so that MoonBit code compiled for the static site normalises text exactly as the worker does."
 msgstr "**选择。** Python 在导出时把记录转为小写（`str.strip().lower()`）；worker 只把查询词转为小写（`trim().toLowerCase()`）。两者都使用 Unicode 默认大小写映射，因此对于普通的包元数据，两边结果一致。MoonBit 的 `normalize_text` 通过同一个 JavaScript 函数实现转小写这一步，使为静态站点编译的 MoonBit 代码与 worker 的规范化方式完全相同。"
 
-#: manual/design/static_search.md:170
+#: manual/design/static_search.md:185
 msgid "Keep the version tag in MoonBit"
 msgstr "把版本标记放在 MoonBit 中"
 
-#: manual/design/static_search.md:172
+#: manual/design/static_search.md:187
 msgid "`runtime_version` gives the compiled JavaScript module a fixed identity. The static build (`scripts/build_static_site.mjs`) compiles the package before `next build`, so a MoonBit change that breaks the module stops the static build."
 msgstr "`runtime_version` 为编译后的 JavaScript 模块提供固定标识。静态构建（`scripts/build_static_site.mjs`）在 `next build` 之前编译该包，因此破坏该模块的 MoonBit 修改会让静态构建失败。"
 
-#: manual/design/static_search.md:179
+#: manual/design/static_search.md:194
 msgid "Agreement with the dynamic site"
 msgstr "与动态站点的一致性"
 
-#: manual/design/static_search.md:181
+#: manual/design/static_search.md:196
 msgid "The worker and the server decode `ast` and `expr` with the same functions from `lib/query.ts`, so a query means the same formula in both modes. The term semantics differ on purpose:"
 msgstr "worker 和服务器使用 `lib/query.ts` 中相同的函数解码 `ast` 和 `expr`，因此一个查询在两种模式下表示同一个公式。项的语义则有意不同："
 
-#: manual/design/static_search.md:185
+#: manual/design/static_search.md:200
 msgid "Text terms (`text`, `owner`, `package`, `keyword`, `description`) are substring tests in the static site, so `pars` also finds `sparse`. The server sends them to SQLite FTS5, which matches token prefixes (`pars*`). `license` and `repository` are substring tests in both modes."
 msgstr "文本项（`text`、`owner`、`package`、`keyword`、`description`）在静态站点中是子串测试，所以 `pars` 也会找到 `sparse`。服务器则把它们交给 SQLite FTS5，后者匹配词元前缀（`pars*`）。`license` 和 `repository` 在两种模式下都是子串测试。"
 
-#: manual/design/static_search.md:189
+#: manual/design/static_search.md:204
 msgid "The server rejects a term whose operator does not fit its field (for example `rank>=A`) with HTTP 400; the worker evaluates it anyway, using equality for labels and numbers and a substring test for text."
 msgstr "服务器会以 HTTP 400 拒绝运算符与字段不匹配的项（例如 `rank>=A`）；worker 则照常求值，对标签和数字使用相等比较，对文本使用子串测试。"
 
-#: manual/design/static_search.md:192
+#: manual/design/static_search.md:207
 msgid "With a query and no explicit sort, the static site orders by the coordination count above. The server orders AST queries by score and ranks legacy text queries by FTS5 `bm25`."
 msgstr "有查询且未显式指定排序时，静态站点按上述协调计数排序。服务器则按分数排列 AST 查询，并用 FTS5 `bm25` 为旧式文本查询排序。"
 
-#: manual/design/static_search.md:195
+#: manual/design/static_search.md:210
+msgid "Rank and momentum values must match the label exactly in the static site (`rank=s` matches nothing). The server accepts them in any case and rejects unknown labels with HTTP 400."
+msgstr "在静态站点中，等级和势头的值必须与标签完全一致（`rank=s` 匹配不到任何结果）。服务器不区分大小写地接受它们，并对未知标签返回 HTTP 400。"
+
+#: manual/design/static_search.md:213
+msgid "An empty numeric value compares with $0$ in the static site; the server rejects it with HTTP 400."
+msgstr "在静态站点中，空的数值与 $0$ 比较；服务器则以 HTTP 400 拒绝。"
+
+#: manual/design/static_search.md:215
 msgid "`updated` sorts by year in the static site and by the full timestamp on the server."
 msgstr "`updated` 在静态站点中按年份排序，在服务器上按完整时间戳排序。"
 
-#: manual/design/static_search.md:197
-msgid "Ties in a descending static sort are broken by name descending, while the server breaks them by score descending and then name ascending."
-msgstr "静态站点的降序排序中，并列项按名称降序打破；服务器则先按分数降序、再按名称升序打破并列。"
+#: manual/design/static_search.md:217
+msgid "Ties in a descending static sort are broken by name descending. The server breaks ties by name ascending, after score descending for the `growth`, `downloads`, `dependents` and `recent` sorts."
+msgstr "静态站点的降序排序中，并列项按名称降序打破。服务器按名称升序打破并列；对 `growth`、`downloads`、`dependents` 和 `recent` 排序，则先按分数降序。"
 
-#: manual/design/static_search.md:200
+#: manual/design/static_search.md:220
+msgid "The server returns at most `limit` results (20 by default, at most 100); the static site returns every match."
+msgstr "服务器最多返回 `limit` 个结果（默认 20，最多 100）；静态站点返回所有匹配。"
+
+#: manual/design/static_search.md:223
 msgid "Complexity"
 msgstr "复杂度"
 
-#: manual/design/static_search.md:202
+#: manual/design/static_search.md:225
 msgid "Let $N$ be the number of records, $L$ the number of term leaves of the query and $\\ell$ the length of the longest normalised field. One term test costs $O(\\ell)$ for numeric and label terms and at most $O(\\ell\\,|v|)$ for a substring test. Then"
 msgstr "设 $N$ 为记录数，$L$ 为查询的项叶子数，$\\ell$ 为最长规范化字段的长度。一次项测试对数值和标签项的代价为 $O(\\ell)$，对子串测试至多为 $O(\\ell\\,|v|)$。于是"
 
-#: manual/design/static_search.md:215
+#: manual/design/static_search.md:238
 msgid "A comparison costs $O(1)$ for the key sorts but $O(L \\ell |v|)$ for relevance, because the comparator recomputes $\\operatorname{rel}$ for both records instead of caching it. Relevance sorting is therefore $O(N \\log N \\cdot L \\ell |v|)$, a factor of $\\log N$ more term tests than the filter. Memory is $O(N F \\ell)$ for the resident index. All results are returned; there is no limit in static mode."
 msgstr "对键排序而言，一次比较的代价为 $O(1)$；对相关度排序则为 $O(L \\ell |v|)$，因为比较器每次都为两条记录重新计算 $\\operatorname{rel}$ 而不缓存。因此相关度排序为 $O(N \\log N \\cdot L \\ell |v|)$，项测试次数比过滤多出 $\\log N$ 倍。常驻索引的内存为 $O(N F \\ell)$。所有结果都会返回；静态模式没有数量限制。"
 
-#: manual/design/static_search.md:224
+#: manual/design/static_search.md:247
 msgid "**SQLite in WebAssembly** would make static and dynamic results identical but costs a large download and a WebAssembly runtime on every visit."
 msgstr "**WebAssembly 中的 SQLite** 能让静态和动态结果完全一致，但每次访问都要付出大量下载和一个 WebAssembly 运行时的代价。"
 
-#: manual/design/static_search.md:226
+#: manual/design/static_search.md:249
 msgid "**A client-side full-text library** (inverted index with tf–idf or BM25) would rank better for free text but needs a tokenizer that agrees with the FTS5 tokenizer to be consistent, and loses substring matching."
 msgstr "**客户端全文检索库**（带 tf–idf 或 BM25 的倒排索引）对自由文本的排序会更好，但为保持一致需要一个与 FTS5 分词器一致的分词器，而且会失去子串匹配。"
 
-#: manual/design/static_search.md:229
+#: manual/design/static_search.md:252
 msgid "**Splitting the index per owner or per letter** would shrink the first download but make OR queries across shards fetch many files."
 msgstr "**按所有者或首字母拆分索引**可以减小首次下载量，但会让跨分片的 OR 查询需要获取许多文件。"
 
-#: manual/design/static_search.md:234
+#: manual/design/static_search.md:257
 msgid "The static search does not tokenise, stem or rank by text statistics, and it does not correct spelling."
 msgstr "静态搜索不分词、不做词干提取、不按文本统计量排序，也不做拼写纠正。"
 
-#: manual/design/static_search.md:236
+#: manual/design/static_search.md:259
 msgid "It returns every match; paging and limits are left to the interface."
 msgstr "它返回所有匹配项；分页和数量限制留给界面处理。"
 
-#: manual/design/static_search.md:237
+#: manual/design/static_search.md:260
 msgid "The MoonBit package does not implement the index or the query evaluation; those are in Python and TypeScript."
 msgstr "MoonBit 包不实现索引或查询求值；它们位于 Python 和 TypeScript 中。"
 
-#: manual/design/static_search.md:239
+#: manual/design/static_search.md:262
 msgid "In this release the worker does not import the MoonBit module; its TypeScript normalisation additionally trims the needle, which `normalize_text` does not."
 msgstr "在此版本中，worker 并不导入 MoonBit 模块；它的 TypeScript 规范化还会去除查询词的首尾空白，而 `normalize_text` 不会。"
 
-#: manual/design/static_search.md:242
+#: manual/design/static_search.md:265
 msgid "The data is as fresh as the last export; there is no incremental update."
 msgstr "数据的新鲜度取决于最近一次导出；没有增量更新。"
 
@@ -1705,118 +1739,174 @@ msgid "mooncake_impact_factor"
 msgstr "mooncake_impact_factor"
 
 #: manual/index.md:3
+msgid "This manual documents version `v0.1.2` of `Luna-Flow/mooncake-impact-factor`."
+msgstr "本手册记录 `Luna-Flow/mooncake-impact-factor` 的 `v0.1.2` 版本。"
+
+#: manual/index.md:5
+msgid "Overview"
+msgstr "概览"
+
+#: manual/index.md:7
 msgid "`mooncake_impact_factor` ranks the packages of the MoonBit registry by how much the ecosystem relies on them. It scores every package from its dependents, recent dependents, downloads and release date, labels the score with a rank and a momentum class, and lets you search and filter the result in a web application that runs locally against SQLite or as a static site."
 msgstr "`mooncake_impact_factor` 按生态对 MoonBit 注册表中各个包的依赖程度为它们排名。它根据依赖方、近期依赖方、下载量和发布日期为每个包评分，为分数加上等级和势头类别标签，并让你在一个 Web 应用中搜索和筛选结果；该应用既可以基于 SQLite 在本地运行，也可以作为静态站点运行。"
 
-#: manual/index.md:9
-msgid "This manual describes version `0.1.2` of the module `Luna-Flow/mooncake-impact-factor`."
-msgstr "本手册描述模块 `Luna-Flow/mooncake-impact-factor` 的 `0.1.2` 版本。"
-
-#: manual/index.md:12
-msgid "Packages"
-msgstr "包"
-
-#: manual/index.md:14
-msgid "The MoonBit module has three packages. Each has an API reference, a tutorial and a design note."
-msgstr "该 MoonBit 模块包含三个包。每个包都有 API 参考、教程和设计说明。"
-
-#: manual/index.md:17
-msgid "Package"
-msgstr "包"
-
-#: manual/index.md:17
-msgid "Purpose"
-msgstr "用途"
-
-#: manual/index.md:17
-msgid "Pages"
-msgstr "页面"
-
-#: manual/index.md:19
-msgid "The impact score, rank labels, momentum labels and score snapshots."
-msgstr "影响力分数、等级标签、势头标签和分数快照。"
-
-#: manual/index.md:19
-msgid "[API](api/score.md) · [tutorial](tutorial/score.md) · [design](design/score.md)"
-msgstr "[API](api/score.md) · [教程](tutorial/score.md) · [设计](design/score.md)"
+#: manual/index.md:13
+msgid "The MoonBit module owns the rules: the score formula, the rank thresholds and the momentum classes live in `score`, and every other part of the repository calls them. The rest is not MoonBit: the Python index builder and static exporter in `scripts/`, and the Next.js application in `app/`, `frontend/src/` and `lib/`. The [architecture guide](architecture.md) shows how they fit together."
+msgstr "规则归 MoonBit 模块所有：分数公式、等级阈值和势头类别都在 `score` 中，仓库的其他部分都调用它们。其余部分不是 MoonBit：`scripts/` 中的 Python 索引构建器和静态导出器，以及 `app/`、`frontend/src/` 和 `lib/` 中的 Next.js 应用。[架构指南](architecture.md)展示了它们如何组合在一起。"
 
 #: manual/index.md:20
-msgid "A JavaScript command that computes a score snapshot from a JSON file, used by the Python index builder."
-msgstr "一个根据 JSON 文件计算分数快照的 JavaScript 命令，供 Python 索引构建器使用。"
-
-#: manual/index.md:20
-msgid "[API](api/cli.md) · [tutorial](tutorial/cli.md) · [design](design/cli.md)"
-msgstr "[API](api/cli.md) · [教程](tutorial/cli.md) · [设计](design/cli.md)"
-
-#: manual/index.md:21
-msgid "The version tag and text normalisation of the browser search in static mode."
-msgstr "静态模式下浏览器搜索的版本标记和文本规范化。"
-
-#: manual/index.md:21
-msgid "[API](api/static_search.md) · [tutorial](tutorial/static_search.md) · [design](design/static_search.md)"
-msgstr "[API](api/static_search.md) · [教程](tutorial/static_search.md) · [设计](design/static_search.md)"
-
-#: manual/index.md:23
-msgid "The rest of the repository is not MoonBit: the Python index builder and static exporter in `scripts/`, and the Next.js application in `app/`, `frontend/src/` and `lib/`. The [architecture guide](architecture.md) shows how they fit together."
-msgstr "仓库的其余部分不是 MoonBit：`scripts/` 中的 Python 索引构建器和静态导出器，以及 `app/`、`frontend/src/` 和 `lib/` 中的 Next.js 应用。[架构指南](architecture.md)展示了它们如何组合在一起。"
-
-#: manual/index.md:28
-msgid "Guides"
-msgstr "指南"
-
-#: manual/index.md:30
-msgid "[Getting started](getting_started.md): build the database, run the web application and query its HTTP API."
-msgstr "[入门](getting_started.md)：构建数据库、运行 Web 应用并查询其 HTTP API。"
-
-#: manual/index.md:32
-msgid "[Architecture](architecture.md): the data pipeline from the registry to the browser, and which file owns which rule."
-msgstr "[架构](architecture.md)：从注册表到浏览器的数据管道，以及哪个文件负责哪条规则。"
-
-#: manual/index.md:34
-msgid "[Conventions](conventions.md): the documentation rules specific to this repository."
-msgstr "[约定](conventions.md)：本仓库特有的文档规则。"
-
-#: manual/index.md:37
-msgid "Reading paths"
-msgstr "阅读路径"
-
-#: manual/index.md:39
-msgid "**I want to see the rankings.** Follow [getting started](getting_started.md) to build the database and open the web application, then read the [score tutorial](tutorial/score.md) to understand what the numbers mean."
-msgstr "**我想看排名。** 按照[入门](getting_started.md)构建数据库并打开 Web 应用，然后阅读 [score 教程](tutorial/score.md)理解这些数字的含义。"
-
-#: manual/index.md:43
-msgid "**I want to use the score in MoonBit.** Start with the [score tutorial](tutorial/score.md) and keep the [score API](api/score.md) at hand. Use the [cli tutorial](tutorial/cli.md) when the caller is not MoonBit."
-msgstr "**我想在 MoonBit 中使用分数。** 从 [score 教程](tutorial/score.md)开始，并把 [score API](api/score.md) 放在手边。调用方不是 MoonBit 时，请参阅 [cli 教程](tutorial/cli.md)。"
-
-#: manual/index.md:48
-msgid "**I want to change the model or the search.** Read the [score design](design/score.md) for the derivation of the formula and its invariants, the [static_search design](design/static_search.md) for the browser index and its ranking, and the [architecture guide](architecture.md) for how the signals are counted. The repository's `CONTRIBUTING.md` lists the checks to run."
-msgstr "**我想修改模型或搜索。** 阅读 [score 设计](design/score.md)了解公式的推导及其不变量，阅读 [static_search 设计](design/static_search.md)了解浏览器索引及其排序，阅读[架构指南](architecture.md)了解信号如何统计。仓库的 `CONTRIBUTING.md` 列出了需要运行的检查。"
-
-#: manual/index.md:55
 msgid "Install"
 msgstr "安装"
 
-#: manual/index.md:61
-msgid "Then import the package you need in `moon.pkg`, for example `\"Luna-Flow/mooncake-impact-factor/score\"`. `score` builds for every target; `cli` and `static_search` build only for the JavaScript target."
-msgstr "然后在 `moon.pkg` 中导入所需的包，例如 `\"Luna-Flow/mooncake-impact-factor/score\"`。`score` 可为所有目标构建；`cli` 和 `static_search` 只能为 JavaScript 目标构建。"
+#: manual/index.md:26
+msgid "Then import the package you need in your `moon.pkg`, for example `\"Luna-Flow/mooncake-impact-factor/score\"`. `score` builds for every target; `cli` and `static_search` build only for the JavaScript target. The module needs the MoonBit toolchain 0.10 or later (`moonc` ≥ 0.10). Running `cli` and the web application also needs Node.js 20.16, 22.3 or later, and the index builder needs Python 3."
+msgstr "然后在你的 `moon.pkg` 中导入所需的包，例如 `\"Luna-Flow/mooncake-impact-factor/score\"`。`score` 可为所有目标构建；`cli` 和 `static_search` 只能为 JavaScript 目标构建。本模块需要 MoonBit 工具链 0.10 或更高版本（`moonc` ≥ 0.10）。运行 `cli` 和 Web 应用还需要 Node.js 20.16、22.3 或更高版本，索引构建器需要 Python 3。"
 
-#: manual/index.md:65
-msgid "Toolchain"
-msgstr "工具链"
+#: manual/index.md:33
+msgid "Pages"
+msgstr "页面"
 
-#: manual/index.md:67
-msgid "MoonBit with `moonc` 0.10 or later. The module uses the `moon.mod` and `moon.pkg` manifest formats."
-msgstr "`moonc` 0.10 或更高版本的 MoonBit。该模块使用 `moon.mod` 和 `moon.pkg` 清单格式。"
+#: manual/index.md:35
+msgid "The MoonBit module has three packages, each with a tutorial, an API reference and a design page. Three guides cover the rest of the repository."
+msgstr "该 MoonBit 模块包含三个包，每个包都有教程、API 参考和设计页面。三篇指南涵盖仓库的其余部分。"
+
+#: manual/index.md:38
+msgid "Part"
+msgstr "部分"
+
+#: manual/index.md:38
+msgid "Tutorial"
+msgstr "教程"
+
+#: manual/index.md:38
+msgid "API"
+msgstr "API"
+
+#: manual/index.md:38
+msgid "Design"
+msgstr "设计"
+
+#: manual/index.md:40
+msgid "`score`: impact score, rank and momentum labels, snapshots"
+msgstr "`score`：影响力分数、等级与势头标签、快照"
+
+#: manual/index.md:40
+msgid "[tutorial](tutorial/score.md)"
+msgstr "[教程](tutorial/score.md)"
+
+#: manual/index.md:40
+msgid "[API](api/score.md)"
+msgstr "[API](api/score.md)"
+
+#: manual/index.md:40
+msgid "[design](design/score.md)"
+msgstr "[设计](design/score.md)"
+
+#: manual/index.md:41
+msgid "`cli`: a JavaScript command that scores one package from a JSON file"
+msgstr "`cli`：从 JSON 文件为一个包评分的 JavaScript 命令"
+
+#: manual/index.md:41
+msgid "[tutorial](tutorial/cli.md)"
+msgstr "[教程](tutorial/cli.md)"
+
+#: manual/index.md:41
+msgid "[API](api/cli.md)"
+msgstr "[API](api/cli.md)"
+
+#: manual/index.md:41
+msgid "[design](design/cli.md)"
+msgstr "[设计](design/cli.md)"
+
+#: manual/index.md:42
+msgid "`static_search`: version tag and text normalisation of the static search"
+msgstr "`static_search`：静态搜索的版本标记与文本规范化"
+
+#: manual/index.md:42
+msgid "[tutorial](tutorial/static_search.md)"
+msgstr "[教程](tutorial/static_search.md)"
+
+#: manual/index.md:42
+msgid "[API](api/static_search.md)"
+msgstr "[API](api/static_search.md)"
+
+#: manual/index.md:42
+msgid "[design](design/static_search.md)"
+msgstr "[设计](design/static_search.md)"
+
+#: manual/index.md:43
+msgid "Guide: build the database, run the application, query its HTTP API"
+msgstr "指南：构建数据库、运行应用、查询其 HTTP API"
+
+#: manual/index.md:43
+msgid "[getting started](getting_started.md)"
+msgstr "[入门](getting_started.md)"
+
+#: manual/index.md:44
+msgid "Guide: the data pipeline from the registry to the browser"
+msgstr "指南：从注册表到浏览器的数据管道"
+
+#: manual/index.md:44
+msgid "[architecture](architecture.md)"
+msgstr "[架构](architecture.md)"
+
+#: manual/index.md:45
+msgid "Guide: documentation rules of this repository"
+msgstr "指南：本仓库的文档规则"
+
+#: manual/index.md:45
+msgid "[conventions](conventions.md)"
+msgstr "[约定](conventions.md)"
+
+#: manual/index.md:47
+msgid "Exported items"
+msgstr "导出的条目"
+
+#: manual/index.md:49
+msgid "`score`: `compute_score`, `activity_multiplier`, `clamp_non_negative`, `rank_label`, `compute_momentum_label`, `compute_score_snapshot` and the struct `ScoreSnapshot`"
+msgstr "`score`：`compute_score`、`activity_multiplier`、`clamp_non_negative`、`rank_label`、`compute_momentum_label`、`compute_score_snapshot` 以及结构体 `ScoreSnapshot`"
+
+#: manual/index.md:52
+msgid "`static_search`: `runtime_version`, `normalize_text`, also exported from the compiled ES module"
+msgstr "`static_search`：`runtime_version`、`normalize_text`，也从编译出的 ES 模块导出"
+
+#: manual/index.md:54
+msgid "`cli`: no MoonBit names; its interface is the command `score-snapshot --input <path>`"
+msgstr "`cli`：没有 MoonBit 名称；它的接口是命令 `score-snapshot --input <path>`"
+
+#: manual/index.md:57
+msgid "Where to read next"
+msgstr "接下来读什么"
+
+#: manual/index.md:59
+msgid "The [score tutorial](tutorial/score.md) computes, ranks and explains scores, the [score API](api/score.md) lists every function and threshold, and the [score design](design/score.md) derives the formula and its invariants."
+msgstr "[score 教程](tutorial/score.md)计算、排序并解释分数，[score API](api/score.md) 列出每个函数和阈值，[score 设计](design/score.md)推导公式及其不变量。"
+
+#: manual/index.md:63
+msgid "New to the project: follow [getting started](getting_started.md) to build the database and open the web application, then read the [score tutorial](tutorial/score.md) to understand what the numbers mean."
+msgstr "初次接触本项目：按照[入门](getting_started.md)构建数据库并打开 Web 应用，然后阅读 [score 教程](tutorial/score.md)理解这些数字的含义。"
+
+#: manual/index.md:66
+msgid "Using the score in a library: keep the [score API](api/score.md) at hand, and use the [cli tutorial](tutorial/cli.md) when the caller is not MoonBit."
+msgstr "在库中使用分数：把 [score API](api/score.md) 放在手边；调用方不是 MoonBit 时，请使用 [cli 教程](tutorial/cli.md)。"
 
 #: manual/index.md:69
-msgid "Node.js 20.16, 22.3 or later to run `cli` and the web application."
-msgstr "Node.js 20.16、22.3 或更高版本，用于运行 `cli` 和 Web 应用。"
+msgid "Contributing: read the [score design](design/score.md), the [static_search design](design/static_search.md) for the browser index and its ranking, and the [architecture guide](architecture.md) for how the signals are counted. The repository's `CONTRIBUTING.md` lists the checks to run."
+msgstr "参与贡献：阅读 [score 设计](design/score.md)、关于浏览器索引及其排序的 [static_search 设计](design/static_search.md)，以及说明信号如何统计的[架构指南](architecture.md)。仓库的 `CONTRIBUTING.md` 列出了需要运行的检查。"
 
-#: manual/index.md:70
-msgid "Python 3 for the index builder and the static exporter."
-msgstr "Python 3，用于索引构建器和静态导出器。"
+#: manual/index.md:75
+msgid "Validation"
+msgstr "验证"
 
-#: manual/index.md:74
+#: manual/index.md:77
+msgid "Recommended release checks:"
+msgstr "推荐的发布检查："
+
+#: manual/index.md:87
+msgid "`CONTRIBUTING.md` adds the Python, TypeScript and static-site checks."
+msgstr "`CONTRIBUTING.md` 还补充了 Python、TypeScript 和静态站点的检查。"
+
+#: manual/index.md:89
 msgid "The rankings come from a local copy of the registry index plus optional download counts from mooncakes.io. They are not an authoritative ranking of the MoonBit ecosystem, and they change whenever the database is rebuilt from a newer snapshot."
 msgstr "排名来自注册表索引的本地副本，以及可选的来自 mooncakes.io 的下载量。它们不是 MoonBit 生态的权威排名，并且每当用更新的快照重建数据库时都会变化。"
 
@@ -1831,130 +1921,174 @@ msgstr "本教程介绍如何在 MoonBit 之外用 `cli` 可执行程序计算�
 #: manual/tutorial/cli.md:8
 #: manual/tutorial/score.md:9
 #: manual/tutorial/static_search.md:9
+msgid "I want to"
+msgstr "我想要"
+
+#: manual/tutorial/cli.md:8
+#: manual/tutorial/score.md:9
+#: manual/tutorial/static_search.md:9
+msgid "Use"
+msgstr "使用"
+
+#: manual/tutorial/cli.md:10
+msgid "build the command"
+msgstr "构建该命令"
+
+#: manual/tutorial/cli.md:11
+msgid "score one package from a shell"
+msgstr "在 shell 中为一个包评分"
+
+#: manual/tutorial/cli.md:12
+msgid "score from Python or Node.js"
+msgstr "从 Python 或 Node.js 评分"
+
+#: manual/tutorial/cli.md:12
+msgid "write a JSON file, run the command, parse standard output"
+msgstr "写一个 JSON 文件，运行命令，解析标准输出"
+
+#: manual/tutorial/cli.md:13
+msgid "leave out unknown signals"
+msgstr "省略未知的信号"
+
+#: manual/tutorial/cli.md:13
+msgid "omit the key; it counts as `0`"
+msgstr "省略该键；它按 `0` 计"
+
+#: manual/tutorial/cli.md:14
+msgid "detect failures"
+msgstr "检测失败"
+
+#: manual/tutorial/cli.md:14
+msgid "a non-zero exit status"
+msgstr "非零的退出状态"
+
+#: manual/tutorial/cli.md:16
+#: manual/tutorial/score.md:17
+#: manual/tutorial/static_search.md:17
 msgid "Quick start"
 msgstr "快速开始"
 
-#: manual/tutorial/cli.md:10
+#: manual/tutorial/cli.md:18
 msgid "Build the executable from the repository root:"
 msgstr "在仓库根目录构建可执行程序："
 
-#: manual/tutorial/cli.md:16
+#: manual/tutorial/cli.md:24
 msgid "Write the signals of one package to a file:"
 msgstr "把一个包的信号写入文件："
 
-#: manual/tutorial/cli.md:28
+#: manual/tutorial/cli.md:36
 msgid "The command prints the snapshot on one line:"
 msgstr "命令在一行中输出快照："
 
-#: manual/tutorial/cli.md:34
+#: manual/tutorial/cli.md:42
 msgid "These are the same numbers as `@score.compute_score_snapshot(20, 4, 300, 40, 10, 2, 0, 10)` in MoonBit."
 msgstr "这些数字与 MoonBit 中 `@score.compute_score_snapshot(20, 4, 300, 40, 10, 2, 0, 10)` 的结果相同。"
 
-#: manual/tutorial/cli.md:37
-#: manual/tutorial/score.md:41
-#: manual/tutorial/static_search.md:44
+#: manual/tutorial/cli.md:45
+#: manual/tutorial/score.md:46
+#: manual/tutorial/static_search.md:48
 msgid "Everyday tasks"
 msgstr "日常任务"
 
-#: manual/tutorial/cli.md:39
+#: manual/tutorial/cli.md:47
 msgid "Leave out what you do not know"
 msgstr "省略未知的信息"
 
-#: manual/tutorial/cli.md:41
+#: manual/tutorial/cli.md:49
 msgid "Every key is optional and defaults to `0`. A package released five days ago with three dependents and nothing else known:"
 msgstr "每个键都是可选的，默认为 `0`。一个五天前发布、有三个依赖方、其余信息未知的包："
 
-#: manual/tutorial/cli.md:53
+#: manual/tutorial/cli.md:61
 msgid "The historical signals are all `0`, so `score_30d_ago` is `0` and the growth ratio is reported as `1`."
 msgstr "历史信号全为 `0`，所以 `score_30d_ago` 为 `0`，增长率报告为 `1`。"
 
-#: manual/tutorial/cli.md:56
+#: manual/tutorial/cli.md:64
 msgid "Call it from Python"
 msgstr "从 Python 调用"
 
-#: manual/tutorial/cli.md:58
+#: manual/tutorial/cli.md:66
 msgid "The index builder runs the command once per package. A minimal version of its helper:"
 msgstr "索引构建器为每个包运行一次该命令。其辅助函数的最小版本如下："
 
-#: manual/tutorial/cli.md:87
+#: manual/tutorial/cli.md:95
 msgid "`check=True` turns every non-zero exit status into an exception, which covers both the JSON error messages and a missing input file."
 msgstr "`check=True` 会把每个非零退出状态变成异常，这同时涵盖了 JSON 错误消息和输入文件缺失的情况。"
 
-#: manual/tutorial/cli.md:90
+#: manual/tutorial/cli.md:98
 msgid "Call it from Node.js"
 msgstr "从 Node.js 调用"
 
-#: manual/tutorial/cli.md:107
+#: manual/tutorial/cli.md:115
 msgid "936 dependents alone are enough for rank `S` when the multiplier is $1$; the [score design](../design/score.md#rank-thresholds-as-counts) derives why."
 msgstr "当乘数为 $1$ 时，仅凭 936 个依赖方就足以达到等级 `S`；[score 设计](../design/score.md#rank-thresholds-as-counts)推导了原因。"
 
-#: manual/tutorial/cli.md:110
+#: manual/tutorial/cli.md:118
 msgid "Handle errors"
 msgstr "处理错误"
 
-#: manual/tutorial/cli.md:112
+#: manual/tutorial/cli.md:120
 msgid "Errors print a JSON object with an `error` key and exit with status `1`:"
 msgstr "错误会输出一个带 `error` 键的 JSON 对象，并以状态 `1` 退出："
 
-#: manual/tutorial/cli.md:124
+#: manual/tutorial/cli.md:132
 msgid "Check the exit status before you parse the output. A missing file also exits with `1` but prints a Node.js stack trace to standard error instead of JSON."
 msgstr "解析输出之前先检查退出状态。文件缺失时同样以 `1` 退出，但会向标准错误输出 Node.js 堆栈跟踪，而不是 JSON。"
 
-#: manual/tutorial/cli.md:127
-#: manual/tutorial/score.md:194
-#: manual/tutorial/static_search.md:160
+#: manual/tutorial/cli.md:135
+#: manual/tutorial/score.md:192
+#: manual/tutorial/static_search.md:159
 msgid "Going further"
 msgstr "进阶"
 
-#: manual/tutorial/cli.md:129
+#: manual/tutorial/cli.md:137
 msgid "**Batch work.** Each call starts a Node.js process, which costs far more than the score itself. For many packages in one MoonBit program, call `@score.compute_score_snapshot` directly, as in the [score tutorial](score.md)."
 msgstr "**批量处理。** 每次调用都会启动一个 Node.js 进程，其开销远大于计算分数本身。在一个 MoonBit 程序中处理大量包时，请像 [score 教程](score.md)那样直接调用 `@score.compute_score_snapshot`。"
 
-#: manual/tutorial/cli.md:133
+#: manual/tutorial/cli.md:141
 msgid "**Where the signals come from.** The [architecture guide](../architecture.md) explains how the index builder counts dependents, recent dependents and historical values before it calls this command."
 msgstr "**信号从哪里来。** [架构指南](../architecture.md)解释了索引构建器在调用此命令之前如何统计依赖方、近期依赖方和历史值。"
 
-#: manual/tutorial/cli.md:137
+#: manual/tutorial/cli.md:145
 msgid "**Strict inputs.** The command accepts sloppy input: strings and `null` become `0`, fractions are truncated. Validate the payload in the caller if a silent `0` would hide a bug."
 msgstr "**严格的输入。** 该命令接受不规范的输入：字符串和 `null` 变为 `0`，小数被截断。如果一个悄无声息的 `0` 会掩盖 bug，请在调用方验证负载。"
 
-#: manual/tutorial/cli.md:141
-#: manual/tutorial/score.md:224
-#: manual/tutorial/static_search.md:179
+#: manual/tutorial/cli.md:149
+#: manual/tutorial/score.md:222
+#: manual/tutorial/static_search.md:178
 msgid "Common pitfalls"
 msgstr "常见陷阱"
 
-#: manual/tutorial/cli.md:143
+#: manual/tutorial/cli.md:151
 msgid "**Numbers as strings.** `{\"dependents\": \"20\"}` scores as zero dependents. Write `20`, not `\"20\"`."
 msgstr "**数字写成字符串。** `{\"dependents\": \"20\"}` 会按零个依赖方评分。请写 `20`，而不是 `\"20\"`。"
 
-#: manual/tutorial/cli.md:145
+#: manual/tutorial/cli.md:153
 msgid "**Wrong argument order.** `score-snapshot` must be the first argument after the script; `--input file.json score-snapshot` prints the usage error."
 msgstr "**参数顺序错误。** `score-snapshot` 必须是脚本之后的第一个参数；`--input file.json score-snapshot` 会输出用法错误。"
 
-#: manual/tutorial/cli.md:147
+#: manual/tutorial/cli.md:155
 msgid "**Stale build.** The index builder reuses an existing `cli.js`. Rebuild after you change `src/score`, or the database is scored with the old rules."
 msgstr "**构建过期。** 索引构建器会复用已有的 `cli.js`。修改 `src/score` 后请重新构建，否则数据库会按旧规则评分。"
 
-#: manual/tutorial/cli.md:149
+#: manual/tutorial/cli.md:157
 msgid "**Large counts.** A count of `2147483647`, or any larger number (the conversion saturates at the largest `Int`), makes the score `NaN`. JSON has no `NaN`, so the output then contains the string `\"NaN\"` where a number is expected: `{\"score\":\"NaN\",...}`."
 msgstr "**过大的计数。** `2147483647` 或任何更大的数（转换会饱和到最大的 `Int`）会使分数变为 `NaN`。JSON 没有 `NaN`，因此输出中本应是数字的位置会出现字符串 `\"NaN\"`：`{\"score\":\"NaN\",...}`。"
 
-#: manual/tutorial/cli.md:154
-#: manual/tutorial/score.md:239
-#: manual/tutorial/static_search.md:194
+#: manual/tutorial/cli.md:162
+#: manual/tutorial/score.md:237
+#: manual/tutorial/static_search.md:197
 msgid "Next steps"
 msgstr "下一步"
 
-#: manual/tutorial/cli.md:156
+#: manual/tutorial/cli.md:164
 msgid "[cli API](../api/cli.md) for the exact input, output and error contract."
 msgstr "[cli API](../api/cli.md)：精确的输入、输出和错误约定。"
 
-#: manual/tutorial/cli.md:157
+#: manual/tutorial/cli.md:165
 msgid "[cli design](../design/cli.md) for why the bridge is a file-based command."
 msgstr "[cli 设计](../design/cli.md)：为何这座桥是基于文件的命令。"
 
-#: manual/tutorial/cli.md:158
+#: manual/tutorial/cli.md:166
 msgid "[score API](../api/score.md) for the meaning of every output field."
 msgstr "[score API](../api/score.md)：每个输出字段的含义。"
 
@@ -1967,39 +2101,71 @@ msgid "This tutorial shows you how to compute the impact score of a MoonBit pack
 msgstr "本教程介绍如何根据依赖方、下载量和发布日期计算 MoonBit 包的影响力分数，如何把分数转换成 Web 应用显示的等级和势头标签，以及如何对一组已评分的包排序并解释其分数。这里的数学保持简单；[score 设计](../design/score.md)给出了推导。"
 
 #: manual/tutorial/score.md:11
-#: manual/tutorial/static_search.md:11
+msgid "score one package"
+msgstr "为一个包评分"
+
+#: manual/tutorial/score.md:12
+msgid "turn a score into a rank"
+msgstr "把分数换算为等级"
+
+#: manual/tutorial/score.md:13
+msgid "measure 30-day growth and momentum"
+msgstr "衡量 30 天增长与势头"
+
+#: manual/tutorial/score.md:13
+msgid "`@score.compute_score_snapshot(...)` with current and historical signals"
+msgstr "带当前信号与历史信号的 `@score.compute_score_snapshot(...)`"
+
+#: manual/tutorial/score.md:14
+msgid "explain a score"
+msgstr "解释一个分数"
+
+#: manual/tutorial/score.md:14
+msgid "score each signal alone; the parts add up"
+msgstr "单独为每个信号评分；各部分相加即为总分"
+
+#: manual/tutorial/score.md:15
+msgid "pass a snapshot to another tool"
+msgstr "把快照交给其他工具"
+
+#: manual/tutorial/score.md:15
+msgid "`Json(snapshot)`, or the [`cli` command](cli.md)"
+msgstr "`Json(snapshot)`，或 [`cli` 命令](cli.md)"
+
+#: manual/tutorial/score.md:19
+#: manual/tutorial/static_search.md:19
 msgid "Add the module to your project:"
 msgstr "把模块添加到你的项目："
 
-#: manual/tutorial/score.md:17
+#: manual/tutorial/score.md:25
 msgid "Import the package in the `moon.pkg` of the package that uses it:"
 msgstr "在使用它的包的 `moon.pkg` 中导入该包："
 
-#: manual/tutorial/score.md:25
+#: manual/tutorial/score.md:33
 msgid "Score a package with 20 dependents, 4 of them recent, 300 downloads and a release 40 days ago:"
 msgstr "为一个有 20 个依赖方（其中 4 个为近期）、300 次下载、40 天前发布的包评分："
 
-#: manual/tutorial/score.md:39
+#: manual/tutorial/score.md:44
 msgid "The score is a plain `Double`. Anything from $260$ up is rank `S`."
 msgstr "分数是一个普通的 `Double`。$260$ 及以上即为等级 `S`。"
 
-#: manual/tutorial/score.md:43
+#: manual/tutorial/score.md:48
 msgid "Rank a list of packages"
 msgstr "为一组包排名"
 
-#: manual/tutorial/score.md:45
+#: manual/tutorial/score.md:50
 msgid "Scores from different packages are directly comparable, because each score depends only on that package's signals. Sort by score, highest first, and break ties by name so that the order is reproducible. This is the order the web application uses for its top feed."
 msgstr "不同包的分数可以直接比较，因为每个分数只依赖于该包自己的信号。按分数从高到低排序，并用名称打破并列，使顺序可复现。这正是 Web 应用的 top feed 所用的顺序。"
 
-#: manual/tutorial/score.md:80
+#: manual/tutorial/score.md:87
 msgid "`bob/http` and `carol/csv` have identical signals and therefore identical scores; the name decides their order."
 msgstr "`bob/http` 和 `carol/csv` 的信号相同，因此分数相同；它们的顺序由名称决定。"
 
-#: manual/tutorial/score.md:83
+#: manual/tutorial/score.md:90
 msgid "Explain where a score comes from"
 msgstr "解释分数的来源"
 
-#: manual/tutorial/score.md:85
+#: manual/tutorial/score.md:92
 msgid "The base score is a sum of one term per signal, and the release multiplier scales the whole sum. Scoring each signal on its own therefore splits a score into its parts:"
 msgstr "基础分是每个信号各一项之和，发布乘数缩放整个和。因此单独为每个信号评分即可把分数拆成各个部分："
 
@@ -2015,83 +2181,83 @@ msgstr "查看发布年龄的影响"
 msgid "`activity_multiplier` rewards a recent release with up to 12 % and penalises an old one with up to 12 %:"
 msgstr "`activity_multiplier` 对近期发布最多奖励 12 %，对陈旧发布最多惩罚 12 %："
 
-#: manual/tutorial/score.md:135
+#: manual/tutorial/score.md:138
 msgid "The same signals are rank `S` while the latest release is less than a year old and rank `A` after that."
 msgstr "同样的信号在最新发布不足一年时为等级 `S`，之后为等级 `A`。"
 
-#: manual/tutorial/score.md:138
+#: manual/tutorial/score.md:141
 msgid "Measure growth over 30 days"
 msgstr "衡量 30 天内的增长"
 
-#: manual/tutorial/score.md:140
+#: manual/tutorial/score.md:143
 msgid "`compute_score_snapshot` takes the four signals twice: as they are now and as they were 30 days ago. A package that did not exist 30 days ago has historical signals of `0`:"
 msgstr "`compute_score_snapshot` 两次接收四个信号：一次是现在的，一次是 30 天前的。30 天前尚不存在的包，其历史信号为 `0`："
 
-#: manual/tutorial/score.md:159
+#: manual/tutorial/score.md:156
 msgid "The score grew from $0$, so the growth ratio is reported as $1$ (100 %). The package is `Hot`, not `Rising`, because `Rising` needs at least three recent dependents and it has two."
 msgstr "分数从 $0$ 开始增长，所以增长率报告为 $1$（100 %）。该包是 `Hot` 而不是 `Rising`，因为 `Rising` 至少需要三个近期依赖方，而它只有两个。"
 
-#: manual/tutorial/score.md:163
+#: manual/tutorial/score.md:160
 msgid "Hand a snapshot to other tools"
 msgstr "把快照交给其他工具"
 
-#: manual/tutorial/score.md:165
+#: manual/tutorial/score.md:162
 msgid "`ScoreSnapshot` converts to JSON with `Json(...)`. This is exactly the output of the [`cli` command](cli.md):"
 msgstr "`ScoreSnapshot` 用 `Json(...)` 转换为 JSON。这正是 [`cli` 命令](cli.md)的输出："
 
-#: manual/tutorial/score.md:179
+#: manual/tutorial/score.md:177
 msgid "Read it back with `@json.from_json`, which needs `moonbitlang/core/json` in your imports:"
 msgstr "用 `@json.from_json` 读回，这需要在导入中包含 `moonbitlang/core/json`："
 
-#: manual/tutorial/score.md:191
+#: manual/tutorial/score.md:189
 msgid "`ScoreSnapshot` has no `Eq` implementation, so the check compares the JSON forms."
 msgstr "`ScoreSnapshot` 没有实现 `Eq`，所以检查比较的是 JSON 形式。"
 
-#: manual/tutorial/score.md:196
+#: manual/tutorial/score.md:194
 msgid "**Prepare signals like the index builder.** The functions accept any integers, but the scores in the web application come from specific definitions: `dependents` counts packages with at least one version that depends on this package, `recent_dependents` counts those whose first such version is at most 180 days old, and the historical signals repeat the count as of 30 days ago with downloads set to `0`. The [architecture guide](../architecture.md) describes the whole pipeline. If you compare your own scores with the published ones, use the same definitions."
 msgstr "**像索引构建器那样准备信号。** 这些函数接受任意整数，但 Web 应用中的分数来自特定定义：`dependents` 统计至少有一个版本依赖本包的包，`recent_dependents` 统计其中首个此类版本不超过 180 天的包，历史信号则是 30 天前的同样计数，且下载量设为 `0`。[架构指南](../architecture.md)描述了完整流程。若要把自己的分数与发布的分数比较，请使用相同的定义。"
 
-#: manual/tutorial/score.md:205
+#: manual/tutorial/score.md:203
 msgid "**Keep labels and scores together.** `rank_label` and `compute_momentum_label` are separate functions so that you can label scores computed elsewhere, but `compute_score_snapshot` is the only way to get labels that are guaranteed to match the numbers. Store snapshots rather than recomputing labels from rounded numbers."
 msgstr "**让标签与分数保持在一起。** `rank_label` 和 `compute_momentum_label` 是独立的函数，以便你为别处计算出的分数打标签，但只有 `compute_score_snapshot` 能保证标签与数字一致。请存储快照，而不是根据四舍五入后的数字重新计算标签。"
 
-#: manual/tutorial/score.md:211
+#: manual/tutorial/score.md:209
 msgid "**Guard against overflow at the edge.** No real package has `2147483647` dependents, but if your signals come from untrusted input, clamp them first: a count of exactly `2147483647` makes the score `NaN`, which ranks as `D`."
 msgstr "**在边界处防止溢出。** 没有真实的包拥有 `2147483647` 个依赖方，但如果信号来自不可信的输入，请先截断：恰好为 `2147483647` 的计数会使分数变为 `NaN`，其等级为 `D`。"
 
-#: manual/tutorial/score.md:226
+#: manual/tutorial/score.md:224
 msgid "**Swapped arguments.** All signals are `Int`, so the compiler cannot tell `downloads` from `dependents`. Keep the order of the [signals table](../api/score.md#signals)."
 msgstr "**参数顺序颠倒。** 所有信号都是 `Int`，编译器无法区分 `downloads` 和 `dependents`。请遵守[信号表](../api/score.md#signals)的顺序。"
 
-#: manual/tutorial/score.md:229
+#: manual/tutorial/score.md:227
 msgid "**Days, not dates.** `days_since_release` is a count of whole days, not a timestamp. A negative value counts as `0` and gets the highest multiplier."
 msgstr "**天数而非日期。** `days_since_release` 是整天数，而不是时间戳。负值按 `0` 处理，并获得最高乘数。"
 
-#: manual/tutorial/score.md:231
+#: manual/tutorial/score.md:229
 msgid "**Growth ratio of new packages.** A ratio of `1` can mean \"doubled\" or \"appeared from nothing\". Check `score_30d_ago == 0.0` to tell them apart."
 msgstr "**新包的增长率。** 比值为 `1` 可能表示\"翻倍\"，也可能表示\"从无到有\"。检查 `score_30d_ago == 0.0` 来区分二者。"
 
-#: manual/tutorial/score.md:233
+#: manual/tutorial/score.md:231
 msgid "**Comparing with `==`.** Scores are floating-point numbers; compare computed sums with a tolerance."
 msgstr "**用 `==` 比较。** 分数是浮点数；比较计算出的和时请使用容差。"
 
-#: manual/tutorial/score.md:235
+#: manual/tutorial/score.md:233
 msgid "**Momentum needs the snapshot ratio.** `compute_momentum_label` trusts the ratio you pass. Passing a percentage (`35.0`) instead of a fraction (`0.35`) makes the ratio condition pass for any real growth."
 msgstr "**势头需要快照中的比值。** `compute_momentum_label` 信任你传入的比值。传入百分数（`35.0`）而不是小数（`0.35`）会使比值条件对任何实际增长都成立。"
 
-#: manual/tutorial/score.md:241
+#: manual/tutorial/score.md:239
 msgid "[score API](../api/score.md) for every function and threshold."
 msgstr "[score API](../api/score.md)：所有函数和阈值。"
 
-#: manual/tutorial/score.md:242
+#: manual/tutorial/score.md:240
 msgid "[score design](../design/score.md) for the derivation of the formula, the rank thresholds in counts and the accuracy bounds."
 msgstr "[score 设计](../design/score.md)：公式的推导、以计数表示的等级阈值以及精度界限。"
 
-#: manual/tutorial/score.md:244
+#: manual/tutorial/score.md:242
 msgid "[cli tutorial](cli.md) to compute snapshots from Python or a shell."
 msgstr "[cli 教程](cli.md)：从 Python 或 shell 计算快照。"
 
-#: manual/tutorial/score.md:245
+#: manual/tutorial/score.md:243
 msgid "[static_search tutorial](static_search.md) to search the scored packages in the browser."
 msgstr "[static_search 教程](static_search.md)：在浏览器中搜索已评分的包。"
 
@@ -2103,23 +2269,51 @@ msgstr "static_search 教程"
 msgid "This tutorial shows you how to use the MoonBit `static_search` package to normalise text the way the static site's search does, how to build and serve the static site with its search index, and how to write queries for it. The [static_search design](../design/static_search.md) explains the index and the ranking in detail."
 msgstr "本教程介绍如何使用 MoonBit 的 `static_search` 包以与静态站点搜索相同的方式规范化文本，如何构建并提供带搜索索引的静态站点，以及如何为它编写查询。[static_search 设计](../design/static_search.md)详细解释了索引和排序。"
 
-#: manual/tutorial/static_search.md:17
+#: manual/tutorial/static_search.md:11
+msgid "lower-case text like the static search"
+msgstr "像静态搜索那样把文本转为小写"
+
+#: manual/tutorial/static_search.md:12
+msgid "tell which static search runtime is loaded"
+msgstr "判断加载的是哪个静态搜索运行时"
+
+#: manual/tutorial/static_search.md:13
+msgid "build and serve the static site"
+msgstr "构建并提供静态站点"
+
+#: manual/tutorial/static_search.md:14
+msgid "find packages"
+msgstr "查找包"
+
+#: manual/tutorial/static_search.md:14
+msgid "the native expression language, for example `json AND score>=180`"
+msgstr "原生表达式语言，例如 `json AND score>=180`"
+
+#: manual/tutorial/static_search.md:15
+msgid "predict the order of results"
+msgstr "预测结果的顺序"
+
+#: manual/tutorial/static_search.md:15
+msgid "the coordination count, then score, then name"
+msgstr "协调计数，然后分数，然后名称"
+
+#: manual/tutorial/static_search.md:25
 msgid "The package builds only for the JavaScript target, so the package that imports it must do so as well:"
 msgstr "该包只为 JavaScript 目标构建，所以导入它的包也必须如此："
 
-#: manual/tutorial/static_search.md:28
+#: manual/tutorial/static_search.md:36
 msgid "Case-insensitive matching is a substring test on lower-cased text:"
 msgstr "不区分大小写的匹配就是在小写文本上做子串测试："
 
-#: manual/tutorial/static_search.md:42
+#: manual/tutorial/static_search.md:46
 msgid "Run it with `moon test --target js`."
 msgstr "用 `moon test --target js` 运行它。"
 
-#: manual/tutorial/static_search.md:46
+#: manual/tutorial/static_search.md:50
 msgid "Normalise a search box value"
 msgstr "规范化搜索框中的值"
 
-#: manual/tutorial/static_search.md:48
+#: manual/tutorial/static_search.md:52
 msgid "The search worker trims the query value and lower-cases it. `normalize_text` only lower-cases, so trim first:"
 msgstr "搜索 worker 会去除查询值的首尾空白并转为小写。`normalize_text` 只转小写，所以先去除空白："
 
@@ -2187,57 +2381,106 @@ msgstr "理解结果的顺序"
 msgid "Without an explicit sort, the static site orders results by how many terms of the query a package matches, then by score, then by name. The following MoonBit program reproduces this for an `OR` of words:"
 msgstr "没有显式指定排序时，静态站点先按包匹配查询中多少项排序，再按分数，最后按名称。下面的 MoonBit 程序针对单词的 `OR` 重现了这一点："
 
-#: manual/tutorial/static_search.md:155
+#: manual/tutorial/static_search.md:154
 msgid "The query `json OR parser` gives the same order on the static site: `alice/json` matches both words, and the other two tie on one match and are ordered by score. For `json AND parser` every result matches both words, so the order is the plain score order."
 msgstr "查询 `json OR parser` 在静态站点上给出同样的顺序：`alice/json` 匹配两个词，另外两个各匹配一个而并列，按分数排序。对于 `json AND parser`，每个结果都匹配两个词，因此顺序就是普通的分数顺序。"
 
-#: manual/tutorial/static_search.md:162
+#: manual/tutorial/static_search.md:161
 msgid "**Use the compiled module from JavaScript.** `moon build src/static_search --target js` writes an ES module with `runtime_version` and `normalize_text`; see the [static_search API](../api/static_search.md) for the import path. Check `runtime_version()` when your JavaScript code depends on the behaviour of a particular release."
 msgstr "**在 JavaScript 中使用编译后的模块。** `moon build src/static_search --target js` 会写出一个包含 `runtime_version` 和 `normalize_text` 的 ES 模块；导入路径见 [static_search API](../api/static_search.md)。当你的 JavaScript 代码依赖于某个特定版本的行为时，请检查 `runtime_version()`。"
 
-#: manual/tutorial/static_search.md:168
+#: manual/tutorial/static_search.md:167
 msgid "**Compare with the dynamic site.** The local server (`npm run dev`) runs the same query language against SQLite. Text terms there match word prefixes through FTS5 instead of substrings, and results without an explicit sort are ordered differently. The [design page](../design/static_search.md#agreement-with-the-dynamic-site) lists every difference."
 msgstr "**与动态站点比较。** 本地服务器（`npm run dev`）在 SQLite 上运行同样的查询语言。那里的文本项通过 FTS5 匹配词的前缀而不是子串，未显式指定排序时结果的顺序也不同。[设计页面](../design/static_search.md#agreement-with-the-dynamic-site)列出了所有差异。"
 
-#: manual/tutorial/static_search.md:175
+#: manual/tutorial/static_search.md:174
 msgid "**Publish to GitHub Pages.** The `deploy-static` workflow runs the same commands on a schedule. Set `NEXT_PUBLIC_BASE_PATH` when the site is served from a sub-path, so that the worker fetches `/<base>/data/...`."
 msgstr "**发布到 GitHub Pages。** `deploy-static` 工作流按计划运行同样的命令。站点部署在子路径下时请设置 `NEXT_PUBLIC_BASE_PATH`，使 worker 从 `/<base>/data/...` 获取数据。"
 
-#: manual/tutorial/static_search.md:181
+#: manual/tutorial/static_search.md:180
 msgid "**Implicit AND.** `json parser` without `AND` is a syntax error in the expression language. In the simple search field (`q`) the same text is one substring, `json parser`."
 msgstr "**隐式 AND。** 在表达式语言中，不带 `AND` 的 `json parser` 是语法错误。在简单搜索字段（`q`）中，同样的文本是一个子串 `json parser`。"
 
-#: manual/tutorial/static_search.md:184
+#: manual/tutorial/static_search.md:183
 msgid "**Trimming.** `normalize_text` keeps spaces. A needle with a trailing space matches less than the trimmed one."
 msgstr "**去除空白。** `normalize_text` 保留空格。带尾随空格的查询词比去除空白后的匹配得更少。"
 
-#: manual/tutorial/static_search.md:186
+#: manual/tutorial/static_search.md:185
 msgid "**Field operators.** `score:180` means `score = 180`, not at least 180. Use `score>=180`."
 msgstr "**字段运算符。** `score:180` 表示 `score = 180`，而不是至少 180。请使用 `score>=180`。"
 
-#: manual/tutorial/static_search.md:188
+#: manual/tutorial/static_search.md:187
 msgid "**Labels are exact.** `rank=s` matches nothing on the static site; write `rank=S` and `momentum=Rising`."
 msgstr "**标签需完全匹配。** 在静态站点上 `rank=s` 什么也匹配不到；请写 `rank=S` 和 `momentum=Rising`。"
 
-#: manual/tutorial/static_search.md:190
+#: manual/tutorial/static_search.md:189
+msgid "**`NOT` inside `OR` reorders.** The relevance count also counts negated terms that match, so for `NOT rank=D OR json` the packages of rank `D` that mention `json` come first. Sort by score when you combine `NOT` with `OR`."
+msgstr "**`OR` 中的 `NOT` 会改变顺序。** 相关度计数也会计入匹配的取反项，因此对 `NOT rank=D OR json`，提到 `json` 的 `D` 级包会排在最前。把 `NOT` 与 `OR` 组合使用时，请按分数排序。"
+
+#: manual/tutorial/static_search.md:193
 msgid "**Wrong target.** Importing `static_search` from a package that builds for `wasm-gc` or `native` fails, because the package uses JavaScript foreign functions."
 msgstr "**目标错误。** 从为 `wasm-gc` 或 `native` 构建的包中导入 `static_search` 会失败，因为该包使用了 JavaScript 外部函数。"
 
-#: manual/tutorial/static_search.md:196
+#: manual/tutorial/static_search.md:199
 msgid "[static_search design](../design/static_search.md) for the index layout, the relevance count and the complexity of a query."
 msgstr "[static_search 设计](../design/static_search.md)：索引布局、相关度计数和查询的复杂度。"
 
-#: manual/tutorial/static_search.md:198
+#: manual/tutorial/static_search.md:201
 msgid "[static_search API](../api/static_search.md) for the MoonBit and JavaScript functions."
 msgstr "[static_search API](../api/static_search.md)：MoonBit 和 JavaScript 函数。"
 
-#: manual/tutorial/static_search.md:200
+#: manual/tutorial/static_search.md:203
 msgid "[score tutorial](score.md) for the numbers that the search filters and sorts."
 msgstr "[score 教程](score.md)：搜索所筛选和排序的那些数字。"
 
-#: manual/tutorial/static_search.md:202
+#: manual/tutorial/static_search.md:205
 msgid "[architecture guide](../architecture.md) for the whole data pipeline."
 msgstr "[架构指南](../architecture.md)：完整的数据管道。"
+
+#~ msgid "Import the package in `moon.pkg`:"
+#~ msgstr "在 `moon.pkg` 中导入该包："
+
+#~ msgid "The historical window is the recent window shifted 30 days back, so the two snapshots are computed the same way."
+#~ msgstr "历史窗口就是把近期窗口向前平移 30 天，因此两个快照以同样的方式计算。"
+
+#~ msgid "using $\\ln(1+x) \\le x$ with $x = 1/(D+1)$. The marginal value of a dependent falls like $1/D$, so no single signal can dominate the ranking."
+#~ msgstr "这里用到了 $\\ln(1+x) \\le x$，其中 $x = 1/(D+1)$。一个依赖方的边际价值按 $1/D$ 递减，因此没有哪个单一信号能主导排名。"
+
+#~ msgid "Package"
+#~ msgstr "包"
+
+#~ msgid "[API](api/score.md) · [tutorial](tutorial/score.md) · [design](design/score.md)"
+#~ msgstr "[API](api/score.md) · [教程](tutorial/score.md) · [设计](design/score.md)"
+
+#~ msgid "A JavaScript command that computes a score snapshot from a JSON file, used by the Python index builder."
+#~ msgstr "一个根据 JSON 文件计算分数快照的 JavaScript 命令，供 Python 索引构建器使用。"
+
+#~ msgid "[API](api/cli.md) · [tutorial](tutorial/cli.md) · [design](design/cli.md)"
+#~ msgstr "[API](api/cli.md) · [教程](tutorial/cli.md) · [设计](design/cli.md)"
+
+#~ msgid "[API](api/static_search.md) · [tutorial](tutorial/static_search.md) · [design](design/static_search.md)"
+#~ msgstr "[API](api/static_search.md) · [教程](tutorial/static_search.md) · [设计](design/static_search.md)"
+
+#~ msgid "Guides"
+#~ msgstr "指南"
+
+#~ msgid "[Conventions](conventions.md): the documentation rules specific to this repository."
+#~ msgstr "[约定](conventions.md)：本仓库特有的文档规则。"
+
+#~ msgid "Reading paths"
+#~ msgstr "阅读路径"
+
+#~ msgid "Toolchain"
+#~ msgstr "工具链"
+
+#~ msgid "MoonBit with `moonc` 0.10 or later. The module uses the `moon.mod` and `moon.pkg` manifest formats."
+#~ msgstr "`moonc` 0.10 或更高版本的 MoonBit。该模块使用 `moon.mod` 和 `moon.pkg` 清单格式。"
+
+#~ msgid "Node.js 20.16, 22.3 or later to run `cli` and the web application."
+#~ msgstr "Node.js 20.16、22.3 或更高版本，用于运行 `cli` 和 Web 应用。"
+
+#~ msgid "Python 3 for the index builder and the static exporter."
+#~ msgstr "Python 3，用于索引构建器和静态导出器。"
 
 #~ msgid "Exported MoonBit Functions"
 #~ msgstr "导出的 MoonBit 函数"
@@ -2476,9 +2719,6 @@ msgstr "[架构指南](../architecture.md)：完整的数据管道。"
 #~ msgid "Add the score package to the `import` list of your `moon.pkg`:"
 #~ msgstr "在 `moon.pkg` 的 `import` 列表中加入 score 包："
 
-#~ msgid "Compute a score"
-#~ msgstr "计算分数"
-
 #~ msgid "`compute_score` takes the total dependents, the recent dependents, the download count, and the days since the latest release. Negative inputs are clamped to `0`."
 #~ msgstr "`compute_score` 接收总反向依赖数、近期反向依赖数、下载量以及距最新发布的天数。负数输入会被截断为 `0`。"
 
@@ -2550,9 +2790,6 @@ msgstr "[架构指南](../architecture.md)：完整的数据管道。"
 
 #~ msgid "[Tutorial](./getting_started.md)"
 #~ msgstr "[使用教程](./getting_started.md)"
-
-#~ msgid "[Score design](./design/score.md)"
-#~ msgstr "[评分设计](./design/score.md)"
 
 #~ msgid "Use this page as the starting point for practical workflows around this module. score in Luna-Flow/mooncake_impact_factor."
 #~ msgstr "本页用于说明这个模块的实际使用路径。 这里聚焦 Luna-Flow/mooncake_impact_factor 中的 score。"

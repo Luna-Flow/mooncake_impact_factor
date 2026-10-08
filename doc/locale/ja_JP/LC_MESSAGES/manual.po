@@ -16,121 +16,127 @@ msgid "cli API"
 msgstr "cli API"
 
 #: manual/api/cli.md:3
+#: manual/api/score.md:3
+#: manual/api/static_search.md:3
+msgid "Purpose"
+msgstr "用途"
+
+#: manual/api/cli.md:5
 msgid "The package `Luna-Flow/mooncake-impact-factor/cli` is an executable for the JavaScript target. It reads the eight signals of a score snapshot from a JSON file, calls [`compute_score_snapshot`](score.md#compute_score_snapshot) and prints the result as JSON. It exists so that programs outside MoonBit, above all the Python index builder, use the MoonBit score rules instead of copying them."
 msgstr "パッケージ `Luna-Flow/mooncake-impact-factor/cli` は JavaScript ターゲット向けの実行可能プログラムです。スコアスナップショットの 8 つのシグナルを JSON ファイルから読み込み、[`compute_score_snapshot`](score.md#compute_score_snapshot) を呼び出して結果を JSON で出力します。MoonBit 以外のプログラム、とりわけ Python のインデックスビルダーが、評価規則を複製せずに MoonBit の規則そのものを使えるようにするためのものです。"
 
-#: manual/api/cli.md:10
+#: manual/api/cli.md:12
 msgid "Source: [`src/cli/main.mbt`](../../../src/cli/main.mbt). Its interface file is empty: the package exports no MoonBit names, and its interface is the command line described here."
 msgstr "ソース: [`src/cli/main.mbt`](../../../src/cli/main.mbt)。インターフェースファイルは空です。このパッケージは MoonBit の名前を一切エクスポートせず、ここで説明するコマンドラインがそのインターフェースです。"
 
-#: manual/api/cli.md:14
+#: manual/api/cli.md:16
 msgid "Building"
 msgstr "ビルド"
 
-#: manual/api/cli.md:16
-msgid "The package declares `supported_targets = \"js\"` and `pkgtype(kind: \"executable\")`. Build it from the repository root:"
-msgstr "このパッケージは `supported_targets = \"js\"` と `pkgtype(kind: \"executable\")` を宣言しています。リポジトリのルートでビルドします。"
+#: manual/api/cli.md:18
+msgid "The package cannot be imported: it is an executable with no exported names. It declares `supported_targets = \"js\"` and `pkgtype(kind: \"executable\")`. Build it from the repository root:"
+msgstr "このパッケージはインポートできません。エクスポートする名前を持たない実行可能パッケージです。`supported_targets = \"js\"` と `pkgtype(kind: \"executable\")` を宣言しています。リポジトリのルートでビルドします。"
 
-#: manual/api/cli.md:23
+#: manual/api/cli.md:26
 msgid "The index builder expects the result at `_build/js/debug/build/cli/cli.js` and builds it when the file is missing. The script needs a Node.js version with `process.getBuiltinModule` (20.16, 22.3 or later)."
 msgstr "インデックスビルダーはビルド結果が `_build/js/debug/build/cli/cli.js` にあることを前提とし、ファイルがなければビルドします。スクリプトの実行には `process.getBuiltinModule` を備えた Node.js（20.16、22.3 以降）が必要です。"
 
-#: manual/api/cli.md:30
+#: manual/api/cli.md:33
 msgid "`score-snapshot` computes one score snapshot from a JSON input file."
 msgstr "`score-snapshot` は 1 つの JSON 入力ファイルから 1 つのスコアスナップショットを計算します。"
 
-#: manual/api/cli.md:36
+#: manual/api/cli.md:39
 msgid "The first argument after the script must be `score-snapshot`. `--input` may appear anywhere after it; the first `--input` that is followed by a value wins, and other arguments are ignored."
 msgstr "スクリプトの直後の引数は `score-snapshot` でなければなりません。`--input` はその後ろのどこに置いてもかまいません。値が続く最初の `--input` が使われ、その他の引数は無視されます。"
 
-#: manual/api/cli.md:40
+#: manual/api/cli.md:43
 msgid "Input"
 msgstr "入力"
 
-#: manual/api/cli.md:42
+#: manual/api/cli.md:45
 msgid "The file must contain one JSON object. Each key is optional:"
 msgstr "ファイルには JSON オブジェクトを 1 つだけ含めます。各キーは省略可能です。"
 
-#: manual/api/cli.md:44
+#: manual/api/cli.md:47
 #: manual/design/static_search.md:43
 msgid "Key"
 msgstr "キー"
 
-#: manual/api/cli.md:44
+#: manual/api/cli.md:47
 #: manual/architecture.md:44
 msgid "Signal"
 msgstr "シグナル"
 
-#: manual/api/cli.md:46
+#: manual/api/cli.md:49
 msgid "Current dependents."
 msgstr "現在の被依存数。"
 
-#: manual/api/cli.md:47
+#: manual/api/cli.md:50
 msgid "Current recent dependents."
 msgstr "現在の最近の被依存数。"
 
-#: manual/api/cli.md:48
+#: manual/api/cli.md:51
 msgid "Current downloads."
 msgstr "現在のダウンロード数。"
 
-#: manual/api/cli.md:49
+#: manual/api/cli.md:52
 msgid "Days since the latest release, now."
 msgstr "現在の、最新リリースからの日数。"
 
-#: manual/api/cli.md:50
+#: manual/api/cli.md:53
 msgid "Dependents 30 days ago."
 msgstr "30 日前の被依存数。"
 
-#: manual/api/cli.md:51
+#: manual/api/cli.md:54
 msgid "Recent dependents 30 days ago."
 msgstr "30 日前の最近の被依存数。"
 
-#: manual/api/cli.md:52
+#: manual/api/cli.md:55
 msgid "Downloads 30 days ago."
 msgstr "30 日前のダウンロード数。"
 
-#: manual/api/cli.md:53
+#: manual/api/cli.md:56
 msgid "Days since the latest release, 30 days ago."
 msgstr "30 日前の時点での、最新リリースからの日数。"
 
-#: manual/api/cli.md:55
+#: manual/api/cli.md:58
 msgid "A value is used when it is a JSON number; it is converted to `Int` by truncation toward zero (`12.9` becomes `12`), and values beyond the `Int` range saturate at its bounds. A missing key, a value of any other JSON type (including a numeric string such as `\"20\"`) and a top-level value that is not an object all count as `0`. The score functions then clamp negative values to `0`. Unknown keys are ignored."
 msgstr "値は JSON の数値である場合にのみ使われます。ゼロ方向への切り捨てで `Int` に変換され（`12.9` は `12` になります）、`Int` の範囲を超える値はその境界に飽和します。キーの欠落、その他の JSON 型の値（`\"20\"` のような数値文字列を含む）、およびトップレベルがオブジェクトでない場合は、すべて `0` として扱われます。その後、スコア関数が負の値を `0` に切り上げます。未知のキーは無視されます。"
 
-#: manual/api/cli.md:75
-#: manual/api/cli.md:92
+#: manual/api/cli.md:78
+#: manual/api/cli.md:95
 msgid "Output"
 msgstr "出力"
 
-#: manual/api/cli.md:77
+#: manual/api/cli.md:80
 msgid "On success the command prints one line, the JSON form of the [`ScoreSnapshot`](score.md#scoresnapshot), and exits with status `0`. Fields appear in declaration order. A `NaN` field, which only arises from a count of `2147483647` or more, is written as the string `\"NaN\"`. For the input above the output is:"
 msgstr "成功すると、コマンドは [`ScoreSnapshot`](score.md#scoresnapshot) の JSON 形式を 1 行出力し、ステータス `0` で終了します。フィールドは宣言順に並びます。`NaN` のフィールド（`2147483647` 以上のカウントからのみ生じます）は文字列 `\"NaN\"` として書き出されます。上の入力に対する出力は次のとおりです。"
 
-#: manual/api/cli.md:87
+#: manual/api/cli.md:90
 msgid "Errors"
 msgstr "エラー"
 
-#: manual/api/cli.md:89
+#: manual/api/cli.md:92
 msgid "Usage and parse errors print one JSON object with an `error` key to standard output and exit with status `1`:"
 msgstr "使い方の誤りと解析エラーでは、`error` キーを持つ JSON オブジェクトを 1 つ標準出力に書き出し、ステータス `1` で終了します。"
 
-#: manual/api/cli.md:92
+#: manual/api/cli.md:95
 msgid "Situation"
 msgstr "状況"
 
-#: manual/api/cli.md:94
+#: manual/api/cli.md:97
 msgid "No arguments, or the first argument is not `score-snapshot`"
 msgstr "引数がない、または最初の引数が `score-snapshot` でない"
 
-#: manual/api/cli.md:95
+#: manual/api/cli.md:98
 msgid "No `--input` followed by a value"
 msgstr "値が続く `--input` がない"
 
-#: manual/api/cli.md:96
+#: manual/api/cli.md:99
 msgid "The file is not valid JSON"
 msgstr "ファイルが正しい JSON でない"
 
-#: manual/api/cli.md:98
+#: manual/api/cli.md:101
 msgid "A file that cannot be read is not reported this way: Node.js raises an uncaught `ENOENT` (or similar) error, prints a stack trace to standard error and exits with status `1`. Callers should treat any non-zero status as a failure and parse standard output only on status `0`."
 msgstr "読み込めないファイルはこの方法では報告されません。Node.js が捕捉されない `ENOENT`（または同様の）エラーを送出し、スタックトレースを標準エラーに出力してステータス `1` で終了します。呼び出し側は 0 以外のステータスをすべて失敗とみなし、ステータスが `0` のときだけ標準出力を解析してください。"
 
@@ -138,230 +144,235 @@ msgstr "読み込めないファイルはこの方法では報告されません
 msgid "score API"
 msgstr "score API"
 
-#: manual/api/score.md:3
+#: manual/api/score.md:5
 msgid "The package `Luna-Flow/mooncake-impact-factor/score` computes the impact score of a MoonBit package from four integer signals, labels the score with a rank and a momentum class, and bundles everything into a `ScoreSnapshot`. Every function is pure and total: it never aborts and has no hidden state."
 msgstr "パッケージ `Luna-Flow/mooncake-impact-factor/score` は、4 つの整数シグナルから MoonBit パッケージのインパクトスコアを計算し、スコアにランクとモメンタムの区分を付け、すべてを 1 つの `ScoreSnapshot` にまとめます。どの関数も純粋かつ全域的で、中断することも隠れた状態を持つこともありません。"
 
-#: manual/api/score.md:8
+#: manual/api/score.md:10
 msgid "Source: [`src/score/impact_factor.mbt`](../../../src/score/impact_factor.mbt). The mathematics behind the formula is in the [score design](../design/score.md)."
 msgstr "ソース: [`src/score/impact_factor.mbt`](../../../src/score/impact_factor.mbt)。式の背後にある数学は [score の設計](../design/score.md) にあります。"
 
-#: manual/api/score.md:11
-msgid "Import the package in `moon.pkg`:"
-msgstr "`moon.pkg` でパッケージをインポートします。"
+#: manual/api/score.md:13
+#: manual/api/static_search.md:15
+msgid "Importing"
+msgstr "インポート"
 
-#: manual/api/score.md:19
+#: manual/api/score.md:15
+msgid "Add the package to your `moon.pkg`. The examples on this page call it as `@score`; the JSON examples also import `moonbitlang/core/json`."
+msgstr "パッケージを `moon.pkg` に追加します。このページの例では `@score` として呼び出し、JSON の例ではさらに `moonbitlang/core/json` をインポートします。"
+
+#: manual/api/score.md:24
 msgid "Signals"
 msgstr "シグナル"
 
-#: manual/api/score.md:21
+#: manual/api/score.md:26
 msgid "Every scoring function takes the same four signals, in this order:"
 msgstr "どのスコア関数も、同じ 4 つのシグナルを次の順で受け取ります。"
 
-#: manual/api/score.md:23
+#: manual/api/score.md:28
 msgid "Parameter"
 msgstr "パラメーター"
 
-#: manual/api/score.md:23
-#: manual/api/score.md:191
+#: manual/api/score.md:28
+#: manual/api/score.md:196
 msgid "Meaning"
 msgstr "意味"
 
-#: manual/api/score.md:25
+#: manual/api/score.md:30
 msgid "Number of packages that depend on this package."
 msgstr "このパッケージに依存しているパッケージの数。"
 
-#: manual/api/score.md:26
+#: manual/api/score.md:31
 msgid "Number of those dependents that first appeared in the recent window."
 msgstr "それらのうち、最近のウィンドウ内で初めて現れたものの数。"
 
-#: manual/api/score.md:27
+#: manual/api/score.md:32
 msgid "Download count, or `0` when unknown."
 msgstr "ダウンロード数。不明な場合は `0`。"
 
-#: manual/api/score.md:28
+#: manual/api/score.md:33
 msgid "Whole days since the latest release."
 msgstr "最新リリースからの経過日数（整数）。"
 
-#: manual/api/score.md:30
+#: manual/api/score.md:35
 msgid "The functions do not check that the signals are consistent, for example that `recent_dependents <= dependents`. Negative values are clamped to `0`. The index builder fills the signals from a local registry snapshot; see the [architecture guide](../architecture.md)."
 msgstr "これらの関数はシグナル同士の整合性（たとえば `recent_dependents <= dependents`）を確認しません。負の値は `0` に切り上げられます。シグナルはインデックスビルダーがローカルのレジストリスナップショットから算出します。[アーキテクチャガイド](../architecture.md) を参照してください。"
 
-#: manual/api/score.md:35
+#: manual/api/score.md:40
 msgid "Scores"
 msgstr "スコア"
 
-#: manual/api/score.md:39
+#: manual/api/score.md:44
 msgid "`compute_score` returns the impact score of a package."
 msgstr "`compute_score` はパッケージのインパクトスコアを返します。"
 
-#: manual/api/score.md:45
+#: manual/api/score.md:50
 msgid "With $\\sigma(n) = \\ln(1 + \\max(n, 0))$, $D$ dependents, $R$ recent dependents, $W$ downloads and $t$ days since release, the result is"
 msgstr "$\\sigma(n) = \\ln(1 + \\max(n, 0))$ とし、被依存数を $D$、最近の被依存数を $R$、ダウンロード数を $W$、リリースからの日数を $t$ とすると、結果は次のとおりです。"
 
-#: manual/api/score.md:52
+#: manual/api/score.md:57
 msgid "where $m(t)$ is `activity_multiplier(t)`. The score is $0$ exactly when all three counts are $0$ or negative, and it never decreases when a count grows. It has no upper limit by design, but for counts below $2^{31} - 1$ it stays below about $2094$."
 msgstr "ここで $m(t)$ は `activity_multiplier(t)` です。スコアが $0$ になるのは 3 つのカウントがすべて $0$ 以下のときに限られ、どのカウントが増えてもスコアが減ることはありません。設計上スコアに上限はありませんが、カウントが $2^{31} - 1$ 未満であればおよそ $2094$ を下回ります。"
 
-#: manual/api/score.md:57
+#: manual/api/score.md:62
 msgid "[!WARNING] A count equal to `2147483647` (the largest `Int`) overflows when $1$ is added, and the score becomes `NaN`. Real registry counts are far below this."
 msgstr "[!WARNING] カウントが `2147483647`（`Int` の最大値）に等しいと、$1$ を加えたときにオーバーフローし、スコアは `NaN` になります。実際のレジストリのカウントはこれよりはるかに小さい値です。"
 
-#: manual/api/score.md:71
+#: manual/api/score.md:76
 msgid "`activity_multiplier` returns the release-recency factor $m(t)$ applied to the whole score."
 msgstr "`activity_multiplier` は、スコア全体に掛かるリリース鮮度係数 $m(t)$ を返します。"
 
-#: manual/api/score.md:78
+#: manual/api/score.md:83
 msgid "A negative `days_since_release` counts as `0`."
 msgstr "負の `days_since_release` は `0` として扱われます。"
 
-#: manual/api/score.md:80
+#: manual/api/score.md:85
 msgid "Days since release"
 msgstr "リリースからの日数"
 
-#: manual/api/score.md:80
+#: manual/api/score.md:85
 msgid "Multiplier"
 msgstr "乗数"
 
-#: manual/api/score.md:82
+#: manual/api/score.md:87
 msgid "`0` to `30`"
 msgstr "`0` 〜 `30`"
 
-#: manual/api/score.md:83
+#: manual/api/score.md:88
 msgid "`31` to `90`"
 msgstr "`31` 〜 `90`"
 
-#: manual/api/score.md:84
+#: manual/api/score.md:89
 msgid "`91` to `180`"
 msgstr "`91` 〜 `180`"
 
-#: manual/api/score.md:85
+#: manual/api/score.md:90
 msgid "`181` to `365`"
 msgstr "`181` 〜 `365`"
 
-#: manual/api/score.md:86
+#: manual/api/score.md:91
 msgid "`366` or more"
 msgstr "`366` 以上"
 
-#: manual/api/score.md:98
+#: manual/api/score.md:103
 msgid "`clamp_non_negative` returns `value` when it is non-negative and `0` otherwise."
 msgstr "`clamp_non_negative` は `value` が非負ならそれを、そうでなければ `0` を返します。"
 
-#: manual/api/score.md:105
+#: manual/api/score.md:110
 msgid "The scoring functions apply it to every signal. It is public so that callers can prepare signals the same way."
 msgstr "スコア関数はすべてのシグナルにこれを適用します。呼び出し側が同じ方法でシグナルを準備できるよう公開されています。"
 
-#: manual/api/score.md:115
+#: manual/api/score.md:120
 msgid "Labels"
 msgstr "ラベル"
 
-#: manual/api/score.md:119
+#: manual/api/score.md:124
 msgid "`rank_label` maps a score to one of the rank buckets `S`, `A`, `B`, `C` and `D`."
 msgstr "`rank_label` はスコアをランク区分 `S`、`A`、`B`、`C`、`D` のいずれかに対応付けます。"
 
-#: manual/api/score.md:126
+#: manual/api/score.md:131
 msgid "Rank"
 msgstr "ランク"
 
-#: manual/api/score.md:126
-#: manual/api/score.md:155
+#: manual/api/score.md:131
+#: manual/api/score.md:160
 msgid "Condition"
 msgstr "条件"
 
-#: manual/api/score.md:132
+#: manual/api/score.md:137
 msgid "`score < 50.0`, or `score` is `NaN`"
 msgstr "`score < 50.0`、または `score` が `NaN`"
 
-#: manual/api/score.md:144
+#: manual/api/score.md:149
 msgid "`compute_momentum_label` classifies how fast a score grew as `Rising`, `Hot` or `Stable`."
 msgstr "`compute_momentum_label` はスコアの伸びの速さを `Rising`、`Hot`、`Stable` に分類します。"
 
-#: manual/api/score.md:151
+#: manual/api/score.md:156
 msgid "The arguments are the current score $S$, the score 30 days ago $S_{30}$, the growth ratio $r$ and the number of recent dependents $R$. With the growth $G = S - S_{30}$:"
 msgstr "引数は現在のスコア $S$、30 日前のスコア $S_{30}$、成長率 $r$、最近の被依存数 $R$ です。成長量を $G = S - S_{30}$ とすると、次のようになります。"
 
-#: manual/api/score.md:155
+#: manual/api/score.md:160
 msgid "Label"
 msgstr "ラベル"
 
-#: manual/api/score.md:157
+#: manual/api/score.md:162
 msgid "$G \\ge 35$ and $r \\ge 0.35$ and $R \\ge 3$"
 msgstr "$G \\ge 35$ かつ $r \\ge 0.35$ かつ $R \\ge 3$"
 
-#: manual/api/score.md:158
+#: manual/api/score.md:163
 msgid "not `Rising`, and $G \\ge 18$ and $r \\ge 0.18$ and $R \\ge 2$"
 msgstr "`Rising` ではなく、かつ $G \\ge 18$、$r \\ge 0.18$、$R \\ge 2$"
 
-#: manual/api/score.md:159
+#: manual/api/score.md:164
 msgid "otherwise, including any `NaN` argument"
 msgstr "それ以外（いずれかの引数が `NaN` の場合を含む）"
 
-#: manual/api/score.md:161
+#: manual/api/score.md:166
 msgid "The function does not check that `growth_ratio` matches the two scores; `compute_score_snapshot` computes it for you."
 msgstr "この関数は `growth_ratio` が 2 つのスコアと一致するかを確認しません。`compute_score_snapshot` を使えば自動的に計算されます。"
 
-#: manual/api/score.md:172
+#: manual/api/score.md:177
 msgid "Snapshots"
 msgstr "スナップショット"
 
-#: manual/api/score.md:176
+#: manual/api/score.md:181
 msgid "`ScoreSnapshot` is the full result of scoring one package at one point in time."
 msgstr "`ScoreSnapshot` は、ある時点での 1 つのパッケージの評価結果一式です。"
 
-#: manual/api/score.md:191
+#: manual/api/score.md:196
 msgid "Field"
 msgstr "フィールド"
 
-#: manual/api/score.md:193
+#: manual/api/score.md:198
 msgid "The current score $S$."
 msgstr "現在のスコア $S$。"
 
-#: manual/api/score.md:194
+#: manual/api/score.md:199
 msgid "The score $S_{30}$ computed from the historical signals."
 msgstr "過去のシグナルから計算したスコア $S_{30}$。"
 
-#: manual/api/score.md:195
+#: manual/api/score.md:200
 msgid "$G = S - S_{30}$; negative when the score fell."
 msgstr "$G = S - S_{30}$。スコアが下がった場合は負になります。"
 
-#: manual/api/score.md:196
+#: manual/api/score.md:201
 msgid "$G / S_{30}$ when $S_{30} > 0$; otherwise $1$ when $G > 0$ and $0$ when $G \\le 0$."
 msgstr "$S_{30} > 0$ のときは $G / S_{30}$。それ以外では $G > 0$ なら $1$、$G \\le 0$ なら $0$。"
 
-#: manual/api/score.md:199
+#: manual/api/score.md:204
 msgid "`activity_multiplier(days_since_release)` for the current signals."
 msgstr "現在のシグナルに対する `activity_multiplier(days_since_release)`。"
 
-#: manual/api/score.md:201
+#: manual/api/score.md:206
 msgid "The fields are read-only outside the package; build a snapshot with `compute_score_snapshot`. `ToJson` writes an object whose keys are the field names, which is the output format of the [`cli` command](cli.md). `FromJson` reads the same format back and raises `@json.JsonDecodeError` when a field is missing or has the wrong type. `Debug` supports `debug_inspect` and `Repr(...)`. The struct does not implement `Eq`; compare snapshots through their fields or their JSON form."
 msgstr "フィールドはパッケージ外からは読み取り専用です。スナップショットは `compute_score_snapshot` で作成してください。`ToJson` はフィールド名をキーとするオブジェクトを書き出し、これが [`cli` コマンド](cli.md) の出力形式です。`FromJson` は同じ形式を読み戻し、フィールドが欠けていたり型が違ったりすると `@json.JsonDecodeError` を送出します。`Debug` により `debug_inspect` と `Repr(...)` が使えます。この構造体は `Eq` を実装していないため、スナップショットはフィールドか JSON 形式で比較してください。"
 
-#: manual/api/score.md:221
+#: manual/api/score.md:226
 msgid "`compute_score_snapshot` scores a package now and 30 days ago, and derives the growth, both labels and the multiplier in one call."
 msgstr "`compute_score_snapshot` はパッケージの現在と 30 日前のスコアを計算し、成長量、2 つのラベル、乗数を 1 回の呼び出しで導出します。"
 
-#: manual/api/score.md:228
+#: manual/api/score.md:233
 msgid "The first four arguments are the current signals, the last four the signals as they were 30 days ago, both in the order of the [signals table](#signals):"
 msgstr "最初の 4 つの引数は現在のシグナル、残りの 4 つは 30 日前のシグナルで、どちらも[シグナル表](#signals)の順に並べます。"
 
-#: manual/api/score.md:239
+#: manual/api/score.md:244
 msgid "The momentum label uses the current `recent_dependents`. A package that did not exist 30 days ago is described by historical signals of `0`; its `score_30d_ago` is then $0$ and its growth ratio is $1$."
 msgstr "モメンタムラベルには現在の `recent_dependents` が使われます。30 日前に存在しなかったパッケージは過去のシグナルをすべて `0` として表します。このとき `score_30d_ago` は $0$、成長率は $1$ になります。"
 
-#: manual/api/score.md:263
-#: manual/api/score.md:269
+#: manual/api/score.md:268
+#: manual/api/score.md:274
 msgid "Deprecated"
 msgstr "非推奨"
 
-#: manual/api/score.md:265
+#: manual/api/score.md:270
 msgid "`ScoreSnapshot` still has three methods that earlier MoonBit versions created implicitly from its derived traits. They are hidden from the interface file and warn when used."
 msgstr "`ScoreSnapshot` には、以前の MoonBit が派生トレイトから暗黙に生成していたメソッドが 3 つ残っています。これらはインターフェースファイルから隠されており、使うと警告が出ます。"
 
-#: manual/api/score.md:269
+#: manual/api/score.md:274
 msgid "Use instead"
 msgstr "代わりに使うもの"
 
-#: manual/api/score.md:273
+#: manual/api/score.md:278
 msgid "`Repr(s)`, `debug_inspect` or `@debug.to_string`"
 msgstr "`Repr(s)`、`debug_inspect`、または `@debug.to_string`"
 
@@ -369,55 +380,55 @@ msgstr "`Repr(s)`、`debug_inspect`、または `@debug.to_string`"
 msgid "static_search API"
 msgstr "static_search API"
 
-#: manual/api/static_search.md:3
+#: manual/api/static_search.md:5
 msgid "The package `Luna-Flow/mooncake-impact-factor/static_search` holds the MoonBit side of the static publishing mode: a version tag for the static search runtime and the text normalisation used to make search case-insensitive. It builds only for the JavaScript target and is also linked as an ES module that JavaScript code can import."
 msgstr "パッケージ `Luna-Flow/mooncake-impact-factor/static_search` は、静的公開モードの MoonBit 側を担います。静的検索ランタイムのバージョンタグと、検索で大文字と小文字を区別しないためのテキスト正規化です。JavaScript ターゲット専用で、JavaScript からインポートできる ES モジュールとしてもリンクされます。"
 
-#: manual/api/static_search.md:9
+#: manual/api/static_search.md:11
 msgid "Source: [`src/static_search/search.mbt`](../../../src/static_search/search.mbt). The search index and the query algorithm that run in the browser are described in the [static_search design](../design/static_search.md)."
 msgstr "ソース: [`src/static_search/search.mbt`](../../../src/static_search/search.mbt)。ブラウザーで動く検索インデックスとクエリアルゴリズムは [static_search の設計](../design/static_search.md) で説明しています。"
 
-#: manual/api/static_search.md:13
-msgid "Import the package in `moon.pkg`; the importing package must build for the JavaScript target as well:"
-msgstr "`moon.pkg` でパッケージをインポートします。インポートする側のパッケージも JavaScript ターゲット向けにビルドする必要があります。"
+#: manual/api/static_search.md:17
+msgid "Add the package to your `moon.pkg`; the importing package must build for the JavaScript target as well, and its tests run with `moon test --target js`:"
+msgstr "パッケージを `moon.pkg` に追加します。インポートする側のパッケージも JavaScript ターゲット向けにビルドする必要があり、そのテストは `moon test --target js` で実行します。"
 
-#: manual/api/static_search.md:26
+#: manual/api/static_search.md:30
 msgid "`runtime_version` returns the version tag of the static search runtime."
 msgstr "`runtime_version` は静的検索ランタイムのバージョンタグを返します。"
 
-#: manual/api/static_search.md:32
+#: manual/api/static_search.md:36
 msgid "The current tag is `\"static-search-js-v1\"`. JavaScript code that loads the compiled module can read it to tell which runtime it got."
 msgstr "現在のタグは `\"static-search-js-v1\"` です。コンパイル済みモジュールを読み込んだ JavaScript コードは、これを読んでどのランタイムかを判別できます。"
 
-#: manual/api/static_search.md:43
+#: manual/api/static_search.md:47
 msgid "`normalize_text` returns `input` converted to lower case."
 msgstr "`normalize_text` は小文字に変換した `input` を返します。"
 
-#: manual/api/static_search.md:49
+#: manual/api/static_search.md:53
 msgid "The conversion is JavaScript's `String.prototype.toLowerCase`: the Unicode default lower-case mapping, independent of the user's locale. It may change the length of the string (`\"İ\"` becomes `\"i̇\"`, two UTF-16 code units). It does not trim or collapse white space and does not remove accents."
 msgstr "変換には JavaScript の `String.prototype.toLowerCase` を使います。これは Unicode の既定の小文字マッピングで、ユーザーのロケールには依存しません。文字列の長さが変わることがあります（`\"İ\"` は UTF-16 の 2 コード単位の `\"i̇\"` になります）。空白の除去や詰め、アクセント記号の除去は行いません。"
 
-#: manual/api/static_search.md:61
+#: manual/api/static_search.md:65
 msgid "JavaScript module"
 msgstr "JavaScript モジュール"
 
-#: manual/api/static_search.md:63
+#: manual/api/static_search.md:67
 msgid "`moon build src/static_search --target js` also writes an ES module, because the package's `moon.pkg` links it with"
 msgstr "パッケージの `moon.pkg` が次の設定でリンクしているため、`moon build src/static_search --target js` は ES モジュールも書き出します。"
 
-#: manual/api/static_search.md:77
+#: manual/api/static_search.md:81
 msgid "The module exports two functions under their MoonBit names:"
 msgstr "モジュールは 2 つの関数を MoonBit と同じ名前でエクスポートします。"
 
-#: manual/api/static_search.md:79
+#: manual/api/static_search.md:83
 msgid "Export"
 msgstr "エクスポート"
 
-#: manual/api/static_search.md:79
+#: manual/api/static_search.md:83
 msgid "JavaScript signature"
 msgstr "JavaScript のシグネチャ"
 
-#: manual/api/static_search.md:92
+#: manual/api/static_search.md:96
 msgid "[!NOTE] In this release the browser search worker (`frontend/src/static-search.worker.ts`) normalises text in TypeScript and does not import this module; the static site build compiles it to keep it in step with the MoonBit sources."
 msgstr "[!NOTE] このリリースでは、ブラウザーの検索ワーカー（`frontend/src/static-search.worker.ts`）は TypeScript でテキストを正規化しており、このモジュールをインポートしていません。静的サイトのビルドは MoonBit のソースと歩調を合わせるためにこれをコンパイルしています。"
 
@@ -578,114 +589,114 @@ msgid "Always `0`; the registry has no download history."
 msgstr "常に `0`。レジストリにはダウンロード履歴がありません。"
 
 #: manual/architecture.md:53
-msgid "`days_since_release` $- 30$ when the latest release is at least 30 days old, else `0`."
-msgstr "最新リリースから 30 日以上経っていれば `days_since_release` $- 30$、そうでなければ `0`。"
+msgid "`days_since_release` $- 30$ when the latest release is at least 30 days old, else `0`; also `0` when the release date is unknown."
+msgstr "最新リリースから 30 日以上経っていれば `days_since_release` $- 30$、そうでなければ `0`。リリース日が不明な場合も `0`。"
 
 #: manual/architecture.md:55
-msgid "The historical window is the recent window shifted 30 days back, so the two snapshots are computed the same way."
-msgstr "過去のウィンドウは最近のウィンドウを 30 日前にずらしたものなので、2 つのスナップショットは同じ方法で計算されます。"
+msgid "The historical window is the recent window shifted 30 days back, so the two snapshots are computed the same way, with two exceptions. Downloads have no history, so the whole download term counts as growth. A package whose release date is unknown gets the multiplier $0.88$ now ($t = 3650$) but $1.12$ for 30 days ago ($t = 0$). With the same counts in both windows and no downloads, its `score_30d_ago` is $1.12 / 0.88 \\approx 1.27$ times its current score, and its growth is negative."
+msgstr "過去の窓は最近の窓を 30 日前にずらしたものなので、2 つのスナップショットは同じ方法で計算されますが、例外が 2 つあります。ダウンロード数には履歴がないため、ダウンロードの項全体が成長として数えられます。リリース日が不明なパッケージは、現在は乗数 $0.88$（$t = 3650$）、30 日前は $1.12$（$t = 0$）になります。両方の窓でカウントが同じでダウンロードがなければ、`score_30d_ago` は現在のスコアの $1.12 / 0.88 \\approx 1.27$ 倍になり、成長は負になります。"
 
-#: manual/architecture.md:57
+#: manual/architecture.md:63
 msgid "**Score.** For each package the builder runs the [`cli`](api/cli.md) command with these eight signals and stores the returned snapshot in the `package_scores` table. The score rules therefore live only in [`src/score`](api/score.md)."
 msgstr "**スコアを付ける。** ビルダーはパッケージごとにこの 8 つのシグナルで [`cli`](api/cli.md) コマンドを実行し、返されたスナップショットを `package_scores` テーブルに保存します。したがってスコア規則は [`src/score`](api/score.md) にしか存在しません。"
 
-#: manual/architecture.md:61
+#: manual/architecture.md:67
 msgid "**Index text.** An SQLite FTS5 table holds full name, owner, package name, description and keywords for full-text search."
 msgstr "**テキストを索引化する。** SQLite の FTS5 テーブルが、全文検索のためにフルネーム、オーナー、パッケージ名、説明、キーワードを保持します。"
 
-#: manual/architecture.md:64
+#: manual/architecture.md:70
 msgid "The database tables are `packages`, `versions`, `dependencies`, `package_edges`, `package_scores` and `search_index`."
 msgstr "データベースのテーブルは `packages`、`versions`、`dependencies`、`package_edges`、`package_scores`、`search_index` です。"
 
-#: manual/architecture.md:67
+#: manual/architecture.md:73
 msgid "Serving"
 msgstr "配信"
 
-#: manual/architecture.md:69
+#: manual/architecture.md:75
 msgid "Dynamic mode"
 msgstr "動的モード"
 
-#: manual/architecture.md:71
+#: manual/architecture.md:77
 msgid "`npm run dev` or `npm run start` with `MOONCAKE_DB_PATH` serves pages and JSON route handlers backed by the database:"
 msgstr "`MOONCAKE_DB_PATH` を設定して `npm run dev` または `npm run start` を実行すると、データベースに基づくページと JSON のルートハンドラーが提供されます。"
 
-#: manual/architecture.md:74
+#: manual/architecture.md:80
 msgid "Route"
 msgstr "ルート"
 
-#: manual/architecture.md:74
+#: manual/architecture.md:80
 msgid "Returns"
 msgstr "戻り値"
 
-#: manual/architecture.md:76
+#: manual/architecture.md:82
 msgid "Packages by score descending, then name."
 msgstr "スコアの降順、次に名前順に並べたパッケージ。"
 
-#: manual/architecture.md:77
+#: manual/architecture.md:83
 msgid "`Hot` packages by 30-day growth, then score, then name."
 msgstr "30 日間の成長量、スコア、名前の順に並べた `Hot` のパッケージ。"
 
-#: manual/architecture.md:78
+#: manual/architecture.md:84
 msgid "`Rising` packages, ordered like `hot`."
 msgstr "`Rising` のパッケージ。並び順は `hot` と同じです。"
 
-#: manual/architecture.md:79
+#: manual/architecture.md:85
 msgid "`{ \"items\": [...] }`, at most 100 package summaries."
 msgstr "`{ \"items\": [...] }`。パッケージ概要は最大 100 件。"
 
-#: manual/architecture.md:82
+#: manual/architecture.md:88
 msgid "The [getting started guide](getting_started.md#3-query-the-apis) lists the search parameters. Queries in the `ast` or `expr` parameters are compiled to SQL `WHERE` clauses; text terms use FTS5."
 msgstr "検索パラメーターは [入門ガイド](getting_started.md#3-query-the-apis) に一覧があります。`ast` または `expr` パラメーターのクエリは SQL の `WHERE` 句にコンパイルされ、テキスト条件には FTS5 が使われます。"
 
-#: manual/architecture.md:86
+#: manual/architecture.md:92
 msgid "Static mode"
 msgstr "静的モード"
 
-#: manual/architecture.md:88
+#: manual/architecture.md:94
 msgid "`npm run build:static-data` runs the index builder and then `scripts/export_static_json.py`, which writes the feeds, a search index, one file per package and a manifest to `public/data`. `npm run build:static` compiles `static_search` and runs `next build` with `NEXT_PUBLIC_APP_MODE=static`, which exports the site to `out/` without route handlers. In the browser, feeds and package pages are plain file fetches and search runs in a Web Worker; the [static_search design](design/static_search.md) describes it. The `deploy-static` workflow rebuilds and publishes this site daily."
 msgstr "`npm run build:static-data` はインデックスビルダーを実行したあと `scripts/export_static_json.py` を実行し、フィード、検索インデックス、パッケージごとのファイル、マニフェストを `public/data` に書き出します。`npm run build:static` は `static_search` をコンパイルし、`NEXT_PUBLIC_APP_MODE=static` で `next build` を実行して、ルートハンドラーなしでサイトを `out/` にエクスポートします。ブラウザーではフィードとパッケージページは単なるファイル取得で、検索は Web Worker で動きます。詳しくは [static_search の設計](design/static_search.md) を参照してください。`deploy-static` ワークフローがこのサイトを毎日再ビルドして公開します。"
 
-#: manual/architecture.md:98
+#: manual/architecture.md:104
 msgid "Where the rules live"
 msgstr "規則の置き場所"
 
-#: manual/architecture.md:100
+#: manual/architecture.md:106
 msgid "Every rule has one owner, and the others call it:"
 msgstr "各規則の持ち主は 1 か所だけで、ほかはそれを呼び出します。"
 
-#: manual/architecture.md:102
+#: manual/architecture.md:108
 msgid "Rule"
 msgstr "規則"
 
-#: manual/architecture.md:102
+#: manual/architecture.md:108
 msgid "Owner"
 msgstr "持ち主"
 
-#: manual/architecture.md:104
+#: manual/architecture.md:110
 msgid "Score, rank and momentum"
 msgstr "スコア、ランク、モメンタム"
 
-#: manual/architecture.md:104
+#: manual/architecture.md:110
 msgid "`src/score` (called through `src/cli`)"
 msgstr "`src/score`（`src/cli` 経由で呼び出し）"
 
-#: manual/architecture.md:105
+#: manual/architecture.md:111
 msgid "Signal definitions and time windows"
 msgstr "シグナルの定義と時間ウィンドウ"
 
-#: manual/architecture.md:106
+#: manual/architecture.md:112
 msgid "Query language and AST"
 msgstr "クエリ言語と AST"
 
-#: manual/architecture.md:107
+#: manual/architecture.md:113
 msgid "SQL compilation and dynamic ordering"
 msgstr "SQL へのコンパイルと動的な並び順"
 
-#: manual/architecture.md:108
+#: manual/architecture.md:114
 msgid "Static evaluation and ordering"
 msgstr "静的な評価と並び順"
 
-#: manual/architecture.md:110
+#: manual/architecture.md:116
 msgid "`scripts/build_index.py` still contains Python functions `compute_score` and `compute_momentum_label` that mirror the MoonBit rules; the build does not call them."
 msgstr "`scripts/build_index.py` には MoonBit の規則を写した Python 関数 `compute_score` と `compute_momentum_label` が残っていますが、ビルドでは呼び出されません。"
 
@@ -698,7 +709,6 @@ msgid "These rules add to the Luna-Flow documentation standard for `mooncake_imp
 msgstr "これらの規則は、`mooncake_impact_factor` 向けに Luna-Flow のドキュメント標準を補うものです。このリポジトリは 3 つの MoonBit パッケージ（`score`、`cli`、`static_search`）、Python のインデックスビルダー、Next.js アプリケーションで構成されるため、ドキュメントはそのすべてと整合していなければなりません。"
 
 #: manual/conventions.md:8
-#: manual/index.md:72
 msgid "Scope"
 msgstr "範囲"
 
@@ -791,8 +801,8 @@ msgid "**Agreement with the library.** For an input object with integer values i
 msgstr "**ライブラリとの一致。** 値が `Int` の範囲内の整数である入力オブジェクトでは、$d$ はそれらの値に対して恒等写像なので、コマンドの出力はちょうど `Json(@score.compute_score_snapshot(...))` になります。"
 
 #: manual/design/cli.md:53
-#: manual/design/score.md:149
-#: manual/design/static_search.md:131
+#: manual/design/score.md:165
+#: manual/design/static_search.md:146
 msgid "Design decisions"
 msgstr "設計上の判断"
 
@@ -845,8 +855,8 @@ msgid "The command returns labels, not only numbers. If the builder computed `ra
 msgstr "コマンドは数値だけでなくラベルも返します。ビルダーが保存済みのスコアから `rank_label` を自前で計算すると、MoonBit でしきい値を変えてもデータベースには黙って反映されません。スナップショット全体を返すことでラベルと数値が 1 回の評価から得られるため、[スナップショットの一貫性](score.md#snapshot-consistency) という不変条件がデータベースでも成り立ちます。"
 
 #: manual/design/cli.md:102
-#: manual/design/score.md:209
-#: manual/design/static_search.md:177
+#: manual/design/score.md:230
+#: manual/design/static_search.md:192
 msgid "Correctness / invariants"
 msgstr "正しさと不変条件"
 
@@ -863,8 +873,8 @@ msgid "The output does not depend on the current time, the environment or any fi
 msgstr "出力は現在時刻、環境、入力以外のファイルに依存しません。時刻に関わるシグナルはすべて呼び出し側が計算します。"
 
 #: manual/design/cli.md:113
-#: manual/design/score.md:285
-#: manual/design/static_search.md:222
+#: manual/design/score.md:306
+#: manual/design/static_search.md:245
 msgid "Alternatives rejected"
 msgstr "採用しなかった案"
 
@@ -881,8 +891,8 @@ msgid "**Command-line flags for each signal** (`--dependents 20`) would make the
 msgstr "**シグナルごとのコマンドラインフラグ**（`--dependents 20`）は呼び出しを長くし、パーサーも必要になります。JSON ならビルダーがすでに持っている辞書とそのまま対応します。"
 
 #: manual/design/cli.md:125
-#: manual/design/score.md:300
-#: manual/design/static_search.md:232
+#: manual/design/score.md:321
+#: manual/design/static_search.md:255
 msgid "Boundaries"
 msgstr "境界"
 
@@ -955,220 +965,228 @@ msgid "**Diminishing returns.** One more dependent adds"
 msgstr "**収穫逓減。** 被依存パッケージが 1 つ増えると、加わる値は"
 
 #: manual/design/score.md:84
-msgid "using $\\ln(1+x) \\le x$ with $x = 1/(D+1)$. The marginal value of a dependent falls like $1/D$, so no single signal can dominate the ranking."
-msgstr "です。ここで $\\ln(1+x) \\le x$ を $x = 1/(D+1)$ として使いました。被依存パッケージ 1 つの限界的な価値は $1/D$ のように減っていくので、単一のシグナルがランキングを支配することはありません。"
+msgid "using $\\ln(1+x) \\le x$ with $x = 1/(D+1)$. The marginal value of a dependent falls like $1/D$. Inflating one count therefore buys little: multiplying $1 + W$ by ten adds exactly $22 \\ln 10 \\approx 50.66$ points to $B$, whatever $W$ was, which is less than the distance between any two neighbouring rank thresholds ($60$, $70$ and $80$ points)."
+msgstr "ここでは $x = 1/(D+1)$ として $\\ln(1+x) \\le x$ を使っています。被依存パッケージ 1 つの限界的な価値は $1/D$ のように減少します。したがって 1 つのカウントを水増ししても得るものはわずかです。$1 + W$ を 10 倍にすると、$W$ がいくつであっても $B$ にちょうど $22 \\ln 10 \\approx 50.66$ 点が加わり、これは隣り合う任意の 2 つのランク閾値の間隔（$60$、$70$、$80$ 点）より小さい値です。"
 
-#: manual/design/score.md:87
+#: manual/design/score.md:90
 msgid "Rank thresholds as counts"
 msgstr "カウントで見たランクのしきい値"
 
-#: manual/design/score.md:89
+#: manual/design/score.md:92
 msgid "The rank buckets are thresholds on $S$: `S` from $260$, `A` from $180$, `B` from $110$, `C` from $50$. Inverting $\\sigma$ shows what they mean in counts. With $m = 1$ and a single non-zero signal of weight $w$, the score reaches a threshold $T$ when"
 msgstr "ランク区分は $S$ に対するしきい値で、`S` は $260$ から、`A` は $180$ から、`B` は $110$ から、`C` は $50$ からです。$\\sigma$ を逆にたどると、これがカウントで何を意味するかがわかります。$m = 1$ で重み $w$ のシグナルだけが 0 でないとき、スコアがしきい値 $T$ に達する条件は"
 
-#: manual/design/score.md:99
+#: manual/design/score.md:102
 msgid "so the smallest integer count is $\\lceil e^{T/w} - 1 \\rceil$:"
 msgstr "です。したがって最小の整数カウントは $\\lceil e^{T/w} - 1 \\rceil$ です。"
 
-#: manual/design/score.md:101
+#: manual/design/score.md:104
 msgid "Threshold"
 msgstr "しきい値"
 
-#: manual/design/score.md:101
+#: manual/design/score.md:104
 msgid "Dependents only ($w = 38$)"
 msgstr "被依存数のみ（$w = 38$）"
 
-#: manual/design/score.md:101
+#: manual/design/score.md:104
 msgid "Recent dependents only ($w = 27$)"
 msgstr "最近の被依存数のみ（$w = 27$）"
 
-#: manual/design/score.md:101
+#: manual/design/score.md:104
 msgid "Downloads only ($w = 22$)"
 msgstr "ダウンロード数のみ（$w = 22$）"
 
-#: manual/design/score.md:108
+#: manual/design/score.md:111
 msgid "For example $38\\ln 937 \\approx 260.02$ while $38\\ln 936 \\approx 259.98$, so 936 dependents are the first count to reach `S` on their own. In practice the signals combine: 20 dependents, 4 recent dependents and 300 downloads already give $B \\approx 284.7$."
 msgstr "たとえば $38\\ln 937 \\approx 260.02$ に対して $38\\ln 936 \\approx 259.98$ なので、被依存数だけで `S` に届く最初のカウントは 936 です。実際にはシグナルが組み合わさり、被依存数 20、最近の被依存数 4、ダウンロード数 300 で、すでに $B \\approx 284.7$ になります。"
 
-#: manual/design/score.md:113
+#: manual/design/score.md:116
 msgid "Growth and momentum"
 msgstr "成長とモメンタム"
 
-#: manual/design/score.md:115
+#: manual/design/score.md:118
 msgid "A snapshot evaluates the score twice, on the current signals and on the signals of 30 days ago, and defines"
 msgstr "スナップショットはスコアを現在のシグナルと 30 日前のシグナルで 2 回評価し、次のように定義します。"
 
-#: manual/design/score.md:128
-msgid "Since $m(t) > 0$, $S_{30} = 0$ exactly when every historical count is $0$: the package had no dependents and no downloads 30 days ago. For such a package the relative growth $G / S_{30}$ is undefined, and the implementation uses $1$ (that is, 100 %) instead of $+\\infty$ so that $r$ stays finite and can be stored and sorted."
-msgstr "$m(t) > 0$ なので、$S_{30} = 0$ となるのは過去のカウントがすべて $0$ のとき、つまり 30 日前に被依存パッケージもダウンロードもなかったときに限られます。そのようなパッケージでは相対成長 $G / S_{30}$ が定義されないため、実装は $+\\infty$ の代わりに $1$（つまり 100 %）を使い、$r$ を有限に保って保存や並べ替えができるようにしています。"
+#: manual/design/score.md:131
+msgid "Since $m(t) > 0$ and every term of $B$ is non-negative, $S_{30} = 0$ exactly when every historical count is $0$ (or negative, which clamps to $0$): the package had no dependents and no downloads 30 days ago. Otherwise at least one $\\sigma$ is at least $\\sigma(1) = \\ln 2$, so"
+msgstr "$m(t) > 0$ で $B$ の各項は非負なので、$S_{30} = 0$ となるのは過去のカウントがすべて $0$（または負で、$0$ に切り詰められる）のとき、つまり 30 日前に被依存パッケージもダウンロードもなかったときに限られます。そうでなければ少なくとも 1 つの $\\sigma$ が $\\sigma(1) = \\ln 2$ 以上なので"
 
-#: manual/design/score.md:134
+#: manual/design/score.md:140
+msgid "the smallest weight times the smallest multiplier. The score therefore takes no values in $(0, 13.42)$, and $G / S_{30}$ is never divided by a tiny denominator. For $S_{30} = 0$ the relative growth is undefined, and the implementation uses $1$ (that is, 100 %) instead of $+\\infty$ so that $r$ stays finite and can be stored and sorted. A new package with $S \\ge 35$ and three recent dependents is therefore `Rising`."
+msgstr "となり、これは最小の重みと最小の乗数の積です。したがってスコアは $(0, 13.42)$ の値を取らず、$G / S_{30}$ が非常に小さい分母で割られることはありません。$S_{30} = 0$ のときは相対成長が定義されないため、実装は $+\\infty$ の代わりに $1$（つまり 100 %）を使い、$r$ を有限に保って保存や並べ替えができるようにしています。したがって、$S \\ge 35$ で最近の被依存パッケージが 3 つある新しいパッケージは `Rising` になります。"
+
+#: manual/design/score.md:147
 msgid "The momentum label tests three conditions at two levels:"
 msgstr "モメンタムラベルは 2 段階で 3 つの条件を調べます。"
 
-#: manual/design/score.md:141
-msgid "The `Rising` conditions imply the `Hot` conditions, so the classes are nested levels of one scale rather than independent tags. When $S_{30} > 0$, $r \\ge \\rho$ is the same as $S \\ge (1 + \\rho) S_{30}$, so `Rising` asks for a score at least $1.35$ times the old one *and* an absolute gain of $35$ points. The absolute bound stops tiny packages from rising by going from $1$ to $2$ points; the relative bound stops large packages from rising through the noise of a big base."
-msgstr "`Rising` の条件は `Hot` の条件を含意するので、これらの区分は独立したタグではなく、1 つの尺度の入れ子になった段階です。$S_{30} > 0$ のとき $r \\ge \\rho$ は $S \\ge (1 + \\rho) S_{30}$ と同じなので、`Rising` には旧スコアの $1.35$ 倍以上のスコア*かつ* $35$ 点の絶対的な伸びが必要です。絶対的な下限は、ごく小さなパッケージが $1$ 点から $2$ 点になっただけで上昇扱いされるのを防ぎ、相対的な下限は、大きなパッケージが大きな基数のノイズだけで上昇扱いされるのを防ぎます。"
+#: manual/design/score.md:154
+msgid "The `Rising` conditions imply the `Hot` conditions, so the classes are nested levels of one scale rather than independent tags. When $S_{30} > 0$, $r \\ge \\rho$ is the same as $S \\ge (1 + \\rho) S_{30}$, so `Rising` asks for a score at least $1.35$ times the old one *and* an absolute gain of $35$ points. Each bound covers a case the other misses. The absolute bound stops small packages from rising on a small change: a package that goes from one download to three ($S$ from about $15.2$ to $30.5$ with $m = 1$) doubles its score, $r = 1$, but gains only about $15$ points. The relative bound stops large packages from rising through the noise of a big base: at $S_{30} = 1000$, a gain of $35$ points is $r = 0.035$."
+msgstr "`Rising` の条件は `Hot` の条件を含意するので、これらの区分は独立したタグではなく、1 つの尺度の入れ子になった段階です。$S_{30} > 0$ のとき $r \\ge \\rho$ は $S \\ge (1 + \\rho) S_{30}$ と同じなので、`Rising` には旧スコアの $1.35$ 倍以上のスコア*かつ* $35$ 点の絶対的な伸びが必要です。それぞれの下限は他方が見逃す場合を補います。絶対的な下限は、小さなパッケージが小さな変化で上昇扱いされるのを防ぎます。ダウンロードが 1 回から 3 回になったパッケージ（$m = 1$ で $S$ が約 $15.2$ から $30.5$ へ）はスコアが倍になり $r = 1$ ですが、伸びは約 $15$ 点にすぎません。相対的な下限は、大きなパッケージが大きな基数のノイズだけで上昇扱いされるのを防ぎます。$S_{30} = 1000$ では $35$ 点の伸びは $r = 0.035$ です。"
 
-#: manual/design/score.md:151
+#: manual/design/score.md:167
 msgid "Logarithms of counts"
 msgstr "カウントの対数"
 
-#: manual/design/score.md:153
+#: manual/design/score.md:169
 msgid "**Problem.** Dependent and download counts are heavy-tailed: a few packages have thousands, most have none. A linear score would make the ranking a leaderboard of the largest package in each signal."
 msgstr "**課題。** 被依存数とダウンロード数は裾の重い分布をしています。数千を持つパッケージはわずかで、大半は 0 です。線形のスコアでは、ランキングが各シグナルで最大のパッケージを並べたリーダーボードになってしまいます。"
 
-#: manual/design/score.md:157
+#: manual/design/score.md:173
 msgid "**Options.** Raw counts; ranks or percentiles within the registry; square roots; logarithms."
 msgstr "**選択肢。** 生のカウント、レジストリ内の順位やパーセンタイル、平方根、対数。"
 
-#: manual/design/score.md:160
+#: manual/design/score.md:176
 msgid "**Choice.** $\\ln(1 + n)$. The shift by one keeps $\\sigma(0) = 0$ finite and makes $S = 0$ exactly when a package has no signal at all. Percentiles would need the whole registry and change a package's score when other packages appear, which breaks the CLI's one-package-at-a-time contract. Square roots still grow without the scale invariance derived above."
 msgstr "**採用。** $\\ln(1 + n)$。1 だけずらすことで $\\sigma(0) = 0$ が有限に保たれ、$S = 0$ がちょうどシグナルをまったく持たないパッケージに対応します。パーセンタイルはレジストリ全体を必要とし、ほかのパッケージが現れるとスコアが変わるため、CLI の 1 回に 1 パッケージという約束を壊します。平方根は増え続けるうえ、上で導いたスケール不変性を持ちません。"
 
-#: manual/design/score.md:166
+#: manual/design/score.md:182
 msgid "Additive weights"
 msgstr "加法的な重み"
 
-#: manual/design/score.md:168
+#: manual/design/score.md:184
 msgid "**Problem.** The three signals must be combined into one number."
 msgstr "**課題。** 3 つのシグナルを 1 つの数にまとめる必要があります。"
 
-#: manual/design/score.md:170
+#: manual/design/score.md:186
 msgid "**Choice.** A weighted sum of logarithms with weights $38 : 27 : 22$. Total dependents capture established adoption and weigh most. Downloads are an external popularity hint that is missing for packages the builder could not look up, so they weigh least. Recent dependents are counted *on top of* total dependents, so a dependent from the recent window contributes to both terms: the recent term is a bonus for current adoption, not a separate population. The weights are editorial choices of this project, not fitted parameters."
 msgstr "**採用。** 重み $38 : 27 : 22$ による対数の重み付き和です。被依存数の合計は確立した採用度を表すので最も重くします。ダウンロード数は外部の人気の目安で、ビルダーが取得できなかったパッケージでは欠けるため最も軽くします。最近の被依存数は合計に*上乗せして*数えるので、最近のウィンドウ内の被依存パッケージは両方の項に寄与します。最近の項は現在の採用に対するボーナスであって、別の集団ではありません。重みはこのプロジェクトの編集上の選択であり、データに当てはめたパラメーターではありません。"
 
-#: manual/design/score.md:178
+#: manual/design/score.md:194
 msgid "A recency multiplier, not a recency term"
 msgstr "鮮度は項ではなく乗数で"
 
-#: manual/design/score.md:180
+#: manual/design/score.md:196
 msgid "**Problem.** Old, unmaintained packages should not hold their rank forever, but age must not outweigh adoption."
 msgstr "**課題。** 古く保守されていないパッケージがいつまでもランクを保つべきではありませんが、年数が採用度を上回ってもいけません。"
 
-#: manual/design/score.md:183
-msgid "**Choice.** A multiplicative step function between $0.88$ and $1.12$. Because it multiplies $B$, it changes the score by at most $\\pm 12\\,\\%$, and the ratio between the freshest and the oldest package with the same signals is $1.12 / 0.88 \\approx 1.27$. That can move a package across one rank boundary (for example $B = 240$ gives `S` at $1.12$ and `A` at $0.88$) but never turns an unused package into a ranked one: $B = 0$ stays $0$. An additive age term would give unused but freshly released packages a positive score."
-msgstr "**採用。** $0.88$ から $1.12$ の間の乗法的な階段関数です。$B$ に掛けるため、スコアの変化は最大でも $\\pm 12\\,\\%$ で、同じシグナルを持つ最も新しいパッケージと最も古いパッケージの比は $1.12 / 0.88 \\approx 1.27$ です。ランクの境界を 1 つまたぐことはあります（たとえば $B = 240$ は $1.12$ なら `S`、$0.88$ なら `A`）が、使われていないパッケージがランク入りすることはありません。$B = 0$ は $0$ のままです。加法的な年数の項では、使われていないが最近リリースされたパッケージに正のスコアが付いてしまいます。"
+#: manual/design/score.md:199
+msgid "**Choice.** A multiplicative step function between $0.88$ and $1.12$. Because it multiplies $B$, it changes the score by at most $\\pm 12\\,\\%$, and the ratio between the freshest and the oldest package with the same signals is $1.12 / 0.88 \\approx 1.27$. That can move a package across one rank boundary (for example $B = 240$ gives `S` at $1.12$ and `A` at $0.88$), but never across two: the scores $m(t)\\,B$ of one package lie in $[0.88\\,B,\\ 1.12\\,B]$, an interval whose ends differ by the factor $1.27$, while neighbouring thresholds differ by at least $260 / 180 \\approx 1.44$ ($180 / 110 \\approx 1.64$, $110 / 50 = 2.2$), so the interval contains at most one threshold. Nor does it turn an unused package into a ranked one: $B = 0$ stays $0$. An additive age term would give unused but freshly released packages a positive score."
+msgstr "**採用。** $0.88$ から $1.12$ の間の乗法的な階段関数です。$B$ に掛けるため、スコアの変化は最大でも $\\pm 12\\,\\%$ で、同じシグナルを持つ最も新しいパッケージと最も古いパッケージの比は $1.12 / 0.88 \\approx 1.27$ です。ランクの境界を 1 つまたぐことはあります（たとえば $B = 240$ は $1.12$ なら `S`、$0.88$ なら `A`）が、2 つまたぐことはありません。1 つのパッケージのスコア $m(t)\\,B$ は $[0.88\\,B,\\ 1.12\\,B]$ にあり、この区間の両端の比は $1.27$ ですが、隣り合う閾値の比は少なくとも $260 / 180 \\approx 1.44$（$180 / 110 \\approx 1.64$、$110 / 50 = 2.2$）なので、区間に含まれる閾値は高々 1 つです。また、使われていないパッケージがランク入りすることもありません。$B = 0$ は $0$ のままです。加法的な年数の項では、使われていないが最近リリースされたパッケージに正のスコアが付いてしまいます。"
 
-#: manual/design/score.md:191
+#: manual/design/score.md:212
 msgid "Fixed thresholds for labels"
 msgstr "ラベルには固定のしきい値"
 
-#: manual/design/score.md:193
+#: manual/design/score.md:214
 msgid "**Problem.** The web pages need short, stable labels."
 msgstr "**課題。** Web ページには短く安定したラベルが必要です。"
 
-#: manual/design/score.md:195
+#: manual/design/score.md:216
 msgid "**Choice.** Constant thresholds on $S$ and $G$. Labels therefore mean the same in every snapshot and need no registry-wide statistics. Quantile buckets (\"top 5 %\") would need the whole registry, like percentile scores."
 msgstr "**採用。** $S$ と $G$ に対する定数のしきい値です。そのためラベルはどのスナップショットでも同じ意味を持ち、レジストリ全体の統計を必要としません。分位による区分（「上位 5 %」）は、パーセンタイルのスコアと同様にレジストリ全体を必要とします。"
 
-#: manual/design/score.md:199
+#: manual/design/score.md:220
 msgid "Integers in, `Double` out"
 msgstr "整数を入力、`Double` を出力"
 
-#: manual/design/score.md:201
+#: manual/design/score.md:222
 msgid "**Problem.** The signals are counts, but the score is real-valued."
 msgstr "**課題。** シグナルはカウントですが、スコアは実数値です。"
 
-#: manual/design/score.md:203
+#: manual/design/score.md:224
 msgid "**Choice.** All inputs are `Int`, and negative values are clamped instead of rejected, so every function is total and can be called on raw database values. The scoring functions never abort and return no `Result`; the only non-finite output is the overflow described under [numerical accuracy](#numerical-accuracy)."
 msgstr "**採用。** 入力はすべて `Int` で、負の値は拒否せずに切り上げるので、どの関数も全域的でデータベースの生の値にそのまま適用できます。スコア関数は中断せず `Result` も返しません。有限でない出力は [数値精度](#numerical-accuracy) で説明するオーバーフローだけです。"
 
-#: manual/design/score.md:211
+#: manual/design/score.md:232
 msgid "Monotonicity"
 msgstr "単調性"
 
-#: manual/design/score.md:213
+#: manual/design/score.md:234
 msgid "For counts in $[0, 2^{31} - 2]$, $S$ is non-decreasing in $D$, $R$ and $W$, and strictly increasing as long as the count stays below $2^{24}$: $\\sigma$ is strictly increasing, the weights are positive and $m(t) > 0$, so"
 msgstr "$[0, 2^{31} - 2]$ のカウントに対して、$S$ は $D$、$R$、$W$ について単調非減少であり、カウントが $2^{24}$ 未満である限り狭義単調増加です。$\\sigma$ は狭義単調増加、重みは正、$m(t) > 0$ なので、"
 
-#: manual/design/score.md:221
+#: manual/design/score.md:242
 msgid "Above $2^{24}$ the conversion through `Float` (below) can map neighbouring counts to the same value, so strict growth degrades to non-decreasing. $S$ is non-increasing in $t$ because $m$ is. The blackbox tests in `impact_factor_test.mbt` check instances of this for dependents, downloads and release age."
 msgstr "$2^{24}$ を超えると、`Float` を経由する変換（後述）が隣り合うカウントを同じ値に写すことがあり、狭義の増加は非減少に弱まります。$m$ が非増加なので、$S$ は $t$ について非増加です。`impact_factor_test.mbt` のブラックボックステストは、被依存数、ダウンロード数、リリースからの経過についてこの性質の例を確かめています。"
 
-#: manual/design/score.md:227
+#: manual/design/score.md:248
 msgid "Range"
 msgstr "値の範囲"
 
-#: manual/design/score.md:229
+#: manual/design/score.md:250
 msgid "$S \\ge 0$, with equality exactly when $D, R, W \\le 0$. For counts up to $2^{31} - 2$, $\\sigma \\le \\ln 2^{31} \\approx 21.49$, so"
 msgstr "$S \\ge 0$ で、等号が成り立つのは $D, R, W \\le 0$ のときに限られます。カウントが $2^{31} - 2$ 以下なら $\\sigma \\le \\ln 2^{31} \\approx 21.49$ なので、"
 
-#: manual/design/score.md:236
+#: manual/design/score.md:257
 msgid "Labels are total"
 msgstr "ラベルは全域的"
 
-#: manual/design/score.md:238
+#: manual/design/score.md:259
 msgid "`rank_label` and `compute_momentum_label` return one of their labels for every input. Every comparison with `NaN` is false, so a `NaN` score is ranked `D` and has `Stable` momentum."
 msgstr "`rank_label` と `compute_momentum_label` は、どんな入力にもいずれかのラベルを返します。`NaN` との比較はすべて偽なので、`NaN` のスコアはランク `D`、モメンタム `Stable` になります。"
 
-#: manual/design/score.md:242
+#: manual/design/score.md:263
 msgid "Numerical accuracy"
 msgstr "数値精度"
 
-#: manual/design/score.md:244
+#: manual/design/score.md:265
 msgid "`log_signal` converts $n + 1$ to `Float` before taking the logarithm in `Double`. Every integer up to $2^{24}$ is exact in `Float`; above it the conversion rounds to nearest with relative error $|\\delta| \\le u = 2^{-24}$. Then"
 msgstr "`log_signal` は $n + 1$ を `Float` に変換してから `Double` で対数を取ります。$2^{24}$ までの整数はすべて `Float` で正確に表せ、それを超えると変換は最近接丸めとなり、相対誤差は $|\\delta| \\le u = 2^{-24}$ です。すると"
 
-#: manual/design/score.md:257
+#: manual/design/score.md:278
 msgid "and the error in $S$ from this conversion is at most $1.12 \\cdot 87 \\cdot u/(1-u) \\approx 5.8 \\times 10^{-6}$, on top of the ordinary `Double` rounding of a few operations. The index builder still contains an unused Python copy of the formula (`compute_score` in `scripts/build_index.py`) that calls `math.log1p` without the `Float` step; it agrees with the MoonBit result to this bound plus a few units in the last place. The database itself is filled through the MoonBit CLI."
 msgstr "となり、この変換による $S$ の誤差は最大でも $1.12 \\cdot 87 \\cdot u/(1-u) \\approx 5.8 \\times 10^{-6}$ で、これに数回の演算での通常の `Double` の丸めが加わります。インデックスビルダーには、`Float` を経由せずに `math.log1p` を呼ぶ未使用の Python 版の式（`scripts/build_index.py` の `compute_score`）がまだ残っており、MoonBit の結果とはこの上限に末尾数単位を加えた範囲で一致します。データベース自体は MoonBit の CLI を通じて埋められます。"
 
-#: manual/design/score.md:265
+#: manual/design/score.md:286
 msgid "The addition $n + 1$ is done in `Int`. For $n = 2^{31} - 1$ it wraps to $-2^{31}$, the logarithm of a negative number is `NaN`, and the score is `NaN`."
 msgstr "加算 $n + 1$ は `Int` で行われます。$n = 2^{31} - 1$ では $-2^{31}$ に折り返し、負の数の対数は `NaN` なので、スコアは `NaN` になります。"
 
-#: manual/design/score.md:269
+#: manual/design/score.md:290
 msgid "Snapshot consistency"
 msgstr "スナップショットの一貫性"
 
-#: manual/design/score.md:271
+#: manual/design/score.md:292
 msgid "`compute_score_snapshot` computes every field from the same two calls of `compute_score`, so `score_growth_30d == score - score_30d_ago` holds exactly (it is the same floating-point subtraction), and `rank_label` and `momentum_label` are always the labels of the stored numbers."
 msgstr "`compute_score_snapshot` はすべてのフィールドを同じ 2 回の `compute_score` 呼び出しから計算するので、`score_growth_30d == score - score_30d_ago` は厳密に成り立ち（同じ浮動小数点の引き算です）、`rank_label` と `momentum_label` は常に保存された数値のラベルです。"
 
-#: manual/design/score.md:276
+#: manual/design/score.md:297
 msgid "How scores are ranked"
 msgstr "スコアの並べ方"
 
-#: manual/design/score.md:278
+#: manual/design/score.md:299
 msgid "The package only computes scores; consumers sort them. Every ordering in the repository breaks ties deterministically: the ranked feeds and the default search order use `score` descending, then `full_name` ascending, and the `Hot` and `Rising` feeds use `score_growth_30d` descending, then `score`, then `full_name`. The [static_search design](static_search.md) gives the orderings of the browser search."
 msgstr "このパッケージはスコアを計算するだけで、並べ替えは利用側が行います。リポジトリ内のどの並び順も同順位を決定的に解決します。ランキングのフィードと既定の検索順は `score` の降順、次に `full_name` の昇順で、`Hot` と `Rising` のフィードは `score_growth_30d` の降順、次に `score`、次に `full_name` です。ブラウザー検索の並び順は [static_search の設計](static_search.md) にあります。"
 
-#: manual/design/score.md:287
+#: manual/design/score.md:308
 msgid "**PageRank-style centrality** on the dependency graph would reward being depended on by important packages, but it needs the whole graph, an iterative solver and a damping parameter, and it cannot be explained on a package page. The direct dependent count is the first step of that iteration and is enough for a registry of this size."
 msgstr "依存グラフ上の **PageRank 型の中心性**は重要なパッケージから依存されることを評価しますが、グラフ全体、反復ソルバー、減衰パラメーターが必要で、パッケージページで説明することもできません。直接の被依存数はその反復の第一歩であり、この規模のレジストリには十分です。"
 
-#: manual/design/score.md:292
+#: manual/design/score.md:313
 msgid "**Transitive dependents** were not used: they count the same downstream package many times through every path and favour low-level packages even more than the logarithm can correct."
 msgstr "**推移的な被依存パッケージ**は使っていません。同じ下流パッケージをあらゆる経路で何度も数え、対数で補正できる以上に低レベルのパッケージを優遇してしまいます。"
 
-#: manual/design/score.md:295
+#: manual/design/score.md:316
 msgid "**Learning the weights** from a labelled ranking would need labels that do not exist; the fixed weights are stated in the code and in this page."
 msgstr "**ラベル付きのランキングから重みを学習する**には、存在しないラベルが必要です。固定の重みはコードとこのページに明記されています。"
 
-#: manual/design/score.md:297
+#: manual/design/score.md:318
 msgid "**Returning `Result` for negative inputs** would push error handling into every caller for a condition that has an obvious meaning (no signal)."
 msgstr "**負の入力に `Result` を返す**と、明白な意味（シグナルなし）を持つ状況のために、すべての呼び出し側にエラー処理を押し付けることになります。"
 
-#: manual/design/score.md:302
+#: manual/design/score.md:323
 msgid "The score measures adoption inside one registry snapshot. It does not measure code quality, correctness, security or maintenance effort."
 msgstr "スコアが測るのは 1 つのレジストリスナップショット内での採用度です。コードの品質、正しさ、安全性、保守の労力は測りません。"
 
-#: manual/design/score.md:304
+#: manual/design/score.md:325
 msgid "The package takes the signals as given. Collecting them, deciding which dependents are recent and which downloads are trusted is the index builder's job, described in the [architecture guide](../architecture.md)."
 msgstr "このパッケージはシグナルを与えられたまま受け取ります。シグナルを集め、どの被依存パッケージを最近とみなし、どのダウンロード数を信頼するかを決めるのはインデックスビルダーの役目で、[アーキテクチャガイド](../architecture.md) で説明しています。"
 
-#: manual/design/score.md:307
+#: manual/design/score.md:328
 msgid "The builder currently passes `0` as the historical download count, so `score_growth_30d` contains the whole download term $22\\,m(t)\\,\\sigma(W)$ of the current score. Read growth together with the dependent counts, which the momentum label does by requiring recent dependents."
 msgstr "ビルダーは現在、過去のダウンロード数として `0` を渡しているため、`score_growth_30d` には現在のスコアのダウンロード項 $22\\,m(t)\\,\\sigma(W)$ が丸ごと含まれます。成長は被依存数と合わせて読んでください。モメンタムラベルは最近の被依存パッケージを要求することでそうしています。"
 
-#: manual/design/score.md:312
+#: manual/design/score.md:333
 msgid "There is no normalisation across packages, no time decay inside a window and no confidence interval: a score is a deterministic function of four integers."
 msgstr "パッケージ間の正規化も、ウィンドウ内の時間減衰も、信頼区間もありません。スコアは 4 つの整数の決定的な関数です。"
 
-#: manual/design/score.md:315
+#: manual/design/score.md:336
 msgid "Counts of `2147483647` are not supported (the score becomes `NaN`)."
 msgstr "カウント `2147483647` には対応していません（スコアが `NaN` になります）。"
+
+#: manual/design/score.md:337
+msgid "The builder passes `0` as the historical days since release when the release date is unknown, while the current value is `3650`; such packages get the multiplier $1.12$ 30 days ago and $0.88$ now, which shows as negative growth. The [architecture guide](../architecture.md) gives the signal definitions."
+msgstr "リリース日が不明な場合、ビルダーは過去のリリースからの日数として `0` を渡しますが、現在の値は `3650` です。そのようなパッケージは 30 日前に乗数 $1.12$、現在 $0.88$ を受け取り、負の成長として現れます。シグナルの定義は[アーキテクチャガイド](../architecture.md)にあります。"
 
 #: manual/design/static_search.md:1
 msgid "static_search design"
@@ -1313,8 +1331,8 @@ msgid "the label equals $v$ exactly."
 msgstr "ラベルが $v$ と完全に一致する。"
 
 #: manual/design/static_search.md:74
-msgid "$x \\ge v$ for `>=`, $x \\le v$ for `<=`, $x = v$ otherwise; false when $v$ is not a number."
-msgstr "`>=` なら $x \\ge v$、`<=` なら $x \\le v$、それ以外は $x = v$。$v$ が数値でなければ偽。"
+msgid "$x \\ge v$ for `>=`, $x \\le v$ for `<=`, $x = v$ otherwise, with $v$ converted by JavaScript `Number`; false when the conversion is not finite. An empty $v$ converts to $0$."
+msgstr "`>=` なら $x \\ge v$、`<=` なら $x \\le v$、それ以外は $x = v$。$v$ は JavaScript の `Number` で変換し、変換結果が有限でなければ偽。空の $v$ は $0$ に変換されます。"
 
 #: manual/design/static_search.md:75
 msgid "the flag equals `v == \"true\"`."
@@ -1345,150 +1363,166 @@ msgid "**Conjunctions do not reorder.** Let $\\varphi = t_1 \\land \\dots \\land
 msgstr "**連言では順序が変わらない。** $\\varphi = t_1 \\land \\dots \\land t_k$ を肯定の項からなる式とします。どの結果もすべての $t_i$ を満たすので、すべての結果で $\\operatorname{rel}(p) = k$ となり、順序はちょうどスコア順です。関連度が効くのは、式に `OR` か `NOT` が含まれるときだけです。"
 
 #: manual/design/static_search.md:102
-msgid ""
-"**Disjunctions rank by coverage.** For $\\varphi = t_1 \\lor \\dots \\lor t_k$, $\\operatorname{rel}(p)$ is the number of alternatives that $p$ satisfies, so a package that matches every alternative comes first. Under a negated leaf $\\lnot t$, every result has $p \\n"
-"ot\\models t$, so that leaf contributes $0$."
-msgstr ""
-"**選言では網羅度で順位が付く。** $\\varphi = t_1 \\lor \\dots \\lor t_k$ では、$\\operatorname{rel}(p)$ は $p$ が満たす選択肢の数なので、すべての選択肢に一致するパッケージが先頭に来ます。否定された葉 $\\lnot t$ については、どの結果も $p \\n"
-"ot\\models t$ なので、その葉の寄与は $0$ です。"
+msgid "**Disjunctions rank by coverage.** For $\\varphi = t_1 \\lor \\dots \\lor t_k$ with positive terms, $\\operatorname{rel}(p)$ is the number of alternatives that $p$ satisfies, so a package that matches every alternative comes first."
+msgstr "**選言では網羅度で順位が付く。** 肯定的な項からなる $\\varphi = t_1 \\lor \\dots \\lor t_k$ では、$\\operatorname{rel}(p)$ は $p$ が満たす選択肢の数なので、すべての選択肢に一致するパッケージが先頭に来ます。"
 
-#: manual/design/static_search.md:107
+#: manual/design/static_search.md:106
+msgid "**Negated leaves count against the user.** A negated leaf $\\lnot t$ contributes $1$ to $\\operatorname{rel}(p)$ exactly when $p \\models t$, the case the user wanted to exclude. When $\\lnot t$ must hold for every result, for example as a conjunct of the root, no result satisfies $t$ and the leaf contributes $0$ to all of them, so the order is unaffected. Under a disjunction it is not: for $\\varphi = \\lnot t_1 \\lor t_2$,"
+msgstr "**否定された葉はユーザーの意図に反して数えられる。** 否定された葉 $\\lnot t$ は、ちょうど $p \\models t$ のとき、つまりユーザーが除外したかった場合に $\\operatorname{rel}(p)$ へ $1$ を加えます。$\\lnot t$ がすべての結果で成り立たなければならない場合（たとえば根の連言の 1 項として）、$t$ を満たす結果はなく、その葉はすべての結果に $0$ を寄与するので順序は変わりません。選言の下ではそうではありません。$\\varphi = \\lnot t_1 \\lor t_2$ について"
+
+#: manual/design/static_search.md:117
+msgid "so a result that satisfies both $t_1$ and $t_2$ (relevance $2$) comes before one that satisfies only $t_2$ (relevance $1$), and results that satisfy neither (relevance $0$) come last, although $\\lnot t_1$ holds for them. The same applies to every leaf below a negated group."
+msgstr "なので、$t_1$ と $t_2$ の両方を満たす結果（関連度 $2$）は $t_2$ だけを満たす結果（関連度 $1$）より前に来て、どちらも満たさない結果（関連度 $0$）は $\\lnot t_1$ が成り立つにもかかわらず最後になります。否定されたグループの下にあるすべての葉についても同じです。"
+
+#: manual/design/static_search.md:122
 msgid "Relevance is therefore a coordination-level match[^coord], not a text statistic: it ignores term frequency, field length and how rare a term is."
 msgstr "したがって関連度はテキストの統計量ではなく、協調レベル照合[^coord]です。語の頻度、フィールドの長さ、語の珍しさは考慮しません。"
 
-#: manual/design/static_search.md:110
+#: manual/design/static_search.md:125
 msgid "Coordination-level matching ranks documents by the number of query terms they contain; it is the simplest ranked retrieval model and predates tf–idf weighting (Salton and McGill, *Introduction to Modern Information Retrieval*, 1983)."
 msgstr "協調レベル照合は、文書に含まれるクエリ語の数で文書を順位付けします。最も単純な順位付き検索モデルで、tf–idf による重み付けより前からあります（Salton と McGill、*Introduction to Modern Information Retrieval*、1983 年）。"
 
-#: manual/design/static_search.md:115
+#: manual/design/static_search.md:130
 msgid "Sort orders and tie-breaking"
 msgstr "並び順と同順位の決め方"
 
-#: manual/design/static_search.md:117
+#: manual/design/static_search.md:132
 msgid "The other sort keys are `score`, `growth`, `downloads`, `dependents`, `recent`, `updated` (the release year) and `name`. Each comparison is"
 msgstr "ほかの並べ替えキーは `score`、`growth`、`downloads`、`dependents`、`recent`、`updated`（リリース年）、`name` です。各比較は"
 
-#: manual/design/static_search.md:124
+#: manual/design/static_search.md:139
 msgid "where $x \\Vert y$ means \"$x$ if non-zero, else $y$\" and $s = -1$ for descending, $+1$ for ascending order. The default order is ascending for `name` and descending for the other keys. Because $s$ multiplies the whole expression, a descending sort also reverses the name order of ties. Full names are unique, so ties are always resolved and the same index and query give the same order."
 msgstr "で、$x \\Vert y$ は「$x$ が 0 でなければ $x$、そうでなければ $y$」を表し、降順なら $s = -1$、昇順なら $+1$ です。既定の順序は `name` が昇順、ほかのキーが降順です。$s$ が式全体に掛かるため、降順の並べ替えでは同順位の名前順も逆になります。フルネームは一意なので同順位は必ず解決され、同じインデックスとクエリからは同じ順序が得られます。"
 
-#: manual/design/static_search.md:133
+#: manual/design/static_search.md:148
 msgid "Scan a forward index instead of building an inverted one"
 msgstr "転置インデックスを作らず順インデックスを走査する"
 
-#: manual/design/static_search.md:135
+#: manual/design/static_search.md:150
 msgid "**Problem.** The browser needs to answer substring, numeric and Boolean queries without a database."
 msgstr "**課題。** ブラウザーはデータベースなしで、部分文字列、数値、ブール演算のクエリに答える必要があります。"
 
-#: manual/design/static_search.md:138
+#: manual/design/static_search.md:153
 msgid "**Options.** Ship SQLite compiled to WebAssembly with the FTS5 index; build an inverted index (term → packages) at export time; scan an array of records."
 msgstr "**選択肢。** WebAssembly にコンパイルした SQLite を FTS5 インデックスとともに配布する、エクスポート時に転置インデックス（語 → パッケージ）を作る、レコードの配列を走査する。"
 
-#: manual/design/static_search.md:142
+#: manual/design/static_search.md:157
 msgid "**Choice.** A linear scan. The registry has a few thousand packages, so one query touches a few thousand short records, which is cheap for a worker. Substring matching (`pars` finds `parser`) and numeric filters need no tokenizer and no posting lists, and the index stays a plain JSON file that the export script writes in a few lines. A WebAssembly database would add a large download to every visit."
 msgstr "**採用。** 線形走査です。レジストリには数千のパッケージしかないので、1 回のクエリが触れるのは数千の短いレコードで、ワーカーにとっては軽い処理です。部分文字列照合（`pars` で `parser` が見つかる）と数値フィルターにはトークナイザーもポスティングリストも不要で、インデックスはエクスポートスクリプトが数行で書けるただの JSON ファイルのままです。WebAssembly のデータベースは訪問のたびに大きなダウンロードを追加します。"
 
-#: manual/design/static_search.md:148
+#: manual/design/static_search.md:163
 msgid "Run the search in a Web Worker"
 msgstr "検索を Web Worker で実行する"
 
-#: manual/design/static_search.md:150
+#: manual/design/static_search.md:165
 msgid "**Problem.** Parsing the whole index and sorting it on the main thread would block rendering."
 msgstr "**課題。** メインスレッドでインデックス全体を解析して並べ替えると描画が止まります。"
 
-#: manual/design/static_search.md:153
+#: manual/design/static_search.md:168
 msgid "**Choice.** The worker loads `search-index.json` once and keeps the records in memory; queries are messages with an `id`, and each reply resolves the request with the same `id`, so concurrent queries cannot be confused. The URL carries `generated_at` from the manifest as a version parameter, and a new manifest terminates and restarts the worker, so a stale index is never mixed with new feeds."
 msgstr "**採用。** ワーカーは `search-index.json` を一度だけ読み込み、レコードをメモリに保持します。クエリは `id` 付きのメッセージで、各応答は同じ `id` の要求だけを解決するため、同時に出したクエリが混同されることはありません。URL にはマニフェストの `generated_at` がバージョンパラメーターとして付き、新しいマニフェストが来るとワーカーを終了して再起動するので、古いインデックスが新しいフィードと混ざることはありません。"
 
-#: manual/design/static_search.md:159
+#: manual/design/static_search.md:174
 msgid "Normalise once, at export"
 msgstr "エクスポート時に一度だけ正規化する"
 
-#: manual/design/static_search.md:161
+#: manual/design/static_search.md:176
 msgid "**Problem.** Case-insensitive matching needs lower-cased text on both sides."
 msgstr "**課題。** 大文字と小文字を区別しない照合には、両側とも小文字のテキストが必要です。"
 
-#: manual/design/static_search.md:163
+#: manual/design/static_search.md:178
 msgid "**Choice.** Python lower-cases the records at export (`str.strip().lower()`); the worker lower-cases only the needle (`trim().toLowerCase()`). Both apply the Unicode default case mapping, so for ordinary package metadata the two sides agree. The MoonBit `normalize_text` implements the lower-casing step through the same JavaScript function, so that MoonBit code compiled for the static site normalises text exactly as the worker does."
 msgstr "**採用。** Python がエクスポート時にレコードを小文字化し（`str.strip().lower()`）、ワーカーは検索語だけを小文字化します（`trim().toLowerCase()`）。どちらも Unicode の既定の大文字小文字マッピングを使うので、通常のパッケージのメタデータでは両者は一致します。MoonBit の `normalize_text` は同じ JavaScript 関数で小文字化を実装しているので、静的サイト向けにコンパイルした MoonBit コードはワーカーとまったく同じようにテキストを正規化します。"
 
-#: manual/design/static_search.md:170
+#: manual/design/static_search.md:185
 msgid "Keep the version tag in MoonBit"
 msgstr "バージョンタグを MoonBit に置く"
 
-#: manual/design/static_search.md:172
+#: manual/design/static_search.md:187
 msgid "`runtime_version` gives the compiled JavaScript module a fixed identity. The static build (`scripts/build_static_site.mjs`) compiles the package before `next build`, so a MoonBit change that breaks the module stops the static build."
 msgstr "`runtime_version` はコンパイル済み JavaScript モジュールに固定の識別子を与えます。静的ビルド（`scripts/build_static_site.mjs`）は `next build` の前にこのパッケージをコンパイルするので、モジュールを壊す MoonBit の変更があれば静的ビルドが止まります。"
 
-#: manual/design/static_search.md:179
+#: manual/design/static_search.md:194
 msgid "Agreement with the dynamic site"
 msgstr "動的サイトとの一致"
 
-#: manual/design/static_search.md:181
+#: manual/design/static_search.md:196
 msgid "The worker and the server decode `ast` and `expr` with the same functions from `lib/query.ts`, so a query means the same formula in both modes. The term semantics differ on purpose:"
 msgstr "ワーカーとサーバーは `ast` と `expr` を `lib/query.ts` の同じ関数でデコードするので、クエリはどちらのモードでも同じ論理式を意味します。項の意味は意図的に異なります。"
 
-#: manual/design/static_search.md:185
+#: manual/design/static_search.md:200
 msgid "Text terms (`text`, `owner`, `package`, `keyword`, `description`) are substring tests in the static site, so `pars` also finds `sparse`. The server sends them to SQLite FTS5, which matches token prefixes (`pars*`). `license` and `repository` are substring tests in both modes."
 msgstr "テキストの項（`text`、`owner`、`package`、`keyword`、`description`）は静的サイトでは部分文字列の判定なので、`pars` で `sparse` も見つかります。サーバーはこれらを SQLite FTS5 に渡し、FTS5 はトークンの前方一致（`pars*`）で照合します。`license` と `repository` はどちらのモードでも部分文字列の判定です。"
 
-#: manual/design/static_search.md:189
+#: manual/design/static_search.md:204
 msgid "The server rejects a term whose operator does not fit its field (for example `rank>=A`) with HTTP 400; the worker evaluates it anyway, using equality for labels and numbers and a substring test for text."
 msgstr "サーバーは演算子がフィールドに合わない項（たとえば `rank>=A`）を HTTP 400 で拒否しますが、ワーカーはそのまま評価し、ラベルと数値には等価比較、テキストには部分文字列の判定を使います。"
 
-#: manual/design/static_search.md:192
+#: manual/design/static_search.md:207
 msgid "With a query and no explicit sort, the static site orders by the coordination count above. The server orders AST queries by score and ranks legacy text queries by FTS5 `bm25`."
 msgstr "クエリがあり明示的な並び順の指定がないとき、静的サイトは上の協調カウントで並べます。サーバーは AST クエリをスコア順に並べ、従来のテキストクエリは FTS5 の `bm25` で順位付けします。"
 
-#: manual/design/static_search.md:195
+#: manual/design/static_search.md:210
+msgid "Rank and momentum values must match the label exactly in the static site (`rank=s` matches nothing). The server accepts them in any case and rejects unknown labels with HTTP 400."
+msgstr "静的サイトでは、ランクとモメンタムの値はラベルと完全に一致しなければなりません（`rank=s` は何にも一致しません）。サーバーは大文字小文字を問わず受け付け、未知のラベルは HTTP 400 で拒否します。"
+
+#: manual/design/static_search.md:213
+msgid "An empty numeric value compares with $0$ in the static site; the server rejects it with HTTP 400."
+msgstr "静的サイトでは空の数値は $0$ と比較されます。サーバーは HTTP 400 で拒否します。"
+
+#: manual/design/static_search.md:215
 msgid "`updated` sorts by year in the static site and by the full timestamp on the server."
 msgstr "`updated` は静的サイトでは年で、サーバーでは完全なタイムスタンプで並べます。"
 
-#: manual/design/static_search.md:197
-msgid "Ties in a descending static sort are broken by name descending, while the server breaks them by score descending and then name ascending."
-msgstr "静的サイトの降順の並べ替えでは同順位を名前の降順で決めますが、サーバーはスコアの降順、次に名前の昇順で決めます。"
+#: manual/design/static_search.md:217
+msgid "Ties in a descending static sort are broken by name descending. The server breaks ties by name ascending, after score descending for the `growth`, `downloads`, `dependents` and `recent` sorts."
+msgstr "静的サイトの降順の並べ替えでは、同順位を名前の降順で決めます。サーバーは同順位を名前の昇順で決め、`growth`、`downloads`、`dependents`、`recent` の並べ替えではその前にスコアの降順を使います。"
 
-#: manual/design/static_search.md:200
+#: manual/design/static_search.md:220
+msgid "The server returns at most `limit` results (20 by default, at most 100); the static site returns every match."
+msgstr "サーバーは最大 `limit` 件（既定値 20、上限 100）を返し、静的サイトは一致したものをすべて返します。"
+
+#: manual/design/static_search.md:223
 msgid "Complexity"
 msgstr "計算量"
 
-#: manual/design/static_search.md:202
+#: manual/design/static_search.md:225
 msgid "Let $N$ be the number of records, $L$ the number of term leaves of the query and $\\ell$ the length of the longest normalised field. One term test costs $O(\\ell)$ for numeric and label terms and at most $O(\\ell\\,|v|)$ for a substring test. Then"
 msgstr "$N$ をレコード数、$L$ をクエリの項の葉の数、$\\ell$ を正規化したフィールドの最大長とします。1 回の項の判定にかかるコストは、数値とラベルの項で $O(\\ell)$、部分文字列の判定で最大 $O(\\ell\\,|v|)$ です。すると"
 
-#: manual/design/static_search.md:215
+#: manual/design/static_search.md:238
 msgid "A comparison costs $O(1)$ for the key sorts but $O(L \\ell |v|)$ for relevance, because the comparator recomputes $\\operatorname{rel}$ for both records instead of caching it. Relevance sorting is therefore $O(N \\log N \\cdot L \\ell |v|)$, a factor of $\\log N$ more term tests than the filter. Memory is $O(N F \\ell)$ for the resident index. All results are returned; there is no limit in static mode."
 msgstr "です。比較 1 回のコストは、キーによる並べ替えでは $O(1)$ ですが、関連度では $O(L \\ell |v|)$ です。比較関数が $\\operatorname{rel}$ をキャッシュせず両方のレコードについて毎回計算し直すためです。したがって関連度による並べ替えは $O(N \\log N \\cdot L \\ell |v|)$ で、項の判定回数がフィルターより $\\log N$ 倍多くなります。常駐するインデックスのメモリは $O(N F \\ell)$ です。結果はすべて返され、静的モードに件数の上限はありません。"
 
-#: manual/design/static_search.md:224
+#: manual/design/static_search.md:247
 msgid "**SQLite in WebAssembly** would make static and dynamic results identical but costs a large download and a WebAssembly runtime on every visit."
 msgstr "**WebAssembly 上の SQLite** なら静的と動的の結果は同一になりますが、訪問のたびに大きなダウンロードと WebAssembly ランタイムが必要です。"
 
-#: manual/design/static_search.md:226
+#: manual/design/static_search.md:249
 msgid "**A client-side full-text library** (inverted index with tf–idf or BM25) would rank better for free text but needs a tokenizer that agrees with the FTS5 tokenizer to be consistent, and loses substring matching."
 msgstr "**クライアント側の全文検索ライブラリ**（tf–idf や BM25 を使う転置インデックス）は自由テキストの順位付けには優れますが、一貫性のためには FTS5 のトークナイザーと一致するトークナイザーが必要で、部分文字列照合も失われます。"
 
-#: manual/design/static_search.md:229
+#: manual/design/static_search.md:252
 msgid "**Splitting the index per owner or per letter** would shrink the first download but make OR queries across shards fetch many files."
 msgstr "**オーナーや頭文字ごとにインデックスを分割する**と最初のダウンロードは小さくなりますが、分割をまたぐ OR クエリで多くのファイルを取得することになります。"
 
-#: manual/design/static_search.md:234
+#: manual/design/static_search.md:257
 msgid "The static search does not tokenise, stem or rank by text statistics, and it does not correct spelling."
 msgstr "静的検索はトークン化、語幹処理、テキスト統計による順位付けを行わず、綴りの訂正もしません。"
 
-#: manual/design/static_search.md:236
+#: manual/design/static_search.md:259
 msgid "It returns every match; paging and limits are left to the interface."
 msgstr "すべての一致を返します。ページ分けや件数の制限はインターフェース側に任せます。"
 
-#: manual/design/static_search.md:237
+#: manual/design/static_search.md:260
 msgid "The MoonBit package does not implement the index or the query evaluation; those are in Python and TypeScript."
 msgstr "MoonBit パッケージはインデックスもクエリの評価も実装していません。それらは Python と TypeScript にあります。"
 
-#: manual/design/static_search.md:239
+#: manual/design/static_search.md:262
 msgid "In this release the worker does not import the MoonBit module; its TypeScript normalisation additionally trims the needle, which `normalize_text` does not."
 msgstr "このリリースではワーカーは MoonBit モジュールをインポートしていません。その TypeScript の正規化は検索語の前後の空白も除去しますが、`normalize_text` は除去しません。"
 
-#: manual/design/static_search.md:242
+#: manual/design/static_search.md:265
 msgid "The data is as fresh as the last export; there is no incremental update."
 msgstr "データの鮮度は最後のエクスポートの時点までで、差分更新はありません。"
 
@@ -1705,118 +1739,174 @@ msgid "mooncake_impact_factor"
 msgstr "mooncake_impact_factor"
 
 #: manual/index.md:3
+msgid "This manual documents version `v0.1.2` of `Luna-Flow/mooncake-impact-factor`."
+msgstr "このマニュアルは `Luna-Flow/mooncake-impact-factor` のバージョン `v0.1.2` を記述します。"
+
+#: manual/index.md:5
+msgid "Overview"
+msgstr "概要"
+
+#: manual/index.md:7
 msgid "`mooncake_impact_factor` ranks the packages of the MoonBit registry by how much the ecosystem relies on them. It scores every package from its dependents, recent dependents, downloads and release date, labels the score with a rank and a momentum class, and lets you search and filter the result in a web application that runs locally against SQLite or as a static site."
 msgstr "`mooncake_impact_factor` は、エコシステムがどれだけ依存しているかで MoonBit レジストリのパッケージを順位付けします。被依存数、最近の被依存数、ダウンロード数、リリース日から各パッケージを評価し、スコアにランクとモメンタムの区分を付け、結果を Web アプリケーションで検索・絞り込みできるようにします。アプリケーションはローカルで SQLite に対して動かすことも、静的サイトとして動かすこともできます。"
 
-#: manual/index.md:9
-msgid "This manual describes version `0.1.2` of the module `Luna-Flow/mooncake-impact-factor`."
-msgstr "このマニュアルはモジュール `Luna-Flow/mooncake-impact-factor` のバージョン `0.1.2` を説明します。"
-
-#: manual/index.md:12
-msgid "Packages"
-msgstr "パッケージ"
-
-#: manual/index.md:14
-msgid "The MoonBit module has three packages. Each has an API reference, a tutorial and a design note."
-msgstr "この MoonBit モジュールには 3 つのパッケージがあります。それぞれに API リファレンス、チュートリアル、設計ノートがあります。"
-
-#: manual/index.md:17
-msgid "Package"
-msgstr "パッケージ"
-
-#: manual/index.md:17
-msgid "Purpose"
-msgstr "用途"
-
-#: manual/index.md:17
-msgid "Pages"
-msgstr "ページ"
-
-#: manual/index.md:19
-msgid "The impact score, rank labels, momentum labels and score snapshots."
-msgstr "インパクトスコア、ランクラベル、モメンタムラベル、スコアスナップショット。"
-
-#: manual/index.md:19
-msgid "[API](api/score.md) · [tutorial](tutorial/score.md) · [design](design/score.md)"
-msgstr "[API](api/score.md) · [チュートリアル](tutorial/score.md) · [設計](design/score.md)"
+#: manual/index.md:13
+msgid "The MoonBit module owns the rules: the score formula, the rank thresholds and the momentum classes live in `score`, and every other part of the repository calls them. The rest is not MoonBit: the Python index builder and static exporter in `scripts/`, and the Next.js application in `app/`, `frontend/src/` and `lib/`. The [architecture guide](architecture.md) shows how they fit together."
+msgstr "規則は MoonBit モジュールが持ちます。スコアの式、ランクの閾値、モメンタムの区分は `score` にあり、リポジトリの他の部分はそれを呼び出します。残りは MoonBit ではありません。`scripts/` にある Python のインデックスビルダーと静的エクスポーター、`app/`、`frontend/src/`、`lib/` にある Next.js アプリケーションです。これらの組み合わせ方は[アーキテクチャガイド](architecture.md)で示しています。"
 
 #: manual/index.md:20
-msgid "A JavaScript command that computes a score snapshot from a JSON file, used by the Python index builder."
-msgstr "JSON ファイルからスコアスナップショットを計算する JavaScript のコマンド。Python のインデックスビルダーが使います。"
-
-#: manual/index.md:20
-msgid "[API](api/cli.md) · [tutorial](tutorial/cli.md) · [design](design/cli.md)"
-msgstr "[API](api/cli.md) · [チュートリアル](tutorial/cli.md) · [設計](design/cli.md)"
-
-#: manual/index.md:21
-msgid "The version tag and text normalisation of the browser search in static mode."
-msgstr "静的モードのブラウザー検索のバージョンタグとテキスト正規化。"
-
-#: manual/index.md:21
-msgid "[API](api/static_search.md) · [tutorial](tutorial/static_search.md) · [design](design/static_search.md)"
-msgstr "[API](api/static_search.md) · [チュートリアル](tutorial/static_search.md) · [設計](design/static_search.md)"
-
-#: manual/index.md:23
-msgid "The rest of the repository is not MoonBit: the Python index builder and static exporter in `scripts/`, and the Next.js application in `app/`, `frontend/src/` and `lib/`. The [architecture guide](architecture.md) shows how they fit together."
-msgstr "リポジトリの残りは MoonBit ではありません。`scripts/` にある Python のインデックスビルダーと静的エクスポーター、`app/`、`frontend/src/`、`lib/` にある Next.js アプリケーションです。これらの組み合わせ方は [アーキテクチャガイド](architecture.md) で示しています。"
-
-#: manual/index.md:28
-msgid "Guides"
-msgstr "ガイド"
-
-#: manual/index.md:30
-msgid "[Getting started](getting_started.md): build the database, run the web application and query its HTTP API."
-msgstr "[入門](getting_started.md): データベースを構築し、Web アプリケーションを動かし、HTTP API に問い合わせます。"
-
-#: manual/index.md:32
-msgid "[Architecture](architecture.md): the data pipeline from the registry to the browser, and which file owns which rule."
-msgstr "[アーキテクチャ](architecture.md): レジストリからブラウザーまでのデータパイプラインと、どのファイルがどの規則を持つか。"
-
-#: manual/index.md:34
-msgid "[Conventions](conventions.md): the documentation rules specific to this repository."
-msgstr "[規約](conventions.md): このリポジトリ固有のドキュメント規則。"
-
-#: manual/index.md:37
-msgid "Reading paths"
-msgstr "読み進め方"
-
-#: manual/index.md:39
-msgid "**I want to see the rankings.** Follow [getting started](getting_started.md) to build the database and open the web application, then read the [score tutorial](tutorial/score.md) to understand what the numbers mean."
-msgstr "**ランキングを見たい。** [入門](getting_started.md) に従ってデータベースを構築し Web アプリケーションを開いたら、[score チュートリアル](tutorial/score.md) で数値の意味を確認してください。"
-
-#: manual/index.md:43
-msgid "**I want to use the score in MoonBit.** Start with the [score tutorial](tutorial/score.md) and keep the [score API](api/score.md) at hand. Use the [cli tutorial](tutorial/cli.md) when the caller is not MoonBit."
-msgstr "**MoonBit でスコアを使いたい。** [score チュートリアル](tutorial/score.md) から始め、[score API](api/score.md) を手元に置いてください。呼び出し側が MoonBit でない場合は [cli チュートリアル](tutorial/cli.md) を使います。"
-
-#: manual/index.md:48
-msgid "**I want to change the model or the search.** Read the [score design](design/score.md) for the derivation of the formula and its invariants, the [static_search design](design/static_search.md) for the browser index and its ranking, and the [architecture guide](architecture.md) for how the signals are counted. The repository's `CONTRIBUTING.md` lists the checks to run."
-msgstr "**モデルや検索を変更したい。** 式の導出と不変条件は [score の設計](design/score.md)、ブラウザーのインデックスと順位付けは [static_search の設計](design/static_search.md)、シグナルの数え方は [アーキテクチャガイド](architecture.md) を読んでください。実行すべきチェックはリポジトリの `CONTRIBUTING.md` に一覧があります。"
-
-#: manual/index.md:55
 msgid "Install"
 msgstr "インストール"
 
-#: manual/index.md:61
-msgid "Then import the package you need in `moon.pkg`, for example `\"Luna-Flow/mooncake-impact-factor/score\"`. `score` builds for every target; `cli` and `static_search` build only for the JavaScript target."
-msgstr "次に、必要なパッケージを `moon.pkg` でインポートします（例: `\"Luna-Flow/mooncake-impact-factor/score\"`）。`score` はすべてのターゲットでビルドでき、`cli` と `static_search` は JavaScript ターゲット専用です。"
+#: manual/index.md:26
+msgid "Then import the package you need in your `moon.pkg`, for example `\"Luna-Flow/mooncake-impact-factor/score\"`. `score` builds for every target; `cli` and `static_search` build only for the JavaScript target. The module needs the MoonBit toolchain 0.10 or later (`moonc` ≥ 0.10). Running `cli` and the web application also needs Node.js 20.16, 22.3 or later, and the index builder needs Python 3."
+msgstr "次に、必要なパッケージを `moon.pkg` でインポートします（例: `\"Luna-Flow/mooncake-impact-factor/score\"`）。`score` はすべてのターゲットでビルドでき、`cli` と `static_search` は JavaScript ターゲット専用です。モジュールには MoonBit ツールチェーン 0.10 以降（`moonc` ≥ 0.10）が必要です。`cli` と Web アプリケーションの実行にはさらに Node.js 20.16、22.3 以降が、インデックスビルダーには Python 3 が必要です。"
 
-#: manual/index.md:65
-msgid "Toolchain"
-msgstr "ツールチェーン"
+#: manual/index.md:33
+msgid "Pages"
+msgstr "ページ"
 
-#: manual/index.md:67
-msgid "MoonBit with `moonc` 0.10 or later. The module uses the `moon.mod` and `moon.pkg` manifest formats."
-msgstr "`moonc` 0.10 以降の MoonBit。モジュールは `moon.mod` と `moon.pkg` のマニフェスト形式を使います。"
+#: manual/index.md:35
+msgid "The MoonBit module has three packages, each with a tutorial, an API reference and a design page. Three guides cover the rest of the repository."
+msgstr "この MoonBit モジュールには 3 つのパッケージがあり、それぞれにチュートリアル、API リファレンス、設計ページがあります。3 つのガイドがリポジトリの残りを扱います。"
+
+#: manual/index.md:38
+msgid "Part"
+msgstr "部分"
+
+#: manual/index.md:38
+msgid "Tutorial"
+msgstr "チュートリアル"
+
+#: manual/index.md:38
+msgid "API"
+msgstr "API"
+
+#: manual/index.md:38
+msgid "Design"
+msgstr "設計"
+
+#: manual/index.md:40
+msgid "`score`: impact score, rank and momentum labels, snapshots"
+msgstr "`score`：インパクトスコア、ランクとモメンタムのラベル、スナップショット"
+
+#: manual/index.md:40
+msgid "[tutorial](tutorial/score.md)"
+msgstr "[チュートリアル](tutorial/score.md)"
+
+#: manual/index.md:40
+msgid "[API](api/score.md)"
+msgstr "[API](api/score.md)"
+
+#: manual/index.md:40
+msgid "[design](design/score.md)"
+msgstr "[設計](design/score.md)"
+
+#: manual/index.md:41
+msgid "`cli`: a JavaScript command that scores one package from a JSON file"
+msgstr "`cli`：JSON ファイルから 1 つのパッケージを採点する JavaScript コマンド"
+
+#: manual/index.md:41
+msgid "[tutorial](tutorial/cli.md)"
+msgstr "[チュートリアル](tutorial/cli.md)"
+
+#: manual/index.md:41
+msgid "[API](api/cli.md)"
+msgstr "[API](api/cli.md)"
+
+#: manual/index.md:41
+msgid "[design](design/cli.md)"
+msgstr "[設計](design/cli.md)"
+
+#: manual/index.md:42
+msgid "`static_search`: version tag and text normalisation of the static search"
+msgstr "`static_search`：静的検索のバージョンタグとテキスト正規化"
+
+#: manual/index.md:42
+msgid "[tutorial](tutorial/static_search.md)"
+msgstr "[チュートリアル](tutorial/static_search.md)"
+
+#: manual/index.md:42
+msgid "[API](api/static_search.md)"
+msgstr "[API](api/static_search.md)"
+
+#: manual/index.md:42
+msgid "[design](design/static_search.md)"
+msgstr "[設計](design/static_search.md)"
+
+#: manual/index.md:43
+msgid "Guide: build the database, run the application, query its HTTP API"
+msgstr "ガイド：データベースを構築し、アプリケーションを動かし、HTTP API に問い合わせる"
+
+#: manual/index.md:43
+msgid "[getting started](getting_started.md)"
+msgstr "[入門](getting_started.md)"
+
+#: manual/index.md:44
+msgid "Guide: the data pipeline from the registry to the browser"
+msgstr "ガイド：レジストリからブラウザーまでのデータパイプライン"
+
+#: manual/index.md:44
+msgid "[architecture](architecture.md)"
+msgstr "[アーキテクチャ](architecture.md)"
+
+#: manual/index.md:45
+msgid "Guide: documentation rules of this repository"
+msgstr "ガイド：このリポジトリの文書規則"
+
+#: manual/index.md:45
+msgid "[conventions](conventions.md)"
+msgstr "[規約](conventions.md)"
+
+#: manual/index.md:47
+msgid "Exported items"
+msgstr "エクスポートされる項目"
+
+#: manual/index.md:49
+msgid "`score`: `compute_score`, `activity_multiplier`, `clamp_non_negative`, `rank_label`, `compute_momentum_label`, `compute_score_snapshot` and the struct `ScoreSnapshot`"
+msgstr "`score`：`compute_score`、`activity_multiplier`、`clamp_non_negative`、`rank_label`、`compute_momentum_label`、`compute_score_snapshot` と構造体 `ScoreSnapshot`"
+
+#: manual/index.md:52
+msgid "`static_search`: `runtime_version`, `normalize_text`, also exported from the compiled ES module"
+msgstr "`static_search`：`runtime_version`、`normalize_text`。コンパイルされた ES モジュールからもエクスポートされます"
+
+#: manual/index.md:54
+msgid "`cli`: no MoonBit names; its interface is the command `score-snapshot --input <path>`"
+msgstr "`cli`：MoonBit の名前はなく、インターフェースはコマンド `score-snapshot --input <path>` です"
+
+#: manual/index.md:57
+msgid "Where to read next"
+msgstr "次に読むもの"
+
+#: manual/index.md:59
+msgid "The [score tutorial](tutorial/score.md) computes, ranks and explains scores, the [score API](api/score.md) lists every function and threshold, and the [score design](design/score.md) derives the formula and its invariants."
+msgstr "[score チュートリアル](tutorial/score.md)ではスコアを計算し、並べ、説明します。[score API](api/score.md) はすべての関数と閾値を挙げ、[score の設計](design/score.md)は式とその不変条件を導出します。"
+
+#: manual/index.md:63
+msgid "New to the project: follow [getting started](getting_started.md) to build the database and open the web application, then read the [score tutorial](tutorial/score.md) to understand what the numbers mean."
+msgstr "プロジェクトが初めての方：[入門](getting_started.md)に従ってデータベースを構築し Web アプリケーションを開いたら、[score チュートリアル](tutorial/score.md)で数値の意味を確認してください。"
+
+#: manual/index.md:66
+msgid "Using the score in a library: keep the [score API](api/score.md) at hand, and use the [cli tutorial](tutorial/cli.md) when the caller is not MoonBit."
+msgstr "ライブラリでスコアを使う方：[score API](api/score.md) を手元に置き、呼び出し側が MoonBit でない場合は [cli チュートリアル](tutorial/cli.md) を使ってください。"
 
 #: manual/index.md:69
-msgid "Node.js 20.16, 22.3 or later to run `cli` and the web application."
-msgstr "`cli` と Web アプリケーションの実行に Node.js 20.16、22.3 以降。"
+msgid "Contributing: read the [score design](design/score.md), the [static_search design](design/static_search.md) for the browser index and its ranking, and the [architecture guide](architecture.md) for how the signals are counted. The repository's `CONTRIBUTING.md` lists the checks to run."
+msgstr "貢献する方：[score の設計](design/score.md)、ブラウザーのインデックスと順位付けについての [static_search の設計](design/static_search.md)、シグナルの数え方についての[アーキテクチャガイド](architecture.md)を読んでください。実行すべきチェックはリポジトリの `CONTRIBUTING.md` に一覧があります。"
 
-#: manual/index.md:70
-msgid "Python 3 for the index builder and the static exporter."
-msgstr "インデックスビルダーと静的エクスポーターに Python 3。"
+#: manual/index.md:75
+msgid "Validation"
+msgstr "検証"
 
-#: manual/index.md:74
+#: manual/index.md:77
+msgid "Recommended release checks:"
+msgstr "推奨されるリリース前チェック："
+
+#: manual/index.md:87
+msgid "`CONTRIBUTING.md` adds the Python, TypeScript and static-site checks."
+msgstr "`CONTRIBUTING.md` には Python、TypeScript、静的サイトのチェックも挙げてあります。"
+
+#: manual/index.md:89
 msgid "The rankings come from a local copy of the registry index plus optional download counts from mooncakes.io. They are not an authoritative ranking of the MoonBit ecosystem, and they change whenever the database is rebuilt from a newer snapshot."
 msgstr "ランキングはレジストリインデックスのローカルコピーと、任意で取得する mooncakes.io のダウンロード数に基づきます。MoonBit エコシステムの公式なランキングではなく、より新しいスナップショットからデータベースを作り直すたびに変わります。"
 
@@ -1831,130 +1921,174 @@ msgstr "このチュートリアルでは、`cli` 実行ファイルを使って
 #: manual/tutorial/cli.md:8
 #: manual/tutorial/score.md:9
 #: manual/tutorial/static_search.md:9
+msgid "I want to"
+msgstr "やりたいこと"
+
+#: manual/tutorial/cli.md:8
+#: manual/tutorial/score.md:9
+#: manual/tutorial/static_search.md:9
+msgid "Use"
+msgstr "使うもの"
+
+#: manual/tutorial/cli.md:10
+msgid "build the command"
+msgstr "コマンドをビルドする"
+
+#: manual/tutorial/cli.md:11
+msgid "score one package from a shell"
+msgstr "シェルから 1 つのパッケージを採点する"
+
+#: manual/tutorial/cli.md:12
+msgid "score from Python or Node.js"
+msgstr "Python や Node.js から採点する"
+
+#: manual/tutorial/cli.md:12
+msgid "write a JSON file, run the command, parse standard output"
+msgstr "JSON ファイルを書き、コマンドを実行し、標準出力を解析する"
+
+#: manual/tutorial/cli.md:13
+msgid "leave out unknown signals"
+msgstr "不明なシグナルを省く"
+
+#: manual/tutorial/cli.md:13
+msgid "omit the key; it counts as `0`"
+msgstr "キーを省略する。`0` として数えられる"
+
+#: manual/tutorial/cli.md:14
+msgid "detect failures"
+msgstr "失敗を検出する"
+
+#: manual/tutorial/cli.md:14
+msgid "a non-zero exit status"
+msgstr "0 以外の終了ステータス"
+
+#: manual/tutorial/cli.md:16
+#: manual/tutorial/score.md:17
+#: manual/tutorial/static_search.md:17
 msgid "Quick start"
 msgstr "クイックスタート"
 
-#: manual/tutorial/cli.md:10
+#: manual/tutorial/cli.md:18
 msgid "Build the executable from the repository root:"
 msgstr "リポジトリのルートで実行ファイルをビルドします。"
 
-#: manual/tutorial/cli.md:16
+#: manual/tutorial/cli.md:24
 msgid "Write the signals of one package to a file:"
 msgstr "1 つのパッケージのシグナルをファイルに書きます。"
 
-#: manual/tutorial/cli.md:28
+#: manual/tutorial/cli.md:36
 msgid "The command prints the snapshot on one line:"
 msgstr "コマンドはスナップショットを 1 行で出力します。"
 
-#: manual/tutorial/cli.md:34
+#: manual/tutorial/cli.md:42
 msgid "These are the same numbers as `@score.compute_score_snapshot(20, 4, 300, 40, 10, 2, 0, 10)` in MoonBit."
 msgstr "これは MoonBit での `@score.compute_score_snapshot(20, 4, 300, 40, 10, 2, 0, 10)` と同じ数値です。"
 
-#: manual/tutorial/cli.md:37
-#: manual/tutorial/score.md:41
-#: manual/tutorial/static_search.md:44
+#: manual/tutorial/cli.md:45
+#: manual/tutorial/score.md:46
+#: manual/tutorial/static_search.md:48
 msgid "Everyday tasks"
 msgstr "よくある作業"
 
-#: manual/tutorial/cli.md:39
+#: manual/tutorial/cli.md:47
 msgid "Leave out what you do not know"
 msgstr "わからない値は省く"
 
-#: manual/tutorial/cli.md:41
+#: manual/tutorial/cli.md:49
 msgid "Every key is optional and defaults to `0`. A package released five days ago with three dependents and nothing else known:"
 msgstr "どのキーも省略可能で、既定値は `0` です。5 日前にリリースされ、被依存数が 3 で、ほかは不明なパッケージの場合:"
 
-#: manual/tutorial/cli.md:53
+#: manual/tutorial/cli.md:61
 msgid "The historical signals are all `0`, so `score_30d_ago` is `0` and the growth ratio is reported as `1`."
 msgstr "過去のシグナルがすべて `0` なので、`score_30d_ago` は `0` で、成長率は `1` と報告されます。"
 
-#: manual/tutorial/cli.md:56
+#: manual/tutorial/cli.md:64
 msgid "Call it from Python"
 msgstr "Python から呼び出す"
 
-#: manual/tutorial/cli.md:58
+#: manual/tutorial/cli.md:66
 msgid "The index builder runs the command once per package. A minimal version of its helper:"
 msgstr "インデックスビルダーはパッケージごとに 1 回このコマンドを実行します。そのヘルパーの最小版は次のとおりです。"
 
-#: manual/tutorial/cli.md:87
+#: manual/tutorial/cli.md:95
 msgid "`check=True` turns every non-zero exit status into an exception, which covers both the JSON error messages and a missing input file."
 msgstr "`check=True` は 0 以外の終了ステータスをすべて例外にするので、JSON のエラーメッセージと入力ファイルの欠落の両方に対応できます。"
 
-#: manual/tutorial/cli.md:90
+#: manual/tutorial/cli.md:98
 msgid "Call it from Node.js"
 msgstr "Node.js から呼び出す"
 
-#: manual/tutorial/cli.md:107
+#: manual/tutorial/cli.md:115
 msgid "936 dependents alone are enough for rank `S` when the multiplier is $1$; the [score design](../design/score.md#rank-thresholds-as-counts) derives why."
 msgstr "乗数が $1$ なら、被依存数 936 だけでランク `S` に届きます。理由は [score の設計](../design/score.md#rank-thresholds-as-counts) で導いています。"
 
-#: manual/tutorial/cli.md:110
+#: manual/tutorial/cli.md:118
 msgid "Handle errors"
 msgstr "エラーを扱う"
 
-#: manual/tutorial/cli.md:112
+#: manual/tutorial/cli.md:120
 msgid "Errors print a JSON object with an `error` key and exit with status `1`:"
 msgstr "エラーでは `error` キーを持つ JSON オブジェクトを出力し、ステータス `1` で終了します。"
 
-#: manual/tutorial/cli.md:124
+#: manual/tutorial/cli.md:132
 msgid "Check the exit status before you parse the output. A missing file also exits with `1` but prints a Node.js stack trace to standard error instead of JSON."
 msgstr "出力を解析する前に終了ステータスを確認してください。ファイルがない場合も `1` で終了しますが、JSON ではなく Node.js のスタックトレースを標準エラーに出力します。"
 
-#: manual/tutorial/cli.md:127
-#: manual/tutorial/score.md:194
-#: manual/tutorial/static_search.md:160
+#: manual/tutorial/cli.md:135
+#: manual/tutorial/score.md:192
+#: manual/tutorial/static_search.md:159
 msgid "Going further"
 msgstr "さらに進んで"
 
-#: manual/tutorial/cli.md:129
+#: manual/tutorial/cli.md:137
 msgid "**Batch work.** Each call starts a Node.js process, which costs far more than the score itself. For many packages in one MoonBit program, call `@score.compute_score_snapshot` directly, as in the [score tutorial](score.md)."
 msgstr "**まとめて処理する。** 呼び出しのたびに Node.js のプロセスが起動し、そのコストはスコアの計算よりはるかに大きくなります。1 つの MoonBit プログラムで多数のパッケージを扱うなら、[score チュートリアル](score.md) のように `@score.compute_score_snapshot` を直接呼び出してください。"
 
-#: manual/tutorial/cli.md:133
+#: manual/tutorial/cli.md:141
 msgid "**Where the signals come from.** The [architecture guide](../architecture.md) explains how the index builder counts dependents, recent dependents and historical values before it calls this command."
 msgstr "**シグナルの出どころ。** インデックスビルダーがこのコマンドを呼ぶ前に被依存数、最近の被依存数、過去の値をどう数えるかは [アーキテクチャガイド](../architecture.md) で説明しています。"
 
-#: manual/tutorial/cli.md:137
+#: manual/tutorial/cli.md:145
 msgid "**Strict inputs.** The command accepts sloppy input: strings and `null` become `0`, fractions are truncated. Validate the payload in the caller if a silent `0` would hide a bug."
 msgstr "**入力を厳密にする。** コマンドはいい加減な入力も受け付けます。文字列と `null` は `0` になり、小数は切り捨てられます。黙って `0` になることでバグが隠れるおそれがあるなら、呼び出し側でペイロードを検証してください。"
 
-#: manual/tutorial/cli.md:141
-#: manual/tutorial/score.md:224
-#: manual/tutorial/static_search.md:179
+#: manual/tutorial/cli.md:149
+#: manual/tutorial/score.md:222
+#: manual/tutorial/static_search.md:178
 msgid "Common pitfalls"
 msgstr "よくある落とし穴"
 
-#: manual/tutorial/cli.md:143
+#: manual/tutorial/cli.md:151
 msgid "**Numbers as strings.** `{\"dependents\": \"20\"}` scores as zero dependents. Write `20`, not `\"20\"`."
 msgstr "**数値を文字列で書く。** `{\"dependents\": \"20\"}` は被依存数 0 として評価されます。`\"20\"` ではなく `20` と書いてください。"
 
-#: manual/tutorial/cli.md:145
+#: manual/tutorial/cli.md:153
 msgid "**Wrong argument order.** `score-snapshot` must be the first argument after the script; `--input file.json score-snapshot` prints the usage error."
 msgstr "**引数の順序の誤り。** `score-snapshot` はスクリプトの直後の引数でなければなりません。`--input file.json score-snapshot` では使い方のエラーが出力されます。"
 
-#: manual/tutorial/cli.md:147
+#: manual/tutorial/cli.md:155
 msgid "**Stale build.** The index builder reuses an existing `cli.js`. Rebuild after you change `src/score`, or the database is scored with the old rules."
 msgstr "**古いビルド。** インデックスビルダーは既存の `cli.js` を再利用します。`src/score` を変更したらビルドし直してください。そうしないとデータベースは古い規則で評価されます。"
 
-#: manual/tutorial/cli.md:149
+#: manual/tutorial/cli.md:157
 msgid "**Large counts.** A count of `2147483647`, or any larger number (the conversion saturates at the largest `Int`), makes the score `NaN`. JSON has no `NaN`, so the output then contains the string `\"NaN\"` where a number is expected: `{\"score\":\"NaN\",...}`."
 msgstr "**大きすぎるカウント。** `2147483647` 以上の数（変換は `Int` の最大値で飽和します）はスコアを `NaN` にします。JSON には `NaN` がないので、出力では数値が入るべき場所に文字列 `\"NaN\"` が入ります: `{\"score\":\"NaN\",...}`。"
 
-#: manual/tutorial/cli.md:154
-#: manual/tutorial/score.md:239
-#: manual/tutorial/static_search.md:194
+#: manual/tutorial/cli.md:162
+#: manual/tutorial/score.md:237
+#: manual/tutorial/static_search.md:197
 msgid "Next steps"
 msgstr "次のステップ"
 
-#: manual/tutorial/cli.md:156
+#: manual/tutorial/cli.md:164
 msgid "[cli API](../api/cli.md) for the exact input, output and error contract."
 msgstr "[cli API](../api/cli.md): 入力、出力、エラーの正確な約束。"
 
-#: manual/tutorial/cli.md:157
+#: manual/tutorial/cli.md:165
 msgid "[cli design](../design/cli.md) for why the bridge is a file-based command."
 msgstr "[cli の設計](../design/cli.md): 橋渡しがファイルベースのコマンドである理由。"
 
-#: manual/tutorial/cli.md:158
+#: manual/tutorial/cli.md:166
 msgid "[score API](../api/score.md) for the meaning of every output field."
 msgstr "[score API](../api/score.md): 各出力フィールドの意味。"
 
@@ -1967,39 +2101,71 @@ msgid "This tutorial shows you how to compute the impact score of a MoonBit pack
 msgstr "このチュートリアルでは、被依存パッケージ、ダウンロード数、リリース日から MoonBit パッケージのインパクトスコアを計算する方法、スコアを Web アプリケーションが表示するランクとモメンタムのラベルに変える方法、評価済みパッケージの一覧を並べ替えて説明する方法を示します。数学は軽めにしてあり、導出は [score の設計](../design/score.md) にあります。"
 
 #: manual/tutorial/score.md:11
-#: manual/tutorial/static_search.md:11
+msgid "score one package"
+msgstr "1 つのパッケージを採点する"
+
+#: manual/tutorial/score.md:12
+msgid "turn a score into a rank"
+msgstr "スコアをランクに変換する"
+
+#: manual/tutorial/score.md:13
+msgid "measure 30-day growth and momentum"
+msgstr "30 日間の成長とモメンタムを測る"
+
+#: manual/tutorial/score.md:13
+msgid "`@score.compute_score_snapshot(...)` with current and historical signals"
+msgstr "現在と過去のシグナルを渡した `@score.compute_score_snapshot(...)`"
+
+#: manual/tutorial/score.md:14
+msgid "explain a score"
+msgstr "スコアを説明する"
+
+#: manual/tutorial/score.md:14
+msgid "score each signal alone; the parts add up"
+msgstr "シグナルごとに単独で採点する。各部分を足すと合計になる"
+
+#: manual/tutorial/score.md:15
+msgid "pass a snapshot to another tool"
+msgstr "スナップショットを他のツールに渡す"
+
+#: manual/tutorial/score.md:15
+msgid "`Json(snapshot)`, or the [`cli` command](cli.md)"
+msgstr "`Json(snapshot)`、または [`cli` コマンド](cli.md)"
+
+#: manual/tutorial/score.md:19
+#: manual/tutorial/static_search.md:19
 msgid "Add the module to your project:"
 msgstr "モジュールをプロジェクトに追加します。"
 
-#: manual/tutorial/score.md:17
+#: manual/tutorial/score.md:25
 msgid "Import the package in the `moon.pkg` of the package that uses it:"
 msgstr "使う側のパッケージの `moon.pkg` でパッケージをインポートします。"
 
-#: manual/tutorial/score.md:25
+#: manual/tutorial/score.md:33
 msgid "Score a package with 20 dependents, 4 of them recent, 300 downloads and a release 40 days ago:"
 msgstr "被依存数 20（うち最近のもの 4）、ダウンロード数 300、40 日前にリリースされたパッケージを評価します。"
 
-#: manual/tutorial/score.md:39
+#: manual/tutorial/score.md:44
 msgid "The score is a plain `Double`. Anything from $260$ up is rank `S`."
 msgstr "スコアはただの `Double` です。$260$ 以上ならランク `S` です。"
 
-#: manual/tutorial/score.md:43
+#: manual/tutorial/score.md:48
 msgid "Rank a list of packages"
 msgstr "パッケージの一覧を順位付けする"
 
-#: manual/tutorial/score.md:45
+#: manual/tutorial/score.md:50
 msgid "Scores from different packages are directly comparable, because each score depends only on that package's signals. Sort by score, highest first, and break ties by name so that the order is reproducible. This is the order the web application uses for its top feed."
 msgstr "各スコアはそのパッケージ自身のシグナルにしか依存しないので、異なるパッケージのスコアはそのまま比較できます。スコアの高い順に並べ、同順位は名前で決めて順序を再現可能にします。これは Web アプリケーションのトップフィードと同じ順序です。"
 
-#: manual/tutorial/score.md:80
+#: manual/tutorial/score.md:87
 msgid "`bob/http` and `carol/csv` have identical signals and therefore identical scores; the name decides their order."
 msgstr "`bob/http` と `carol/csv` はシグナルが同じなのでスコアも同じで、順序は名前で決まります。"
 
-#: manual/tutorial/score.md:83
+#: manual/tutorial/score.md:90
 msgid "Explain where a score comes from"
 msgstr "スコアの内訳を説明する"
 
-#: manual/tutorial/score.md:85
+#: manual/tutorial/score.md:92
 msgid "The base score is a sum of one term per signal, and the release multiplier scales the whole sum. Scoring each signal on its own therefore splits a score into its parts:"
 msgstr "基本スコアはシグナルごとの項の和で、リリース乗数がその和全体に掛かります。したがって各シグナルを単独で評価すれば、スコアを部分に分解できます。"
 
@@ -2015,83 +2181,83 @@ msgstr "リリースからの経過の影響を見る"
 msgid "`activity_multiplier` rewards a recent release with up to 12 % and penalises an old one with up to 12 %:"
 msgstr "`activity_multiplier` は最近のリリースを最大 12 % 優遇し、古いリリースを最大 12 % 減点します。"
 
-#: manual/tutorial/score.md:135
+#: manual/tutorial/score.md:138
 msgid "The same signals are rank `S` while the latest release is less than a year old and rank `A` after that."
 msgstr "同じシグナルでも、最新リリースから 1 年未満ならランク `S`、それ以降はランク `A` です。"
 
-#: manual/tutorial/score.md:138
+#: manual/tutorial/score.md:141
 msgid "Measure growth over 30 days"
 msgstr "30 日間の成長を測る"
 
-#: manual/tutorial/score.md:140
+#: manual/tutorial/score.md:143
 msgid "`compute_score_snapshot` takes the four signals twice: as they are now and as they were 30 days ago. A package that did not exist 30 days ago has historical signals of `0`:"
 msgstr "`compute_score_snapshot` は 4 つのシグナルを、現在の値と 30 日前の値の 2 回受け取ります。30 日前に存在しなかったパッケージの過去のシグナルは `0` です。"
 
-#: manual/tutorial/score.md:159
+#: manual/tutorial/score.md:156
 msgid "The score grew from $0$, so the growth ratio is reported as $1$ (100 %). The package is `Hot`, not `Rising`, because `Rising` needs at least three recent dependents and it has two."
 msgstr "スコアは $0$ から伸びたので、成長率は $1$（100 %）と報告されます。`Rising` には最近の被依存パッケージが 3 つ以上必要で、このパッケージには 2 つしかないため、`Rising` ではなく `Hot` です。"
 
-#: manual/tutorial/score.md:163
+#: manual/tutorial/score.md:160
 msgid "Hand a snapshot to other tools"
 msgstr "スナップショットをほかのツールに渡す"
 
-#: manual/tutorial/score.md:165
+#: manual/tutorial/score.md:162
 msgid "`ScoreSnapshot` converts to JSON with `Json(...)`. This is exactly the output of the [`cli` command](cli.md):"
 msgstr "`ScoreSnapshot` は `Json(...)` で JSON に変換できます。これは [`cli` コマンド](cli.md) の出力そのものです。"
 
-#: manual/tutorial/score.md:179
+#: manual/tutorial/score.md:177
 msgid "Read it back with `@json.from_json`, which needs `moonbitlang/core/json` in your imports:"
 msgstr "`@json.from_json` で読み戻します。インポートに `moonbitlang/core/json` が必要です。"
 
-#: manual/tutorial/score.md:191
+#: manual/tutorial/score.md:189
 msgid "`ScoreSnapshot` has no `Eq` implementation, so the check compares the JSON forms."
 msgstr "`ScoreSnapshot` は `Eq` を実装していないので、チェックでは JSON 形式を比較します。"
 
-#: manual/tutorial/score.md:196
+#: manual/tutorial/score.md:194
 msgid "**Prepare signals like the index builder.** The functions accept any integers, but the scores in the web application come from specific definitions: `dependents` counts packages with at least one version that depends on this package, `recent_dependents` counts those whose first such version is at most 180 days old, and the historical signals repeat the count as of 30 days ago with downloads set to `0`. The [architecture guide](../architecture.md) describes the whole pipeline. If you compare your own scores with the published ones, use the same definitions."
 msgstr "**インデックスビルダーと同じようにシグナルを用意する。** 関数は任意の整数を受け付けますが、Web アプリケーションのスコアは特定の定義に基づいています。`dependents` はこのパッケージに依存するバージョンを 1 つ以上持つパッケージの数、`recent_dependents` はそのうち最初の該当バージョンが 180 日以内のものの数で、過去のシグナルは 30 日前時点の同じ数をダウンロード数 `0` で数えたものです。パイプライン全体は [アーキテクチャガイド](../architecture.md) で説明しています。自分のスコアを公開されたスコアと比べるなら、同じ定義を使ってください。"
 
-#: manual/tutorial/score.md:205
+#: manual/tutorial/score.md:203
 msgid "**Keep labels and scores together.** `rank_label` and `compute_momentum_label` are separate functions so that you can label scores computed elsewhere, but `compute_score_snapshot` is the only way to get labels that are guaranteed to match the numbers. Store snapshots rather than recomputing labels from rounded numbers."
 msgstr "**ラベルとスコアをいっしょに保つ。** `rank_label` と `compute_momentum_label` はほかで計算したスコアにもラベルを付けられるよう別関数になっていますが、ラベルが数値と必ず一致するのは `compute_score_snapshot` を使った場合だけです。丸めた数値からラベルを計算し直すのではなく、スナップショットを保存してください。"
 
-#: manual/tutorial/score.md:211
+#: manual/tutorial/score.md:209
 msgid "**Guard against overflow at the edge.** No real package has `2147483647` dependents, but if your signals come from untrusted input, clamp them first: a count of exactly `2147483647` makes the score `NaN`, which ranks as `D`."
 msgstr "**境界でのオーバーフローを防ぐ。** 被依存数が `2147483647` の実在パッケージはありませんが、シグナルが信頼できない入力から来るなら先に制限してください。ちょうど `2147483647` のカウントはスコアを `NaN` にし、ランクは `D` になります。"
 
-#: manual/tutorial/score.md:226
+#: manual/tutorial/score.md:224
 msgid "**Swapped arguments.** All signals are `Int`, so the compiler cannot tell `downloads` from `dependents`. Keep the order of the [signals table](../api/score.md#signals)."
 msgstr "**引数の取り違え。** シグナルはすべて `Int` なので、コンパイラーは `downloads` と `dependents` を区別できません。[シグナル表](../api/score.md#signals) の順序を守ってください。"
 
-#: manual/tutorial/score.md:229
+#: manual/tutorial/score.md:227
 msgid "**Days, not dates.** `days_since_release` is a count of whole days, not a timestamp. A negative value counts as `0` and gets the highest multiplier."
 msgstr "**日付ではなく日数。** `days_since_release` は経過日数（整数）で、タイムスタンプではありません。負の値は `0` として扱われ、最も高い乗数が付きます。"
 
-#: manual/tutorial/score.md:231
+#: manual/tutorial/score.md:229
 msgid "**Growth ratio of new packages.** A ratio of `1` can mean \"doubled\" or \"appeared from nothing\". Check `score_30d_ago == 0.0` to tell them apart."
 msgstr "**新しいパッケージの成長率。** 比率 `1` は「倍になった」とも「何もないところから現れた」とも読めます。区別するには `score_30d_ago == 0.0` を確認してください。"
 
-#: manual/tutorial/score.md:233
+#: manual/tutorial/score.md:231
 msgid "**Comparing with `==`.** Scores are floating-point numbers; compare computed sums with a tolerance."
 msgstr "**`==` での比較。** スコアは浮動小数点数なので、計算した和は許容誤差付きで比較してください。"
 
-#: manual/tutorial/score.md:235
+#: manual/tutorial/score.md:233
 msgid "**Momentum needs the snapshot ratio.** `compute_momentum_label` trusts the ratio you pass. Passing a percentage (`35.0`) instead of a fraction (`0.35`) makes the ratio condition pass for any real growth."
 msgstr "**モメンタムにはスナップショットの比率を使う。** `compute_momentum_label` は渡された比率をそのまま信用します。割合（`0.35`）の代わりにパーセント（`35.0`）を渡すと、少しでも伸びていれば比率の条件を満たしてしまいます。"
 
-#: manual/tutorial/score.md:241
+#: manual/tutorial/score.md:239
 msgid "[score API](../api/score.md) for every function and threshold."
 msgstr "[score API](../api/score.md): すべての関数としきい値。"
 
-#: manual/tutorial/score.md:242
+#: manual/tutorial/score.md:240
 msgid "[score design](../design/score.md) for the derivation of the formula, the rank thresholds in counts and the accuracy bounds."
 msgstr "[score の設計](../design/score.md): 式の導出、カウントで見たランクのしきい値、精度の上限。"
 
-#: manual/tutorial/score.md:244
+#: manual/tutorial/score.md:242
 msgid "[cli tutorial](cli.md) to compute snapshots from Python or a shell."
 msgstr "[cli チュートリアル](cli.md): Python やシェルからスナップショットを計算する。"
 
-#: manual/tutorial/score.md:245
+#: manual/tutorial/score.md:243
 msgid "[static_search tutorial](static_search.md) to search the scored packages in the browser."
 msgstr "[static_search チュートリアル](static_search.md): 評価済みのパッケージをブラウザーで検索する。"
 
@@ -2103,23 +2269,51 @@ msgstr "static_search チュートリアル"
 msgid "This tutorial shows you how to use the MoonBit `static_search` package to normalise text the way the static site's search does, how to build and serve the static site with its search index, and how to write queries for it. The [static_search design](../design/static_search.md) explains the index and the ranking in detail."
 msgstr "このチュートリアルでは、MoonBit の `static_search` パッケージで静的サイトの検索と同じようにテキストを正規化する方法、検索インデックス付きの静的サイトをビルドして配信する方法、そのクエリの書き方を示します。インデックスと順位付けの詳細は [static_search の設計](../design/static_search.md) で説明しています。"
 
-#: manual/tutorial/static_search.md:17
+#: manual/tutorial/static_search.md:11
+msgid "lower-case text like the static search"
+msgstr "静的検索と同じようにテキストを小文字にする"
+
+#: manual/tutorial/static_search.md:12
+msgid "tell which static search runtime is loaded"
+msgstr "読み込まれた静的検索ランタイムを判別する"
+
+#: manual/tutorial/static_search.md:13
+msgid "build and serve the static site"
+msgstr "静的サイトをビルドして配信する"
+
+#: manual/tutorial/static_search.md:14
+msgid "find packages"
+msgstr "パッケージを探す"
+
+#: manual/tutorial/static_search.md:14
+msgid "the native expression language, for example `json AND score>=180`"
+msgstr "ネイティブの式言語。たとえば `json AND score>=180`"
+
+#: manual/tutorial/static_search.md:15
+msgid "predict the order of results"
+msgstr "結果の順序を予測する"
+
+#: manual/tutorial/static_search.md:15
+msgid "the coordination count, then score, then name"
+msgstr "一致数、次にスコア、次に名前"
+
+#: manual/tutorial/static_search.md:25
 msgid "The package builds only for the JavaScript target, so the package that imports it must do so as well:"
 msgstr "このパッケージは JavaScript ターゲット専用なので、インポートする側のパッケージも同じにする必要があります。"
 
-#: manual/tutorial/static_search.md:28
+#: manual/tutorial/static_search.md:36
 msgid "Case-insensitive matching is a substring test on lower-cased text:"
 msgstr "大文字と小文字を区別しない照合は、小文字にしたテキストでの部分文字列の判定です。"
 
-#: manual/tutorial/static_search.md:42
+#: manual/tutorial/static_search.md:46
 msgid "Run it with `moon test --target js`."
 msgstr "`moon test --target js` で実行します。"
 
-#: manual/tutorial/static_search.md:46
+#: manual/tutorial/static_search.md:50
 msgid "Normalise a search box value"
 msgstr "検索ボックスの値を正規化する"
 
-#: manual/tutorial/static_search.md:48
+#: manual/tutorial/static_search.md:52
 msgid "The search worker trims the query value and lower-cases it. `normalize_text` only lower-cases, so trim first:"
 msgstr "検索ワーカーはクエリの値の前後の空白を除いて小文字にします。`normalize_text` は小文字化しかしないので、先に空白を除きます。"
 
@@ -2187,57 +2381,106 @@ msgstr "結果の順序を理解する"
 msgid "Without an explicit sort, the static site orders results by how many terms of the query a package matches, then by score, then by name. The following MoonBit program reproduces this for an `OR` of words:"
 msgstr "明示的な並び順の指定がないとき、静的サイトは、パッケージが一致したクエリの項の数、スコア、名前の順に結果を並べます。次の MoonBit プログラムは、単語の `OR` についてこれを再現します。"
 
-#: manual/tutorial/static_search.md:155
+#: manual/tutorial/static_search.md:154
 msgid "The query `json OR parser` gives the same order on the static site: `alice/json` matches both words, and the other two tie on one match and are ordered by score. For `json AND parser` every result matches both words, so the order is the plain score order."
 msgstr "クエリ `json OR parser` は静的サイトで同じ順序になります。`alice/json` は両方の単語に一致し、残りの 2 つは 1 つずつ一致して同順位となり、スコアで並びます。`json AND parser` ではどの結果も両方の単語に一致するので、順序は単純なスコア順です。"
 
-#: manual/tutorial/static_search.md:162
+#: manual/tutorial/static_search.md:161
 msgid "**Use the compiled module from JavaScript.** `moon build src/static_search --target js` writes an ES module with `runtime_version` and `normalize_text`; see the [static_search API](../api/static_search.md) for the import path. Check `runtime_version()` when your JavaScript code depends on the behaviour of a particular release."
 msgstr "**コンパイル済みモジュールを JavaScript から使う。** `moon build src/static_search --target js` は `runtime_version` と `normalize_text` を持つ ES モジュールを書き出します。インポートパスは [static_search API](../api/static_search.md) を参照してください。JavaScript のコードが特定のリリースの振る舞いに依存する場合は `runtime_version()` を確認してください。"
 
-#: manual/tutorial/static_search.md:168
+#: manual/tutorial/static_search.md:167
 msgid "**Compare with the dynamic site.** The local server (`npm run dev`) runs the same query language against SQLite. Text terms there match word prefixes through FTS5 instead of substrings, and results without an explicit sort are ordered differently. The [design page](../design/static_search.md#agreement-with-the-dynamic-site) lists every difference."
 msgstr "**動的サイトと比べる。** ローカルサーバー（`npm run dev`）は同じクエリ言語を SQLite に対して実行します。そちらではテキストの項が部分文字列ではなく FTS5 による語の前方一致で照合され、並び順を指定しない場合の結果の順序も異なります。違いはすべて [設計ページ](../design/static_search.md#agreement-with-the-dynamic-site) に挙げています。"
 
-#: manual/tutorial/static_search.md:175
+#: manual/tutorial/static_search.md:174
 msgid "**Publish to GitHub Pages.** The `deploy-static` workflow runs the same commands on a schedule. Set `NEXT_PUBLIC_BASE_PATH` when the site is served from a sub-path, so that the worker fetches `/<base>/data/...`."
 msgstr "**GitHub Pages に公開する。** `deploy-static` ワークフローが同じコマンドを定期的に実行します。サイトをサブパスで配信する場合は、ワーカーが `/<base>/data/...` から取得するよう `NEXT_PUBLIC_BASE_PATH` を設定してください。"
 
-#: manual/tutorial/static_search.md:181
+#: manual/tutorial/static_search.md:180
 msgid "**Implicit AND.** `json parser` without `AND` is a syntax error in the expression language. In the simple search field (`q`) the same text is one substring, `json parser`."
 msgstr "**暗黙の AND。** 式言語では `AND` のない `json parser` は構文エラーです。簡易検索フィールド（`q`）では、同じテキストが 1 つの部分文字列 `json parser` になります。"
 
-#: manual/tutorial/static_search.md:184
+#: manual/tutorial/static_search.md:183
 msgid "**Trimming.** `normalize_text` keeps spaces. A needle with a trailing space matches less than the trimmed one."
 msgstr "**空白の除去。** `normalize_text` は空白を残します。末尾に空白のある検索語は、空白を除いたものより一致する範囲が狭くなります。"
 
-#: manual/tutorial/static_search.md:186
+#: manual/tutorial/static_search.md:185
 msgid "**Field operators.** `score:180` means `score = 180`, not at least 180. Use `score>=180`."
 msgstr "**フィールドの演算子。** `score:180` は 180 以上ではなく `score = 180` を意味します。`score>=180` を使ってください。"
 
-#: manual/tutorial/static_search.md:188
+#: manual/tutorial/static_search.md:187
 msgid "**Labels are exact.** `rank=s` matches nothing on the static site; write `rank=S` and `momentum=Rising`."
 msgstr "**ラベルは完全一致。** 静的サイトでは `rank=s` は何にも一致しません。`rank=S` や `momentum=Rising` と書いてください。"
 
-#: manual/tutorial/static_search.md:190
+#: manual/tutorial/static_search.md:189
+msgid "**`NOT` inside `OR` reorders.** The relevance count also counts negated terms that match, so for `NOT rank=D OR json` the packages of rank `D` that mention `json` come first. Sort by score when you combine `NOT` with `OR`."
+msgstr "**`OR` の中の `NOT` は順序を変える。** 関連度の計数は一致した否定項も数えるので、`NOT rank=D OR json` では `json` に言及するランク `D` のパッケージが先頭に来ます。`NOT` と `OR` を組み合わせるときはスコアで並べ替えてください。"
+
+#: manual/tutorial/static_search.md:193
 msgid "**Wrong target.** Importing `static_search` from a package that builds for `wasm-gc` or `native` fails, because the package uses JavaScript foreign functions."
 msgstr "**ターゲットの誤り。** `wasm-gc` や `native` 向けにビルドするパッケージから `static_search` をインポートすると失敗します。このパッケージは JavaScript の外部関数を使っているためです。"
 
-#: manual/tutorial/static_search.md:196
+#: manual/tutorial/static_search.md:199
 msgid "[static_search design](../design/static_search.md) for the index layout, the relevance count and the complexity of a query."
 msgstr "[static_search の設計](../design/static_search.md): インデックスのレイアウト、関連度のカウント、クエリの計算量。"
 
-#: manual/tutorial/static_search.md:198
+#: manual/tutorial/static_search.md:201
 msgid "[static_search API](../api/static_search.md) for the MoonBit and JavaScript functions."
 msgstr "[static_search API](../api/static_search.md): MoonBit と JavaScript の関数。"
 
-#: manual/tutorial/static_search.md:200
+#: manual/tutorial/static_search.md:203
 msgid "[score tutorial](score.md) for the numbers that the search filters and sorts."
 msgstr "[score チュートリアル](score.md): 検索が絞り込みや並べ替えに使う数値。"
 
-#: manual/tutorial/static_search.md:202
+#: manual/tutorial/static_search.md:205
 msgid "[architecture guide](../architecture.md) for the whole data pipeline."
 msgstr "[アーキテクチャガイド](../architecture.md): データパイプライン全体。"
+
+#~ msgid "Import the package in `moon.pkg`:"
+#~ msgstr "`moon.pkg` でパッケージをインポートします。"
+
+#~ msgid "The historical window is the recent window shifted 30 days back, so the two snapshots are computed the same way."
+#~ msgstr "過去のウィンドウは最近のウィンドウを 30 日前にずらしたものなので、2 つのスナップショットは同じ方法で計算されます。"
+
+#~ msgid "using $\\ln(1+x) \\le x$ with $x = 1/(D+1)$. The marginal value of a dependent falls like $1/D$, so no single signal can dominate the ranking."
+#~ msgstr "です。ここで $\\ln(1+x) \\le x$ を $x = 1/(D+1)$ として使いました。被依存パッケージ 1 つの限界的な価値は $1/D$ のように減っていくので、単一のシグナルがランキングを支配することはありません。"
+
+#~ msgid "Package"
+#~ msgstr "パッケージ"
+
+#~ msgid "[API](api/score.md) · [tutorial](tutorial/score.md) · [design](design/score.md)"
+#~ msgstr "[API](api/score.md) · [チュートリアル](tutorial/score.md) · [設計](design/score.md)"
+
+#~ msgid "A JavaScript command that computes a score snapshot from a JSON file, used by the Python index builder."
+#~ msgstr "JSON ファイルからスコアスナップショットを計算する JavaScript のコマンド。Python のインデックスビルダーが使います。"
+
+#~ msgid "[API](api/cli.md) · [tutorial](tutorial/cli.md) · [design](design/cli.md)"
+#~ msgstr "[API](api/cli.md) · [チュートリアル](tutorial/cli.md) · [設計](design/cli.md)"
+
+#~ msgid "[API](api/static_search.md) · [tutorial](tutorial/static_search.md) · [design](design/static_search.md)"
+#~ msgstr "[API](api/static_search.md) · [チュートリアル](tutorial/static_search.md) · [設計](design/static_search.md)"
+
+#~ msgid "Guides"
+#~ msgstr "ガイド"
+
+#~ msgid "[Conventions](conventions.md): the documentation rules specific to this repository."
+#~ msgstr "[規約](conventions.md): このリポジトリ固有のドキュメント規則。"
+
+#~ msgid "Reading paths"
+#~ msgstr "読み進め方"
+
+#~ msgid "Toolchain"
+#~ msgstr "ツールチェーン"
+
+#~ msgid "MoonBit with `moonc` 0.10 or later. The module uses the `moon.mod` and `moon.pkg` manifest formats."
+#~ msgstr "`moonc` 0.10 以降の MoonBit。モジュールは `moon.mod` と `moon.pkg` のマニフェスト形式を使います。"
+
+#~ msgid "Node.js 20.16, 22.3 or later to run `cli` and the web application."
+#~ msgstr "`cli` と Web アプリケーションの実行に Node.js 20.16、22.3 以降。"
+
+#~ msgid "Python 3 for the index builder and the static exporter."
+#~ msgstr "インデックスビルダーと静的エクスポーターに Python 3。"
 
 #~ msgid "If Python and MoonBit intentionally share the score formula, keep both docs and code paths aligned."
 #~ msgstr "Python と MoonBit が意図的にスコア式を共有する場合は、両方のドキュメントとコードパスを揃えます。"
@@ -2283,9 +2526,6 @@ msgstr "[アーキテクチャガイド](../architecture.md): データパイプ
 
 #~ msgid "Add the score package to the `import` list of your `moon.pkg`:"
 #~ msgstr "`moon.pkg` の `import` リストに score パッケージを追加します。"
-
-#~ msgid "Compute a score"
-#~ msgstr "スコアを計算する"
 
 #~ msgid "`compute_score` takes the total dependents, the recent dependents, the download count, and the days since the latest release. Negative inputs are clamped to `0`."
 #~ msgstr "`compute_score` は、依存パッケージの総数、最近の依存パッケージ数、ダウンロード数、最新リリースからの日数を受け取ります。負の入力は `0` に切り詰められます。"
