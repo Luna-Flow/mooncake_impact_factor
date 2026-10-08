@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useId, useMemo, useRef, useState } from "react";
-import type { FormEvent, KeyboardEvent as ReactKeyboardEvent, ReactNode, RefObject } from "react";
+import type { CSSProperties, FormEvent, KeyboardEvent as ReactKeyboardEvent, ReactNode, RefObject } from "react";
 import { createPortal } from "react-dom";
 import { useRouter } from "next/navigation";
 import { useGSAP } from "@gsap/react";
@@ -15,6 +15,7 @@ import {
   Globe,
   MoonStar,
   Search,
+  SearchX,
   SlidersHorizontal,
   SunMedium
 } from "lucide-react";
@@ -724,6 +725,13 @@ function GitHubMark() {
   );
 }
 
+/** Score relative to the best package in view, drawn like the coverage bars of the documentation library. */
+function ScoreBar(props: { score: number; maxScore: number }) {
+  const { score, maxScore } = props;
+  const value = maxScore > 0 ? Math.min(1, Math.max(0, score / maxScore)) : 0;
+  return <span className="score-bar" aria-hidden="true" style={{ "--value": value.toFixed(3) } as CSSProperties} />;
+}
+
 function RankBadge(props: { language: Language; value: string }) {
   const { language, value } = props;
   const label = dictionaries[language].filters.rank;
@@ -1111,9 +1119,10 @@ function ResultCard(props: {
   language: Language;
   item: PackageSummary;
   active: boolean;
+  maxScore: number;
   onClick: () => void;
 }) {
-  const { language, item, active, onClick } = props;
+  const { language, item, active, maxScore, onClick } = props;
   const copy = dictionaries[language];
   const leadMetric = pickLeadMetric(language, item);
 
@@ -1122,6 +1131,7 @@ function ResultCard(props: {
       <div className="result-card__lead">
         <span>{leadMetric.label}</span>
         <strong>{leadMetric.value}</strong>
+        <ScoreBar score={item.score} maxScore={maxScore} />
       </div>
       <div className="result-card__body">
         <div className="result-card__title">
@@ -1163,7 +1173,8 @@ function DetailContent(props: { language: Language; state: DetailState; onRetry:
 
   if (state.status === "loading") {
     return (
-      <div className="analysis-state">
+      <div className="analysis-state analysis-state--loading" role="status">
+        <span className="loading-bar" aria-hidden="true" />
         <strong>{copy.detail.loadingTitle}</strong>
         <p>{copy.detail.loading}</p>
       </div>
@@ -1172,7 +1183,7 @@ function DetailContent(props: { language: Language; state: DetailState; onRetry:
 
   if (state.status === "error") {
     return (
-      <div className="analysis-state">
+      <div className="analysis-state analysis-state--error" role="alert">
         <strong>{copy.detail.errorTitle}</strong>
         <p>{state.errorMessage}</p>
         <button type="button" className="button button--primary" onClick={() => void onRetry()}>{copy.workspace.retry}</button>
@@ -1182,7 +1193,7 @@ function DetailContent(props: { language: Language; state: DetailState; onRetry:
 
   if (state.status === "closed") {
     return (
-      <div className="analysis-state">
+      <div className="analysis-state analysis-state--idle">
         <strong>{copy.detail.idleTitle}</strong>
         <p>{copy.detail.idleBody}</p>
       </div>
@@ -1342,6 +1353,7 @@ function WorkspaceScreen(props: {
   );
 
   const sourceLabel = getSourceCopy(language, state.activeSource);
+  const maxScore = state.items.reduce((max, item) => Math.max(max, item.score), 0);
   const resultCount = state.mode === "idle" ? 0 : state.items.length;
 
   return (
@@ -1375,12 +1387,13 @@ function WorkspaceScreen(props: {
 
           <section className="workspace-results" aria-live="polite">
             {state.status === "loading" ? (
-              <div className="state-card">
+              <div className="state-card state-card--loading" role="status">
+                <span className="loading-bar" aria-hidden="true" />
                 <strong>{copy.workspace.loadingTitle}</strong>
                 <p>{copy.workspace.loading}</p>
               </div>
             ) : state.status === "error" ? (
-              <div className="state-card">
+              <div className="state-card state-card--error" role="alert">
                 <strong>{copy.workspace.errorTitle}</strong>
                 <p>{state.errorMessage}</p>
                 <div className="state-card__actions">
@@ -1389,7 +1402,8 @@ function WorkspaceScreen(props: {
                 </div>
               </div>
             ) : state.items.length === 0 ? (
-              <div className="state-card">
+              <div className="state-card state-card--empty">
+                <SearchX size={20} strokeWidth={1.75} aria-hidden="true" />
                 <strong>{copy.workspace.emptyTitle}</strong>
                 <p>{copy.workspace.noResults}</p>
               </div>
@@ -1401,6 +1415,7 @@ function WorkspaceScreen(props: {
                     language={language}
                     item={item}
                     active={selectedFullName === item.full_name}
+                    maxScore={maxScore}
                     onClick={() => onSelect(item.full_name)}
                   />
                 ))}
