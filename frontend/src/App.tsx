@@ -1587,6 +1587,17 @@ function AdvancedSearchPanel(props: {
     { scope: rootRef, dependencies: [open], revertOnUpdate: true }
   );
 
+  // Declared before the early return below so the hook order stays stable
+  // when the dialog opens.
+  useEffect(() => {
+    const nextAst = deriveQueryAst(params);
+    const normalizedAst = hasQueryAstIntent(nextAst) ? nextAst : createInitialBuilderAst();
+    setDraftAst(normalizedAst);
+    setExpressionText(params.expr.trim() || getExpressionPreview(nextAst));
+    setEditorMode(params.expr.trim() && !params.ast.trim() ? "expression" : "builder");
+    setExpressionError(null);
+  }, [params]);
+
   if (!open) return null;
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>): Promise<void> {
@@ -1608,15 +1619,6 @@ function AdvancedSearchPanel(props: {
     onChange(nextParams);
     await onApply(nextParams);
   }
-
-  useEffect(() => {
-    const nextAst = deriveQueryAst(params);
-    const normalizedAst = hasQueryAstIntent(nextAst) ? nextAst : createInitialBuilderAst();
-    setDraftAst(normalizedAst);
-    setExpressionText(params.expr.trim() || getExpressionPreview(nextAst));
-    setEditorMode(params.expr.trim() && !params.ast.trim() ? "expression" : "builder");
-    setExpressionError(null);
-  }, [params]);
 
   const panelBody = (
     <form className="advanced-form advanced-form--builder" onSubmit={(event) => void handleSubmit(event)}>
