@@ -2,193 +2,97 @@
 
 [![img](https://img.shields.io/badge/Maintainer-KCN--judu-violet)](https://github.com/KCN-judu) [![img](https://img.shields.io/badge/License-Apache%202.0-blue)](https://github.com/Luna-Flow/mooncake_impact_factor/blob/main/LICENSE) ![img](https://img.shields.io/badge/State-active-success)
 
-## v0.1.2 - Query Builder, Search & Analysis
+`mooncake_impact_factor` ranks the packages of the MoonBit registry by how
+much the ecosystem relies on them. It scores each package from its
+dependents, recent dependents, downloads and release date, and serves the
+rankings in a searchable web application that runs locally against SQLite or
+as a static site. The score rules are a MoonBit library, so the same numbers
+can be computed in any MoonBit program.
 
-This documentation tracks the current **`0.1.2`** release baseline declared in
-`moon.mod`.
+This README describes version `0.1.2`.
 
-### Package Positioning
-
-- **`src/score`**: MoonBit package that exposes the reusable impact-score computation and rank mapping.
-- **`src/cli`**: MoonBit CLI bridge that serves score snapshot computation to non-MoonBit callers.
-- **`scripts/build_index.py`**: Local registry ingester that rebuilds SQLite state, computes package relationships, and materializes search data.
-- **`app` + `frontend/src` + `lib`**: Next.js full-stack research UI with route-handler APIs backed directly by SQLite.
-
-### What Defines v0.1.2
-
-- **Local Registry Snapshot Ingestion**: Reads `~/.moon/registry/index/user/**/*.index` and rebuilds package, version, dependency, reverse-edge, score, and FTS tables.
-- **SQLite-Backed Search Surface**: Exposes ranked feeds, full-text search, structured filters, and per-package analysis endpoints from the Next.js app.
-- **Graphical Advanced Query Builder**: Exposes a grouped advanced-search UI that can build nested boolean conditions while preserving direct native-expression input.
-- **Unified Query AST Layer**: Supports serialized `ast` queries, `expr` native expressions, and legacy structured search parameters through one server-side query model.
-- **Shared Score Formula**: Uses the MoonBit score package plus a local MoonBit CLI bridge so the Python index builder consumes the same score, rank, and momentum rules.
-- **Download Signal Support**: Can fetch per-package download counts from `mooncakes.io`, reuse a local cache, or apply a local override JSON file.
-- **Momentum Layer**: Uses MoonBit-exported momentum rules through the local CLI bridge, then materializes `Rising`, `Hot`, and `Stable` labels in the Python build pipeline.
-- **Release-Aligned Documentation**: `README.md`, `CONTRIBUTING.md`, and localized docs are intended to describe the real branch state rather than a speculative roadmap.
-
-### API Guidance & Data Semantics
-
-- **Search Authority**: Results are derived from a local registry snapshot plus optional mooncakes download metadata; they are not a canonical global ranking.
-- **Author Query Alias**: `author:` in the full-text query language is currently only an alias for `owner:` because the index does not yet store a separate author list.
-- **Relevance Ordering**: `sort=relevance` is only meaningful when at least one full-text condition is present; otherwise the API falls back to score-oriented ordering.
-- **Mutable Data Source**: Rebuilding the SQLite database replaces previous derived state, so rankings reflect the local snapshot used for the most recent build.
-
-### Key Features
-
-- **Impact Ranking**: Scores packages from dependent count, recent dependent growth, download volume, and release recency.
-- **Advanced Retrieval**: Supports FTS search with boolean syntax, field-prefixed terms, numeric thresholds, year filters, and rank or momentum filtering.
-- **Advanced Retrieval**: Supports FTS queries, graphical grouped filters, serialized AST queries, native expression queries, numeric thresholds, year filters, and rank or momentum filtering.
-- **Package Analysis View**: Serves detailed package metadata, version history, score breakdown fields, and dependent package summaries.
-- **Full Local Workflow**: Includes indexing, caching, score computation, API serving, and browser-based inspection in one repository.
-
-## Quick Start
-
-### Prerequisites
-
-- MoonBit toolchain
-- Python 3
-- Node.js and npm
-- A populated local registry under `~/.moon/registry/index/user`
-
-### Build the local database
-
-With live mooncakes download lookups:
+## Install
 
 ```bash
+moon add Luna-Flow/mooncake-impact-factor@0.1.2
+```
+
+Import the package you need in `moon.pkg`:
+
+```text
+import {
+  "Luna-Flow/mooncake-impact-factor/score",
+}
+```
+
+## Example
+
+```moonbit
+test "score a package" {
+  // 20 dependents, 4 of them recent, 300 downloads, released 40 days ago
+  let score = @score.compute_score(20, 4, 300, 40)
+  inspect(@score.rank_label(score), content="S")
+  let snapshot = @score.compute_score_snapshot(20, 4, 300, 40, 10, 2, 0, 10)
+  inspect(snapshot.momentum_label, content="Rising")
+}
+```
+
+The score is
+$\bigl(38\ln(1+D) + 27\ln(1+R) + 22\ln(1+W)\bigr)\cdot m(t)$ for $D$
+dependents, $R$ recent dependents, $W$ downloads and a release-recency
+multiplier $m(t)$ between $0.88$ and $1.12$.
+
+## Packages
+
+| Package | Purpose |
+| --- | --- |
+| `score` | Impact score, rank labels (`S` to `D`), momentum labels (`Rising`, `Hot`, `Stable`) and score snapshots. |
+| `cli` | JavaScript command `score-snapshot` that scores one package from a JSON file; used by the Python index builder. |
+| `static_search` | Version tag and text normalisation for the browser search of the static site (JavaScript only). |
+
+Outside MoonBit, `scripts/build_index.py` builds the SQLite database from the
+local registry index, `scripts/export_static_json.py` exports it for the
+static site, and `app/`, `frontend/src/` and `lib/` hold the Next.js
+application.
+
+## Run the application
+
+```bash
+moon update                        # refresh ~/.moon/registry/index/user
+moon build src/cli --target js
 python3 scripts/build_index.py --db data/mooncake.db
-```
-
-Offline, without network download fetches:
-
-```bash
-python3 scripts/build_index.py --db data/mooncake.db --skip-mooncakes-downloads
-```
-
-With a local download override file:
-
-```bash
-python3 scripts/build_index.py \
-  --db data/mooncake.db \
-  --downloads-json data/downloads.json
-```
-
-### Run the web app
-
-```bash
 npm install
 MOONCAKE_DB_PATH=data/mooncake.db npm run dev -- --hostname 127.0.0.1 --port 3000
 ```
 
-Then open `http://127.0.0.1:3000`.
+Add `--skip-mooncakes-downloads` to build offline, or
+`--downloads-json <file>` to override download counts. `just dev` runs the
+whole sequence. For the static site, run `npm run build:static-data`,
+`npm run build:static` and `npm run serve:static`.
 
-### Run quality checks
+The rankings come from your local registry snapshot plus optional download
+counts from mooncakes.io; they are not an authoritative ranking of the
+ecosystem.
 
-```bash
-moon fmt
-moon check src/score --target all
-moon check src/cli --target js
-moon check src/static_search --target js
-moon test src/score --target all
-moon test src/static_search --target js
-python3 -m unittest scripts/build_index_test.py
-npm run typecheck
-npm run build
-npm run build:static-data
-npm run build:static
-npm test
-```
+## Toolchain
 
-### Build static publish artifacts
+- MoonBit with `moonc` 0.10 or later (`moon.mod` / `moon.pkg` manifests).
+- Node.js 20.16, 22.3 or later, and npm.
+- Python 3.
 
-```bash
-npm run build:static-data
-npm run build:static
-npm run serve:static
-```
+## Documentation
 
-## Documentation Map
+The manual is published at <https://lunaflow.cn/en/mooncake_impact_factor/>
+with Chinese and Japanese translations. Its English source is
+[`doc/manual/index.md`](doc/manual/index.md): API references, tutorials and
+design notes for every package, a getting-started guide and an architecture
+guide. Changes between versions are listed in [`CHANGELOG.md`](CHANGELOG.md).
 
-The manual is published at <https://luna-flow.github.io/en/mooncake_impact_factor/>,
-with Chinese and Japanese translations. Its English source lives in
-[`doc/manual/`](./doc/manual/index.md).
+## Contributing
 
-- Contribution workflow: [`CONTRIBUTING.md`](./CONTRIBUTING.md)
-- Getting started: [`doc/manual/getting_started.md`](./doc/manual/getting_started.md)
-- Score API: [`doc/manual/api/score.md`](./doc/manual/api/score.md)
-- Score design: [`doc/manual/design/score.md`](./doc/manual/design/score.md)
-- Score tutorial: [`doc/manual/tutorial/score.md`](./doc/manual/tutorial/score.md)
-- Repository conventions: [`doc/manual/conventions.md`](./doc/manual/conventions.md)
+See [`CONTRIBUTING.md`](CONTRIBUTING.md) for the workflow, the checks to run
+before a pull request and the release procedure.
 
-## Current Repository Highlights
+## License
 
-- **Index Build Pipeline**:
-  - Recreates SQLite tables from scratch on every build.
-  - Tracks packages, versions, direct dependencies, package edges, score snapshots, and an FTS5 search index.
-  - Can reuse `data/download_cache.json` and merge local override data from `--downloads-json`.
-
-- **Score Model**:
-  - `compute_score()` combines total dependents, recent dependents, downloads, and release age.
-  - `rank_label()` maps the raw score to `S`, `A`, `B`, `C`, or `D`.
-  - `compute_momentum_label()` maps score deltas to `Rising`, `Hot`, or `Stable`.
-  - `compute_score_snapshot()` returns score, historical score, growth, growth ratio, rank label, momentum label, and activity multiplier in one MoonBit call.
-  - Python keeps the indexing and SQLite materialization flow, but delegates score snapshot and momentum-rule evaluation to the MoonBit CLI.
-
-- **Serving Surface**:
-  - `GET /api/feeds/top?limit=<n>`
-  - `GET /api/feeds/hot?limit=<n>`
-  - `GET /api/feeds/rising?limit=<n>`
-  - `GET /api/search?...`
-  - `GET /api/packages/<owner>/<packageName>/analysis`
-
-- **Validation Surface**:
-  - `tests/data.test.mjs` covers search parsing, AST/native expression search, and analysis ordering behavior.
-  - `scripts/build_index_test.py` covers index-builder-side scoring and data-shaping behavior.
-  - `src/static_search` builds to JS for the static publishing path and is validated by MoonBit tests.
-
-## Static Publishing
-
-- **Dynamic research mode** keeps SQLite, route handlers, and server-side query execution for local iteration.
-- **Static publish mode** exports `public/data/**` JSON assets and a GitHub Pages-compatible `out/` site.
-- The scheduled GitHub Actions workflow is `deploy-static`.
-
-## Development
-
-Useful local commands:
-
-```bash
-just build-db
-just build-db-with-downloads data/downloads.json
-just build-db-offline
-just build-static-data
-just static-build
-just static-serve
-just web-typecheck
-just web-build
-just serve
-just dev
-moon fmt
-moon check src/score --target all
-moon check src/cli --target js
-moon test src/score --target all
-npm run typecheck
-npm run build
-./run_test.sh
-```
-
-## Release Workflow
-
-The GitHub Actions workflows are:
-
-- `publish-package` for MoonBit package publishing
-- `ci` for push / pull-request validation
-- `deploy-static` for scheduled static-site rebuild and GitHub Pages deployment
-
-Before publishing:
-
-1. Bump the version in `moon.mod`.
-2. Keep `README.md`, `CONTRIBUTING.md`, and `doc/*` aligned with the branch.
-3. Run `moon fmt`, `moon check src/score --target all`, `moon check src/cli --target js`, `moon check src/static_search --target js`, `moon test src/score --target all`, `moon test src/static_search --target js`, `python3 -m unittest scripts/build_index_test.py`, `npm run typecheck`, `npm run build`, `npm run build:static-data`, `npm run build:static`, and `npm test`.
-4. Ensure `README.md` exists and `moon.mod.json` does not exist.
-5. Trigger `publish-package`; it installs MoonBit, runs checks, and calls `moon publish` with the `LUNA_MOONCAKE` secret.
-
-If mooncakes rejects the upload because the version already exists, publish a
-new bumped version instead.
+Apache-2.0. See [`LICENSE`](LICENSE).

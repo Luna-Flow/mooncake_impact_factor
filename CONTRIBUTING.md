@@ -32,6 +32,8 @@ changes.
 - Document stable CLI flags, search parameters, query-builder behavior, score thresholds, and release behavior when they change.
 - Be explicit when behavior depends on a local registry snapshot, local SQLite state, cached download data, or optional network fetches.
 - If the score formula, rank thresholds, or momentum rules change, update the MoonBit implementation and the relevant docs in the same change.
+- The manual follows the Luna-Flow documentation standard: English pages live in `doc/manual` (`api/`, `tutorial/` and `design/` pages for every package, plus guides), and translations live in `doc/locale/*/LC_MESSAGES/manual.po`. After editing pages, run `lunadoc update` and commit the pages and catalogs together.
+- Record user-visible changes in `CHANGELOG.md`.
 
 ## Validation
 
