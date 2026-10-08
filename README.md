@@ -86,7 +86,11 @@ The manual is published at <https://lunaflow.cn/en/mooncake_impact_factor/>
 with Chinese and Japanese translations. Its English source is
 [`doc/manual/index.md`](doc/manual/index.md): API references, tutorials and
 design notes for every package, a getting-started guide and an architecture
-guide. Changes between versions are listed in [`CHANGELOG.md`](CHANGELOG.md).
+guide. The [score design](doc/manual/design/score.md) derives the formula,
+the rank thresholds in counts and the momentum rules, and the
+[static_search design](doc/manual/design/static_search.md) the browser
+ranking and how it differs from the server. Changes between versions are
+listed in [`CHANGELOG.md`](CHANGELOG.md).
 
 ## Contributing
 
