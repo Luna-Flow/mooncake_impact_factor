@@ -1,20 +1,9 @@
-import {
-  "moonbitlang/core/array",
-  "moonbitlang/core/double",
-  "moonbitlang/core/float",
-  "moonbitlang/core/int",
-  "moonbitlang/core/json",
-  "moonbitlang/core/string",
-}
-
-import {
-  "moonbitlang/core/debug",
-} for "test"
+supported_targets = "js"
 
 options(
-  "link": {
+  link: {
     "js": {
-      "exports": ["runtime_version", "normalize_text"],
+      "exports": [ "runtime_version", "normalize_text" ],
       "format": "esm",
     },
   },

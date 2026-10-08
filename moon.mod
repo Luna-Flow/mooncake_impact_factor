@@ -12,6 +12,6 @@ keywords = [ "moonbit", "mooncakes", "ranking", "search" ]
 
 description = "Local ranking and search toolkit for MoonBit packages, combining dependency, release, and download signals."
 
-options(
-  source: "src",
-)
+source = "src"
+
+preferred_target = "js"
