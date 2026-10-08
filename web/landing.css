@@ -1,0 +1,391 @@
+/* Landing: a statement, then the method as a table of contents, then sample
+   packages. Follows the home and library pages of the documentation site. */
+
+.screen--landing {
+  display: grid;
+  gap: 0;
+  padding-top: 0;
+}
+
+.screen--landing > section + section {
+  border-top: 1px solid var(--rule);
+}
+
+/* ------------------------------------------------------------ hero */
+
+.landing-hero {
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(0, 1.65fr) minmax(16rem, 1fr);
+  gap: var(--s7);
+  align-items: end;
+  padding: var(--s9) 0 var(--s8);
+  isolation: isolate;
+}
+
+/* A faint measuring grid, the daylight counterpart of the night field on
+   the documentation home page. */
+.landing-hero::before {
+  content: '';
+  position: absolute;
+  inset: 0 calc(-1 * var(--gutter));
+  z-index: -1;
+  background-image:
+    linear-gradient(var(--rule) 1px, transparent 1px),
+    linear-gradient(90deg, var(--rule) 1px, transparent 1px);
+  background-size: 48px 48px;
+  background-position: -1px -1px;
+  mask-image: radial-gradient(ellipse 70% 80% at 85% 20%, rgb(0 0 0 / 0.55), transparent 70%);
+  -webkit-mask-image: radial-gradient(ellipse 70% 80% at 85% 20%, rgb(0 0 0 / 0.55), transparent 70%);
+  pointer-events: none;
+}
+
+.landing-hero__content {
+  display: grid;
+  gap: var(--s5);
+  max-width: 44rem;
+}
+
+.landing-hero__content h1 {
+  margin: 0;
+  font-size: clamp(2.25rem, 5vw, 3.375rem);
+  line-height: 1.12;
+  letter-spacing: -0.02em;
+  text-wrap: balance;
+}
+
+.landing-hero__lede {
+  margin: 0;
+  max-width: 38rem;
+  color: var(--ink-2);
+  font-size: var(--text-lg);
+  line-height: 1.6;
+}
+
+.landing-hero__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--s3);
+  margin-top: var(--s2);
+}
+
+.landing-hero__actions .button {
+  min-height: 40px;
+  padding: 0 var(--s5);
+}
+
+.landing-hero__annotation {
+  display: grid;
+  gap: var(--s3);
+  padding-left: var(--s5);
+  border-left: 1px solid var(--rule-strong);
+}
+
+.landing-hero__annotation .section-label {
+  padding: 0;
+  border: 0;
+  color: var(--ink-3);
+  font-size: var(--text-sm);
+}
+
+.landing-hero__annotation p {
+  margin: 0;
+  color: var(--ink-2);
+  font-family: var(--font-serif);
+  font-size: 1.0625rem;
+  line-height: 1.65;
+}
+
+/* ------------------------------------------------------------ narrative */
+
+.landing-narrative {
+  display: grid;
+  padding: var(--s7) 0;
+}
+
+/* Two rows in the shape of a library category: a heading on the left, the
+   statement on the right, a hairline between them. */
+.landing-narrative__lead,
+.landing-narrative__aside {
+  display: grid;
+  grid-template-columns: 15rem minmax(0, 1fr);
+  column-gap: var(--s6);
+  row-gap: var(--s3);
+  align-items: baseline;
+}
+
+.landing-narrative__aside {
+  margin-top: var(--s6);
+  padding-top: var(--s6);
+  border-top: 1px solid var(--rule);
+}
+
+.landing-narrative__lead .eyebrow,
+.landing-narrative__aside .section-label {
+  padding: 0;
+  border: 0;
+  color: var(--ink);
+  font-family: var(--font-serif);
+  font-size: var(--text-lg);
+  font-weight: 600;
+  line-height: 1.3;
+  letter-spacing: 0;
+}
+
+.landing-narrative__lead h2 {
+  margin: 0;
+  max-width: 40rem;
+  font-size: clamp(1.375rem, 2.4vw, 1.75rem);
+  line-height: 1.45;
+}
+
+.landing-narrative__aside p {
+  margin: 0;
+  max-width: 40rem;
+  color: var(--ink-2);
+  font-size: var(--text-base);
+}
+
+/* ------------------------------------------------------------ signals */
+
+.signal-story {
+  padding: var(--s7) 0;
+}
+
+.signal-story__grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: var(--s6);
+}
+
+.metric-block {
+  display: grid;
+  align-content: start;
+  gap: var(--s2);
+  counter-increment: signal;
+}
+
+.signal-story__grid {
+  counter-reset: signal;
+}
+
+.metric-block__index {
+  display: flex;
+  align-items: center;
+  gap: var(--s2);
+  color: var(--ink-3);
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+}
+
+.metric-block__index::before {
+  content: '0' counter(signal);
+}
+
+.metric-block__index::after {
+  content: '';
+  width: 24px;
+  height: 2px;
+  background: var(--accent);
+}
+
+.metric-block strong {
+  font-family: var(--font-serif);
+  font-size: var(--text-lg);
+  font-weight: 600;
+  line-height: 1.3;
+}
+
+.metric-block p {
+  margin: 0;
+  color: var(--ink-2);
+  font-size: 0.9375rem;
+  line-height: 1.6;
+}
+
+/* ------------------------------------------------------------ samples */
+
+.sample-stage {
+  display: grid;
+  gap: var(--s5);
+  padding: var(--s7) 0 0;
+}
+
+.section-heading {
+  display: flex;
+  justify-content: space-between;
+  align-items: end;
+  gap: var(--s5);
+}
+
+.section-heading > div {
+  display: grid;
+  gap: var(--s2);
+  min-width: 0;
+}
+
+.section-heading h2 {
+  margin: 0;
+  font-size: clamp(1.375rem, 2.4vw, 1.75rem);
+  line-height: 1.35;
+}
+
+.section-heading .text-link {
+  flex: none;
+}
+
+.sample-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--s5);
+}
+
+.sample-card {
+  position: relative;
+  display: grid;
+  grid-template-rows: auto auto 1fr auto;
+  gap: var(--s3);
+  min-width: 0;
+  padding: var(--s4) 0 0;
+  border-top: 1px solid var(--rule-strong);
+  color: var(--ink);
+  text-align: left;
+  cursor: pointer;
+}
+
+.sample-card__head {
+  display: flex;
+  justify-content: space-between;
+  align-items: start;
+  gap: var(--s3);
+}
+
+.sample-card__head strong {
+  min-width: 0;
+  font-family: var(--font-serif);
+  font-size: var(--text-lg);
+  font-weight: 600;
+  line-height: 1.3;
+  overflow-wrap: anywhere;
+}
+
+.sample-card__head svg {
+  flex: none;
+  margin-top: 4px;
+  color: var(--ink-3);
+  transition: transform 120ms ease, color 120ms ease;
+}
+
+.sample-card:hover .sample-card__head strong {
+  color: var(--accent);
+}
+
+.sample-card:hover .sample-card__head svg {
+  color: var(--accent);
+  transform: translate(2px, -2px);
+}
+
+.sample-card p {
+  margin: 0;
+  color: var(--ink-2);
+  font-size: 0.9375rem;
+  line-height: 1.55;
+}
+
+.sample-card__meta {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--s4);
+  margin: 0;
+  padding-top: var(--s3);
+  border-top: 1px solid var(--rule);
+}
+
+.sample-card__meta div {
+  display: grid;
+  gap: 2px;
+}
+
+.sample-card__meta dt {
+  color: var(--ink-3);
+  font-size: var(--text-xs);
+}
+
+.sample-card__meta dd {
+  margin: 0;
+  font-size: var(--text-lg);
+  font-weight: 500;
+  line-height: 1.2;
+}
+
+/* ------------------------------------------------------------ narrow */
+
+@media (max-width: 1080px) {
+  .landing-hero {
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--s6);
+    padding: var(--s8) 0 var(--s7);
+  }
+
+  .landing-hero__annotation {
+    max-width: 36rem;
+  }
+
+  .signal-story__grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .sample-grid {
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--s4);
+  }
+}
+
+@media (max-width: 760px) {
+  .landing-narrative {
+    padding: var(--s6) 0;
+  }
+
+  .landing-narrative__lead,
+  .landing-narrative__aside {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .landing-narrative__aside {
+    margin-top: var(--s5);
+    padding-top: var(--s5);
+  }
+
+  .signal-story,
+  .sample-stage {
+    padding-top: var(--s6);
+  }
+
+  .section-heading {
+    flex-direction: column;
+    align-items: start;
+  }
+}
+
+@media (max-width: 560px) {
+  .landing-hero {
+    padding: var(--s7) 0 var(--s6);
+  }
+
+  .landing-hero__content h1 {
+    font-size: 2rem;
+  }
+
+  .landing-hero__lede {
+    font-size: 1.0625rem;
+  }
+
+  .landing-hero__actions .button {
+    flex: 1 1 auto;
+  }
+
+  .signal-story__grid {
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--s5);
+  }
+}
