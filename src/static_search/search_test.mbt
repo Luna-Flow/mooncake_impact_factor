@@ -1,4 +1,4 @@
 ///|
 test "runtime version is exported" {
-  inspect(runtime_version(), content="static-search-js-v1")
+  inspect(@static_search.runtime_version(), content="static-search-js-v1")
 }
