@@ -26,6 +26,10 @@ type Dictionary = {
     themeSystem: string;
     themeLight: string;
     themeDark: string;
+    skipToContent: string;
+    docs: string;
+    sourceCode: string;
+    footerNote: string;
   };
   landing: {
     eyebrow: string;
@@ -210,7 +214,11 @@ export const dictionaries: Record<Language, Dictionary> = {
       advancedButton: "高级筛选",
       themeSystem: "跟随系统",
       themeLight: "浅色",
-      themeDark: "深色"
+      themeDark: "深色",
+      skipToContent: "跳到正文",
+      docs: "文档",
+      sourceCode: "GitHub 仓库",
+      footerNote: "排名来自本地注册表快照与 mooncakes.io 下载数，并非生态的权威排名。Luna-Flow 出品。"
     },
     landing: {
       eyebrow: "Impact Metric for MoonBit",
@@ -393,7 +401,11 @@ export const dictionaries: Record<Language, Dictionary> = {
       advancedButton: "詳細フィルター",
       themeSystem: "システム設定",
       themeLight: "ライト",
-      themeDark: "ダーク"
+      themeDark: "ダーク",
+      skipToContent: "本文へ移動",
+      docs: "ドキュメント",
+      sourceCode: "GitHub リポジトリ",
+      footerNote: "ランキングはローカルのレジストリスナップショットと mooncakes.io のダウンロード数に基づくもので、エコシステムの公式な順位ではありません。Luna-Flow 制作。"
     },
     landing: {
       eyebrow: "Impact Metric for MoonBit",
@@ -576,7 +588,11 @@ export const dictionaries: Record<Language, Dictionary> = {
       advancedButton: "Advanced filters",
       themeSystem: "System",
       themeLight: "Light",
-      themeDark: "Dark"
+      themeDark: "Dark",
+      skipToContent: "Skip to content",
+      docs: "Docs",
+      sourceCode: "GitHub repository",
+      footerNote: "Rankings come from a local registry snapshot and mooncakes.io download counts; they are not an authoritative ranking of the ecosystem. A Luna-Flow project."
     },
     landing: {
       eyebrow: "Impact Metric for MoonBit",

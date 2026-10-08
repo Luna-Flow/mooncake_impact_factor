@@ -1,0 +1,150 @@
+/*
+ * Design tokens, mirrored from the Luna-Flow documentation site
+ * (Luna-Flow.github.io/src/styles/tokens.css, https://lunaflow.cn).
+ *
+ * Paper and ink, one accent. The accent is the Luna-Flow magenta of the logo
+ * and marks only what the reader can act on or where they are: primary
+ * actions, the current page or row, focus. Structure comes from space first,
+ * then a hairline rule; surfaces and shadows are kept for controls and
+ * floating layers.
+ *
+ * Space follows a 4px base: 4 8 12 16 24 32 48 64 96.
+ * Type: a serif for display text, a sans for the interface, a mono for code.
+ *
+ * The light and dark palettes follow prefers-color-scheme until the theme
+ * menu sets data-theme on <html>, exactly as on the documentation site.
+ */
+
+:root {
+  color-scheme: light;
+
+  --paper: #fbfaf7;
+  --paper-2: #f4f2ed;
+  --paper-3: #eae7e0;
+  --ink: #1d1b18;
+  --ink-2: #57524a;
+  --ink-3: #6f6a61;
+  --rule: rgb(29 27 24 / 0.12);
+  --rule-strong: rgb(29 27 24 / 0.22);
+
+  --accent: #9e1084;
+  --accent-ink: #fbfaf7;
+  --accent-wash: rgb(158 16 132 / 0.07);
+  --focus: rgb(158 16 132 / 0.45);
+
+  --note: #2f5b88;
+  --tip: #2d6a45;
+  --important: #6a3fa0;
+  --warning: #8a5800;
+  --caution: #a3262b;
+
+  --shadow-menu: 0 8px 24px rgb(0 0 0 / 0.08);
+  --shadow-dialog: 0 24px 64px rgb(0 0 0 / 0.18);
+  --backdrop: rgb(20 18 16 / 0.35);
+
+  --font-serif: 'Source Serif 4', 'Noto Serif SC', 'Noto Serif JP', Georgia, 'Songti SC', 'Hiragino Mincho ProN', serif;
+  --font-sans: 'IBM Plex Sans', system-ui, -apple-system, 'Segoe UI', 'PingFang SC', 'Hiragino Sans', 'Noto Sans CJK SC', sans-serif;
+  --font-mono: 'IBM Plex Mono', ui-monospace, 'SFMono-Regular', Menlo, Consolas, monospace;
+
+  --text-xs: 0.75rem;
+  --text-sm: 0.8125rem;
+  --text-ui: 0.875rem;
+  --text-base: 1rem;
+  --text-lg: 1.25rem;
+  --text-xl: 1.5rem;
+  --text-2xl: 2rem;
+  --text-3xl: 2.625rem;
+  --leading: 1.6;
+
+  --s1: 4px;
+  --s2: 8px;
+  --s3: 12px;
+  --s4: 16px;
+  --s5: 24px;
+  --s6: 32px;
+  --s7: 48px;
+  --s8: 64px;
+  --s9: 96px;
+
+  --measure: 42rem;
+  --content: 80rem;
+  --gutter: var(--s5);
+  --header: 56px;
+  --radius: 6px;
+  --radius-sm: 4px;
+  --radius-lg: 10px;
+  --control: 36px;
+
+  --z-masthead: 20;
+  --z-dropdown: 40;
+  --z-modal-backdrop: 50;
+  --z-modal-panel: 60;
+}
+
+:root:lang(zh-CN) {
+  --leading: 1.75;
+  --font-serif: 'Source Serif 4', 'Noto Serif SC', 'Songti SC', serif;
+  --font-sans: 'IBM Plex Sans', 'PingFang SC', 'Noto Sans SC', 'Microsoft YaHei', system-ui, sans-serif;
+}
+
+:root:lang(ja) {
+  --leading: 1.75;
+  --font-serif: 'Source Serif 4', 'Noto Serif JP', 'Hiragino Mincho ProN', serif;
+  --font-sans: 'IBM Plex Sans', 'Hiragino Sans', 'Noto Sans JP', 'Yu Gothic', system-ui, sans-serif;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']) {
+    color-scheme: dark;
+    --paper: #151418;
+    --paper-2: #1c1b20;
+    --paper-3: #26252b;
+    --ink: #e8e5df;
+    --ink-2: #b3ada4;
+    --ink-3: #9a948a;
+    --rule: rgb(232 229 223 / 0.12);
+    --rule-strong: rgb(232 229 223 / 0.22);
+    --accent: #e98ad6;
+    --accent-ink: #151418;
+    --accent-wash: rgb(233 138 214 / 0.09);
+    --focus: rgb(233 138 214 / 0.5);
+    --note: #8fb3dd;
+    --tip: #8cc7a0;
+    --important: #c3a6ea;
+    --warning: #e2b25d;
+    --caution: #ef8f8f;
+    --shadow-menu: 0 8px 24px rgb(0 0 0 / 0.36);
+    --shadow-dialog: 0 24px 64px rgb(0 0 0 / 0.5);
+    --backdrop: rgb(0 0 0 / 0.55);
+  }
+}
+
+:root[data-theme='dark'] {
+  color-scheme: dark;
+  --paper: #151418;
+  --paper-2: #1c1b20;
+  --paper-3: #26252b;
+  --ink: #e8e5df;
+  --ink-2: #b3ada4;
+  --ink-3: #9a948a;
+  --rule: rgb(232 229 223 / 0.12);
+  --rule-strong: rgb(232 229 223 / 0.22);
+  --accent: #e98ad6;
+  --accent-ink: #151418;
+  --accent-wash: rgb(233 138 214 / 0.09);
+  --focus: rgb(233 138 214 / 0.5);
+  --note: #8fb3dd;
+  --tip: #8cc7a0;
+  --important: #c3a6ea;
+  --warning: #e2b25d;
+  --caution: #ef8f8f;
+  --shadow-menu: 0 8px 24px rgb(0 0 0 / 0.36);
+  --shadow-dialog: 0 24px 64px rgb(0 0 0 / 0.5);
+  --backdrop: rgb(0 0 0 / 0.55);
+}
+
+@media (max-width: 560px) {
+  :root {
+    --gutter: var(--s4);
+  }
+}

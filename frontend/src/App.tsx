@@ -9,6 +9,7 @@ import gsap from "gsap";
 import {
   ArrowRight,
   ArrowUpRight,
+  BookOpen,
   Check,
   ChevronDown,
   Globe,
@@ -694,6 +695,56 @@ function SourceTabs(props: {
   );
 }
 
+const REPOSITORY_URL = "https://github.com/Luna-Flow/mooncake_impact_factor";
+
+const DOCS_URLS: Record<Language, string> = {
+  "zh-CN": "https://lunaflow.cn/zh-cn/mooncake_impact_factor/",
+  "ja-JP": "https://lunaflow.cn/ja/mooncake_impact_factor/",
+  "en-US": "https://lunaflow.cn/en/mooncake_impact_factor/"
+};
+
+/** The Luna-Flow logo, drawn in the accent colour as on lunaflow.cn. */
+function LunaFlowMark() {
+  return (
+    <svg className="brand-mark" viewBox="0 10 230 140" width="23" height="14" aria-hidden="true" focusable="false">
+      <path d="m 230,20 v 30 a 10,10 0 0 1 -10,10 h -70 a 10,10 0 0 0 -10,10 v 50 a 30,30 0 0 1 -30,30 H 30 A 30,30 0 0 1 0,120 V 20 A 10,10 0 0 1 10,10 h 30 a 10,10 0 0 1 10,10 v 75 a 5,5 0 0 0 5,5 h 30 a 5,5 0 0 0 5,-5 V 40 a 30,30 0 0 1 30,-30 h 100 a 10,10 0 0 1 10,10 z" />
+      <path d="m 220,75 v 30 a 5,5 0 0 1 -5,5 H 150 V 75 a 5,5 0 0 1 5,-5 h 60 a 5,5 0 0 1 5,5 z" />
+    </svg>
+  );
+}
+
+function GitHubMark() {
+  return (
+    <svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true" focusable="false">
+      <path
+        fill="currentColor"
+        d="M8 .2a8 8 0 0 0-2.53 15.59c.4.07.55-.17.55-.38v-1.33c-2.23.48-2.7-1.07-2.7-1.07-.36-.92-.89-1.17-.89-1.17-.73-.5.05-.49.05-.49.8.06 1.23.83 1.23.83.72 1.22 1.87.87 2.33.67.07-.52.28-.87.5-1.07-1.78-.2-3.65-.89-3.65-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82a7.6 7.6 0 0 1 4 0c1.53-1.03 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.28.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48v2.2c0 .21.15.46.55.38A8 8 0 0 0 8 .2Z"
+      />
+    </svg>
+  );
+}
+
+function RankBadge(props: { language: Language; value: string }) {
+  const { language, value } = props;
+  const label = dictionaries[language].filters.rank;
+  return (
+    <span className={`badge badge--rank badge--rank-${value.toLowerCase()}`} title={`${label}: ${value}`}>
+      <span className="sr-only">{label}: </span>
+      {value}
+    </span>
+  );
+}
+
+function MomentumBadge(props: { language: Language; value: string }) {
+  const { language, value } = props;
+  const copy = dictionaries[language];
+  return (
+    <span className={`badge badge--momentum badge--momentum-${value.toLowerCase()}`} title={`${copy.filters.momentum}: ${getStatusLabel(copy, value)}`}>
+      {getStatusLabel(copy, value)}
+    </span>
+  );
+}
+
 function Masthead(props: {
   page: "landing" | "search" | "advanced-search";
   language: Language;
@@ -708,27 +759,36 @@ function Masthead(props: {
 
   return (
     <header className="masthead">
-      <button type="button" className="masthead__brand" onClick={() => onNavigate("/")}>
-        <span className="brand-mark" aria-hidden="true" />
-        <div>
-          <strong>{copy.toolbar.projectLabel}</strong>
-          <small>{copy.toolbar.projectCaption}</small>
+      <div className="masthead__inner">
+        <button type="button" className="masthead__brand" onClick={() => onNavigate("/")}>
+          <LunaFlowMark />
+          <span className="masthead__title">
+            <strong>{copy.toolbar.projectLabel}</strong>
+            <small>{copy.toolbar.projectCaption}</small>
+          </span>
+        </button>
+        <nav className="masthead__nav" aria-label={copy.toolbar.primaryNav}>
+          <button type="button" className="nav-link" aria-current={page === "landing" ? "page" : undefined} onClick={() => onNavigate("/")}>
+            {copy.toolbar.home}
+          </button>
+          <button type="button" className="nav-link" aria-current={page === "search" ? "page" : undefined} onClick={() => onNavigate("/search")}>
+            {copy.toolbar.searchPage}
+          </button>
+          <button type="button" className="nav-link" aria-current={page === "advanced-search" ? "page" : undefined} onClick={() => onNavigate("/advanced-search")}>
+            {copy.toolbar.advancedSearchPage}
+          </button>
+        </nav>
+        <div className="masthead__controls">
+          <LanguageSwitcher language={language} onChange={onLanguageChange} />
+          <ThemeSwitcher language={language} preference={themePreference} resolvedTheme={resolvedTheme} onChange={onThemeChange} />
+          <a className="icon-link masthead__docs" href={DOCS_URLS[language]} title={copy.toolbar.docs}>
+            <BookOpen size={16} strokeWidth={1.75} aria-hidden="true" />
+            <span className="icon-link__label">{copy.toolbar.docs}</span>
+          </a>
+          <a className="icon-link" href={REPOSITORY_URL} aria-label={copy.toolbar.sourceCode} title={copy.toolbar.sourceCode}>
+            <GitHubMark />
+          </a>
         </div>
-      </button>
-      <nav className="masthead__nav" aria-label={copy.toolbar.primaryNav}>
-        <button type="button" className={`nav-link${page === "landing" ? " is-active" : ""}`} onClick={() => onNavigate("/")}>
-          {copy.toolbar.home}
-        </button>
-        <button type="button" className={`nav-link${page === "search" ? " is-active" : ""}`} onClick={() => onNavigate("/search")}>
-          {copy.toolbar.searchPage}
-        </button>
-        <button type="button" className={`nav-link${page === "advanced-search" ? " is-active" : ""}`} onClick={() => onNavigate("/advanced-search")}>
-          {copy.toolbar.advancedSearchPage}
-        </button>
-      </nav>
-      <div className="masthead__controls">
-        <ThemeSwitcher language={language} preference={themePreference} resolvedTheme={resolvedTheme} onChange={onThemeChange} />
-        <LanguageSwitcher language={language} onChange={onLanguageChange} />
       </div>
     </header>
   );
@@ -757,6 +817,10 @@ function LandingSampleCard(props: {
       <div className="sample-card__head">
         <strong>{item.full_name}</strong>
         <ArrowUpRight size={16} strokeWidth={2} aria-hidden="true" />
+      </div>
+      <div className="result-badges">
+        <RankBadge language={language} value={item.rank_label} />
+        <MomentumBadge language={language} value={item.momentum_label} />
       </div>
       <p>{item.description ?? copy.common.noDescription}</p>
       <dl className="sample-card__meta">
@@ -1066,8 +1130,8 @@ function ResultCard(props: {
             <p>{item.description ?? copy.common.noDescription}</p>
           </div>
           <div className="result-badges" aria-label={copy.workspace.statusBadges}>
-            <span className="badge">{item.rank_label}</span>
-            <span className="badge badge--accent">{getStatusLabel(copy, item.momentum_label)}</span>
+            <RankBadge language={language} value={item.rank_label} />
+            <MomentumBadge language={language} value={item.momentum_label} />
           </div>
         </div>
         <dl className="metric-grid">
@@ -1136,8 +1200,8 @@ function DetailContent(props: { language: Language; state: DetailState; onRetry:
           <p>{pkg.description ?? copy.common.noDescription}</p>
         </div>
         <div className="result-badges">
-          <span className="badge">{pkg.rank_label}</span>
-          <span className="badge badge--accent">{getStatusLabel(copy, pkg.momentum_label)}</span>
+          <RankBadge language={language} value={pkg.rank_label} />
+          <MomentumBadge language={language} value={pkg.momentum_label} />
         </div>
       </header>
 
@@ -1209,8 +1273,8 @@ function DetailContent(props: { language: Language; state: DetailState; onRetry:
                 <div className="dependent-card__head">
                   <strong>{item.full_name}</strong>
                   <div className="result-badges">
-                    <span className="badge">{item.rank_label}</span>
-                    <span className="badge badge--accent">{getStatusLabel(copy, item.momentum_label)}</span>
+                    <RankBadge language={language} value={item.rank_label} />
+                    <MomentumBadge language={language} value={item.momentum_label} />
                   </div>
                 </div>
                 <p>{item.description ?? copy.common.noDescription}</p>
@@ -1840,11 +1904,8 @@ export function App(props: AppProps) {
   }, [initialView, landingItems.length, props.dataMode]);
 
   return (
-    <main className="app-shell">
-      <div className="page-background" aria-hidden="true">
-        <span className="page-background__grid" />
-      </div>
-
+    <div className="app-shell">
+      <a className="skip-link" href="#content">{dictionaries[language].toolbar.skipToContent}</a>
       <Masthead
         page={initialView}
         language={language}
@@ -1855,71 +1916,81 @@ export function App(props: AppProps) {
         onNavigate={navigate}
       />
 
-      <AdvancedSearchPanel
-        language={language}
-        params={search.draftParams}
-        open={state.ui.advancedOpen || initialView === "advanced-search"}
-        standalone={initialView === "advanced-search"}
-        onChange={commands.changeDraftParams}
-        onApply={(nextParams) => commands.submitSearch(nextParams, initialView === "advanced-search" ? "/advanced-search" : "/search")}
-        onReset={
-          initialView === "advanced-search"
-            ? () => commands.clearSearchResults("/advanced-search")
-            : commands.resetDraftParams
-        }
-        onClose={() => {
-          if (initialView === "advanced-search") {
-            navigate("/search");
-            return;
-          }
-          commands.closeAdvanced();
-        }}
-      />
-
-      {initialView === "landing" ? (
-        <LandingScreen
+      <main id="content" className="app-main" tabIndex={-1}>
+        <AdvancedSearchPanel
           language={language}
-          items={landingItems}
-          onOpenSearch={() => navigate("/search")}
-          onBrowseTop={() => {
-            if (isStaticMode) {
-              navigateStatic("/search?source=top");
+          params={search.draftParams}
+          open={state.ui.advancedOpen || initialView === "advanced-search"}
+          standalone={initialView === "advanced-search"}
+          onChange={commands.changeDraftParams}
+          onApply={(nextParams) => commands.submitSearch(nextParams, initialView === "advanced-search" ? "/advanced-search" : "/search")}
+          onReset={
+            initialView === "advanced-search"
+              ? () => commands.clearSearchResults("/advanced-search")
+              : commands.resetDraftParams
+          }
+          onClose={() => {
+            if (initialView === "advanced-search") {
+              navigate("/search");
               return;
             }
-            router.push("/search?source=top");
+            commands.closeAdvanced();
           }}
-          onOpenPackage={openLandingPackage}
         />
-      ) : search.status === "idle" ? (
-        <SearchHero
-          language={language}
-          params={search.draftParams}
-          onChange={commands.changeDraftParams}
-          onSubmit={() => commands.submitSearch(search.draftParams, initialView === "advanced-search" ? "/advanced-search" : "/search")}
-          onApplyPrompt={applyPrompt}
-          onOpenFeed={(source) => commands.openFeed(source, initialView === "advanced-search" ? "/advanced-search" : "/search")}
-          onOpenAdvancedSearch={openAdvancedSearchPage}
-        />
-      ) : (
-        <WorkspaceScreen
-          language={language}
-          currentSource={search.activeSource}
-          state={search}
-          selectedFullName={detail.selectedFullName}
-          params={search.draftParams}
-          onBack={() => navigate("/")}
-          onChangeParams={commands.changeDraftParams}
-          onSubmit={() => commands.submitSearch(search.draftParams, initialView === "advanced-search" ? "/advanced-search" : "/search")}
-          onSelectSource={(source) => void commands.openFeed(source, initialView === "advanced-search" ? "/advanced-search" : "/search")}
-          onOpenAdvanced={commands.openAdvanced}
-          onOpenAdvancedSearch={openAdvancedSearchPage}
-          onReset={() => commands.clearSearchResults(initialView === "advanced-search" ? "/advanced-search" : "/search")}
-          onSelect={(fullName) => void commands.selectPackage(fullName)}
-          onRetry={() => commands.retryCurrentSearch(initialView === "advanced-search" ? "/advanced-search" : "/search")}
-          detailState={detail}
-          onRetryDetail={commands.retryDetail}
-        />
-      )}
-    </main>
+
+        {initialView === "landing" ? (
+          <LandingScreen
+            language={language}
+            items={landingItems}
+            onOpenSearch={() => navigate("/search")}
+            onBrowseTop={() => {
+              if (isStaticMode) {
+                navigateStatic("/search?source=top");
+                return;
+              }
+              router.push("/search?source=top");
+            }}
+            onOpenPackage={openLandingPackage}
+          />
+        ) : search.status === "idle" ? (
+          <SearchHero
+            language={language}
+            params={search.draftParams}
+            onChange={commands.changeDraftParams}
+            onSubmit={() => commands.submitSearch(search.draftParams, initialView === "advanced-search" ? "/advanced-search" : "/search")}
+            onApplyPrompt={applyPrompt}
+            onOpenFeed={(source) => commands.openFeed(source, initialView === "advanced-search" ? "/advanced-search" : "/search")}
+            onOpenAdvancedSearch={openAdvancedSearchPage}
+          />
+        ) : (
+          <WorkspaceScreen
+            language={language}
+            currentSource={search.activeSource}
+            state={search}
+            selectedFullName={detail.selectedFullName}
+            params={search.draftParams}
+            onBack={() => navigate("/")}
+            onChangeParams={commands.changeDraftParams}
+            onSubmit={() => commands.submitSearch(search.draftParams, initialView === "advanced-search" ? "/advanced-search" : "/search")}
+            onSelectSource={(source) => void commands.openFeed(source, initialView === "advanced-search" ? "/advanced-search" : "/search")}
+            onOpenAdvanced={commands.openAdvanced}
+            onOpenAdvancedSearch={openAdvancedSearchPage}
+            onReset={() => commands.clearSearchResults(initialView === "advanced-search" ? "/advanced-search" : "/search")}
+            onSelect={(fullName) => void commands.selectPackage(fullName)}
+            onRetry={() => commands.retryCurrentSearch(initialView === "advanced-search" ? "/advanced-search" : "/search")}
+            detailState={detail}
+            onRetryDetail={commands.retryDetail}
+          />
+        )}
+      </main>
+
+      <footer className="site-footer">
+        <p>{dictionaries[language].toolbar.footerNote}</p>
+        <p className="site-footer__links">
+          <a href={DOCS_URLS[language]}>{dictionaries[language].toolbar.docs}</a>
+          <a href={REPOSITORY_URL}>{dictionaries[language].toolbar.sourceCode}</a>
+        </p>
+      </footer>
+    </div>
   );
 }
