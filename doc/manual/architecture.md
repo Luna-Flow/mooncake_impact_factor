@@ -16,7 +16,7 @@ the browser and names the file responsible for each step.
 | Index builder | `scripts/build_index.py` | Python | Reads the registry, writes the SQLite database. |
 | Static exporter | `scripts/export_static_json.py` | Python | Writes `public/data/**` from the database. |
 | Query layer | `lib/query.ts`, `lib/data.ts` | TypeScript | Query AST, expression parser, SQL compilation. |
-| Web application | `app`, `frontend/src` | TypeScript | Pages, route handlers and the static search worker. |
+| Web application | `app`, `frontend/src`, `web` | TypeScript | Pages, route handlers, the static search worker and the stylesheets. |
 
 ## From registry to scores
 

@@ -526,7 +526,7 @@ msgid "Web application"
 msgstr ""
 
 #: manual/architecture.md:19
-msgid "Pages, route handlers and the static search worker."
+msgid "Pages, route handlers, the static search worker and the stylesheets."
 msgstr ""
 
 #: manual/architecture.md:21
