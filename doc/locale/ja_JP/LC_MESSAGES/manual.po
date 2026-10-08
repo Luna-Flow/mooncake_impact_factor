@@ -58,7 +58,7 @@ msgid "The file must contain one JSON object. Each key is optional:"
 msgstr "ファイルには JSON オブジェクトを 1 つだけ含めます。各キーは省略可能です。"
 
 #: manual/api/cli.md:47
-#: manual/design/static_search.md:43
+#: manual/design/static_search.md:44
 msgid "Key"
 msgstr "キー"
 
@@ -513,6 +513,7 @@ msgstr "クエリ層"
 #: manual/architecture.md:18
 #: manual/architecture.md:19
 #: manual/design/static_search.md:16
+#: manual/design/static_search.md:17
 msgid "TypeScript"
 msgstr "TypeScript"
 
@@ -589,114 +590,114 @@ msgid "Always `0`; the registry has no download history."
 msgstr "常に `0`。レジストリにはダウンロード履歴がありません。"
 
 #: manual/architecture.md:53
-msgid "`days_since_release` $- 30$ when the latest release is at least 30 days old, else `0`; also `0` when the release date is unknown."
-msgstr "最新リリースから 30 日以上経っていれば `days_since_release` $- 30$、そうでなければ `0`。リリース日が不明な場合も `0`。"
+msgid "`days_since_release` $- 30$ when the latest release is at least 30 days old, else `0`; `3650`, like the current value, when the release date is unknown."
+msgstr "最新リリースから 30 日以上経っていれば `days_since_release` $- 30$、そうでなければ `0`。リリース日が不明な場合は現在の値と同じく `3650`。"
 
 #: manual/architecture.md:55
-msgid "The historical window is the recent window shifted 30 days back, so the two snapshots are computed the same way, with two exceptions. Downloads have no history, so the whole download term counts as growth. A package whose release date is unknown gets the multiplier $0.88$ now ($t = 3650$) but $1.12$ for 30 days ago ($t = 0$). With the same counts in both windows and no downloads, its `score_30d_ago` is $1.12 / 0.88 \\approx 1.27$ times its current score, and its growth is negative."
-msgstr "過去の窓は最近の窓を 30 日前にずらしたものなので、2 つのスナップショットは同じ方法で計算されますが、例外が 2 つあります。ダウンロード数には履歴がないため、ダウンロードの項全体が成長として数えられます。リリース日が不明なパッケージは、現在は乗数 $0.88$（$t = 3650$）、30 日前は $1.12$（$t = 0$）になります。両方の窓でカウントが同じでダウンロードがなければ、`score_30d_ago` は現在のスコアの $1.12 / 0.88 \\approx 1.27$ 倍になり、成長は負になります。"
+msgid "The historical window is the recent window shifted 30 days back, so the two snapshots are computed the same way, with one exception: downloads have no history, so the whole download term counts as growth. A package whose release date is unknown gets the multiplier $0.88$ in both snapshots, so unchanged counts give zero growth."
+msgstr "過去の窓は最近の窓を 30 日前にずらしたものなので、2 つのスナップショットは同じ方法で計算されますが、例外が 1 つあります。ダウンロード数には履歴がないため、ダウンロードの項全体が成長として数えられます。リリース日が不明なパッケージは両方のスナップショットで乗数 $0.88$ を受け取るので、カウントが変わらなければ成長はゼロです。"
 
-#: manual/architecture.md:63
+#: manual/architecture.md:60
 msgid "**Score.** For each package the builder runs the [`cli`](api/cli.md) command with these eight signals and stores the returned snapshot in the `package_scores` table. The score rules therefore live only in [`src/score`](api/score.md)."
 msgstr "**スコアを付ける。** ビルダーはパッケージごとにこの 8 つのシグナルで [`cli`](api/cli.md) コマンドを実行し、返されたスナップショットを `package_scores` テーブルに保存します。したがってスコア規則は [`src/score`](api/score.md) にしか存在しません。"
 
-#: manual/architecture.md:67
+#: manual/architecture.md:64
 msgid "**Index text.** An SQLite FTS5 table holds full name, owner, package name, description and keywords for full-text search."
 msgstr "**テキストを索引化する。** SQLite の FTS5 テーブルが、全文検索のためにフルネーム、オーナー、パッケージ名、説明、キーワードを保持します。"
 
-#: manual/architecture.md:70
+#: manual/architecture.md:67
 msgid "The database tables are `packages`, `versions`, `dependencies`, `package_edges`, `package_scores` and `search_index`."
 msgstr "データベースのテーブルは `packages`、`versions`、`dependencies`、`package_edges`、`package_scores`、`search_index` です。"
 
-#: manual/architecture.md:73
+#: manual/architecture.md:70
 msgid "Serving"
 msgstr "配信"
 
-#: manual/architecture.md:75
+#: manual/architecture.md:72
 msgid "Dynamic mode"
 msgstr "動的モード"
 
-#: manual/architecture.md:77
+#: manual/architecture.md:74
 msgid "`npm run dev` or `npm run start` with `MOONCAKE_DB_PATH` serves pages and JSON route handlers backed by the database:"
 msgstr "`MOONCAKE_DB_PATH` を設定して `npm run dev` または `npm run start` を実行すると、データベースに基づくページと JSON のルートハンドラーが提供されます。"
 
-#: manual/architecture.md:80
+#: manual/architecture.md:77
 msgid "Route"
 msgstr "ルート"
 
-#: manual/architecture.md:80
+#: manual/architecture.md:77
 msgid "Returns"
 msgstr "戻り値"
 
-#: manual/architecture.md:82
+#: manual/architecture.md:79
 msgid "Packages by score descending, then name."
 msgstr "スコアの降順、次に名前順に並べたパッケージ。"
 
-#: manual/architecture.md:83
+#: manual/architecture.md:80
 msgid "`Hot` packages by 30-day growth, then score, then name."
 msgstr "30 日間の成長量、スコア、名前の順に並べた `Hot` のパッケージ。"
 
-#: manual/architecture.md:84
+#: manual/architecture.md:81
 msgid "`Rising` packages, ordered like `hot`."
 msgstr "`Rising` のパッケージ。並び順は `hot` と同じです。"
 
-#: manual/architecture.md:85
+#: manual/architecture.md:82
 msgid "`{ \"items\": [...] }`, at most 100 package summaries."
 msgstr "`{ \"items\": [...] }`。パッケージ概要は最大 100 件。"
 
-#: manual/architecture.md:88
+#: manual/architecture.md:85
 msgid "The [getting started guide](getting_started.md#3-query-the-apis) lists the search parameters. Queries in the `ast` or `expr` parameters are compiled to SQL `WHERE` clauses; text terms use FTS5."
 msgstr "検索パラメーターは [入門ガイド](getting_started.md#3-query-the-apis) に一覧があります。`ast` または `expr` パラメーターのクエリは SQL の `WHERE` 句にコンパイルされ、テキスト条件には FTS5 が使われます。"
 
-#: manual/architecture.md:92
+#: manual/architecture.md:89
 msgid "Static mode"
 msgstr "静的モード"
 
-#: manual/architecture.md:94
+#: manual/architecture.md:91
 msgid "`npm run build:static-data` runs the index builder and then `scripts/export_static_json.py`, which writes the feeds, a search index, one file per package and a manifest to `public/data`. `npm run build:static` compiles `static_search` and runs `next build` with `NEXT_PUBLIC_APP_MODE=static`, which exports the site to `out/` without route handlers. In the browser, feeds and package pages are plain file fetches and search runs in a Web Worker; the [static_search design](design/static_search.md) describes it. The `deploy-static` workflow rebuilds and publishes this site daily."
 msgstr "`npm run build:static-data` はインデックスビルダーを実行したあと `scripts/export_static_json.py` を実行し、フィード、検索インデックス、パッケージごとのファイル、マニフェストを `public/data` に書き出します。`npm run build:static` は `static_search` をコンパイルし、`NEXT_PUBLIC_APP_MODE=static` で `next build` を実行して、ルートハンドラーなしでサイトを `out/` にエクスポートします。ブラウザーではフィードとパッケージページは単なるファイル取得で、検索は Web Worker で動きます。詳しくは [static_search の設計](design/static_search.md) を参照してください。`deploy-static` ワークフローがこのサイトを毎日再ビルドして公開します。"
 
-#: manual/architecture.md:104
+#: manual/architecture.md:101
 msgid "Where the rules live"
 msgstr "規則の置き場所"
 
-#: manual/architecture.md:106
+#: manual/architecture.md:103
 msgid "Every rule has one owner, and the others call it:"
 msgstr "各規則の持ち主は 1 か所だけで、ほかはそれを呼び出します。"
 
-#: manual/architecture.md:108
+#: manual/architecture.md:105
 msgid "Rule"
 msgstr "規則"
 
-#: manual/architecture.md:108
+#: manual/architecture.md:105
 msgid "Owner"
 msgstr "持ち主"
 
-#: manual/architecture.md:110
+#: manual/architecture.md:107
 msgid "Score, rank and momentum"
 msgstr "スコア、ランク、モメンタム"
 
-#: manual/architecture.md:110
+#: manual/architecture.md:107
 msgid "`src/score` (called through `src/cli`)"
 msgstr "`src/score`（`src/cli` 経由で呼び出し）"
 
-#: manual/architecture.md:111
+#: manual/architecture.md:108
 msgid "Signal definitions and time windows"
 msgstr "シグナルの定義と時間ウィンドウ"
 
-#: manual/architecture.md:112
+#: manual/architecture.md:109
 msgid "Query language and AST"
 msgstr "クエリ言語と AST"
 
-#: manual/architecture.md:113
+#: manual/architecture.md:110
 msgid "SQL compilation and dynamic ordering"
 msgstr "SQL へのコンパイルと動的な並び順"
 
-#: manual/architecture.md:114
+#: manual/architecture.md:111
 msgid "Static evaluation and ordering"
 msgstr "静的な評価と並び順"
 
-#: manual/architecture.md:116
+#: manual/architecture.md:113
 msgid "`scripts/build_index.py` still contains Python functions `compute_score` and `compute_momentum_label` that mirror the MoonBit rules; the build does not call them."
 msgstr "`scripts/build_index.py` には MoonBit の規則を写した Python 関数 `compute_score` と `compute_momentum_label` が残っていますが、ビルドでは呼び出されません。"
 
@@ -762,7 +763,7 @@ msgstr "`cli` パッケージは橋渡し役です。Python のインデック�
 
 #: manual/design/cli.md:8
 #: manual/design/score.md:9
-#: manual/design/static_search.md:18
+#: manual/design/static_search.md:19
 msgid "Design goal"
 msgstr "設計目標"
 
@@ -772,7 +773,7 @@ msgstr "スコア、ランク、モメンタムの規則の実装はちょうど
 
 #: manual/design/cli.md:17
 #: manual/design/score.md:18
-#: manual/design/static_search.md:25
+#: manual/design/static_search.md:26
 msgid "Mathematical background"
 msgstr "数学的背景"
 
@@ -1185,8 +1186,8 @@ msgid "Counts of `2147483647` are not supported (the score becomes `NaN`)."
 msgstr "カウント `2147483647` には対応していません（スコアが `NaN` になります）。"
 
 #: manual/design/score.md:337
-msgid "The builder passes `0` as the historical days since release when the release date is unknown, while the current value is `3650`; such packages get the multiplier $1.12$ 30 days ago and $0.88$ now, which shows as negative growth. The [architecture guide](../architecture.md) gives the signal definitions."
-msgstr "リリース日が不明な場合、ビルダーは過去のリリースからの日数として `0` を渡しますが、現在の値は `3650` です。そのようなパッケージは 30 日前に乗数 $1.12$、現在 $0.88$ を受け取り、負の成長として現れます。シグナルの定義は[アーキテクチャガイド](../architecture.md)にあります。"
+msgid "A package whose release date is unknown is scored as released `3650` days ago, now and 30 days ago, so it gets the lowest multiplier $0.88$ in both snapshots. The [architecture guide](../architecture.md) gives the signal definitions."
+msgstr "リリース日が不明なパッケージは、現在も 30 日前も `3650` 日前にリリースされたものとして採点されるので、両方のスナップショットで最小の乗数 $0.88$ を受け取ります。シグナルの定義は[アーキテクチャガイド](../architecture.md)にあります。"
 
 #: manual/design/static_search.md:1
 msgid "static_search design"
@@ -1213,102 +1214,106 @@ msgid "Writes the index and the other static files from the SQLite database."
 msgstr "SQLite データベースからインデックスとその他の静的ファイルを書き出します。"
 
 #: manual/design/static_search.md:16
-msgid "Loads the index into a Web Worker and answers queries."
-msgstr "インデックスを Web Worker に読み込み、クエリに答えます。"
+msgid "Loads the index into a Web Worker, filters and sorts."
+msgstr "インデックスを Web Worker に読み込み、絞り込みと並べ替えを行います。"
 
-#: manual/design/static_search.md:20
+#: manual/design/static_search.md:17
+msgid "Evaluates query terms and counts relevance for the worker."
+msgstr "ワーカーのためにクエリの項を評価し、関連度を数えます。"
+
+#: manual/design/static_search.md:21
 msgid "Search on the static site must accept the same query forms as the dynamic site (the native expression language, the serialised query AST and the simple form fields), stay responsive while the page renders, and need nothing but files that a static host such as GitHub Pages can serve."
 msgstr "静的サイトの検索は、動的サイトと同じクエリ形式（ネイティブの式言語、シリアライズされたクエリ AST、簡易フォームのフィールド）を受け付け、ページの描画中も応答性を保ち、GitHub Pages のような静的ホストが配信できるファイルだけで動かなければなりません。"
 
-#: manual/design/static_search.md:27
+#: manual/design/static_search.md:28
 msgid "Data layout"
 msgstr "データレイアウト"
 
-#: manual/design/static_search.md:29
+#: manual/design/static_search.md:30
 msgid "`export_static_json.py` writes these files under `public/data/`:"
 msgstr "`export_static_json.py` は `public/data/` の下に次のファイルを書き出します。"
 
-#: manual/design/static_search.md:31
+#: manual/design/static_search.md:32
 msgid "File"
 msgstr "ファイル"
 
-#: manual/design/static_search.md:31
+#: manual/design/static_search.md:32
 msgid "Content"
 msgstr "内容"
 
-#: manual/design/static_search.md:33
+#: manual/design/static_search.md:34
 msgid "`schema_version`, `generated_at`, `package_count`, `data_mode = \"static\"` and the size of each feed."
 msgstr "`schema_version`、`generated_at`、`package_count`、`data_mode = \"static\"`、各フィードの件数。"
 
-#: manual/design/static_search.md:34
+#: manual/design/static_search.md:35
 msgid "The three feeds, precomputed with the SQL orderings of the dynamic site."
 msgstr "3 つのフィード。動的サイトの SQL の並び順で事前計算したもの。"
 
-#: manual/design/static_search.md:35
+#: manual/design/static_search.md:36
 msgid "The search index: `{ \"items\": [...] }`, one record per package."
 msgstr "検索インデックス: `{ \"items\": [...] }`。パッケージごとに 1 レコード。"
 
-#: manual/design/static_search.md:36
+#: manual/design/static_search.md:37
 msgid "The same packages with display fields (keywords, version count, multiplier)."
 msgstr "同じパッケージに表示用のフィールド（キーワード、バージョン数、乗数）を加えたもの。"
 
-#: manual/design/static_search.md:37
+#: manual/design/static_search.md:38
 msgid "Detail page data: package, last 20 versions, dependents."
 msgstr "詳細ページのデータ: パッケージ、直近 20 バージョン、被依存パッケージ。"
 
-#: manual/design/static_search.md:39
+#: manual/design/static_search.md:40
 msgid "A record of the search index is a flat object. Besides the display fields of a package summary (name, owner, description, version, counts and the score snapshot fields) it holds precomputed search keys:"
 msgstr "検索インデックスのレコードはフラットなオブジェクトです。パッケージ概要の表示用フィールド（名前、オーナー、説明、バージョン、各カウント、スコアスナップショットのフィールド）に加えて、事前計算した検索キーを持ちます。"
 
-#: manual/design/static_search.md:43
+#: manual/design/static_search.md:44
 msgid "Value"
 msgstr "値"
 
-#: manual/design/static_search.md:45
+#: manual/design/static_search.md:46
 msgid "The field, trimmed and lower-cased (`\"\"` when missing)."
 msgstr "前後の空白を除いて小文字にしたフィールド（欠落時は `\"\"`）。"
 
-#: manual/design/static_search.md:46
+#: manual/design/static_search.md:47
 msgid "Each keyword, trimmed and lower-cased."
 msgstr "各キーワードを、前後の空白を除いて小文字にしたもの。"
 
-#: manual/design/static_search.md:47
+#: manual/design/static_search.md:48
 msgid "The non-empty parts of full name, owner, package name, description and keywords, joined by single spaces."
 msgstr "フルネーム、オーナー、パッケージ名、説明、キーワードのうち空でない部分を、1 つの空白で連結したもの。"
 
-#: manual/design/static_search.md:48
+#: manual/design/static_search.md:49
 msgid "Whether the trimmed field is non-empty."
 msgstr "前後の空白を除いたフィールドが空でないかどうか。"
 
-#: manual/design/static_search.md:49
+#: manual/design/static_search.md:50
 msgid "The release timestamp; its first four characters give the year."
 msgstr "リリースのタイムスタンプ。先頭 4 文字が年になります。"
 
-#: manual/design/static_search.md:51
+#: manual/design/static_search.md:52
 msgid "So the index is a *forward* index: an array of $N$ records with $F$ fixed fields each, sorted by `full_name`. There is no inverted index and no tokenisation. Lower-casing at export time means that a query only has to normalise the needle, not every record, at query time."
 msgstr "つまりこのインデックスは*順*インデックスです。$N$ 個のレコードからなる配列で、各レコードは $F$ 個の固定フィールドを持ち、`full_name` 順に並んでいます。転置インデックスもトークン化もありません。エクスポート時に小文字化しておくので、クエリ時には各レコードではなく検索語だけを正規化すれば済みます。"
 
-#: manual/design/static_search.md:56
+#: manual/design/static_search.md:57
 msgid "Queries as Boolean formulas"
 msgstr "ブール式としてのクエリ"
 
-#: manual/design/static_search.md:58
+#: manual/design/static_search.md:59
 msgid "Every query is first turned into a query AST by `deriveQueryAst` in [`lib/query.ts`](../../../lib/query.ts), with this precedence: a serialised `ast` parameter, else a native `expr`, else the legacy form fields joined by AND. An AST is a formula over term predicates:"
 msgstr "すべてのクエリは、まず [`lib/query.ts`](../../../lib/query.ts) の `deriveQueryAst` によってクエリ AST に変換されます。優先順位は、シリアライズされた `ast` パラメーター、なければネイティブの `expr`、それもなければ AND で結んだ従来のフォームフィールドです。AST は項の述語に関する論理式です。"
 
-#: manual/design/static_search.md:67
+#: manual/design/static_search.md:68
 msgid "and a term $t = (f, \\mathit{op}, v)$ is evaluated on a record $p$ as"
 msgstr "項 $t = (f, \\mathit{op}, v)$ はレコード $p$ に対して次のように評価されます。"
 
-#: manual/design/static_search.md:69
+#: manual/design/static_search.md:70
 msgid "Field $f$"
 msgstr "フィールド $f$"
 
-#: manual/design/static_search.md:69
+#: manual/design/static_search.md:70
 msgid "$p \\models t$ when"
 msgstr "$p \\models t$ となる条件"
 
-#: manual/design/static_search.md:71
+#: manual/design/static_search.md:72
 msgid ""
 "$\\n"
 "u(v)$ is a substring of the normalised field ($\\n"
@@ -1318,7 +1323,7 @@ msgstr ""
 "u(v)$ が正規化したフィールドの部分文字列である（$\\n"
 "u$ = 前後の空白除去と小文字化）。空の検索語は常に一致します。"
 
-#: manual/design/static_search.md:72
+#: manual/design/static_search.md:73
 msgid ""
 "$\\n"
 "u(v)$ is a substring of at least one normalised keyword."
@@ -1326,53 +1331,53 @@ msgstr ""
 "$\\n"
 "u(v)$ が正規化したキーワードの少なくとも 1 つの部分文字列である。"
 
-#: manual/design/static_search.md:73
+#: manual/design/static_search.md:74
 msgid "the label equals $v$ exactly."
 msgstr "ラベルが $v$ と完全に一致する。"
 
-#: manual/design/static_search.md:74
+#: manual/design/static_search.md:75
 msgid "$x \\ge v$ for `>=`, $x \\le v$ for `<=`, $x = v$ otherwise, with $v$ converted by JavaScript `Number`; false when the conversion is not finite. An empty $v$ converts to $0$."
 msgstr "`>=` なら $x \\ge v$、`<=` なら $x \\le v$、それ以外は $x = v$。$v$ は JavaScript の `Number` で変換し、変換結果が有限でなければ偽。空の $v$ は $0$ に変換されます。"
 
-#: manual/design/static_search.md:75
+#: manual/design/static_search.md:76
 msgid "the flag equals `v == \"true\"`."
 msgstr "フラグが `v == \"true\"` と等しい。"
 
-#: manual/design/static_search.md:77
+#: manual/design/static_search.md:78
 msgid "The result set is $\\{\\, p : p \\models \\varphi \\,\\}$, evaluated recursively with short-circuiting `every` and `some`. An AST without any non-empty term matches every record."
 msgstr "結果集合は $\\{\\, p : p \\models \\varphi \\,\\}$ で、短絡評価する `every` と `some` で再帰的に評価されます。空でない項を 1 つも含まない AST はすべてのレコードに一致します。"
 
-#: manual/design/static_search.md:81
+#: manual/design/static_search.md:82
 msgid "Relevance"
 msgstr "関連度"
 
-#: manual/design/static_search.md:83
-msgid "When there is a query and no explicit sort, the worker orders results by a relevance count. With $L(\\varphi)$ the multiset of term leaves of the AST,"
-msgstr "クエリがあり明示的な並び順の指定がないとき、ワーカーは関連度のカウントで結果を並べます。AST の項の葉の多重集合を $L(\\varphi)$ とすると、"
+#: manual/design/static_search.md:84
+msgid "When there is a query and no explicit sort, the worker orders results by a relevance count. With $L^{+}(\\varphi)$ the multiset of *positive* term leaves of the AST,"
+msgstr "クエリがあり明示的な並べ替えがないとき、ワーカーは関連度の計数で結果を並べます。$L^{+}(\\varphi)$ を AST の*肯定的な*項の葉の多重集合として、"
 
-#: manual/design/static_search.md:90
-msgid "where negations are ignored: a leaf under `NOT` counts when its *un-negated* term matches. Ties are broken by score (descending) and then by `full_name` (ascending, by `localeCompare`)."
-msgstr "です。ここで否定は無視されます。`NOT` の下にある葉は、*否定を外した*項が一致するときに数えられます。同順位はスコア（降順）、次に `full_name`（昇順、`localeCompare` による）で決まります。"
+#: manual/design/static_search.md:92
+msgid "where a leaf is positive when it lies below an even number of negations, counting its own `NOT` and those of the groups above it. Ties are broken by score (descending) and then by `full_name` (ascending, by `localeCompare`)."
+msgstr "ここで葉が肯定的であるとは、自身の `NOT` とその上のグループの `NOT` を数えて、偶数個の否定の下にあることです。同順位はスコア（降順）、次に `full_name`（昇順、`localeCompare` による）で決めます。"
 
-#: manual/design/static_search.md:94
+#: manual/design/static_search.md:96
 msgid "Two consequences are worth deriving because they explain what users see."
 msgstr "ユーザーが目にする結果を説明するので、2 つの帰結を導いておきます。"
 
-#: manual/design/static_search.md:96
+#: manual/design/static_search.md:98
 msgid "**Conjunctions do not reorder.** Let $\\varphi = t_1 \\land \\dots \\land t_k$ with positive terms. Every result satisfies every $t_i$, so $\\operatorname{rel}(p) = k$ for all results, and the order is exactly the score order. Relevance only has an effect when the formula contains `OR` or `NOT`."
 msgstr "**連言では順序が変わらない。** $\\varphi = t_1 \\land \\dots \\land t_k$ を肯定の項からなる式とします。どの結果もすべての $t_i$ を満たすので、すべての結果で $\\operatorname{rel}(p) = k$ となり、順序はちょうどスコア順です。関連度が効くのは、式に `OR` か `NOT` が含まれるときだけです。"
 
-#: manual/design/static_search.md:102
+#: manual/design/static_search.md:104
 msgid "**Disjunctions rank by coverage.** For $\\varphi = t_1 \\lor \\dots \\lor t_k$ with positive terms, $\\operatorname{rel}(p)$ is the number of alternatives that $p$ satisfies, so a package that matches every alternative comes first."
 msgstr "**選言では網羅度で順位が付く。** 肯定的な項からなる $\\varphi = t_1 \\lor \\dots \\lor t_k$ では、$\\operatorname{rel}(p)$ は $p$ が満たす選択肢の数なので、すべての選択肢に一致するパッケージが先頭に来ます。"
 
-#: manual/design/static_search.md:106
-msgid "**Negated leaves count against the user.** A negated leaf $\\lnot t$ contributes $1$ to $\\operatorname{rel}(p)$ exactly when $p \\models t$, the case the user wanted to exclude. When $\\lnot t$ must hold for every result, for example as a conjunct of the root, no result satisfies $t$ and the leaf contributes $0$ to all of them, so the order is unaffected. Under a disjunction it is not: for $\\varphi = \\lnot t_1 \\lor t_2$,"
-msgstr "**否定された葉はユーザーの意図に反して数えられる。** 否定された葉 $\\lnot t$ は、ちょうど $p \\models t$ のとき、つまりユーザーが除外したかった場合に $\\operatorname{rel}(p)$ へ $1$ を加えます。$\\lnot t$ がすべての結果で成り立たなければならない場合（たとえば根の連言の 1 項として）、$t$ を満たす結果はなく、その葉はすべての結果に $0$ を寄与するので順序は変わりません。選言の下ではそうではありません。$\\varphi = \\lnot t_1 \\lor t_2$ について"
+#: manual/design/static_search.md:108
+msgid "**Negated leaves add nothing.** A negative leaf contributes $0$ to every package. For $\\varphi = \\lnot t_1 \\lor t_2$,"
+msgstr "**否定された葉は何も加えない。** 否定的な葉はどのパッケージにも $0$ を寄与します。$\\varphi = \\lnot t_1 \\lor t_2$ について"
 
-#: manual/design/static_search.md:117
-msgid "so a result that satisfies both $t_1$ and $t_2$ (relevance $2$) comes before one that satisfies only $t_2$ (relevance $1$), and results that satisfy neither (relevance $0$) come last, although $\\lnot t_1$ holds for them. The same applies to every leaf below a negated group."
-msgstr "なので、$t_1$ と $t_2$ の両方を満たす結果（関連度 $2$）は $t_2$ だけを満たす結果（関連度 $1$）より前に来て、どちらも満たさない結果（関連度 $0$）は $\\lnot t_1$ が成り立つにもかかわらず最後になります。否定されたグループの下にあるすべての葉についても同じです。"
+#: manual/design/static_search.md:115
+msgid "so the packages that satisfy $t_2$ come first, ordered by score, whether or not they also satisfy the excluded $t_1$. Counting the un-negated leaf instead would add $[\\,p \\models t_1\\,]$ and rank first exactly the packages the query excludes; releases before the fix of [#4](https://github.com/Luna-Flow/mooncake_impact_factor/issues/4) did that."
+msgstr "なので、$t_2$ を満たすパッケージが、除外された $t_1$ も満たすかどうかに関係なく、スコア順に先頭に来ます。否定を外した葉を数えると $[\\,p \\models t_1\\,]$ が加わり、クエリが除外するパッケージがちょうど先頭に来てしまいます。[#4](https://github.com/Luna-Flow/mooncake_impact_factor/issues/4) の修正より前のリリースはそうなっていました。"
 
 #: manual/design/static_search.md:122
 msgid "Relevance is therefore a coordination-level match[^coord], not a text statistic: it ignores term frequency, field length and how rare a term is."
@@ -2076,7 +2081,7 @@ msgstr "**大きすぎるカウント。** `2147483647` 以上の数（変換は
 
 #: manual/tutorial/cli.md:162
 #: manual/tutorial/score.md:237
-#: manual/tutorial/static_search.md:197
+#: manual/tutorial/static_search.md:196
 msgid "Next steps"
 msgstr "次のステップ"
 
@@ -2414,28 +2419,40 @@ msgid "**Labels are exact.** `rank=s` matches nothing on the static site; write 
 msgstr "**ラベルは完全一致。** 静的サイトでは `rank=s` は何にも一致しません。`rank=S` や `momentum=Rising` と書いてください。"
 
 #: manual/tutorial/static_search.md:189
-msgid "**`NOT` inside `OR` reorders.** The relevance count also counts negated terms that match, so for `NOT rank=D OR json` the packages of rank `D` that mention `json` come first. Sort by score when you combine `NOT` with `OR`."
-msgstr "**`OR` の中の `NOT` は順序を変える。** 関連度の計数は一致した否定項も数えるので、`NOT rank=D OR json` では `json` に言及するランク `D` のパッケージが先頭に来ます。`NOT` と `OR` を組み合わせるときはスコアで並べ替えてください。"
+msgid "**`NOT` does not raise relevance.** Only positive terms count, so for `NOT rank=D OR json` every package that mentions `json` ranks above the rest, by score among themselves, whatever its rank."
+msgstr "**`NOT` は関連度を上げない。** 肯定的な項だけが数えられるので、`NOT rank=D OR json` では `json` に言及するパッケージがランクに関係なくすべて残りより前に来て、その中ではスコア順になります。"
 
-#: manual/tutorial/static_search.md:193
+#: manual/tutorial/static_search.md:192
 msgid "**Wrong target.** Importing `static_search` from a package that builds for `wasm-gc` or `native` fails, because the package uses JavaScript foreign functions."
 msgstr "**ターゲットの誤り。** `wasm-gc` や `native` 向けにビルドするパッケージから `static_search` をインポートすると失敗します。このパッケージは JavaScript の外部関数を使っているためです。"
 
-#: manual/tutorial/static_search.md:199
+#: manual/tutorial/static_search.md:198
 msgid "[static_search design](../design/static_search.md) for the index layout, the relevance count and the complexity of a query."
 msgstr "[static_search の設計](../design/static_search.md): インデックスのレイアウト、関連度のカウント、クエリの計算量。"
 
-#: manual/tutorial/static_search.md:201
+#: manual/tutorial/static_search.md:200
 msgid "[static_search API](../api/static_search.md) for the MoonBit and JavaScript functions."
 msgstr "[static_search API](../api/static_search.md): MoonBit と JavaScript の関数。"
 
-#: manual/tutorial/static_search.md:203
+#: manual/tutorial/static_search.md:202
 msgid "[score tutorial](score.md) for the numbers that the search filters and sorts."
 msgstr "[score チュートリアル](score.md): 検索が絞り込みや並べ替えに使う数値。"
 
-#: manual/tutorial/static_search.md:205
+#: manual/tutorial/static_search.md:204
 msgid "[architecture guide](../architecture.md) for the whole data pipeline."
 msgstr "[アーキテクチャガイド](../architecture.md): データパイプライン全体。"
+
+#~ msgid "The builder passes `0` as the historical days since release when the release date is unknown, while the current value is `3650`; such packages get the multiplier $1.12$ 30 days ago and $0.88$ now, which shows as negative growth. The [architecture guide](../architecture.md) gives the signal definitions."
+#~ msgstr "リリース日が不明な場合、ビルダーは過去のリリースからの日数として `0` を渡しますが、現在の値は `3650` です。そのようなパッケージは 30 日前に乗数 $1.12$、現在 $0.88$ を受け取り、負の成長として現れます。シグナルの定義は[アーキテクチャガイド](../architecture.md)にあります。"
+
+#~ msgid "**Negated leaves count against the user.** A negated leaf $\\lnot t$ contributes $1$ to $\\operatorname{rel}(p)$ exactly when $p \\models t$, the case the user wanted to exclude. When $\\lnot t$ must hold for every result, for example as a conjunct of the root, no result satisfies $t$ and the leaf contributes $0$ to all of them, so the order is unaffected. Under a disjunction it is not: for $\\varphi = \\lnot t_1 \\lor t_2$,"
+#~ msgstr "**否定された葉はユーザーの意図に反して数えられる。** 否定された葉 $\\lnot t$ は、ちょうど $p \\models t$ のとき、つまりユーザーが除外したかった場合に $\\operatorname{rel}(p)$ へ $1$ を加えます。$\\lnot t$ がすべての結果で成り立たなければならない場合（たとえば根の連言の 1 項として）、$t$ を満たす結果はなく、その葉はすべての結果に $0$ を寄与するので順序は変わりません。選言の下ではそうではありません。$\\varphi = \\lnot t_1 \\lor t_2$ について"
+
+#~ msgid "so a result that satisfies both $t_1$ and $t_2$ (relevance $2$) comes before one that satisfies only $t_2$ (relevance $1$), and results that satisfy neither (relevance $0$) come last, although $\\lnot t_1$ holds for them. The same applies to every leaf below a negated group."
+#~ msgstr "なので、$t_1$ と $t_2$ の両方を満たす結果（関連度 $2$）は $t_2$ だけを満たす結果（関連度 $1$）より前に来て、どちらも満たさない結果（関連度 $0$）は $\\lnot t_1$ が成り立つにもかかわらず最後になります。否定されたグループの下にあるすべての葉についても同じです。"
+
+#~ msgid "**`NOT` inside `OR` reorders.** The relevance count also counts negated terms that match, so for `NOT rank=D OR json` the packages of rank `D` that mention `json` come first. Sort by score when you combine `NOT` with `OR`."
+#~ msgstr "**`OR` の中の `NOT` は順序を変える。** 関連度の計数は一致した否定項も数えるので、`NOT rank=D OR json` では `json` に言及するランク `D` のパッケージが先頭に来ます。`NOT` と `OR` を組み合わせるときはスコアで並べ替えてください。"
 
 #~ msgid "Import the package in `moon.pkg`:"
 #~ msgstr "`moon.pkg` でパッケージをインポートします。"

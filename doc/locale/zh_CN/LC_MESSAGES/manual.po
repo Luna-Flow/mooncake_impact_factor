@@ -58,7 +58,7 @@ msgid "The file must contain one JSON object. Each key is optional:"
 msgstr "文件必须包含一个 JSON 对象。每个键都是可选的："
 
 #: manual/api/cli.md:47
-#: manual/design/static_search.md:43
+#: manual/design/static_search.md:44
 msgid "Key"
 msgstr "键"
 
@@ -513,6 +513,7 @@ msgstr "查询层"
 #: manual/architecture.md:18
 #: manual/architecture.md:19
 #: manual/design/static_search.md:16
+#: manual/design/static_search.md:17
 msgid "TypeScript"
 msgstr "TypeScript"
 
@@ -589,114 +590,114 @@ msgid "Always `0`; the registry has no download history."
 msgstr "始终为 `0`；注册表没有下载历史。"
 
 #: manual/architecture.md:53
-msgid "`days_since_release` $- 30$ when the latest release is at least 30 days old, else `0`; also `0` when the release date is unknown."
-msgstr "最新发布至少已有 30 天时为 `days_since_release` $- 30$，否则为 `0`；发布日期未知时也为 `0`。"
+msgid "`days_since_release` $- 30$ when the latest release is at least 30 days old, else `0`; `3650`, like the current value, when the release date is unknown."
+msgstr "最新发布至少已有 30 天时为 `days_since_release` $- 30$，否则为 `0`；发布日期未知时与当前值一样为 `3650`。"
 
 #: manual/architecture.md:55
-msgid "The historical window is the recent window shifted 30 days back, so the two snapshots are computed the same way, with two exceptions. Downloads have no history, so the whole download term counts as growth. A package whose release date is unknown gets the multiplier $0.88$ now ($t = 3650$) but $1.12$ for 30 days ago ($t = 0$). With the same counts in both windows and no downloads, its `score_30d_ago` is $1.12 / 0.88 \\approx 1.27$ times its current score, and its growth is negative."
-msgstr "历史窗口是把最近窗口向前平移 30 天，因此两个快照按相同方式计算，但有两个例外。下载量没有历史，因此整个下载项都计入增长。发布日期未知的包当前得到乘数 $0.88$（$t = 3650$），而 30 天前得到 $1.12$（$t = 0$）。在两个窗口计数相同且没有下载量时，它的 `score_30d_ago` 是当前分数的 $1.12 / 0.88 \\approx 1.27$ 倍，增长为负。"
+msgid "The historical window is the recent window shifted 30 days back, so the two snapshots are computed the same way, with one exception: downloads have no history, so the whole download term counts as growth. A package whose release date is unknown gets the multiplier $0.88$ in both snapshots, so unchanged counts give zero growth."
+msgstr "历史窗口是把最近窗口向前平移 30 天，因此两个快照按相同方式计算，只有一个例外：下载量没有历史，因此整个下载项都计入增长。发布日期未知的包在两个快照中都得到乘数 $0.88$，因此计数不变时增长为零。"
 
-#: manual/architecture.md:63
+#: manual/architecture.md:60
 msgid "**Score.** For each package the builder runs the [`cli`](api/cli.md) command with these eight signals and stores the returned snapshot in the `package_scores` table. The score rules therefore live only in [`src/score`](api/score.md)."
 msgstr "**评分。** 构建器对每个包用这八个信号运行 [`cli`](api/cli.md) 命令，并把返回的快照存入 `package_scores` 表。因此评分规则只存在于 [`src/score`](api/score.md) 中。"
 
-#: manual/architecture.md:67
+#: manual/architecture.md:64
 msgid "**Index text.** An SQLite FTS5 table holds full name, owner, package name, description and keywords for full-text search."
 msgstr "**索引文本。** 一个 SQLite FTS5 表保存完整名称、所有者、包名、描述和关键词，用于全文搜索。"
 
-#: manual/architecture.md:70
+#: manual/architecture.md:67
 msgid "The database tables are `packages`, `versions`, `dependencies`, `package_edges`, `package_scores` and `search_index`."
 msgstr "数据库表包括 `packages`、`versions`、`dependencies`、`package_edges`、`package_scores` 和 `search_index`。"
 
-#: manual/architecture.md:73
+#: manual/architecture.md:70
 msgid "Serving"
 msgstr "服务"
 
-#: manual/architecture.md:75
+#: manual/architecture.md:72
 msgid "Dynamic mode"
 msgstr "动态模式"
 
-#: manual/architecture.md:77
+#: manual/architecture.md:74
 msgid "`npm run dev` or `npm run start` with `MOONCAKE_DB_PATH` serves pages and JSON route handlers backed by the database:"
 msgstr "设置 `MOONCAKE_DB_PATH` 后运行 `npm run dev` 或 `npm run start`，即可提供基于数据库的页面和 JSON 路由处理器："
 
-#: manual/architecture.md:80
+#: manual/architecture.md:77
 msgid "Route"
 msgstr "路由"
 
-#: manual/architecture.md:80
+#: manual/architecture.md:77
 msgid "Returns"
 msgstr "返回"
 
-#: manual/architecture.md:82
+#: manual/architecture.md:79
 msgid "Packages by score descending, then name."
 msgstr "按分数降序、再按名称排列的包。"
 
-#: manual/architecture.md:83
+#: manual/architecture.md:80
 msgid "`Hot` packages by 30-day growth, then score, then name."
 msgstr "按 30 天增长量、再按分数、再按名称排列的 `Hot` 包。"
 
-#: manual/architecture.md:84
+#: manual/architecture.md:81
 msgid "`Rising` packages, ordered like `hot`."
 msgstr "`Rising` 包，排序方式与 `hot` 相同。"
 
-#: manual/architecture.md:85
+#: manual/architecture.md:82
 msgid "`{ \"items\": [...] }`, at most 100 package summaries."
 msgstr "`{ \"items\": [...] }`，最多 100 条包摘要。"
 
-#: manual/architecture.md:88
+#: manual/architecture.md:85
 msgid "The [getting started guide](getting_started.md#3-query-the-apis) lists the search parameters. Queries in the `ast` or `expr` parameters are compiled to SQL `WHERE` clauses; text terms use FTS5."
 msgstr "[入门指南](getting_started.md#3-query-the-apis)列出了搜索参数。`ast` 或 `expr` 参数中的查询会被编译成 SQL `WHERE` 子句；文本项使用 FTS5。"
 
-#: manual/architecture.md:92
+#: manual/architecture.md:89
 msgid "Static mode"
 msgstr "静态模式"
 
-#: manual/architecture.md:94
+#: manual/architecture.md:91
 msgid "`npm run build:static-data` runs the index builder and then `scripts/export_static_json.py`, which writes the feeds, a search index, one file per package and a manifest to `public/data`. `npm run build:static` compiles `static_search` and runs `next build` with `NEXT_PUBLIC_APP_MODE=static`, which exports the site to `out/` without route handlers. In the browser, feeds and package pages are plain file fetches and search runs in a Web Worker; the [static_search design](design/static_search.md) describes it. The `deploy-static` workflow rebuilds and publishes this site daily."
 msgstr "`npm run build:static-data` 先运行索引构建器，再运行 `scripts/export_static_json.py`，后者把各个 feed、一个搜索索引、每个包一个文件以及一个清单写入 `public/data`。`npm run build:static` 编译 `static_search`，并以 `NEXT_PUBLIC_APP_MODE=static` 运行 `next build`，把站点导出到不含路由处理器的 `out/`。在浏览器中，feed 和包页面只是普通的文件请求，搜索则在 Web Worker 中运行；[static_search 设计](design/static_search.md)对此有详细说明。`deploy-static` 工作流每天重建并发布这个站点。"
 
-#: manual/architecture.md:104
+#: manual/architecture.md:101
 msgid "Where the rules live"
 msgstr "规则归属"
 
-#: manual/architecture.md:106
+#: manual/architecture.md:103
 msgid "Every rule has one owner, and the others call it:"
 msgstr "每条规则都只有一个归属者，其他部分调用它："
 
-#: manual/architecture.md:108
+#: manual/architecture.md:105
 msgid "Rule"
 msgstr "规则"
 
-#: manual/architecture.md:108
+#: manual/architecture.md:105
 msgid "Owner"
 msgstr "归属"
 
-#: manual/architecture.md:110
+#: manual/architecture.md:107
 msgid "Score, rank and momentum"
 msgstr "分数、等级和势头"
 
-#: manual/architecture.md:110
+#: manual/architecture.md:107
 msgid "`src/score` (called through `src/cli`)"
 msgstr "`src/score`（通过 `src/cli` 调用）"
 
-#: manual/architecture.md:111
+#: manual/architecture.md:108
 msgid "Signal definitions and time windows"
 msgstr "信号定义和时间窗口"
 
-#: manual/architecture.md:112
+#: manual/architecture.md:109
 msgid "Query language and AST"
 msgstr "查询语言和 AST"
 
-#: manual/architecture.md:113
+#: manual/architecture.md:110
 msgid "SQL compilation and dynamic ordering"
 msgstr "SQL 编译和动态排序"
 
-#: manual/architecture.md:114
+#: manual/architecture.md:111
 msgid "Static evaluation and ordering"
 msgstr "静态求值和排序"
 
-#: manual/architecture.md:116
+#: manual/architecture.md:113
 msgid "`scripts/build_index.py` still contains Python functions `compute_score` and `compute_momentum_label` that mirror the MoonBit rules; the build does not call them."
 msgstr "`scripts/build_index.py` 中仍有与 MoonBit 规则对应的 Python 函数 `compute_score` 和 `compute_momentum_label`；构建过程不会调用它们。"
 
@@ -762,7 +763,7 @@ msgstr "`cli` 包是一座桥：它让 Python 索引构建器和其他非 MoonBi
 
 #: manual/design/cli.md:8
 #: manual/design/score.md:9
-#: manual/design/static_search.md:18
+#: manual/design/static_search.md:19
 msgid "Design goal"
 msgstr "设计目标"
 
@@ -772,7 +773,7 @@ msgstr "分数、等级和势头规则必须只有一份实现，并且 Web 应�
 
 #: manual/design/cli.md:17
 #: manual/design/score.md:18
-#: manual/design/static_search.md:25
+#: manual/design/static_search.md:26
 msgid "Mathematical background"
 msgstr "数学背景"
 
@@ -1185,8 +1186,8 @@ msgid "Counts of `2147483647` are not supported (the score becomes `NaN`)."
 msgstr "不支持值为 `2147483647` 的计数（分数会变为 `NaN`）。"
 
 #: manual/design/score.md:337
-msgid "The builder passes `0` as the historical days since release when the release date is unknown, while the current value is `3650`; such packages get the multiplier $1.12$ 30 days ago and $0.88$ now, which shows as negative growth. The [architecture guide](../architecture.md) gives the signal definitions."
-msgstr "当发布日期未知时，构建器把历史发布天数传为 `0`，而当前值为 `3650`；这类包在 30 天前得到乘数 $1.12$，现在得到 $0.88$，表现为负增长。[架构指南](../architecture.md)给出了信号的定义。"
+msgid "A package whose release date is unknown is scored as released `3650` days ago, now and 30 days ago, so it gets the lowest multiplier $0.88$ in both snapshots. The [architecture guide](../architecture.md) gives the signal definitions."
+msgstr "发布日期未知的包，无论现在还是 30 天前，都按 `3650` 天前发布来评分，因此两个快照都得到最低乘数 $0.88$。[架构指南](../architecture.md)给出了信号的定义。"
 
 #: manual/design/static_search.md:1
 msgid "static_search design"
@@ -1213,102 +1214,106 @@ msgid "Writes the index and the other static files from the SQLite database."
 msgstr "从 SQLite 数据库写出索引和其他静态文件。"
 
 #: manual/design/static_search.md:16
-msgid "Loads the index into a Web Worker and answers queries."
-msgstr "把索引加载到 Web Worker 中并回答查询。"
+msgid "Loads the index into a Web Worker, filters and sorts."
+msgstr "把索引加载到 Web Worker 中，进行过滤和排序。"
 
-#: manual/design/static_search.md:20
+#: manual/design/static_search.md:17
+msgid "Evaluates query terms and counts relevance for the worker."
+msgstr "为 worker 求值查询词项并计算相关度。"
+
+#: manual/design/static_search.md:21
 msgid "Search on the static site must accept the same query forms as the dynamic site (the native expression language, the serialised query AST and the simple form fields), stay responsive while the page renders, and need nothing but files that a static host such as GitHub Pages can serve."
 msgstr "静态站点上的搜索必须接受与动态站点相同的查询形式（原生表达式语言、序列化的查询 AST 和简单表单字段），在页面渲染时保持响应，并且只需要 GitHub Pages 这类静态托管能提供的文件。"
 
-#: manual/design/static_search.md:27
+#: manual/design/static_search.md:28
 msgid "Data layout"
 msgstr "数据布局"
 
-#: manual/design/static_search.md:29
+#: manual/design/static_search.md:30
 msgid "`export_static_json.py` writes these files under `public/data/`:"
 msgstr "`export_static_json.py` 在 `public/data/` 下写出以下文件："
 
-#: manual/design/static_search.md:31
+#: manual/design/static_search.md:32
 msgid "File"
 msgstr "文件"
 
-#: manual/design/static_search.md:31
+#: manual/design/static_search.md:32
 msgid "Content"
 msgstr "内容"
 
-#: manual/design/static_search.md:33
+#: manual/design/static_search.md:34
 msgid "`schema_version`, `generated_at`, `package_count`, `data_mode = \"static\"` and the size of each feed."
 msgstr "`schema_version`、`generated_at`、`package_count`、`data_mode = \"static\"` 以及每个 feed 的大小。"
 
-#: manual/design/static_search.md:34
+#: manual/design/static_search.md:35
 msgid "The three feeds, precomputed with the SQL orderings of the dynamic site."
 msgstr "三个 feed，按动态站点的 SQL 排序预先计算。"
 
-#: manual/design/static_search.md:35
+#: manual/design/static_search.md:36
 msgid "The search index: `{ \"items\": [...] }`, one record per package."
 msgstr "搜索索引：`{ \"items\": [...] }`，每个包一条记录。"
 
-#: manual/design/static_search.md:36
+#: manual/design/static_search.md:37
 msgid "The same packages with display fields (keywords, version count, multiplier)."
 msgstr "同样的包，附带展示用字段（关键词、版本数、乘数）。"
 
-#: manual/design/static_search.md:37
+#: manual/design/static_search.md:38
 msgid "Detail page data: package, last 20 versions, dependents."
 msgstr "详情页数据：包、最近 20 个版本、依赖方。"
 
-#: manual/design/static_search.md:39
+#: manual/design/static_search.md:40
 msgid "A record of the search index is a flat object. Besides the display fields of a package summary (name, owner, description, version, counts and the score snapshot fields) it holds precomputed search keys:"
 msgstr "搜索索引的记录是一个扁平对象。除了包摘要的展示字段（名称、所有者、描述、版本、各计数和分数快照字段）之外，它还保存预先计算的搜索键："
 
-#: manual/design/static_search.md:43
+#: manual/design/static_search.md:44
 msgid "Value"
 msgstr "值"
 
-#: manual/design/static_search.md:45
+#: manual/design/static_search.md:46
 msgid "The field, trimmed and lower-cased (`\"\"` when missing)."
 msgstr "该字段去除首尾空白并转为小写（缺失时为 `\"\"`）。"
 
-#: manual/design/static_search.md:46
+#: manual/design/static_search.md:47
 msgid "Each keyword, trimmed and lower-cased."
 msgstr "每个关键词，去除首尾空白并转为小写。"
 
-#: manual/design/static_search.md:47
+#: manual/design/static_search.md:48
 msgid "The non-empty parts of full name, owner, package name, description and keywords, joined by single spaces."
 msgstr "完整名称、所有者、包名、描述和关键词中非空的部分，用单个空格连接。"
 
-#: manual/design/static_search.md:48
+#: manual/design/static_search.md:49
 msgid "Whether the trimmed field is non-empty."
 msgstr "去除首尾空白后该字段是否非空。"
 
-#: manual/design/static_search.md:49
+#: manual/design/static_search.md:50
 msgid "The release timestamp; its first four characters give the year."
 msgstr "发布时间戳；其前四个字符给出年份。"
 
-#: manual/design/static_search.md:51
+#: manual/design/static_search.md:52
 msgid "So the index is a *forward* index: an array of $N$ records with $F$ fixed fields each, sorted by `full_name`. There is no inverted index and no tokenisation. Lower-casing at export time means that a query only has to normalise the needle, not every record, at query time."
 msgstr "所以该索引是一个*正排*索引：由 $N$ 条记录组成的数组，每条记录有 $F$ 个固定字段，按 `full_name` 排序。没有倒排索引，也没有分词。在导出时转为小写，意味着查询时只需规范化查询词，而不必规范化每条记录。"
 
-#: manual/design/static_search.md:56
+#: manual/design/static_search.md:57
 msgid "Queries as Boolean formulas"
 msgstr "作为布尔公式的查询"
 
-#: manual/design/static_search.md:58
+#: manual/design/static_search.md:59
 msgid "Every query is first turned into a query AST by `deriveQueryAst` in [`lib/query.ts`](../../../lib/query.ts), with this precedence: a serialised `ast` parameter, else a native `expr`, else the legacy form fields joined by AND. An AST is a formula over term predicates:"
 msgstr "每个查询都会先由 [`lib/query.ts`](../../../lib/query.ts) 中的 `deriveQueryAst` 转换成查询 AST，优先级如下：序列化的 `ast` 参数，否则是原生 `expr`，否则是用 AND 连接的旧式表单字段。AST 是关于项谓词的公式："
 
-#: manual/design/static_search.md:67
+#: manual/design/static_search.md:68
 msgid "and a term $t = (f, \\mathit{op}, v)$ is evaluated on a record $p$ as"
 msgstr "一个项 $t = (f, \\mathit{op}, v)$ 在记录 $p$ 上的求值为"
 
-#: manual/design/static_search.md:69
+#: manual/design/static_search.md:70
 msgid "Field $f$"
 msgstr "字段 $f$"
 
-#: manual/design/static_search.md:69
+#: manual/design/static_search.md:70
 msgid "$p \\models t$ when"
 msgstr "$p \\models t$ 的条件"
 
-#: manual/design/static_search.md:71
+#: manual/design/static_search.md:72
 msgid ""
 "$\\n"
 "u(v)$ is a substring of the normalised field ($\\n"
@@ -1318,7 +1323,7 @@ msgstr ""
 "u(v)$ 是规范化字段的子串（$\\n"
 "u$ = 去除首尾空白并转小写）；空查询词总是匹配。"
 
-#: manual/design/static_search.md:72
+#: manual/design/static_search.md:73
 msgid ""
 "$\\n"
 "u(v)$ is a substring of at least one normalised keyword."
@@ -1326,53 +1331,53 @@ msgstr ""
 "$\\n"
 "u(v)$ 是至少一个规范化关键词的子串。"
 
-#: manual/design/static_search.md:73
+#: manual/design/static_search.md:74
 msgid "the label equals $v$ exactly."
 msgstr "标签与 $v$ 完全相等。"
 
-#: manual/design/static_search.md:74
+#: manual/design/static_search.md:75
 msgid "$x \\ge v$ for `>=`, $x \\le v$ for `<=`, $x = v$ otherwise, with $v$ converted by JavaScript `Number`; false when the conversion is not finite. An empty $v$ converts to $0$."
 msgstr "`>=` 时为 $x \\ge v$，`<=` 时为 $x \\le v$，其他情况为 $x = v$，其中 $v$ 用 JavaScript 的 `Number` 转换；转换结果不是有限数时为假。空的 $v$ 转换为 $0$。"
 
-#: manual/design/static_search.md:75
+#: manual/design/static_search.md:76
 msgid "the flag equals `v == \"true\"`."
 msgstr "标志等于 `v == \"true\"`。"
 
-#: manual/design/static_search.md:77
+#: manual/design/static_search.md:78
 msgid "The result set is $\\{\\, p : p \\models \\varphi \\,\\}$, evaluated recursively with short-circuiting `every` and `some`. An AST without any non-empty term matches every record."
 msgstr "结果集为 $\\{\\, p : p \\models \\varphi \\,\\}$，通过短路的 `every` 和 `some` 递归求值。不含任何非空项的 AST 匹配所有记录。"
 
-#: manual/design/static_search.md:81
+#: manual/design/static_search.md:82
 msgid "Relevance"
 msgstr "相关度"
 
-#: manual/design/static_search.md:83
-msgid "When there is a query and no explicit sort, the worker orders results by a relevance count. With $L(\\varphi)$ the multiset of term leaves of the AST,"
-msgstr "当有查询且没有显式指定排序时，worker 按相关度计数排列结果。记 $L(\\varphi)$ 为 AST 的项叶子构成的多重集，"
+#: manual/design/static_search.md:84
+msgid "When there is a query and no explicit sort, the worker orders results by a relevance count. With $L^{+}(\\varphi)$ the multiset of *positive* term leaves of the AST,"
+msgstr "当有查询且没有显式排序时，worker 按相关度计数对结果排序。设 $L^{+}(\\varphi)$ 为 AST 中*正*词项叶子的多重集，"
 
-#: manual/design/static_search.md:90
-msgid "where negations are ignored: a leaf under `NOT` counts when its *un-negated* term matches. Ties are broken by score (descending) and then by `full_name` (ascending, by `localeCompare`)."
-msgstr "其中忽略否定：`NOT` 之下的叶子在其*未取反*的项匹配时计数。并列时先按分数（降序），再按 `full_name`（升序，使用 `localeCompare`）排序。"
+#: manual/design/static_search.md:92
+msgid "where a leaf is positive when it lies below an even number of negations, counting its own `NOT` and those of the groups above it. Ties are broken by score (descending) and then by `full_name` (ascending, by `localeCompare`)."
+msgstr "其中，若一个叶子位于偶数个取反之下（计入它自己的 `NOT` 以及其上各分组的 `NOT`），它就是正的。并列时先按分数（降序）、再按 `full_name`（升序，使用 `localeCompare`）排序。"
 
-#: manual/design/static_search.md:94
+#: manual/design/static_search.md:96
 msgid "Two consequences are worth deriving because they explain what users see."
 msgstr "有两个推论值得推导，因为它们解释了用户看到的结果。"
 
-#: manual/design/static_search.md:96
+#: manual/design/static_search.md:98
 msgid "**Conjunctions do not reorder.** Let $\\varphi = t_1 \\land \\dots \\land t_k$ with positive terms. Every result satisfies every $t_i$, so $\\operatorname{rel}(p) = k$ for all results, and the order is exactly the score order. Relevance only has an effect when the formula contains `OR` or `NOT`."
 msgstr "**合取不会改变顺序。** 设 $\\varphi = t_1 \\land \\dots \\land t_k$，其中各项都为正项。每个结果都满足所有 $t_i$，所以对所有结果 $\\operatorname{rel}(p) = k$，顺序就是分数顺序。只有当公式含有 `OR` 或 `NOT` 时相关度才起作用。"
 
-#: manual/design/static_search.md:102
+#: manual/design/static_search.md:104
 msgid "**Disjunctions rank by coverage.** For $\\varphi = t_1 \\lor \\dots \\lor t_k$ with positive terms, $\\operatorname{rel}(p)$ is the number of alternatives that $p$ satisfies, so a package that matches every alternative comes first."
 msgstr "**析取按覆盖度排序。** 对于由正项构成的 $\\varphi = t_1 \\lor \\dots \\lor t_k$，$\\operatorname{rel}(p)$ 是 $p$ 满足的备选项个数，所以匹配所有备选项的包排在最前。"
 
-#: manual/design/static_search.md:106
-msgid "**Negated leaves count against the user.** A negated leaf $\\lnot t$ contributes $1$ to $\\operatorname{rel}(p)$ exactly when $p \\models t$, the case the user wanted to exclude. When $\\lnot t$ must hold for every result, for example as a conjunct of the root, no result satisfies $t$ and the leaf contributes $0$ to all of them, so the order is unaffected. Under a disjunction it is not: for $\\varphi = \\lnot t_1 \\lor t_2$,"
-msgstr "**取反的叶子反而加分。** 取反的叶子 $\\lnot t$ 恰在 $p \\models t$ 时为 $\\operatorname{rel}(p)$ 贡献 $1$，而这正是用户想排除的情形。当 $\\lnot t$ 必须对每个结果成立时（例如作为根节点的一个合取项），没有结果满足 $t$，该叶子对所有结果贡献 $0$，顺序不受影响。在析取之下则不然：对于 $\\varphi = \\lnot t_1 \\lor t_2$，"
+#: manual/design/static_search.md:108
+msgid "**Negated leaves add nothing.** A negative leaf contributes $0$ to every package. For $\\varphi = \\lnot t_1 \\lor t_2$,"
+msgstr "**取反的叶子不加分。** 负叶子对每个包都贡献 $0$。对于 $\\varphi = \\lnot t_1 \\lor t_2$，"
 
-#: manual/design/static_search.md:117
-msgid "so a result that satisfies both $t_1$ and $t_2$ (relevance $2$) comes before one that satisfies only $t_2$ (relevance $1$), and results that satisfy neither (relevance $0$) come last, although $\\lnot t_1$ holds for them. The same applies to every leaf below a negated group."
-msgstr "因此同时满足 $t_1$ 和 $t_2$ 的结果（相关度 $2$）排在只满足 $t_2$ 的结果（相关度 $1$）之前，而两者都不满足的结果（相关度 $0$）排在最后，尽管 $\\lnot t_1$ 对它们成立。取反分组之下的每个叶子也是如此。"
+#: manual/design/static_search.md:115
+msgid "so the packages that satisfy $t_2$ come first, ordered by score, whether or not they also satisfy the excluded $t_1$. Counting the un-negated leaf instead would add $[\\,p \\models t_1\\,]$ and rank first exactly the packages the query excludes; releases before the fix of [#4](https://github.com/Luna-Flow/mooncake_impact_factor/issues/4) did that."
+msgstr "因此满足 $t_2$ 的包排在前面，按分数排序，无论它们是否也满足被排除的 $t_1$。如果改为计入未取反的叶子，就会加上 $[\\,p \\models t_1\\,]$，恰好把查询所排除的包排在最前；修复 [#4](https://github.com/Luna-Flow/mooncake_impact_factor/issues/4) 之前的版本就是这样做的。"
 
 #: manual/design/static_search.md:122
 msgid "Relevance is therefore a coordination-level match[^coord], not a text statistic: it ignores term frequency, field length and how rare a term is."
@@ -2076,7 +2081,7 @@ msgstr "**过大的计数。** `2147483647` 或任何更大的数（转换会饱
 
 #: manual/tutorial/cli.md:162
 #: manual/tutorial/score.md:237
-#: manual/tutorial/static_search.md:197
+#: manual/tutorial/static_search.md:196
 msgid "Next steps"
 msgstr "下一步"
 
@@ -2414,28 +2419,40 @@ msgid "**Labels are exact.** `rank=s` matches nothing on the static site; write 
 msgstr "**标签需完全匹配。** 在静态站点上 `rank=s` 什么也匹配不到；请写 `rank=S` 和 `momentum=Rising`。"
 
 #: manual/tutorial/static_search.md:189
-msgid "**`NOT` inside `OR` reorders.** The relevance count also counts negated terms that match, so for `NOT rank=D OR json` the packages of rank `D` that mention `json` come first. Sort by score when you combine `NOT` with `OR`."
-msgstr "**`OR` 中的 `NOT` 会改变顺序。** 相关度计数也会计入匹配的取反项，因此对 `NOT rank=D OR json`，提到 `json` 的 `D` 级包会排在最前。把 `NOT` 与 `OR` 组合使用时，请按分数排序。"
+msgid "**`NOT` does not raise relevance.** Only positive terms count, so for `NOT rank=D OR json` every package that mentions `json` ranks above the rest, by score among themselves, whatever its rank."
+msgstr "**`NOT` 不会提高相关度。** 只有正词项计数，因此对 `NOT rank=D OR json`，每个提到 `json` 的包都排在其余包之前，彼此之间按分数排序，与等级无关。"
 
-#: manual/tutorial/static_search.md:193
+#: manual/tutorial/static_search.md:192
 msgid "**Wrong target.** Importing `static_search` from a package that builds for `wasm-gc` or `native` fails, because the package uses JavaScript foreign functions."
 msgstr "**目标错误。** 从为 `wasm-gc` 或 `native` 构建的包中导入 `static_search` 会失败，因为该包使用了 JavaScript 外部函数。"
 
-#: manual/tutorial/static_search.md:199
+#: manual/tutorial/static_search.md:198
 msgid "[static_search design](../design/static_search.md) for the index layout, the relevance count and the complexity of a query."
 msgstr "[static_search 设计](../design/static_search.md)：索引布局、相关度计数和查询的复杂度。"
 
-#: manual/tutorial/static_search.md:201
+#: manual/tutorial/static_search.md:200
 msgid "[static_search API](../api/static_search.md) for the MoonBit and JavaScript functions."
 msgstr "[static_search API](../api/static_search.md)：MoonBit 和 JavaScript 函数。"
 
-#: manual/tutorial/static_search.md:203
+#: manual/tutorial/static_search.md:202
 msgid "[score tutorial](score.md) for the numbers that the search filters and sorts."
 msgstr "[score 教程](score.md)：搜索所筛选和排序的那些数字。"
 
-#: manual/tutorial/static_search.md:205
+#: manual/tutorial/static_search.md:204
 msgid "[architecture guide](../architecture.md) for the whole data pipeline."
 msgstr "[架构指南](../architecture.md)：完整的数据管道。"
+
+#~ msgid "The builder passes `0` as the historical days since release when the release date is unknown, while the current value is `3650`; such packages get the multiplier $1.12$ 30 days ago and $0.88$ now, which shows as negative growth. The [architecture guide](../architecture.md) gives the signal definitions."
+#~ msgstr "当发布日期未知时，构建器把历史发布天数传为 `0`，而当前值为 `3650`；这类包在 30 天前得到乘数 $1.12$，现在得到 $0.88$，表现为负增长。[架构指南](../architecture.md)给出了信号的定义。"
+
+#~ msgid "**Negated leaves count against the user.** A negated leaf $\\lnot t$ contributes $1$ to $\\operatorname{rel}(p)$ exactly when $p \\models t$, the case the user wanted to exclude. When $\\lnot t$ must hold for every result, for example as a conjunct of the root, no result satisfies $t$ and the leaf contributes $0$ to all of them, so the order is unaffected. Under a disjunction it is not: for $\\varphi = \\lnot t_1 \\lor t_2$,"
+#~ msgstr "**取反的叶子反而加分。** 取反的叶子 $\\lnot t$ 恰在 $p \\models t$ 时为 $\\operatorname{rel}(p)$ 贡献 $1$，而这正是用户想排除的情形。当 $\\lnot t$ 必须对每个结果成立时（例如作为根节点的一个合取项），没有结果满足 $t$，该叶子对所有结果贡献 $0$，顺序不受影响。在析取之下则不然：对于 $\\varphi = \\lnot t_1 \\lor t_2$，"
+
+#~ msgid "so a result that satisfies both $t_1$ and $t_2$ (relevance $2$) comes before one that satisfies only $t_2$ (relevance $1$), and results that satisfy neither (relevance $0$) come last, although $\\lnot t_1$ holds for them. The same applies to every leaf below a negated group."
+#~ msgstr "因此同时满足 $t_1$ 和 $t_2$ 的结果（相关度 $2$）排在只满足 $t_2$ 的结果（相关度 $1$）之前，而两者都不满足的结果（相关度 $0$）排在最后，尽管 $\\lnot t_1$ 对它们成立。取反分组之下的每个叶子也是如此。"
+
+#~ msgid "**`NOT` inside `OR` reorders.** The relevance count also counts negated terms that match, so for `NOT rank=D OR json` the packages of rank `D` that mention `json` come first. Sort by score when you combine `NOT` with `OR`."
+#~ msgstr "**`OR` 中的 `NOT` 会改变顺序。** 相关度计数也会计入匹配的取反项，因此对 `NOT rank=D OR json`，提到 `json` 的 `D` 级包会排在最前。把 `NOT` 与 `OR` 组合使用时，请按分数排序。"
 
 #~ msgid "Import the package in `moon.pkg`:"
 #~ msgstr "在 `moon.pkg` 中导入该包："
