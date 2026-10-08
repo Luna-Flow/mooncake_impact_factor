@@ -6,6 +6,14 @@ the rank and momentum labels that the web application shows, and how to sort
 and explain a list of scored packages. The mathematics stays light here; the
 [score design](../design/score.md) derives it.
 
+| I want to | Use |
+| --- | --- |
+| score one package | `@score.compute_score(dependents, recent, downloads, days)` |
+| turn a score into a rank | `@score.rank_label(score)` |
+| measure 30-day growth and momentum | `@score.compute_score_snapshot(...)` with current and historical signals |
+| explain a score | score each signal alone; the parts add up |
+| pass a snapshot to another tool | `Json(snapshot)`, or the [`cli` command](cli.md) |
+
 ## Quick start
 
 Add the module to your project:
@@ -16,7 +24,7 @@ moon add Luna-Flow/mooncake-impact-factor@0.1.2
 
 Import the package in the `moon.pkg` of the package that uses it:
 
-```text
+```moonbit nocheck
 import {
   "Luna-Flow/mooncake-impact-factor/score",
 }
@@ -28,12 +36,9 @@ release 40 days ago:
 ```moonbit
 test "quick start" {
   let score = @score.compute_score(20, 4, 300, 40)
-  println("score = \{score}, rank = \{@score.rank_label(score)}")
+  inspect(score, content="301.7852882193072")
+  inspect(@score.rank_label(score), content="S")
 }
-```
-
-```text
-score = 301.7852882193072, rank = S
 ```
 
 The score is a plain `Double`. Anything from $260$ up is rank `S`.
@@ -63,18 +68,20 @@ test "rank a list" {
     let by_score = b.1.compare(a.1)
     if by_score != 0 { by_score } else { a.0.compare(b.0) }
   })
-  for entry in scored {
+  let lines = scored.map(entry => {
     let (name, score) = entry
-    println("\{name} \{@score.rank_label(score)} \{score}")
-  }
+    "\{name} \{@score.rank_label(score)} \{score}"
+  })
+  inspect(
+    lines.join("\n"),
+    content=(
+      #|alice/json S 391.6139680824188
+      #|bob/http A 189.57132356978428
+      #|carol/csv A 189.57132356978428
+      #|dave/math C 59.00068800926255
+    ),
+  )
 }
-```
-
-```text
-alice/json S 391.6139680824188
-bob/http A 189.57132356978428
-carol/csv A 189.57132356978428
-dave/math C 59.00068800926255
 ```
 
 `bob/http` and `carol/csv` have identical signals and therefore identical
@@ -93,19 +100,12 @@ test "explain a score" {
   let from_recent = @score.compute_score(0, recent, 0, days)
   let from_downloads = @score.compute_score(0, 0, downloads, days)
   let total = @score.compute_score(deps, recent, downloads, days)
-  println("dependents \{from_deps}")
-  println("recent     \{from_recent}")
-  println("downloads  \{from_downloads}")
-  println("total      \{total}")
+  inspect(from_deps, content="122.63336379149948")
+  inspect(from_recent, content="46.06211305386395")
+  inspect(from_downloads, content="133.08981137394377")
+  inspect(total, content="301.7852882193072")
   assert_true((from_deps + from_recent + from_downloads - total).abs() < 1.0e-9)
 }
-```
-
-```text
-dependents 122.63336379149948
-recent     46.06211305386395
-downloads  133.08981137394377
-total      301.7852882193072
 ```
 
 The parts add up to the total up to rounding in the last digit, which is why
@@ -118,18 +118,21 @@ an old one with up to 12 %:
 
 ```moonbit
 test "release age" {
-  for days in [10, 60, 120, 300, 500] {
-    println("\{days} \{@score.compute_score(20, 4, 300, days)}")
-  }
+  let lines = [10, 60, 120, 300, 500].map(days => {
+    let score = @score.compute_score(20, 4, 300, days)
+    "\{days} \{score} \{@score.rank_label(score)}"
+  })
+  inspect(
+    lines.join("\n"),
+    content=(
+      #|10 318.8674743449284 S
+      #|60 301.7852882193072 S
+      #|120 284.703102093686 S
+      #|300 267.6209159680649 S
+      #|500 250.5387298424437 A
+    ),
+  )
 }
-```
-
-```text
-10 318.8674743449284
-60 301.7852882193072
-120 284.703102093686
-300 267.6209159680649
-500 250.5387298424437
 ```
 
 The same signals are rank `S` while the latest release is less than a year
@@ -144,16 +147,10 @@ signals of `0`:
 ```moonbit
 test "new package snapshot" {
   let snapshot = @score.compute_score_snapshot(8, 2, 120, 12, 0, 0, 0, 0)
-  println(snapshot.score_growth_ratio_30d)
-  println(snapshot.rank_label)
-  println(snapshot.momentum_label)
+  inspect(snapshot.score_growth_ratio_30d, content="1")
+  inspect(snapshot.rank_label, content="A")
+  inspect(snapshot.momentum_label, content="Hot")
 }
-```
-
-```text
-1
-A
-Hot
 ```
 
 The score grew from $0$, so the growth ratio is reported as $1$ (100 %). The
@@ -168,12 +165,13 @@ of the [`cli` command](cli.md):
 ```moonbit
 test "snapshot as JSON" {
   let snapshot = @score.compute_score_snapshot(20, 4, 300, 40, 10, 2, 0, 10)
-  println(Json(snapshot).stringify())
+  inspect(
+    Json(snapshot).stringify(),
+    content=(
+      #|{"score":301.7852882193072,"score_30d_ago":135.2764584196223,"score_growth_30d":166.5088297996849,"score_growth_ratio_30d":1.2308780976744749,"rank_label":"S","momentum_label":"Rising","activity_multiplier":1.06}
+    ),
+  )
 }
-```
-
-```text
-{"score":301.7852882193072,"score_30d_ago":135.2764584196223,"score_growth_30d":166.5088297996849,"score_growth_ratio_30d":1.2308780976744749,"rank_label":"S","momentum_label":"Rising","activity_multiplier":1.06}
 ```
 
 Read it back with `@json.from_json`, which needs `moonbitlang/core/json` in

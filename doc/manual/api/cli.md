@@ -1,5 +1,7 @@
 # cli API
 
+## Purpose
+
 The package `Luna-Flow/mooncake-impact-factor/cli` is an executable for the
 JavaScript target. It reads the eight signals of a score snapshot from a JSON
 file, calls [`compute_score_snapshot`](score.md#compute_score_snapshot) and
@@ -13,7 +15,8 @@ command line described here.
 
 ## Building
 
-The package declares `supported_targets = "js"` and
+The package cannot be imported: it is an executable with no exported names.
+It declares `supported_targets = "js"` and
 `pkgtype(kind: "executable")`. Build it from the repository root:
 
 ```bash

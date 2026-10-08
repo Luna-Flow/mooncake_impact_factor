@@ -5,6 +5,14 @@ with the `cli` executable: from a shell, from Python as the index builder
 does, and from Node.js. You need a checkout of this repository, the MoonBit
 toolchain and Node.js 20.16, 22.3 or later.
 
+| I want to | Use |
+| --- | --- |
+| build the command | `moon build src/cli --target js` |
+| score one package from a shell | `node _build/js/debug/build/cli/cli.js score-snapshot --input <file>` |
+| score from Python or Node.js | write a JSON file, run the command, parse standard output |
+| leave out unknown signals | omit the key; it counts as `0` |
+| detect failures | a non-zero exit status |
+
 ## Quick start
 
 Build the executable from the repository root:

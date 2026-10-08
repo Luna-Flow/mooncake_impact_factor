@@ -50,10 +50,16 @@ the browser and names the file responsible for each step.
    | `historical_dependents` | Edges with `first_seen_at` $\le \tau - 30$ days. |
    | `historical_recent_dependents` | Edges with `first_seen_at` in $[\tau - 210, \tau - 30]$ days. |
    | `historical_downloads` | Always `0`; the registry has no download history. |
-   | `historical_days_since_release` | `days_since_release` $- 30$ when the latest release is at least 30 days old, else `0`. |
+   | `historical_days_since_release` | `days_since_release` $- 30$ when the latest release is at least 30 days old, else `0`; also `0` when the release date is unknown. |
 
    The historical window is the recent window shifted 30 days back, so the
-   two snapshots are computed the same way.
+   two snapshots are computed the same way, with two exceptions. Downloads
+   have no history, so the whole download term counts as growth. A package
+   whose release date is unknown gets the multiplier $0.88$ now
+   ($t = 3650$) but $1.12$ for 30 days ago ($t = 0$). With the same
+   counts in both windows and no downloads, its `score_30d_ago` is
+   $1.12 / 0.88 \approx 1.27$ times its current score, and its growth is
+   negative.
 6. **Score.** For each package the builder runs the [`cli`](api/cli.md)
    command with these eight signals and stores the returned snapshot in the
    `package_scores` table. The score rules therefore live only in

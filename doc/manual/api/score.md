@@ -1,5 +1,7 @@
 # score API
 
+## Purpose
+
 The package `Luna-Flow/mooncake-impact-factor/score` computes the impact score
 of a MoonBit package from four integer signals, labels the score with a rank
 and a momentum class, and bundles everything into a `ScoreSnapshot`. Every
@@ -8,9 +10,12 @@ function is pure and total: it never aborts and has no hidden state.
 Source: [`src/score/impact_factor.mbt`](../../../src/score/impact_factor.mbt).
 The mathematics behind the formula is in the [score design](../design/score.md).
 
-Import the package in `moon.pkg`:
+## Importing
 
-```text
+Add the package to your `moon.pkg`. The examples on this page call it as
+`@score`; the JSON examples also import `moonbitlang/core/json`.
+
+```moonbit nocheck
 import {
   "Luna-Flow/mooncake-impact-factor/score",
 }

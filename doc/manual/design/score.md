@@ -82,7 +82,10 @@ $$
 $$
 
 using $\ln(1+x) \le x$ with $x = 1/(D+1)$. The marginal value of a dependent
-falls like $1/D$, so no single signal can dominate the ranking.
+falls like $1/D$. Inflating one count therefore buys little: multiplying
+$1 + W$ by ten adds exactly $22 \ln 10 \approx 50.66$ points to $B$, whatever
+$W$ was, which is less than the distance between any two neighbouring rank
+thresholds ($60$, $70$ and $80$ points).
 
 ### Rank thresholds as counts
 
@@ -125,11 +128,21 @@ G / S_{30} & S_{30} > 0 \\
 \end{cases}
 $$
 
-Since $m(t) > 0$, $S_{30} = 0$ exactly when every historical count is $0$:
-the package had no dependents and no downloads 30 days ago. For such a
-package the relative growth $G / S_{30}$ is undefined, and the implementation
-uses $1$ (that is, 100 %) instead of $+\infty$ so that $r$ stays finite and
-can be stored and sorted.
+Since $m(t) > 0$ and every term of $B$ is non-negative, $S_{30} = 0$ exactly
+when every historical count is $0$ (or negative, which clamps to $0$): the
+package had no dependents and no downloads 30 days ago. Otherwise at least
+one $\sigma$ is at least $\sigma(1) = \ln 2$, so
+
+$$
+S_{30} \ge 0.88 \cdot 22 \ln 2 \approx 13.42 ,
+$$
+
+the smallest weight times the smallest multiplier. The score therefore takes
+no values in $(0, 13.42)$, and $G / S_{30}$ is never divided by a tiny
+denominator. For $S_{30} = 0$ the relative growth is undefined, and the
+implementation uses $1$ (that is, 100 %) instead of $+\infty$ so that $r$
+stays finite and can be stored and sorted. A new package with $S \ge 35$ and
+three recent dependents is therefore `Rising`.
 
 The momentum label tests three conditions at two levels:
 
@@ -142,9 +155,12 @@ The `Rising` conditions imply the `Hot` conditions, so the classes are nested
 levels of one scale rather than independent tags. When $S_{30} > 0$,
 $r \ge \rho$ is the same as $S \ge (1 + \rho) S_{30}$, so `Rising` asks for a
 score at least $1.35$ times the old one *and* an absolute gain of $35$
-points. The absolute bound stops tiny packages from rising by going from
-$1$ to $2$ points; the relative bound stops large packages from rising
-through the noise of a big base.
+points. Each bound covers a case the other misses. The absolute bound stops
+small packages from rising on a small change: a package that goes from one
+download to three ($S$ from about $15.2$ to $30.5$ with $m = 1$) doubles its
+score, $r = 1$, but gains only about $15$ points. The relative bound
+stops large packages from rising through the noise of a big base: at
+$S_{30} = 1000$, a gain of $35$ points is $r = 0.035$.
 
 ## Design decisions
 
@@ -184,8 +200,13 @@ but age must not outweigh adoption.
 it multiplies $B$, it changes the score by at most $\pm 12\,\%$, and the ratio
 between the freshest and the oldest package with the same signals is
 $1.12 / 0.88 \approx 1.27$. That can move a package across one rank boundary
-(for example $B = 240$ gives `S` at $1.12$ and `A` at $0.88$) but never turns
-an unused package into a ranked one: $B = 0$ stays $0$. An additive age term
+(for example $B = 240$ gives `S` at $1.12$ and `A` at $0.88$), but never
+across two: the scores $m(t)\,B$ of one package lie in
+$[0.88\,B,\ 1.12\,B]$, an interval whose ends differ by the factor $1.27$,
+while neighbouring thresholds differ by at least $260 / 180 \approx 1.44$
+($180 / 110 \approx 1.64$, $110 / 50 = 2.2$), so the interval contains at
+most one threshold. Nor does it turn an unused package into a ranked one:
+$B = 0$ stays $0$. An additive age term
 would give unused but freshly released packages a positive score.
 
 ### Fixed thresholds for labels
@@ -313,3 +334,8 @@ orderings of the browser search.
   and no confidence interval: a score is a deterministic function of four
   integers.
 - Counts of `2147483647` are not supported (the score becomes `NaN`).
+- The builder passes `0` as the historical days since release when the
+  release date is unknown, while the current value is `3650`; such packages
+  get the multiplier $1.12$ 30 days ago and $0.88$ now, which shows as
+  negative growth. The [architecture guide](../architecture.md) gives the
+  signal definitions.

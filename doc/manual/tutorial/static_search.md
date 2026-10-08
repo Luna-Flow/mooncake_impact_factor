@@ -6,6 +6,14 @@ the static site with its search index, and how to write queries for it. The
 [static_search design](../design/static_search.md) explains the index and the
 ranking in detail.
 
+| I want to | Use |
+| --- | --- |
+| lower-case text like the static search | `@static_search.normalize_text(text)` |
+| tell which static search runtime is loaded | `@static_search.runtime_version()` |
+| build and serve the static site | `npm run build:static-data`, `npm run build:static`, `npm run serve:static` |
+| find packages | the native expression language, for example `json AND score>=180` |
+| predict the order of results | the coordination count, then score, then name |
+
 ## Quick start
 
 Add the module to your project:
@@ -17,7 +25,7 @@ moon add Luna-Flow/mooncake-impact-factor@0.1.2
 The package builds only for the JavaScript target, so the package that
 imports it must do so as well:
 
-```text
+```moonbit nocheck
 import {
   "Luna-Flow/mooncake-impact-factor/static_search",
 }
@@ -31,12 +39,8 @@ Case-insensitive matching is a substring test on lower-cased text:
 test "quick start" {
   let needle = @static_search.normalize_text("JSON")
   let text = @static_search.normalize_text("moonbit-community/json5 JSON5 parser")
-  println(text.contains(needle))
+  inspect(text.contains(needle), content="true")
 }
-```
-
-```text
-true
 ```
 
 Run it with `moon test --target js`.
@@ -52,12 +56,8 @@ only lower-cases, so trim first:
 test "normalise a needle" {
   let raw = "  Http Client "
   let needle = @static_search.normalize_text(raw.trim().to_owned())
-  println("[\{needle}]")
+  inspect(needle, content="http client")
 }
-```
-
-```text
-[http client]
 ```
 
 ### Build and serve the static site
@@ -140,16 +140,15 @@ test "coordination ranking" {
     let by_score = b.score.compare(a.score)
     if by_score != 0 { by_score } else { a.name.compare(b.name) }
   })
-  for r in hits {
-    println("\{r.name} \{coverage(r, words)}")
-  }
+  inspect(
+    hits.map(r => "\{r.name} \{coverage(r, words)}").join("\n"),
+    content=(
+      #|alice/json 2
+      #|bob/toml 1
+      #|carol/yaml 1
+    ),
+  )
 }
-```
-
-```text
-alice/json 2
-bob/toml 1
-carol/yaml 1
 ```
 
 The query `json OR parser` gives the same order on the static site:
@@ -187,6 +186,10 @@ from a sub-path, so that the worker fetches `/<base>/data/...`.
   `score>=180`.
 - **Labels are exact.** `rank=s` matches nothing on the static site; write
   `rank=S` and `momentum=Rising`.
+- **`NOT` inside `OR` reorders.** The relevance count also counts negated
+  terms that match, so for `NOT rank=D OR json` the packages of rank `D`
+  that mention `json` come first. Sort by score when you combine `NOT` with
+  `OR`.
 - **Wrong target.** Importing `static_search` from a package that builds for
   `wasm-gc` or `native` fails, because the package uses JavaScript foreign
   functions.

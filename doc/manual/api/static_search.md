@@ -1,5 +1,7 @@
 # static_search API
 
+## Purpose
+
 The package `Luna-Flow/mooncake-impact-factor/static_search` holds the MoonBit
 side of the static publishing mode: a version tag for the static search
 runtime and the text normalisation used to make search case-insensitive. It
@@ -10,10 +12,12 @@ Source: [`src/static_search/search.mbt`](../../../src/static_search/search.mbt).
 The search index and the query algorithm that run in the browser are
 described in the [static_search design](../design/static_search.md).
 
-Import the package in `moon.pkg`; the importing package must build for the
-JavaScript target as well:
+## Importing
 
-```text
+Add the package to your `moon.pkg`; the importing package must build for the
+JavaScript target as well, and its tests run with `moon test --target js`:
+
+```moonbit nocheck
 import {
   "Luna-Flow/mooncake-impact-factor/static_search",
 }
@@ -63,7 +67,7 @@ test "normalize_text" {
 `moon build src/static_search --target js` also writes an ES module, because
 the package's `moon.pkg` links it with
 
-```text
+```moonbit nocheck
 options(
   link: {
     "js": {

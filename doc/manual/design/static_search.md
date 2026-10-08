@@ -71,7 +71,7 @@ and a term $t = (f, \mathit{op}, v)$ is evaluated on a record $p$ as
 | `text`, `owner`, `package`, `description`, `license`, `repository` | $\nu(v)$ is a substring of the normalised field ($\nu$ = trim and lower-case); an empty needle always matches. |
 | `keyword` | $\nu(v)$ is a substring of at least one normalised keyword. |
 | `rank`, `momentum` | the label equals $v$ exactly. |
-| `score`, `dependents`, `recent_dependents`, `downloads`, `year` | $x \ge v$ for `>=`, $x \le v$ for `<=`, $x = v$ otherwise; false when $v$ is not a number. |
+| `score`, `dependents`, `recent_dependents`, `downloads`, `year` | $x \ge v$ for `>=`, $x \le v$ for `<=`, $x = v$ otherwise, with $v$ converted by JavaScript `Number`; false when the conversion is not finite. An empty $v$ converts to $0$. |
 | `has_repository`, `has_license` | the flag equals `v == "true"`. |
 
 The result set is $\{\, p : p \models \varphi \,\}$, evaluated recursively
@@ -99,10 +99,25 @@ $\operatorname{rel}(p) = k$ for all results, and the order is exactly the
 score order. Relevance only has an effect when the formula contains `OR` or
 `NOT`.
 
-**Disjunctions rank by coverage.** For $\varphi = t_1 \lor \dots \lor t_k$,
-$\operatorname{rel}(p)$ is the number of alternatives that $p$ satisfies, so a
-package that matches every alternative comes first. Under a negated leaf
-$\lnot t$, every result has $p \not\models t$, so that leaf contributes $0$.
+**Disjunctions rank by coverage.** For $\varphi = t_1 \lor \dots \lor t_k$
+with positive terms, $\operatorname{rel}(p)$ is the number of alternatives
+that $p$ satisfies, so a package that matches every alternative comes first.
+
+**Negated leaves count against the user.** A negated leaf $\lnot t$
+contributes $1$ to $\operatorname{rel}(p)$ exactly when $p \models t$, the
+case the user wanted to exclude. When $\lnot t$ must hold for every result,
+for example as a conjunct of the root, no result satisfies $t$ and the leaf
+contributes $0$ to all of them, so the order is unaffected. Under a
+disjunction it is not: for $\varphi = \lnot t_1 \lor t_2$,
+
+$$
+\operatorname{rel}(p) = [\,p \models t_1\,] + [\,p \models t_2\,],
+$$
+
+so a result that satisfies both $t_1$ and $t_2$ (relevance $2$) comes before one
+that satisfies only $t_2$ (relevance $1$), and results that satisfy neither (relevance
+$0$) come last, although $\lnot t_1$ holds for them. The same applies to
+every leaf below a negated group.
 
 Relevance is therefore a coordination-level match[^coord], not a text
 statistic: it ignores term frequency, field length and how rare a term is.
@@ -192,10 +207,18 @@ semantics differ on purpose:
 - With a query and no explicit sort, the static site orders by the
   coordination count above. The server orders AST queries by score and
   ranks legacy text queries by FTS5 `bm25`.
+- Rank and momentum values must match the label exactly in the static site
+  (`rank=s` matches nothing). The server accepts them in any case and rejects
+  unknown labels with HTTP 400.
+- An empty numeric value compares with $0$ in the static site; the server
+  rejects it with HTTP 400.
 - `updated` sorts by year in the static site and by the full timestamp on the
   server.
-- Ties in a descending static sort are broken by name descending, while the
-  server breaks them by score descending and then name ascending.
+- Ties in a descending static sort are broken by name descending. The server
+  breaks ties by name ascending, after score descending for the `growth`,
+  `downloads`, `dependents` and `recent` sorts.
+- The server returns at most `limit` results (20 by default, at most 100);
+  the static site returns every match.
 
 ### Complexity
 
