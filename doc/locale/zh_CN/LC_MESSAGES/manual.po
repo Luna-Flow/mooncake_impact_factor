@@ -526,8 +526,8 @@ msgid "Web application"
 msgstr "Web 应用"
 
 #: manual/architecture.md:19
-msgid "Pages, route handlers and the static search worker."
-msgstr "页面、路由处理器和静态搜索 worker。"
+msgid "Pages, route handlers, the static search worker and the stylesheets."
+msgstr "页面、路由处理器、静态搜索 worker 和样式表。"
 
 #: manual/architecture.md:21
 msgid "From registry to scores"

@@ -53,7 +53,10 @@ multiplier $m(t)$ between $0.88$ and $1.12$.
 Outside MoonBit, `scripts/build_index.py` builds the SQLite database from the
 local registry index, `scripts/export_static_json.py` exports it for the
 static site, and `app/`, `frontend/src/` and `lib/` hold the Next.js
-application.
+application. Its stylesheets in `web/` share the design tokens of the
+[Luna-Flow documentation site](https://lunaflow.cn): the same paper-and-ink
+palette with the Luna-Flow magenta as the only accent, light and dark themes
+that follow the system setting, and the same type families.
 
 ## Run the application
 

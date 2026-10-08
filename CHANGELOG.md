@@ -23,6 +23,19 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 - The generated interface files `pkg.generated.mbti` are now committed for all
   three packages.
 
+- The web application was restyled after the Luna-Flow documentation site
+  (lunaflow.cn). The stylesheets in `web/` are split into `tokens.css`,
+  `base.css` and one file per screen, and use the colour, type, spacing and
+  radius tokens of the documentation site, with light and dark themes that
+  follow `prefers-color-scheme` until a theme is chosen. The header is a
+  sticky hairline bar with the Luna-Flow logo, links to the manual and the
+  repository, and the current page underlined in the accent. Rankings are
+  rows with a score bar instead of boxed cards, rank and momentum labels have
+  their own colours, and the package analysis sits in a margin column. The
+  layout has no horizontal scroll down to 375 px.
+- An explicit theme choice is applied before the first paint, and the pages
+  have a skip link and a footer.
+
 ### Deprecated
 
 - The methods `ScoreSnapshot::to_json`, `ScoreSnapshot::from_json` and
