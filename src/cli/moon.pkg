@@ -1,5 +1,5 @@
 import {
-  "Luna-Flow/mooncake-impact-factor/score",
+  "Luna-Flow/mooncake-impact-factor/metrics",
   "moonbitlang/core/env",
   "moonbitlang/core/json",
 }
