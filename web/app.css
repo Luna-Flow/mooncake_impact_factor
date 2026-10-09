@@ -9,11 +9,17 @@
 
 /* ------------------------------------------------------------ chrome */
 
+/* The product name is part of the title ("Luna Flow 影响因子"): the same
+   weight and ink as the wordmark, so it cannot be taken for one of the
+   navigation links. A hairline separates the title from the links. */
 .wordmark-product {
-  padding-left: var(--s2);
-  border-left: 1px solid var(--rule-strong);
-  font-weight: 500;
-  color: var(--ink-2);
+  margin-left: -2px;
+}
+
+.site-nav {
+  padding-left: var(--s5);
+  border-left: 1px solid var(--rule);
+  line-height: 20px;
 }
 
 .site-footer {
