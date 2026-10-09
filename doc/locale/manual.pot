@@ -225,11 +225,15 @@ msgid "`now` is not an RFC 3339 timestamp"
 msgstr ""
 
 #: manual/api/cli.md:271
-msgid "The texts of the parser and decoder messages come from `moonbitlang/core/json` and may change with the compiler; match on the `error` key, not on the text."
+msgid "If the input path cannot be read, the command prints `{\"error\":\"Failed to read input: <path>\"}`. The output path is opened only after the input has been parsed and computed."
 msgstr ""
 
 #: manual/api/cli.md:275
-msgid "A file that cannot be read or written is not reported this way: Node.js raises an uncaught `ENOENT` (or similar) error, prints a stack trace to standard error and exits with status `1`. Callers should treat any non-zero status as a failure and use the report only on status `0`, as the index builder does."
+msgid "The texts of the parser and decoder messages come from `moonbitlang/core/json` and may change with the compiler; match on the `error` key, not on the text."
+msgstr ""
+
+#: manual/api/cli.md:279
+msgid "An output file that cannot be written is still reported by Node.js and may print a stack trace to standard error. Callers should treat any non-zero status as a failure and use the report only on status `0`, as the index builder does."
 msgstr ""
 
 #: manual/api/metrics.md:1
@@ -2113,7 +2117,7 @@ msgid "Errors as JSON"
 msgstr ""
 
 #: manual/design/cli.md:59
-msgid "Bad arguments, unreadable JSON and decoding errors print one JSON object with an `error` key and exit with status `1`, so that a caller can parse standard output in every case. The index builder raises the message."
+msgid "Bad arguments, input read failures, unreadable JSON and decoding errors print one JSON object with an `error` key and exit with status `1`. The index builder raises the message. Output write failures remain Node.js errors."
 msgstr ""
 
 #: manual/design/cli.md:63
@@ -2130,14 +2134,14 @@ msgid "Exit status `0` implies that the output file (or standard output without 
 msgstr ""
 
 #: manual/design/cli.md:67
-msgid "Exit status `1` implies an `error` object on standard output."
+msgid "A handled usage, input read, parse or decoding failure exits with status `1` and an `error` object on standard output."
 msgstr ""
 
-#: manual/design/cli.md:68
+#: manual/design/cli.md:69
 msgid "The output depends only on the input file: the current time is the input's `now`."
 msgstr ""
 
-#: manual/design/cli.md:71
+#: manual/design/cli.md:72
 #: manual/design/metrics.md:169
 #: manual/design/query.md:187
 #: manual/design/score.md:300
@@ -2145,19 +2149,19 @@ msgstr ""
 msgid "Alternatives rejected"
 msgstr ""
 
-#: manual/design/cli.md:73
+#: manual/design/cli.md:74
 msgid "**Reading standard input**: a temporary file works the same on every platform and can be kept for debugging."
 msgstr ""
 
-#: manual/design/cli.md:75
+#: manual/design/cli.md:76
 msgid "**A long-lived server** or **WebAssembly from Python** would add a protocol or a dependency for a job that runs once a day."
 msgstr ""
 
-#: manual/design/cli.md:77
+#: manual/design/cli.md:78
 msgid "**Keeping `score-snapshot`** for single packages: a single score no longer has a grade or a position, so the command would answer a different question than the rankings do."
 msgstr ""
 
-#: manual/design/cli.md:81
+#: manual/design/cli.md:82
 #: manual/design/metrics.md:179
 #: manual/design/query.md:197
 #: manual/design/query_sql.md:123
@@ -2166,11 +2170,11 @@ msgstr ""
 msgid "Boundaries"
 msgstr ""
 
-#: manual/design/cli.md:83
+#: manual/design/cli.md:84
 msgid "The command does not read the registry, fetch downloads or touch SQLite; `scripts/build_index.py` does."
 msgstr ""
 
-#: manual/design/cli.md:85
+#: manual/design/cli.md:86
 msgid "It runs only on the JavaScript target with Node.js."
 msgstr ""
 
@@ -4041,73 +4045,77 @@ msgid "An unknown release date written as `null` instead of an absent key:"
 msgstr ""
 
 #: manual/tutorial/cli.md:291
-msgid "Check the exit status before you use the output. A missing input file also exits with status `1`, but Node.js prints a stack trace to standard error instead of JSON."
+msgid "An input path that does not exist, or cannot be read, prints a JSON error and exits with status `1`:"
 msgstr ""
 
-#: manual/tutorial/cli.md:295
+#: manual/tutorial/cli.md:303
+msgid "Check the exit status before you use the output. An output path that cannot be written is still reported by Node.js and may print a stack trace to standard error."
+msgstr ""
+
+#: manual/tutorial/cli.md:307
 #: manual/tutorial/metrics.md:391
 #: manual/tutorial/score.md:295
 msgid "Going further"
 msgstr ""
 
-#: manual/tutorial/cli.md:297
+#: manual/tutorial/cli.md:309
 msgid "**Measure the real registry.** `python3 scripts/build_index.py` reads the local registry index under `~/.moon/registry/index/user`, fetches the download counts, keeps a 45-day download history in `data/download_history.json`, runs `build-index` once and writes the report to the SQLite database of the web application. `--now` fixes the point in time; the [architecture guide](../architecture.md) describes the whole pipeline."
 msgstr ""
 
-#: manual/tutorial/cli.md:304
+#: manual/tutorial/cli.md:316
 msgid "**Work in MoonBit instead.** Inside a MoonBit program, call `@metrics.compute` directly, as in the [metrics tutorial](metrics.md); the command adds only file reading and JSON."
 msgstr ""
 
-#: manual/tutorial/cli.md:307
+#: manual/tutorial/cli.md:319
 msgid "**Exact rules.** The [metrics API](../api/metrics.md#compute) lists every counting rule; the [cli API](../api/cli.md) lists the input and output contract."
 msgstr ""
 
-#: manual/tutorial/cli.md:311
+#: manual/tutorial/cli.md:323
 #: manual/tutorial/metrics.md:408
 #: manual/tutorial/score.md:315
 msgid "Common pitfalls"
 msgstr ""
 
-#: manual/tutorial/cli.md:313
+#: manual/tutorial/cli.md:325
 msgid "**`null` for unknown values.** Leave the key out. Only `created_at` is optional in the input; every other key is required."
 msgstr ""
 
-#: manual/tutorial/cli.md:315
+#: manual/tutorial/cli.md:327
 msgid "**Wrong argument order.** `build-index` must be the first argument after the script; `--input input.json build-index` prints the usage error."
 msgstr ""
 
-#: manual/tutorial/cli.md:317
+#: manual/tutorial/cli.md:329
 msgid "**Stale build.** Rebuild after you change `src/score` or `src/metrics`, or the report follows the old rules. The index builder rebuilds before every run; a hand-run `node` command does not."
 msgstr ""
 
-#: manual/tutorial/cli.md:320
+#: manual/tutorial/cli.md:332
 msgid "**Reading standard output with `--output`.** With `--output` the command prints nothing on success; read the file."
 msgstr ""
 
-#: manual/tutorial/cli.md:322
+#: manual/tutorial/cli.md:334
 msgid "**Comparing reports from different inputs.** Ranks are shares of the population in the input. A report built from a few packages ranks them among themselves, not against the registry."
 msgstr ""
 
-#: manual/tutorial/cli.md:326
+#: manual/tutorial/cli.md:338
 #: manual/tutorial/metrics.md:423
 #: manual/tutorial/score.md:333
 #: manual/tutorial/static_search.md:178
 msgid "Next steps"
 msgstr ""
 
-#: manual/tutorial/cli.md:328
+#: manual/tutorial/cli.md:340
 msgid "[cli API](../api/cli.md) for the exact input, output and error contract."
 msgstr ""
 
-#: manual/tutorial/cli.md:329
+#: manual/tutorial/cli.md:341
 msgid "[cli design](../design/cli.md) for why the bridge is a file-based command."
 msgstr ""
 
-#: manual/tutorial/cli.md:330
+#: manual/tutorial/cli.md:342
 msgid "[metrics API](../api/metrics.md) for the meaning of every report field."
 msgstr ""
 
-#: manual/tutorial/cli.md:331
+#: manual/tutorial/cli.md:343
 msgid "[score API](../api/score.md) for the score, the ranks and the momentum labels."
 msgstr ""
 

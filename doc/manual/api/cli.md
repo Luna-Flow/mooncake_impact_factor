@@ -268,12 +268,15 @@ to the output file.
 | The JSON does not decode as `@metrics.Input` | the decoder's message with the JSON path, such as `{"error":"JsonDecodeError((/releases/0, Missing field yanked))"}` |
 | `now` is not an RFC 3339 timestamp | `{"error":"invalid timestamp for now: <now>"}` |
 
+If the input path cannot be read, the command prints
+`{"error":"Failed to read input: <path>"}`. The output path is opened only
+after the input has been parsed and computed.
+
 The texts of the parser and decoder messages come from
 `moonbitlang/core/json` and may change with the compiler; match on the
 `error` key, not on the text.
 
-A file that cannot be read or written is not reported this way: Node.js
-raises an uncaught `ENOENT` (or similar) error, prints a stack trace to
-standard error and exits with status `1`. Callers should treat any non-zero
+An output file that cannot be written is still reported by Node.js and may
+print a stack trace to standard error. Callers should treat any non-zero
 status as a failure and use the report only on status `0`, as the index
 builder does.
