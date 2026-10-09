@@ -1,0 +1,77 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "Luna-Flow/mooncake-impact-factor/query_sql"
+
+import {
+  "Luna-Flow/mooncake-impact-factor/query",
+  "moonbitlang/core/debug",
+}
+
+// Values
+pub fn build_fts_query(q~ : String, owner~ : String, package_name~ : String, keyword~ : String, description~ : String) -> String? raise SqlError
+
+pub fn compile_ast(@query.Group) -> Fragment raise SqlError
+
+pub fn compile_ast_json(String) -> String
+
+pub fn compile_field_expression(String, String) -> String raise SqlError
+
+pub fn compile_fts_expression(String) -> String raise SqlError
+
+pub fn compile_fts_value(String) -> String raise SqlError
+
+pub fn compile_literal_field_value(String, String) -> String raise SqlError
+
+pub fn escape_like_pattern(String) -> String
+
+pub fn map_field_alias(String) -> String?
+
+pub fn normalize_fts_text(String) -> String
+
+pub fn normalize_momentum_labels(String) -> Array[String] raise SqlError
+
+pub fn normalize_rank_labels(String) -> Array[String] raise SqlError
+
+pub fn parse_boolean(String, String) -> Bool? raise SqlError
+
+pub fn parse_number(String, String, integer? : Bool) -> Double? raise SqlError
+
+pub fn plan_search(Map[String, String]) -> SearchPlan raise SqlError
+
+pub fn plan_search_json(String) -> String
+
+pub fn resolve_order_by(String, String, Bool) -> String raise SqlError
+
+// Errors
+pub suberror SqlError {
+  SqlError(String)
+} derive(Eq, @debug.Debug)
+pub fn SqlError::message(Self) -> String
+
+// Types and methods
+pub(all) struct Fragment {
+  sql : String
+  values : Array[SqlValue]
+} derive(Eq, @debug.Debug)
+pub fn Fragment::to_json(Self) -> Json
+pub impl ToJson for Fragment
+
+pub(all) struct SearchPlan {
+  from : String
+  where_clause : Fragment
+  order_by : String
+  limit : Int
+  offset : Int
+} derive(Eq, @debug.Debug)
+pub fn SearchPlan::to_json(Self) -> Json
+pub impl ToJson for SearchPlan
+
+pub(all) enum SqlValue {
+  Text(String)
+  Number(Double)
+} derive(Eq, @debug.Debug)
+pub fn SqlValue::to_json(Self) -> Json
+pub impl ToJson for SqlValue
+
+// Type aliases
+
+// Traits
