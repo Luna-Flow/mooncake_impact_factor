@@ -63,6 +63,7 @@ pub(all) struct PackageReport {
   latest_version : String?
   latest_created_at : String?
   version_count : Int
+  versions : Array[String]
   dependents : Int
   external_dependents : Int
   self_dependents : Int
@@ -88,6 +89,8 @@ pub(all) struct Report {
   computed_at : String
   population : Int
   download_history_used : Bool
+  rank_counts : Map[String, Int]
+  momentum_counts : Map[String, Int]
   packages : Array[PackageReport]
   edges : Array[Edge]
 } derive(ToJson, @debug.Debug, @json.FromJson)

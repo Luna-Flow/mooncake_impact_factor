@@ -85,6 +85,7 @@ CREATE TABLE versions (
   version TEXT NOT NULL,
   created_at TEXT,
   yanked INTEGER NOT NULL DEFAULT 0,
+  position INTEGER NOT NULL DEFAULT 0,
   deps_json TEXT NOT NULL DEFAULT '{}',
   UNIQUE(package_id, version)
 );
@@ -396,14 +397,17 @@ def write_database(conn: sqlite3.Connection, package_rows: dict[str, list[dict]]
                 report["computed_at"],
             ),
         )
+        # MoonBit orders the versions newest first; position 0 is the newest.
+        position = {version: index for index, version in enumerate(item["versions"])}
         for record in records:
             version_id = conn.execute(
-                "INSERT OR IGNORE INTO versions (package_id, version, created_at, yanked, deps_json) VALUES (?, ?, ?, ?, ?)",
+                "INSERT OR IGNORE INTO versions (package_id, version, created_at, yanked, position, deps_json) VALUES (?, ?, ?, ?, ?, ?)",
                 (
                     package_id,
                     record["version"],
                     record.get("created_at"),
                     1 if record.get("yanked") else 0,
+                    position.get(record["version"], len(position)),
                     json.dumps(record.get("deps") or {}, ensure_ascii=True, sort_keys=True),
                 ),
             ).lastrowid
@@ -421,6 +425,8 @@ def write_database(conn: sqlite3.Connection, package_rows: dict[str, list[dict]]
         "computed_at": report["computed_at"],
         "population": str(report["population"]),
         "download_history_used": "true" if report["download_history_used"] else "false",
+        "rank_counts": json.dumps(report["rank_counts"], sort_keys=True),
+        "momentum_counts": json.dumps(report["momentum_counts"], sort_keys=True),
     }
     conn.executemany("INSERT INTO index_meta (key, value) VALUES (?, ?)", sorted(meta.items()))
 

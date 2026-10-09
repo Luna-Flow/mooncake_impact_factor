@@ -97,10 +97,17 @@ test "dependents come from the latest release only" {
   inspect(lib.dependent_owners, content="1")
   inspect(lib.recent_dependents, content="1")
   debug_inspect(lib.latest_version, content="Some(\"1.0.0\")")
+  debug_inspect(
+    find(report, "b/app").versions,
+    content=(
+      #|["2.0.0", "1.0.0"]
+    ),
+  )
   // c/app's latest release is yanked; the latest non-yanked one is shown.
   debug_inspect(find(report, "c/app").latest_version, content="Some(\"1.0.0\")")
   inspect(report.edges.length(), content="2")
   inspect(report.population, content="4")
+  debug_inspect(report.momentum_counts.get("New"), content="Some(1)")
   // a/tool was published 30 days ago or later.
   inspect(find(report, "a/tool").snapshot.momentum_label, content="New")
   // Without download history, downloads 30 days ago are unknown.

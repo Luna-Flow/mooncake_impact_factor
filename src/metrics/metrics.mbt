@@ -56,6 +56,9 @@ pub(all) struct PackageReport {
   latest_version : String?
   latest_created_at : String?
   version_count : Int
+  /// Every published version, newest first: by release date, then by
+  /// version precedence; undated releases come last.
+  versions : Array[String]
   dependents : Int
   external_dependents : Int
   self_dependents : Int
@@ -74,6 +77,9 @@ pub(all) struct Report {
   computed_at : String
   population : Int
   download_history_used : Bool
+  /// Number of packages per rank label and per momentum label.
+  rank_counts : Map[String, Int]
+  momentum_counts : Map[String, Int]
   packages : Array[PackageReport]
   edges : Array[Edge]
 } derive(ToJson, FromJson, Debug)
@@ -350,6 +356,13 @@ fn age_in_days(latest : Dated?, limit : Int64) -> Int {
 }
 
 ///|
+fn newest_first(releases : Array[Dated]) -> Array[String] {
+  let sorted = releases.copy()
+  sorted.sort_by((a, b) => compare_dated(b, a))
+  sorted.map(d => d.release.version)
+}
+
+///|
 /// Computes the signals, the current dependency edges and the scores of
 /// every package in the registry snapshot.
 ///
@@ -430,6 +443,7 @@ pub fn compute(input : Input) -> Report raise MetricsError {
       latest_version: latest.map(d => d.release.version),
       latest_created_at: latest.bind(d => d.release.created_at),
       version_count: releases.length(),
+      versions: newest_first(releases),
       dependents: signals.external_dependents + signals.self_dependents,
       external_dependents: signals.external_dependents,
       self_dependents: signals.self_dependents,
@@ -450,10 +464,24 @@ pub fn compute(input : Input) -> Report raise MetricsError {
     first_seen_at: e.first_seen.map(format_timestamp),
     same_owner: owner_of(e.source) == owner_of(e.target),
   })
+  let rank_counts : Map[String, Int] = Map([])
+  let momentum_counts : Map[String, Int] = Map([])
+  for s in snapshots {
+    rank_counts.set(
+      s.rank_label,
+      rank_counts.get(s.rank_label).unwrap_or(0) + 1,
+    )
+    momentum_counts.set(
+      s.momentum_label,
+      momentum_counts.get(s.momentum_label).unwrap_or(0) + 1,
+    )
+  }
   {
     computed_at: format_timestamp(now),
     population: names.length(),
     download_history_used: history is Some(_),
+    rank_counts,
+    momentum_counts,
     packages,
     edges,
   }
