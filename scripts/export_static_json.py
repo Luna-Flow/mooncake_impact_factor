@@ -73,6 +73,7 @@ def read_meta(conn: sqlite3.Connection) -> dict[str, object]:
         "computed_at": meta.get("computed_at", ""),
         "population": int(meta.get("population", "0")),
         "download_history_used": meta.get("download_history_used") == "true",
+        "top_score": float(meta.get("top_score", "0")),
         "rank_counts": json.loads(meta.get("rank_counts", "{}")),
         "momentum_counts": json.loads(meta.get("momentum_counts", "{}")),
     }

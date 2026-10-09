@@ -66,6 +66,7 @@ export const indexMetaSchema = z.object({
   computed_at: z.string(),
   population: z.number(),
   download_history_used: z.boolean(),
+  top_score: z.number(),
   rank_counts: z.record(z.string(), z.number()),
   momentum_counts: z.record(z.string(), z.number())
 });

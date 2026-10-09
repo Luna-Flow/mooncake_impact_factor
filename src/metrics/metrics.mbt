@@ -80,6 +80,8 @@ pub(all) struct Report {
   /// Number of packages per rank label and per momentum label.
   rank_counts : Map[String, Int]
   momentum_counts : Map[String, Int]
+  /// The best score of the registry, the scale of relative score bars.
+  top_score : Double
   packages : Array[PackageReport]
   edges : Array[Edge]
 } derive(ToJson, FromJson, Debug)
@@ -464,9 +466,13 @@ pub fn compute(input : Input) -> Report raise MetricsError {
     first_seen_at: e.first_seen.map(format_timestamp),
     same_owner: owner_of(e.source) == owner_of(e.target),
   })
+  let mut top_score = 0.0
   let rank_counts : Map[String, Int] = Map([])
   let momentum_counts : Map[String, Int] = Map([])
   for s in snapshots {
+    if s.score > top_score {
+      top_score = s.score
+    }
     rank_counts.set(
       s.rank_label,
       rank_counts.get(s.rank_label).unwrap_or(0) + 1,
@@ -482,6 +488,7 @@ pub fn compute(input : Input) -> Report raise MetricsError {
     download_history_used: history is Some(_),
     rank_counts,
     momentum_counts,
+    top_score,
     packages,
     edges,
   }

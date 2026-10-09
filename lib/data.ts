@@ -133,10 +133,11 @@ function normalizeMomentumLabel(input: string): string | null {
   const value = input.trim();
   if (!value) return null;
   const normalized = value.toLowerCase();
+  if (normalized === "new") return "New";
   if (normalized === "rising") return "Rising";
-  if (normalized === "hot") return "Hot";
   if (normalized === "stable") return "Stable";
-  throw new HttpError(400, "momentum must be one of Rising, Hot, Stable");
+  if (normalized === "cooling") return "Cooling";
+  throw new HttpError(400, "momentum must be one of New, Rising, Stable, Cooling");
 }
 
 function parseSearchParams(input: SearchInput): ParsedSearchParams {
@@ -770,6 +771,7 @@ export function getIndexMeta(): IndexMeta {
     computed_at: meta.get("computed_at") ?? "",
     population: Number(meta.get("population") ?? 0),
     download_history_used: meta.get("download_history_used") === "true",
+    top_score: Number(meta.get("top_score") ?? 0),
     rank_counts: JSON.parse(meta.get("rank_counts") ?? "{}"),
     momentum_counts: JSON.parse(meta.get("momentum_counts") ?? "{}")
   };

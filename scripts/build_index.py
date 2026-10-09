@@ -425,6 +425,7 @@ def write_database(conn: sqlite3.Connection, package_rows: dict[str, list[dict]]
         "computed_at": report["computed_at"],
         "population": str(report["population"]),
         "download_history_used": "true" if report["download_history_used"] else "false",
+        "top_score": repr(report["top_score"]),
         "rank_counts": json.dumps(report["rank_counts"], sort_keys=True),
         "momentum_counts": json.dumps(report["momentum_counts"], sort_keys=True),
     }

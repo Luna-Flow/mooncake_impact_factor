@@ -91,6 +91,7 @@ pub(all) struct Report {
   download_history_used : Bool
   rank_counts : Map[String, Int]
   momentum_counts : Map[String, Int]
+  top_score : Double
   packages : Array[PackageReport]
   edges : Array[Edge]
 } derive(ToJson, @debug.Debug, @json.FromJson)
