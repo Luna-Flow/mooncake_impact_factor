@@ -1,78 +1,133 @@
+import argparse
 import datetime as dt
+import json
+import sqlite3
+import tempfile
 import unittest
+from pathlib import Path
 
 from scripts.build_index import (
-    UNKNOWN_RELEASE_AGE_DAYS,
-    choose_latest,
-    compute_historical_snapshot_inputs,
-    compute_history_window_bounds,
-    parse_semver_key,
+    DOWNLOAD_HISTORY_KEEP_DAYS,
+    build_database,
+    choose_metadata_record,
+    to_release,
+    update_download_history,
 )
 
 
-class BuildIndexVersionTests(unittest.TestCase):
-    def test_parse_semver_key_prefers_release_over_prerelease(self) -> None:
-        self.assertGreater(parse_semver_key("1.0.0"), parse_semver_key("1.0.0-rc1"))
-
-    def test_choose_latest_uses_semver_when_created_at_matches(self) -> None:
-        records = [
-            {"created_at": "2024-01-01T00:00:00+00:00", "version": "1.9.0"},
-            {"created_at": "2024-01-01T00:00:00+00:00", "version": "1.10.0"},
-        ]
-
-        self.assertEqual(choose_latest(records)["version"], "1.10.0")
-
-    def test_choose_latest_orders_prerelease_identifiers(self) -> None:
-        records = [
-            {"created_at": "2024-01-01T00:00:00+00:00", "version": "0.0.2-a2"},
-            {"created_at": "2024-01-01T00:00:00+00:00", "version": "0.0.2-a3"},
-        ]
-
-        self.assertEqual(choose_latest(records)["version"], "0.0.2-a3")
-
-    def test_history_window_uses_trailing_180_days_from_30_days_ago(self) -> None:
-        now = dt.datetime(2026, 6, 2, tzinfo=dt.timezone.utc)
-
-        score_30d_cutoff, historical_recent_start, recent_cutoff = compute_history_window_bounds(now)
-
-        self.assertEqual(score_30d_cutoff, dt.datetime(2026, 5, 3, tzinfo=dt.timezone.utc))
-        self.assertEqual(historical_recent_start, dt.datetime(2025, 11, 4, tzinfo=dt.timezone.utc))
-        self.assertEqual(recent_cutoff, dt.datetime(2025, 12, 4, tzinfo=dt.timezone.utc))
-
-    def test_unreleased_package_has_zero_historical_baseline(self) -> None:
-        now = dt.datetime(2026, 6, 2, tzinfo=dt.timezone.utc)
-        released_at = dt.datetime(2026, 5, 20, tzinfo=dt.timezone.utc)
-
-        historical_days, historical_downloads = compute_historical_snapshot_inputs(
-            now=now,
-            released_at=released_at,
+class ReleaseTests(unittest.TestCase):
+    def test_to_release_keeps_only_dependency_names(self) -> None:
+        record = {
+            "name": "a/app",
+            "version": "1.0.0",
+            "created_at": "2026-01-01T00:00:00+00:00",
+            "deps": {"b/lib": "0.1.0", "c/lib": {"path": "../c"}},
+            "yanked": True,
+            "description": "ignored",
+        }
+        self.assertEqual(
+            to_release(record),
+            {
+                "name": "a/app",
+                "version": "1.0.0",
+                "created_at": "2026-01-01T00:00:00+00:00",
+                "deps": ["b/lib", "c/lib"],
+                "yanked": True,
+            },
         )
 
-        self.assertEqual(historical_days, 0)
-        self.assertEqual(historical_downloads, 0)
+    def test_to_release_omits_a_missing_date(self) -> None:
+        self.assertNotIn("created_at", to_release({"name": "a/app", "version": "1.0.0", "created_at": None}))
 
-    def test_released_package_keeps_historical_age_but_zero_downloads(self) -> None:
-        now = dt.datetime(2026, 6, 2, tzinfo=dt.timezone.utc)
-        released_at = dt.datetime(2026, 1, 1, tzinfo=dt.timezone.utc)
+    def test_choose_metadata_record_follows_the_chosen_version(self) -> None:
+        records = [{"version": "1.0.0"}, {"version": "2.0.0"}]
+        self.assertEqual(choose_metadata_record(records, "1.0.0"), {"version": "1.0.0"})
+        self.assertEqual(choose_metadata_record(records, None), {"version": "2.0.0"})
 
-        historical_days, historical_downloads = compute_historical_snapshot_inputs(
-            now=now,
-            released_at=released_at,
-        )
 
-        self.assertEqual(historical_days, 122)
-        self.assertEqual(historical_downloads, 0)
+class DownloadHistoryTests(unittest.TestCase):
+    def test_history_keeps_recent_daily_snapshots(self) -> None:
+        now = dt.datetime(2026, 10, 1, 12, tzinfo=dt.timezone.utc)
+        with tempfile.TemporaryDirectory() as tmp:
+            path = Path(tmp) / "history.json"
+            old = (now - dt.timedelta(days=DOWNLOAD_HISTORY_KEEP_DAYS + 1)).isoformat()
+            month = (now - dt.timedelta(days=30)).isoformat()
+            today_earlier = (now - dt.timedelta(hours=1)).isoformat()
+            path.write_text(
+                json.dumps(
+                    [
+                        {"taken_at": old, "counts": {"a/lib": 1}},
+                        {"taken_at": month, "counts": {"a/lib": 2}},
+                        {"taken_at": today_earlier, "counts": {"a/lib": 3}},
+                    ]
+                )
+            )
+            kept = update_download_history(path, now, {"a/lib": 4}, fresh=True)
+            self.assertEqual([snapshot["counts"]["a/lib"] for snapshot in kept], [2, 4])
+            self.assertEqual(json.loads(path.read_text()), kept)
 
-    def test_unknown_release_date_keeps_the_same_age_in_both_snapshots(self) -> None:
-        now = dt.datetime(2026, 6, 2, tzinfo=dt.timezone.utc)
+    def test_cached_counts_are_not_recorded(self) -> None:
+        now = dt.datetime(2026, 10, 1, tzinfo=dt.timezone.utc)
+        with tempfile.TemporaryDirectory() as tmp:
+            kept = update_download_history(Path(tmp) / "history.json", now, {"a/lib": 4}, fresh=False)
+            self.assertEqual(kept, [])
 
-        historical_days, historical_downloads = compute_historical_snapshot_inputs(
-            now=now,
-            released_at=None,
-        )
 
-        self.assertEqual(historical_days, UNKNOWN_RELEASE_AGE_DAYS)
-        self.assertEqual(historical_downloads, 0)
+class BuildDatabaseTests(unittest.TestCase):
+    """Runs the whole pipeline, including the MoonBit command, on a tiny index."""
+
+    def test_build_database_writes_scores_and_current_edges(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            index = root / "index"
+            (index / "a").mkdir(parents=True)
+            (index / "b").mkdir(parents=True)
+            (index / "a" / "lib.index").write_text(
+                json.dumps({"name": "a/lib", "version": "1.0.0", "created_at": "2026-01-01T00:00:00+00:00", "description": "A library", "keywords": ["json"]})
+                + "\n"
+            )
+            (index / "b" / "app.index").write_text(
+                "\n".join(
+                    json.dumps(record)
+                    for record in [
+                        {"name": "b/app", "version": "1.0.0", "created_at": "2026-02-01T00:00:00+00:00", "deps": {"a/lib": "1.0.0"}},
+                        {"name": "b/app", "version": "1.1.0", "created_at": "2026-03-01T00:00:00+00:00", "deps": {"a/lib": "1.0.0"}},
+                    ]
+                )
+                + "\n"
+            )
+            downloads = root / "downloads.json"
+            downloads.write_text(json.dumps({"a/lib": 40, "b/app": 2}))
+            db = root / "test.db"
+            build_database(
+                argparse.Namespace(
+                    index_root=index,
+                    db=db,
+                    downloads_json=downloads,
+                    download_cache=root / "cache.json",
+                    download_history=root / "history.json",
+                    refresh_downloads=False,
+                    skip_mooncakes_downloads=True,
+                    now="2026-10-01T00:00:00+00:00",
+                )
+            )
+            conn = sqlite3.connect(db)
+            try:
+                rows = conn.execute(
+                    """
+                    SELECT p.full_name, p.external_dependent_count, p.description, s.rank_position, s.rank_label
+                    FROM packages p JOIN package_scores s ON s.package_id = p.id
+                    ORDER BY s.rank_position
+                    """
+                ).fetchall()
+                self.assertEqual(rows[0][:3], ("a/lib", 1, "A library"))
+                self.assertEqual([row[3] for row in rows], [1, 2])
+                self.assertEqual(conn.execute("SELECT COUNT(*) FROM package_edges").fetchone()[0], 1)
+                self.assertEqual(conn.execute("SELECT COUNT(*) FROM versions").fetchone()[0], 3)
+                meta = dict(conn.execute("SELECT key, value FROM index_meta").fetchall())
+                self.assertEqual(meta["population"], "2")
+            finally:
+                conn.close()
 
 
 if __name__ == "__main__":

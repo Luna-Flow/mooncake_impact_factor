@@ -1,11 +1,20 @@
 #!/usr/bin/env python3
+"""Build the SQLite database of the web application from the registry index.
+
+This script only moves data. The MoonBit command `cli build-index`
+(`src/cli`, `src/metrics`, `src/score`) decides everything that affects a
+score: which release is the latest, which dependencies are current, who
+counts as a dependent, the 30-days-ago snapshot, the scores, ranks and
+momentum labels. The script reads the local registry index, fetches the
+download counts from mooncakes.io, keeps a short download history, runs the
+command once for the whole registry and writes its report to SQLite.
+"""
 
 from __future__ import annotations
 
 import argparse
 import datetime as dt
 import json
-import math
 import os
 import sqlite3
 import subprocess
@@ -23,23 +32,30 @@ from typing import Iterable
 DEFAULT_INDEX_ROOT = Path.home() / ".moon" / "registry" / "index" / "user"
 DEFAULT_DB_PATH = Path("data/mooncake.db")
 DEFAULT_DOWNLOAD_CACHE_PATH = Path("data/download_cache.json")
+DEFAULT_DOWNLOAD_HISTORY_PATH = Path("data/download_history.json")
 MOONCAKES_MANIFEST_BASE = "https://mooncakes.io/api/v0/manifest/"
-MOONBIT_CLI_JS_PATH = Path("_build/js/debug/build/cli/cli.js")
-# Days since release used when the latest release date is unknown, in both the
-# current and the 30-days-ago snapshot.
-UNKNOWN_RELEASE_AGE_DAYS = 3650
+MOONBIT_CLI_JS_PATH = Path("_build/js/release/build/cli/cli.js")
+# Download snapshots older than this are dropped from the history. The
+# momentum compares with the snapshot closest to 30 days ago.
+DOWNLOAD_HISTORY_KEEP_DAYS = 45
 
 
 SCHEMA_SQL = """
 PRAGMA journal_mode = WAL;
 PRAGMA foreign_keys = ON;
 
+DROP TABLE IF EXISTS index_meta;
 DROP TABLE IF EXISTS search_index;
 DROP TABLE IF EXISTS package_scores;
 DROP TABLE IF EXISTS package_edges;
 DROP TABLE IF EXISTS dependencies;
 DROP TABLE IF EXISTS versions;
 DROP TABLE IF EXISTS packages;
+
+CREATE TABLE index_meta (
+  key TEXT PRIMARY KEY,
+  value TEXT NOT NULL
+);
 
 CREATE TABLE packages (
   id INTEGER PRIMARY KEY,
@@ -54,8 +70,13 @@ CREATE TABLE packages (
   latest_created_at TEXT,
   version_count INTEGER NOT NULL DEFAULT 0,
   dependent_count INTEGER NOT NULL DEFAULT 0,
+  external_dependent_count INTEGER NOT NULL DEFAULT 0,
+  self_dependent_count INTEGER NOT NULL DEFAULT 0,
+  dependent_owner_count INTEGER NOT NULL DEFAULT 0,
   recent_dependent_count INTEGER NOT NULL DEFAULT 0,
-  download_count INTEGER NOT NULL DEFAULT 0
+  download_count INTEGER NOT NULL DEFAULT 0,
+  download_count_30d_ago INTEGER,
+  days_since_release INTEGER NOT NULL DEFAULT 0
 );
 
 CREATE TABLE versions (
@@ -63,6 +84,7 @@ CREATE TABLE versions (
   package_id INTEGER NOT NULL REFERENCES packages(id) ON DELETE CASCADE,
   version TEXT NOT NULL,
   created_at TEXT,
+  yanked INTEGER NOT NULL DEFAULT 0,
   deps_json TEXT NOT NULL DEFAULT '{}',
   UNIQUE(package_id, version)
 );
@@ -78,7 +100,7 @@ CREATE TABLE package_edges (
   source_package_id INTEGER NOT NULL REFERENCES packages(id) ON DELETE CASCADE,
   target_package_id INTEGER NOT NULL REFERENCES packages(id) ON DELETE CASCADE,
   first_seen_at TEXT,
-  latest_version_id INTEGER REFERENCES versions(id) ON DELETE SET NULL,
+  same_owner INTEGER NOT NULL DEFAULT 0,
   PRIMARY KEY (source_package_id, target_package_id)
 );
 
@@ -89,8 +111,12 @@ CREATE TABLE package_scores (
   score_growth_30d REAL NOT NULL,
   score_growth_ratio_30d REAL NOT NULL,
   rank_label TEXT NOT NULL,
+  rank_position INTEGER NOT NULL,
   momentum_label TEXT NOT NULL,
   activity_multiplier REAL NOT NULL,
+  part_dependents REAL NOT NULL,
+  part_recent_dependents REAL NOT NULL,
+  part_downloads REAL NOT NULL,
   computed_at TEXT NOT NULL
 );
 
@@ -109,9 +135,16 @@ def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser()
     parser.add_argument("--index-root", type=Path, default=DEFAULT_INDEX_ROOT)
     parser.add_argument("--db", type=Path, default=DEFAULT_DB_PATH)
-    parser.add_argument("--downloads-json", type=Path)
+    parser.add_argument("--downloads-json", type=Path, help="override download counts per package")
     parser.add_argument("--download-cache", type=Path, default=DEFAULT_DOWNLOAD_CACHE_PATH)
+    parser.add_argument("--download-history", type=Path, default=DEFAULT_DOWNLOAD_HISTORY_PATH)
+    parser.add_argument(
+        "--refresh-downloads",
+        action="store_true",
+        help="fetch every download count again instead of reusing the cache",
+    )
     parser.add_argument("--skip-mooncakes-downloads", action="store_true")
+    parser.add_argument("--now", help="RFC 3339 timestamp to score at (default: current time)")
     return parser.parse_args()
 
 
@@ -120,155 +153,44 @@ def iter_index_records(index_root: Path) -> Iterable[dict]:
         with file_path.open("r", encoding="utf-8") as handle:
             for line in handle:
                 line = line.strip()
-                if not line:
-                    continue
-                yield json.loads(line)
+                if line:
+                    yield json.loads(line)
 
 
 def ensure_parent(path: Path) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
 
 
-def split_name(full_name: str) -> tuple[str, str]:
-    owner, package_name = full_name.split("/", 1)
-    return owner, package_name
-
-
-def parse_semver_key(version: str | None) -> tuple[tuple[int, int, int], tuple[int, tuple[tuple[int, object], ...]]]:
-    if not version:
-        return (0, 0, 0), (0, ())
-
-    core_text, _, prerelease_text = version.partition("-")
-    core_parts = core_text.split(".")
-    core_numbers = []
-    for index in range(3):
-        if index < len(core_parts) and core_parts[index].isdigit():
-            core_numbers.append(int(core_parts[index]))
-        else:
-            core_numbers.append(0)
-
-    if not prerelease_text:
-        return tuple(core_numbers), (1, ())
-
-    prerelease_parts = []
-    for identifier in prerelease_text.split("."):
-        if identifier.isdigit():
-            prerelease_parts.append((0, int(identifier)))
-        else:
-            prerelease_parts.append((1, identifier))
-    return tuple(core_numbers), (0, tuple(prerelease_parts))
-
-
-def choose_latest(records: list[dict]) -> dict:
-    def key(record: dict) -> tuple[int, tuple[int, int, int], tuple[int, tuple[tuple[int, object], ...]]]:
-        created_at_ms = to_epoch_millis(record.get("created_at")) or 0
-        version_key = parse_semver_key(record.get("version"))
-        return created_at_ms, version_key[0], version_key[1]
-
-    return max(records, key=key)
-
-
-def load_downloads(path: Path | None) -> dict[str, int]:
-    if path is None:
-        return {}
-    data = json.loads(path.read_text(encoding="utf-8"))
-    return {name: max(0, int(value)) for name, value in data.items()}
-
-
-def load_download_cache(path: Path) -> dict[str, int]:
+def read_json(path: Path, default: object) -> object:
     if not path.exists():
+        return default
+    return json.loads(path.read_text(encoding="utf-8"))
+
+
+def write_json(path: Path, payload: object) -> None:
+    ensure_parent(path)
+    path.write_text(json.dumps(payload, ensure_ascii=True, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+
+
+def load_counts(path: Path | None) -> dict[str, int]:
+    if path is None or not path.exists():
         return {}
     data = json.loads(path.read_text(encoding="utf-8"))
     return {name: max(0, int(value)) for name, value in data.items()}
 
 
-def save_download_cache(path: Path, downloads: dict[str, int]) -> None:
-    ensure_parent(path)
-    path.write_text(
-        json.dumps(dict(sorted(downloads.items())), ensure_ascii=True, indent=2) + "\n",
-        encoding="utf-8",
-    )
-
-
-def parse_iso_datetime(value: str | None) -> dt.datetime | None:
-    if not value:
-        return None
-    return dt.datetime.fromisoformat(value)
-
-
-def to_epoch_millis(value: str | None) -> int | None:
-    parsed = parse_iso_datetime(value)
-    if parsed is None:
-        return None
-    if parsed.tzinfo is None:
-        parsed = parsed.replace(tzinfo=dt.timezone.utc)
-    else:
-        parsed = parsed.astimezone(dt.timezone.utc)
-    return int(parsed.timestamp() * 1000)
-
-
-def ensure_moonbit_cli() -> Path:
-    cli_path = Path.cwd() / MOONBIT_CLI_JS_PATH
-    if cli_path.exists():
-        return cli_path
-    subprocess.run(
-        ["moon", "build", "src/cli", "--target", "js"],
-        check=True,
-    )
-    if not cli_path.exists():
-        raise RuntimeError(f"MoonBit CLI not found at {cli_path}")
-    return cli_path
-
-
-def compute_score_snapshot_via_moonbit(
-    *,
-    dependents: int,
-    recent_dependents: int,
-    downloads: int,
-    days_since_release: int,
-    historical_dependents: int,
-    historical_recent_dependents: int,
-    historical_downloads: int,
-    historical_days_since_release: int,
-) -> dict[str, float | str]:
-    cli_path = ensure_moonbit_cli()
-    payload = {
-        "dependents": dependents,
-        "recent_dependents": recent_dependents,
-        "downloads": downloads,
-        "days_since_release": days_since_release,
-        "historical_dependents": historical_dependents,
-        "historical_recent_dependents": historical_recent_dependents,
-        "historical_downloads": historical_downloads,
-        "historical_days_since_release": historical_days_since_release,
+def to_release(record: dict) -> dict:
+    """The fields of an index record that the MoonBit computation reads."""
+    release = {
+        "name": record["name"],
+        "version": record["version"],
+        "deps": sorted((record.get("deps") or {}).keys()),
+        "yanked": bool(record.get("yanked")),
     }
-    with tempfile.NamedTemporaryFile("w", encoding="utf-8", suffix=".json", delete=False) as handle:
-        json.dump(payload, handle, ensure_ascii=True)
-        temp_path = handle.name
-    try:
-        completed = subprocess.run(
-            ["node", os.fspath(cli_path), "score-snapshot", "--input", temp_path],
-            check=True,
-            capture_output=True,
-            text=True,
-        )
-    finally:
-        Path(temp_path).unlink(missing_ok=True)
-    return json.loads(completed.stdout)
-
-
-def render_progress(current: int, total: int, success_count: int, width: int = 32) -> None:
-    if total <= 0:
-        return
-    ratio = current / total
-    filled = min(width, int(ratio * width))
-    bar = "#" * filled + "-" * (width - filled)
-    message = f"\r[downloads] [{bar}] {current}/{total} success={success_count}"
-    sys.stdout.write(message)
-    sys.stdout.flush()
-    if current >= total:
-        sys.stdout.write("\n")
-        sys.stdout.flush()
+    # An absent key is how the MoonBit JSON decoder reads `None`.
+    if isinstance(record.get("created_at"), str):
+        release["created_at"] = record["created_at"]
+    return release
 
 
 def fetch_single_download_count(full_name: str, timeout_seconds: float = 20.0) -> int | None:
@@ -276,68 +198,115 @@ def fetch_single_download_count(full_name: str, timeout_seconds: float = 20.0) -
     request = urllib.request.Request(
         MOONCAKES_MANIFEST_BASE + encoded_name,
         headers={
-            "User-Agent": "mooncake-impact-factor/0.1 (+https://mooncakes.io/)",
+            "User-Agent": "mooncake-impact-factor/0.2 (+https://mooncakes.io/)",
             "Accept": "application/json,*/*",
         },
     )
     with urllib.request.urlopen(request, timeout=timeout_seconds) as response:
         charset = response.headers.get_content_charset() or "utf-8"
         body = response.read().decode(charset, errors="replace")
-    payload = json.loads(body)
-    downloads = payload.get("downloads")
-    if downloads is None:
-        return None
-    return max(0, int(downloads))
+    downloads = json.loads(body).get("downloads")
+    return None if downloads is None else max(0, int(downloads))
+
+
+def render_progress(current: int, total: int, success_count: int, width: int = 32) -> None:
+    if total <= 0:
+        return
+    filled = min(width, int(current / total * width))
+    bar = "#" * filled + "-" * (width - filled)
+    sys.stdout.write(f"\r[downloads] [{bar}] {current}/{total} success={success_count}")
+    if current >= total:
+        sys.stdout.write("\n")
+    sys.stdout.flush()
 
 
 def fetch_mooncakes_downloads(
     package_names: list[str],
     cache_path: Path,
+    refresh: bool,
     max_workers: int = 8,
 ) -> dict[str, int]:
-    cached = load_download_cache(cache_path)
-    results = dict(cached)
-    missing = [name for name in package_names if name not in results]
-    if cached:
-        print(f"[downloads] cache hit {len(cached)} packages")
-    if not missing:
-        return results
-
+    """Download counts from mooncakes.io. Without `refresh`, cached counts
+    are reused and only missing packages are fetched; a failed fetch falls
+    back to the cached count."""
+    cached = load_counts(cache_path)
+    missing = package_names if refresh else [name for name in package_names if name not in cached]
+    if cached and not refresh:
+        print(f"[downloads] cache hit {len(package_names) - len(missing)} packages")
     fetched: dict[str, int] = {}
-    print(f"[downloads] fetching {len(missing)} package manifests from mooncakes.io")
-    completed = 0
-    executor = ThreadPoolExecutor(max_workers=max_workers)
-    try:
-        future_map = {executor.submit(fetch_single_download_count, name): name for name in missing}
-        for future in as_completed(future_map):
-            name = future_map[future]
-            try:
-                value = future.result()
-            except (urllib.error.URLError, TimeoutError, ValueError, json.JSONDecodeError):
-                value = None
-            if value is not None:
-                fetched[name] = value
-            completed += 1
-            render_progress(completed, len(missing), len(fetched))
-            time.sleep(0.02)
-    except KeyboardInterrupt:
-        merged = dict(cached)
-        merged.update(fetched)
-        save_download_cache(cache_path, merged)
-        print(f"\n[downloads] interrupted, saved partial cache for {len(merged)} packages")
-        executor.shutdown(wait=False, cancel_futures=True)
-        raise
-    finally:
-        executor.shutdown(wait=True, cancel_futures=True)
-
-    merged = dict(cached)
-    merged.update(fetched)
-    total = len(package_names)
-    success_count = sum(1 for name in package_names if merged.get(name, 0) > 0)
-    render_progress(total, total, success_count)
-    save_download_cache(cache_path, merged)
-    print(f"[downloads] fetched {len(fetched)}/{len(missing)} manifests, matched {success_count}/{total} local packages")
+    if missing:
+        print(f"[downloads] fetching {len(missing)} package manifests from mooncakes.io")
+        executor = ThreadPoolExecutor(max_workers=max_workers)
+        completed = 0
+        try:
+            future_map = {executor.submit(fetch_single_download_count, name): name for name in missing}
+            for future in as_completed(future_map):
+                try:
+                    value = future.result()
+                except (urllib.error.URLError, TimeoutError, ValueError, json.JSONDecodeError):
+                    value = None
+                if value is not None:
+                    fetched[future_map[future]] = value
+                completed += 1
+                render_progress(completed, len(missing), len(fetched))
+                time.sleep(0.02)
+        except KeyboardInterrupt:
+            executor.shutdown(wait=False, cancel_futures=True)
+            write_json(cache_path, {**cached, **fetched})
+            print(f"\n[downloads] interrupted, saved partial cache")
+            raise
+        finally:
+            executor.shutdown(wait=True, cancel_futures=True)
+    merged = {**cached, **fetched}
+    write_json(cache_path, merged)
+    print(f"[downloads] fetched {len(fetched)}/{len(missing)}, have counts for {sum(1 for n in package_names if n in merged)}/{len(package_names)}")
     return merged
+
+
+def update_download_history(path: Path, now: dt.datetime, downloads: dict[str, int], fresh: bool) -> list[dict]:
+    """Append today's counts (when they were fetched now) and drop snapshots
+    older than DOWNLOAD_HISTORY_KEEP_DAYS. One snapshot per day is kept."""
+    history = read_json(path, [])
+    if not isinstance(history, list):
+        history = []
+    cutoff = now - dt.timedelta(days=DOWNLOAD_HISTORY_KEEP_DAYS)
+    kept = []
+    for snapshot in history:
+        try:
+            taken_at = dt.datetime.fromisoformat(str(snapshot["taken_at"]).replace("Z", "+00:00"))
+        except (KeyError, ValueError):
+            continue
+        if taken_at >= cutoff and taken_at.date() != now.date():
+            kept.append({"taken_at": snapshot["taken_at"], "counts": snapshot.get("counts", {})})
+    if fresh and downloads:
+        kept.append({"taken_at": now.isoformat(), "counts": dict(sorted(downloads.items()))})
+    kept.sort(key=lambda snapshot: snapshot["taken_at"])
+    write_json(path, kept)
+    return kept
+
+
+def ensure_moonbit_cli() -> Path:
+    cli_path = Path.cwd() / MOONBIT_CLI_JS_PATH
+    subprocess.run(["moon", "build", "src/cli", "--target", "js", "--release"], check=True)
+    if not cli_path.exists():
+        raise RuntimeError(f"MoonBit CLI not found at {cli_path}")
+    return cli_path
+
+
+def run_moonbit_build_index(payload: dict) -> dict:
+    cli_path = ensure_moonbit_cli()
+    with tempfile.TemporaryDirectory() as tmp:
+        input_path = Path(tmp) / "input.json"
+        output_path = Path(tmp) / "report.json"
+        input_path.write_text(json.dumps(payload, ensure_ascii=True), encoding="utf-8")
+        completed = subprocess.run(
+            ["node", os.fspath(cli_path), "build-index", "--input", os.fspath(input_path), "--output", os.fspath(output_path)],
+            capture_output=True,
+            text=True,
+        )
+        if completed.returncode != 0 or not output_path.exists():
+            raise RuntimeError(f"cli build-index failed: {completed.stdout}{completed.stderr}")
+        return json.loads(output_path.read_text(encoding="utf-8"))
 
 
 def normalize_version_req(value: object) -> str | None:
@@ -348,314 +317,156 @@ def normalize_version_req(value: object) -> str | None:
     return json.dumps(value, ensure_ascii=True, sort_keys=True)
 
 
-def activity_multiplier(days_since_release: int) -> float:
-    if days_since_release <= 30:
-        return 1.12
-    if days_since_release <= 90:
-        return 1.06
-    if days_since_release <= 180:
-        return 1.0
-    if days_since_release <= 365:
-        return 0.94
-    return 0.88
+def choose_metadata_record(records: list[dict], version: str | None) -> dict:
+    """The index record of the version that MoonBit chose as latest."""
+    for record in records:
+        if record.get("version") == version:
+            return record
+    return records[-1]
 
 
-def compute_score(
-    dependents: int,
-    recent_dependents: int,
-    downloads: int,
-    days_since_release: int,
-) -> tuple[float, float, str]:
-    dep_signal = math.log1p(max(0, dependents)) * 38.0
-    recent_dep_signal = math.log1p(max(0, recent_dependents)) * 27.0
-    download_signal = math.log1p(max(0, downloads)) * 22.0
-    multiplier = activity_multiplier(max(0, days_since_release))
-    score = (dep_signal + recent_dep_signal + download_signal) * multiplier
-    if score >= 260.0:
-        rank = "S"
-    elif score >= 180.0:
-        rank = "A"
-    elif score >= 110.0:
-        rank = "B"
-    elif score >= 50.0:
-        rank = "C"
-    else:
-        rank = "D"
-    return score, multiplier, rank
-
-
-def compute_momentum_label(score: float, score_30d_ago: float, growth_ratio: float, recent_dependents: int) -> str:
-    growth_abs = score - score_30d_ago
-    if growth_abs >= 35.0 and growth_ratio >= 0.35 and recent_dependents >= 3:
-        return "Rising"
-    if growth_abs >= 18.0 and growth_ratio >= 0.18 and recent_dependents >= 2:
-        return "Hot"
-    return "Stable"
-
-
-def compute_history_window_bounds(now: dt.datetime) -> tuple[dt.datetime, dt.datetime, dt.datetime]:
-    score_30d_cutoff = now - dt.timedelta(days=30)
-    historical_recent_start = now - dt.timedelta(days=210)
-    recent_cutoff = now - dt.timedelta(days=180)
-    return score_30d_cutoff, historical_recent_start, recent_cutoff
-
-
-def compute_historical_snapshot_inputs(
-    *,
-    now: dt.datetime,
-    released_at: dt.datetime | None,
-) -> tuple[int, int]:
-    score_30d_cutoff = now - dt.timedelta(days=30)
-    if released_at is None:
-        # Same rule as the current snapshot, so that an unknown date does not
-        # change the activity multiplier between the two snapshots.
-        return UNKNOWN_RELEASE_AGE_DAYS, 0
-    if released_at > score_30d_cutoff:
-        return 0, 0
-    return max(0, (score_30d_cutoff - released_at).days), 0
-
-
-def build_database(
-    index_root: Path,
-    db_path: Path,
-    downloads_json: Path | None,
-    download_cache_path: Path,
-    skip_mooncakes_downloads: bool,
-) -> None:
-    ensure_parent(db_path)
-    print(f"[build] reading package index from {index_root}")
-    conn = sqlite3.connect(db_path)
-    conn.row_factory = sqlite3.Row
-    try:
-        conn.executescript(SCHEMA_SQL)
-
-        package_rows: dict[str, list[dict]] = {}
-        for record in iter_index_records(index_root):
-            record["created_at_ms"] = to_epoch_millis(record.get("created_at"))
-            package_rows.setdefault(record["name"], []).append(record)
-        print(f"[build] loaded {len(package_rows)} packages from local index")
-
-        mooncakes_downloads = {} if skip_mooncakes_downloads else fetch_mooncakes_downloads(
-            sorted(package_rows.keys()),
-            download_cache_path,
+def write_database(conn: sqlite3.Connection, package_rows: dict[str, list[dict]], report: dict) -> None:
+    conn.executescript(SCHEMA_SQL)
+    package_ids: dict[str, int] = {}
+    for item in report["packages"]:
+        records = package_rows[item["name"]]
+        latest = choose_metadata_record(records, item.get("latest_version"))
+        keywords = latest.get("keywords") or []
+        if not isinstance(keywords, list):
+            keywords = []
+        cursor = conn.execute(
+            """
+            INSERT INTO packages (
+              full_name, owner, package_name, description, repository, license, keywords_json,
+              latest_version, latest_created_at, version_count,
+              dependent_count, external_dependent_count, self_dependent_count, dependent_owner_count,
+              recent_dependent_count, download_count, download_count_30d_ago, days_since_release
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            """,
+            (
+                item["name"],
+                item["owner"],
+                item["package_name"],
+                latest.get("description"),
+                latest.get("repository"),
+                latest.get("license"),
+                json.dumps(keywords, ensure_ascii=True),
+                item.get("latest_version"),
+                item.get("latest_created_at"),
+                item["version_count"],
+                item["dependents"],
+                item["external_dependents"],
+                item["self_dependents"],
+                item["dependent_owners"],
+                item["recent_dependents"],
+                item["downloads"],
+                item.get("downloads_30d_ago"),
+                item["days_since_release"],
+            ),
         )
-        override_downloads = load_downloads(downloads_json)
-        downloads = dict(mooncakes_downloads)
-        downloads.update(override_downloads)
-        if override_downloads:
-            print(f"[downloads] applied {len(override_downloads)} override entries")
-
-        package_ids: dict[str, int] = {}
-        version_meta: list[tuple[int, dict]] = []
-
-        for full_name, records in sorted(package_rows.items()):
-            latest = choose_latest(records)
-            owner, package_name = split_name(full_name)
-            conn.execute(
-                """
-                INSERT INTO packages (
-                  full_name, owner, package_name, description, repository, license,
-                  keywords_json, latest_version, latest_created_at, version_count, download_count
-                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-                ON CONFLICT(full_name) DO UPDATE SET
-                  owner = excluded.owner,
-                  package_name = excluded.package_name,
-                  description = excluded.description,
-                  repository = excluded.repository,
-                  license = excluded.license,
-                  keywords_json = excluded.keywords_json,
-                  latest_version = excluded.latest_version,
-                  latest_created_at = excluded.latest_created_at,
-                  version_count = excluded.version_count,
-                  download_count = excluded.download_count
-                """,
-                (
-                    full_name,
-                    owner,
-                    package_name,
-                    latest.get("description"),
-                    latest.get("repository"),
-                    latest.get("license"),
-                    json.dumps(latest.get("keywords", []), ensure_ascii=True),
-                    latest.get("version"),
-                    latest.get("created_at"),
-                    len(records),
-                    downloads.get(full_name, 0),
-                ),
-            )
-            package_id = conn.execute(
-                "SELECT id FROM packages WHERE full_name = ?",
-                (full_name,),
-            ).fetchone()["id"]
-            package_ids[full_name] = package_id
-
-            conn.execute(
-                """
-                INSERT INTO search_index (rowid, full_name, owner, package_name, description, keywords)
-                VALUES (?, ?, ?, ?, ?, ?)
-                """,
-                (
-                    package_id,
-                    full_name,
-                    owner,
-                    package_name,
-                    latest.get("description", "") or "",
-                    " ".join(latest.get("keywords", [])),
-                ),
-            )
-
-            for record in records:
-                version_meta.append((package_id, record))
-        print(f"[build] inserted {len(package_ids)} packages and queued {len(version_meta)} versions")
-
-        version_ids: dict[tuple[int, str], int] = {}
-        for package_id, record in version_meta:
+        package_id = int(cursor.lastrowid)
+        package_ids[item["name"]] = package_id
+        conn.execute(
+            "INSERT INTO search_index (rowid, full_name, owner, package_name, description, keywords) VALUES (?, ?, ?, ?, ?, ?)",
+            (package_id, item["name"], item["owner"], item["package_name"], latest.get("description") or "", " ".join(map(str, keywords))),
+        )
+        snapshot = item["snapshot"]
+        breakdown = snapshot["breakdown"]
+        conn.execute(
+            """
+            INSERT INTO package_scores (
+              package_id, score, score_30d_ago, score_growth_30d, score_growth_ratio_30d,
+              rank_label, rank_position, momentum_label, activity_multiplier,
+              part_dependents, part_recent_dependents, part_downloads, computed_at
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            """,
+            (
+                package_id,
+                snapshot["score"],
+                snapshot["score_30d_ago"],
+                snapshot["score_growth_30d"],
+                snapshot["score_growth_ratio_30d"],
+                snapshot["rank_label"],
+                snapshot["rank_position"],
+                snapshot["momentum_label"],
+                snapshot["activity_multiplier"],
+                breakdown["dependents"],
+                breakdown["recent_dependents"],
+                breakdown["downloads"],
+                report["computed_at"],
+            ),
+        )
+        for record in records:
             version_id = conn.execute(
-                """
-                INSERT INTO versions (package_id, version, created_at, deps_json)
-                VALUES (?, ?, ?, ?)
-                """,
+                "INSERT OR IGNORE INTO versions (package_id, version, created_at, yanked, deps_json) VALUES (?, ?, ?, ?, ?)",
                 (
                     package_id,
                     record["version"],
                     record.get("created_at"),
-                    json.dumps(record.get("deps", {}), ensure_ascii=True),
+                    1 if record.get("yanked") else 0,
+                    json.dumps(record.get("deps") or {}, ensure_ascii=True, sort_keys=True),
                 ),
             ).lastrowid
-            version_ids[(package_id, record["version"])] = version_id
-            for dependency_name, version_req in sorted(record.get("deps", {}).items()):
+            for dependency_name, version_req in sorted((record.get("deps") or {}).items()):
                 conn.execute(
-                    """
-                    INSERT INTO dependencies (version_id, dependency_name, dependency_version_req)
-                    VALUES (?, ?, ?)
-                    """,
+                    "INSERT OR IGNORE INTO dependencies (version_id, dependency_name, dependency_version_req) VALUES (?, ?, ?)",
                     (version_id, dependency_name, normalize_version_req(version_req)),
                 )
-        print("[build] inserted version and dependency records")
+    for edge in report["edges"]:
+        conn.execute(
+            "INSERT INTO package_edges (source_package_id, target_package_id, first_seen_at, same_owner) VALUES (?, ?, ?, ?)",
+            (package_ids[edge["source"]], package_ids[edge["target"]], edge.get("first_seen_at"), 1 if edge["same_owner"] else 0),
+        )
+    meta = {
+        "computed_at": report["computed_at"],
+        "population": str(report["population"]),
+        "download_history_used": "true" if report["download_history_used"] else "false",
+    }
+    conn.executemany("INSERT INTO index_meta (key, value) VALUES (?, ?)", sorted(meta.items()))
 
-        for package_id, record in version_meta:
-            source_name = record["name"]
-            version_id = version_ids[(package_id, record["version"])]
-            for dependency_name in record.get("deps", {}):
-                target_package_id = package_ids.get(dependency_name)
-                if target_package_id is None or target_package_id == package_id:
-                    continue
-                conn.execute(
-                    """
-                    INSERT INTO package_edges (
-                      source_package_id, target_package_id, first_seen_at, latest_version_id
-                    ) VALUES (?, ?, ?, ?)
-                    ON CONFLICT(source_package_id, target_package_id) DO UPDATE SET
-                      first_seen_at = MIN(first_seen_at, excluded.first_seen_at),
-                      latest_version_id = excluded.latest_version_id
-                    """,
-                    (
-                        package_ids[source_name],
-                        target_package_id,
-                        record.get("created_at"),
-                        version_id,
-                    ),
-                )
-        print("[build] computed package-level dependency edges")
 
-        now = dt.datetime.now(dt.timezone.utc)
-        score_30d_cutoff, historical_recent_start, recent_cutoff = compute_history_window_bounds(now)
-        dependent_counts = {
-            row["target_package_id"]: (row["dependent_count"], row["recent_dependent_count"])
-            for row in conn.execute(
-                """
-                SELECT
-                  target_package_id,
-                  COUNT(*) AS dependent_count,
-                  SUM(CASE WHEN first_seen_at >= ? THEN 1 ELSE 0 END) AS recent_dependent_count
-                FROM package_edges
-                GROUP BY target_package_id
-                """,
-                (recent_cutoff.isoformat(),),
-            )
-        }
+def build_database(args: argparse.Namespace) -> None:
+    now = dt.datetime.fromisoformat(args.now.replace("Z", "+00:00")) if args.now else dt.datetime.now(dt.timezone.utc)
+    print(f"[build] reading package index from {args.index_root}")
+    package_rows: dict[str, list[dict]] = {}
+    for record in iter_index_records(args.index_root):
+        package_rows.setdefault(record["name"], []).append(record)
+    names = sorted(package_rows)
+    print(f"[build] loaded {len(names)} packages from local index")
 
-        for row in conn.execute("SELECT id, latest_created_at, dependent_count, recent_dependent_count, download_count FROM packages"):
-            latest_created_at = row["latest_created_at"]
-            released_at = parse_iso_datetime(latest_created_at)
-            days_since_release = max(0, (now - released_at).days) if released_at else UNKNOWN_RELEASE_AGE_DAYS
+    fresh = not args.skip_mooncakes_downloads
+    downloads = (
+        fetch_mooncakes_downloads(names, args.download_cache, args.refresh_downloads)
+        if fresh
+        else load_counts(args.download_cache)
+    )
+    overrides = load_counts(args.downloads_json)
+    if overrides:
+        print(f"[downloads] applied {len(overrides)} override entries")
+    downloads = {name: count for name, count in {**downloads, **overrides}.items() if name in package_rows}
+    history = update_download_history(args.download_history, now, downloads, fresh and args.refresh_downloads)
 
-            dependent_count, recent_dependent_count = dependent_counts.get(row["id"], (0, 0))
-            conn.execute(
-                """
-                UPDATE packages
-                SET dependent_count = ?, recent_dependent_count = ?
-                WHERE id = ?
-                """,
-                (dependent_count, recent_dependent_count, row["id"]),
-            )
+    payload = {
+        "now": now.isoformat(),
+        "releases": [to_release(record) for name in names for record in package_rows[name]],
+        "downloads": downloads,
+        "download_history": history,
+    }
+    report = run_moonbit_build_index(payload)
+    print(f"[build] scored {report['population']} packages, {len(report['edges'])} current dependency edges")
 
-            historical = conn.execute(
-                """
-                SELECT
-                  COUNT(*) AS dependents_30d_ago,
-                  SUM(CASE WHEN first_seen_at >= ? AND first_seen_at <= ? THEN 1 ELSE 0 END) AS recent_dependents_30d_ago
-                FROM package_edges
-                WHERE target_package_id = ?
-                  AND first_seen_at <= ?
-                """,
-                (
-                    historical_recent_start.isoformat(),
-                    score_30d_cutoff.isoformat(),
-                    row["id"],
-                    score_30d_cutoff.isoformat(),
-                ),
-            ).fetchone()
-            historical_days_since_release, historical_downloads = compute_historical_snapshot_inputs(
-                now=now,
-                released_at=released_at,
-            )
-            snapshot = compute_score_snapshot_via_moonbit(
-                dependents=dependent_count,
-                recent_dependents=recent_dependent_count,
-                downloads=row["download_count"],
-                days_since_release=days_since_release,
-                historical_dependents=historical["dependents_30d_ago"] or 0,
-                historical_recent_dependents=historical["recent_dependents_30d_ago"] or 0,
-                historical_downloads=historical_downloads,
-                historical_days_since_release=historical_days_since_release,
-            )
-            conn.execute(
-                """
-                INSERT INTO package_scores (
-                  package_id, score, score_30d_ago, score_growth_30d, score_growth_ratio_30d,
-                  rank_label, momentum_label, activity_multiplier, computed_at
-                )
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
-                """,
-                (
-                    row["id"],
-                    snapshot["score"],
-                    snapshot["score_30d_ago"],
-                    snapshot["score_growth_30d"],
-                    snapshot["score_growth_ratio_30d"],
-                    snapshot["rank_label"],
-                    snapshot["momentum_label"],
-                    snapshot["activity_multiplier"],
-                    now.isoformat(),
-                ),
-            )
-
+    ensure_parent(args.db)
+    conn = sqlite3.connect(args.db)
+    try:
+        write_database(conn, package_rows, report)
         conn.commit()
-        print(f"[build] wrote database to {db_path}")
     finally:
         conn.close()
+    print(f"[build] wrote database to {args.db}")
 
 
 def main() -> None:
-    args = parse_args()
-    build_database(
-        args.index_root,
-        args.db,
-        args.downloads_json,
-        args.download_cache,
-        args.skip_mooncakes_downloads,
-    )
+    build_database(parse_args())
 
 
 if __name__ == "__main__":
