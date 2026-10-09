@@ -9,7 +9,9 @@ The repository has four primary responsibilities:
 
 - `src/score`: MoonBit score computation and rank mapping
 - `src/cli`: MoonBit CLI bridge for score snapshot interop
-- `src/static_search`: MoonBit-to-JS helpers reserved for the static publishing path
+- `src/query`: query language (tree, parser, serializer, flat parameters, labels, sort keys, paging)
+- `src/query_sql`: search requests compiled to SQLite statements
+- `src/static_search`: static site search engine; the three are built to `lib/moonbit/` by `npm run build:moonbit`
 - `scripts`: Python-based registry ingestion, download fetching, and SQLite materialization
 - `app`, `frontend/src`, and `lib`: Next.js pages, route-handler APIs, and server-side query logic
 - `doc` plus root docs: release-aligned repository documentation
@@ -43,9 +45,9 @@ Run the baseline checks before committing:
 moon fmt
 moon check src/score --target all
 moon check src/cli --target js
-moon check src/static_search --target js
+moon check src/query src/query_sql src/static_search --target all
 moon test src/score --target all
-moon test src/static_search --target js
+moon test src/query src/query_sql src/static_search --target all
 npm run typecheck
 npm run build
 python3 -m unittest scripts/build_index_test.py
@@ -85,6 +87,6 @@ UI behavior, validate the affected command paths as well.
 1. Bump the version in `moon.mod`.
 2. Keep `README.md`, `CONTRIBUTING.md`, and `doc/*` aligned with the branch.
 3. Ensure `.github/workflows/publish.yml` still matches the MoonBit manifest layout.
-4. Run `moon fmt`, `moon check src/score --target all`, `moon check src/cli --target js`, `moon check src/static_search --target js`, `moon test src/score --target all`, `moon test src/static_search --target js`, `python3 -m unittest scripts/build_index_test.py`, `npm run typecheck`, `npm run build`, `npm run build:static-data`, `npm run build:static`, and `npm test`.
+4. Run `moon fmt`, `moon check src/score --target all`, `moon check src/cli --target js`, `moon check src/query src/query_sql src/static_search --target all`, `moon test src/score --target all`, `moon test src/query src/query_sql src/static_search --target all`, `moon info` (commit the regenerated `pkg.generated.mbti`), `python3 -m unittest scripts/build_index_test.py`, `npm run typecheck`, `npm run build`, `npm run build:static-data`, `npm run build:static`, and `npm test`.
 5. Trigger `publish-package` manually after validation.
 6. If mooncakes reports a duplicate version, publish a new bumped version instead.

@@ -1,0 +1,15 @@
+import {
+  "Luna-Flow/mooncake-impact-factor/query",
+  "moonbitlang/core/json",
+}
+
+warnings = "-implicit_impl_as_method"
+
+options(
+  link: {
+    "js": {
+      "exports": [ "compile_ast_json", "plan_search_json" ],
+      "format": "esm",
+    },
+  },
+)

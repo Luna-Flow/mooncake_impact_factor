@@ -6,6 +6,7 @@ import {
   packageAnalysisSchema,
   packageSummaryListSchema,
   type PackageAnalysis,
+  type PackageSearchPage,
   type PackageSummary,
   type StaticManifest,
   type StaticSearchIndexItem
@@ -16,9 +17,7 @@ function normalizeSearchParams(params: Partial<AdvancedSearchParams>): AdvancedS
   return { ...DEFAULT_SEARCH_PARAMS, ...params };
 }
 
-type StaticSearchResponse = {
-  items: PackageSummary[];
-};
+type StaticSearchResponse = PackageSearchPage;
 
 const STATIC_DATA_PREFIX = `${process.env["NEXT_PUBLIC_BASE_PATH"] ?? ""}/data`;
 
@@ -28,7 +27,7 @@ let workerReadyPromise: Promise<void> | null = null;
 let workerManifestVersion: string | null = null;
 let workerRequestId = 0;
 const pendingWorkerRequests = new Map<number, {
-  resolve: (items: PackageSummary[]) => void;
+  resolve: (page: PackageSearchPage) => void;
   reject: (error: Error) => void;
 }>();
 
@@ -77,6 +76,7 @@ type WorkerInitRequest = {
   indexUrl: string;
 };
 
+// Protocol of frontend/src/static-search.worker.ts.
 type WorkerSearchRequest = {
   type: "search";
   id: number;
@@ -92,6 +92,7 @@ type WorkerResultResponse = {
   type: "result";
   id: number;
   items: StaticSearchIndexItem[];
+  total: number;
 };
 
 type WorkerErrorResponse = {
@@ -136,7 +137,7 @@ async function getStaticSearchWorker(): Promise<Worker> {
         pending.reject(new Error(payload.message));
         return;
       }
-      pending.resolve(staticWorkerItemsToSummary(payload.items));
+      pending.resolve({ items: staticWorkerItemsToSummary(payload.items), total: payload.total });
     });
   }
   return workerPromise;
@@ -187,13 +188,14 @@ async function ensureStaticSearchWorkerReady(): Promise<void> {
   return workerReadyPromise;
 }
 
-export async function searchStaticPackages(params: Partial<AdvancedSearchParams> = {}): Promise<PackageSummary[]> {
+/** One page of static search results with the total number of matches. */
+export async function searchStaticPackagesPage(params: Partial<AdvancedSearchParams> = {}): Promise<PackageSearchPage> {
   await fetchStaticManifest();
   await ensureStaticSearchWorkerReady();
   const worker = await getStaticSearchWorker();
   const normalized = normalizeSearchParams(params);
   const requestId = nextWorkerId();
-  return await new Promise<PackageSummary[]>((resolve, reject) => {
+  return await new Promise<PackageSearchPage>((resolve, reject) => {
     pendingWorkerRequests.set(requestId, { resolve, reject });
     worker.postMessage({
       type: "search",
@@ -203,11 +205,15 @@ export async function searchStaticPackages(params: Partial<AdvancedSearchParams>
   });
 }
 
+export async function searchStaticPackages(params: Partial<AdvancedSearchParams> = {}): Promise<PackageSummary[]> {
+  return (await searchStaticPackagesPage(params)).items;
+}
+
 export async function fetchStaticPackageAnalysis(fullName: string): Promise<PackageAnalysis> {
   await fetchStaticManifest();
   return requestJson(staticAsset(`packages/${fullName.replaceAll("/", "--")}.json`), packageAnalysisSchema);
 }
 
 export async function searchStaticPackagesResponse(params: Partial<AdvancedSearchParams> = {}): Promise<StaticSearchResponse> {
-  return { items: await searchStaticPackages(params) };
+  return searchStaticPackagesPage(params);
 }

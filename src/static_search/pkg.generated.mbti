@@ -1,14 +1,79 @@
 // Generated using `moon info`, DON'T EDIT IT
 package "Luna-Flow/mooncake-impact-factor/static_search"
 
+import {
+  "Luna-Flow/mooncake-impact-factor/query",
+  "moonbitlang/core/debug",
+}
+
 // Values
+pub fn collate(String, String) -> Int
+
+pub fn evaluate(IndexItem, @query.Node) -> Bool
+
+pub fn evaluate_json(String, String) -> String
+
+pub fn load_index(String) -> Int
+
+pub fn match_term(IndexItem, @query.Term) -> Bool
+
 pub fn normalize_text(String) -> String
+
+pub fn package_year(IndexItem) -> Double
+
+pub fn parse_index(String) -> Array[IndexItem] raise IndexError
+
+pub fn relevance(IndexItem, @query.Group) -> Int
+
+pub fn relevance_json(String, String) -> String
 
 pub fn runtime_version() -> String
 
+pub fn search(String) -> String
+
+pub fn search_items(Array[IndexItem], Map[String, String]) -> SearchResult raise @query.QueryError
+
+pub fn sort_indices(Array[IndexItem], Array[Int], @query.Group, sort~ : String, order~ : String) -> Array[Int]
+
 // Errors
+pub suberror IndexError {
+  IndexError(String)
+} derive(Eq, @debug.Debug)
+pub fn IndexError::message(Self) -> String
 
 // Types and methods
+pub(all) struct IndexItem {
+  full_name : String
+  rank_label : String
+  momentum_label : String
+  score : Double
+  score_growth_30d : Double
+  download_count : Double
+  dependent_count : Double
+  recent_dependent_count : Double
+  external_dependent_count : Double
+  dependent_owner_count : Double
+  days_since_release : Double
+  rank_position : Double
+  latest_created_at : String?
+  repository_present : Bool
+  license_present : Bool
+  normalized_full_text : String
+  normalized_owner : String
+  normalized_package : String
+  normalized_description : String
+  normalized_license : String
+  normalized_repository : String
+  normalized_keywords : Array[String]
+} derive(Eq, @debug.Debug)
+pub fn IndexItem::from_json(Json) -> Self raise IndexError
+
+pub(all) struct SearchResult {
+  indices : Array[Int]
+  total : Int
+} derive(Eq, @debug.Debug)
+pub fn SearchResult::to_json(Self) -> Json
+pub impl ToJson for SearchResult
 
 // Type aliases
 

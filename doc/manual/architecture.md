@@ -1,9 +1,9 @@
 # Architecture
 
 `mooncake_impact_factor` is a MoonBit module inside a larger application. The
-MoonBit packages define the score rules and small JavaScript helpers; Python
-builds the data; a Next.js application serves it, either dynamically from
-SQLite or as static files. This guide follows the data from the registry to
+MoonBit packages define the score rules, the search query language, its SQL
+compilation and the static search engine; Python builds the data; a Next.js
+application serves it, either dynamically from SQLite or as static files. This guide follows the data from the registry to
 the browser and names the file responsible for each step.
 
 ## Components
@@ -12,11 +12,13 @@ the browser and names the file responsible for each step.
 | --- | --- | --- | --- |
 | `score` | `src/score` | MoonBit | Score, rank and momentum rules ([API](api/score.md)). |
 | `cli` | `src/cli` | MoonBit (JS) | Command that evaluates a score snapshot for other languages ([API](api/cli.md)). |
-| `static_search` | `src/static_search` | MoonBit (JS) | Version tag and text normalisation for the static mode ([API](api/static_search.md)). |
+| `query` | `src/query` | MoonBit | Query tree, expression parser and serializer, flat parameters, labels, sort keys, paging ([API](api/query.md)). |
+| `query_sql` | `src/query_sql` | MoonBit | Search requests to SQLite `WHERE`/`ORDER BY`/paging plans ([API](api/query_sql.md)). |
+| `static_search` | `src/static_search` | MoonBit | Static search engine: evaluation, relevance, sorting, paging ([API](api/static_search.md)). |
 | Index builder | `scripts/build_index.py` | Python | Reads the registry, writes the SQLite database. |
 | Static exporter | `scripts/export_static_json.py` | Python | Writes `public/data/**` from the database. |
-| Query layer | `lib/query.ts`, `lib/data.ts` | TypeScript | Query AST, expression parser, SQL compilation. |
-| Web application | `app`, `frontend/src`, `web` | TypeScript | Pages, route handlers, the static search worker and the stylesheets. |
+| MoonBit bridge | `scripts/build_moonbit.mjs`, `lib/query.ts`, `lib/static-search.ts` | JavaScript, TypeScript | Builds `query`, `query_sql` and `static_search` to ES modules in `lib/moonbit/` and wraps them with TypeScript types. |
+| Web application | `app`, `frontend/src`, `lib/data.ts`, `web` | TypeScript | Pages, route handlers, database access, the static search worker and the stylesheets. |
 
 ## From registry to scores
 
@@ -79,23 +81,38 @@ JSON route handlers backed by the database:
 | `GET /api/feeds/top?limit=<n>` | Packages by score descending, then name. |
 | `GET /api/feeds/hot?limit=<n>` | `Hot` packages by 30-day growth, then score, then name. |
 | `GET /api/feeds/rising?limit=<n>` | `Rising` packages, ordered like `hot`. |
-| `GET /api/search?...` | `{ "items": [...] }`, at most 100 package summaries. |
+| `GET /api/search?...` | `{ "items": [...], "total": n }`: one page of package summaries (`limit` 50 by default, at most 200, from `offset`) and the number of matches. |
 | `GET /api/packages/<owner>/<package>/analysis` | `{ "detail": ..., "dependents": [...] }`. |
 
 The [getting started guide](getting_started.md#3-query-the-apis) lists the
-search parameters. Queries in the `ast` or `expr` parameters are compiled to
-SQL `WHERE` clauses; text terms use FTS5.
+search parameters. `lib/data.ts` passes them to `plan_search` of
+[`query_sql`](api/query_sql.md), which validates them and returns the
+`FROM`, `WHERE`, `ORDER BY` and paging of the statement; queries in the
+`ast` or `expr` parameters become `WHERE` clauses, text terms use FTS5. A
+request without criteria lists every package by rank position.
 
 ### Static mode
 
 `npm run build:static-data` runs the index builder and then
 `scripts/export_static_json.py`, which writes the feeds, a search index, one
 file per package and a manifest to `public/data`. `npm run build:static`
-compiles `static_search` and runs `next build` with
+builds the MoonBit modules and runs `next build --webpack` with
 `NEXT_PUBLIC_APP_MODE=static`, which exports the site to `out/` without
 route handlers. In the browser, feeds and package pages are plain file
-fetches and search runs in a Web Worker; the
-[static_search design](design/static_search.md) describes it. The
+fetches and search runs in a Web Worker that calls the `static_search`
+engine compiled to JavaScript; the
+[static_search design](design/static_search.md) describes it.
+
+### MoonBit modules in the web code
+
+`scripts/build_moonbit.mjs` runs
+`moon build src/query src/query_sql src/static_search --target js --release`
+and copies each generated ES module, with its `.d.ts` files, to
+`lib/moonbit/<package>/` (ignored by git). npm runs it before `dev`,
+`build`, `typecheck` and `test` (`npm run build:moonbit` runs it alone).
+The modules exchange JSON strings: `lib/query.ts` wraps `query`,
+`lib/data.ts` calls `query_sql`, and `lib/static-search.ts` wraps
+`static_search` for the worker. The
 `deploy-static` workflow rebuilds and publishes this site daily.
 
 ## Where the rules live
@@ -106,9 +123,9 @@ Every rule has one owner, and the others call it:
 | --- | --- |
 | Score, rank and momentum | `src/score` (called through `src/cli`) |
 | Signal definitions and time windows | `scripts/build_index.py` |
-| Query language and AST | `lib/query.ts` |
-| SQL compilation and dynamic ordering | `lib/data.ts` |
-| Static evaluation and ordering | `lib/static-search.ts`, `frontend/src/static-search.worker.ts` |
+| Query language, flat parameters, labels, sort keys, paging | `src/query` |
+| SQL compilation, parameter validation and dynamic ordering | `src/query_sql` |
+| Static evaluation, relevance and ordering | `src/static_search` |
 
 `scripts/build_index.py` still contains Python functions `compute_score` and
 `compute_momentum_label` that mirror the MoonBit rules; the build does not

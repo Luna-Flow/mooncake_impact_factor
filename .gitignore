@@ -8,6 +8,7 @@ __pycache__/
 *.pyo
 *.pyd
 node_modules/
+lib/moonbit/
 .next/
 out/
 public/data/

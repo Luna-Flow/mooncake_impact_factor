@@ -1,0 +1,26 @@
+import {
+  "moonbitlang/core/json",
+  "moonbitlang/core/string",
+}
+
+warnings = "-implicit_impl_as_method"
+
+options(
+  link: {
+    "js": {
+      "exports": [
+        "empty_ast_json",
+        "has_intent_json",
+        "validate_json",
+        "parse_expression_json",
+        "serialize_json",
+        "derive_ast_json",
+        "decode_from_params_json",
+        "with_query_ast_patch_json",
+        "rank_labels_json",
+        "momentum_labels_json",
+      ],
+      "format": "esm",
+    },
+  },
+)

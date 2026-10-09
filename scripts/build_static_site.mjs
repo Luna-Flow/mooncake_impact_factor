@@ -45,8 +45,12 @@ async function main() {
   }
 
   try {
-    await run("moon", ["build", "src/static_search", "--target", "js"]);
-    await run("next", ["build"], {
+    await run("node", ["scripts/build_moonbit.mjs"]);
+    // webpack, not Turbopack: Turbopack copies the worker's TypeScript
+    // source as a static asset instead of bundling
+    // `new Worker(new URL("./static-search.worker.ts", import.meta.url))`,
+    // so the static search would never start in the browser.
+    await run("next", ["build", "--webpack"], {
       ...process.env,
       NEXT_PUBLIC_APP_MODE: "static",
       NEXT_PUBLIC_BASE_PATH: process.env.NEXT_PUBLIC_BASE_PATH ?? ""

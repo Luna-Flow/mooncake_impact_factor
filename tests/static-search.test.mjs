@@ -2,20 +2,31 @@ import test from "node:test";
 import assert from "node:assert/strict";
 
 import { parseNativeExpression } from "../lib/query.ts";
-import { computeStaticRelevance, evaluateQueryNode } from "../lib/static-search.ts";
+import {
+  computeStaticRelevance,
+  evaluateQueryNode,
+  loadStaticSearchIndex,
+  searchStaticIndex
+} from "../lib/static-search.ts";
+import { expectedOrder, searchPackages, SORT_KEYS, toIndexItem } from "./fixtures/search-packages.mjs";
 
-function item(fullName, rankLabel, text, score) {
+function item(fullName, rankLabel, text, score, position) {
   const [owner, packageName] = fullName.split("/");
   return {
     full_name: fullName,
     owner,
     package_name: packageName,
     score,
+    score_growth_30d: 0,
     rank_label: rankLabel,
     momentum_label: "Stable",
     dependent_count: 0,
     recent_dependent_count: 0,
     download_count: 0,
+    external_dependent_count: 0,
+    dependent_owner_count: 0,
+    days_since_release: 0,
+    rank_position: position,
     latest_created_at: "2026-01-01T00:00:00Z",
     repository_present: false,
     license_present: false,
@@ -30,9 +41,9 @@ function item(fullName, rankLabel, text, score) {
 }
 
 const packages = [
-  item("dave/jsond", "D", "json parser", 10),
-  item("alice/json", "A", "json parser", 200),
-  item("carol/csv", "A", "csv reader", 190)
+  item("dave/jsond", "D", "json parser", 10, 3),
+  item("alice/json", "A", "json parser", 200, 1),
+  item("carol/csv", "A", "csv reader", 190, 2)
 ];
 
 function relevance(expression) {
@@ -70,4 +81,58 @@ test("negation still filters", () => {
   assert.deepEqual(matched, ["dave/jsond", "alice/json", "carol/csv"]);
   const strict = parseNativeExpression("json AND NOT rank=D");
   assert.deepEqual(packages.filter((pkg) => evaluateQueryNode(pkg, strict)).map((pkg) => pkg.full_name), ["alice/json"]);
+});
+
+function search(params) {
+  loadStaticSearchIndex(JSON.stringify({ items: packages }));
+  const page = searchStaticIndex(params);
+  return { names: page.indices.map((index) => packages[index].full_name), total: page.total };
+}
+
+test("without a query the index is listed by rank position", () => {
+  assert.deepEqual(search({}), { names: ["alice/json", "carol/csv", "dave/jsond"], total: 3 });
+});
+
+test("a query sorts by relevance, then score, then name", () => {
+  assert.deepEqual(search({ expr: "json OR parser OR csv" }).names, ["alice/json", "dave/jsond", "carol/csv"]);
+  assert.deepEqual(search({ q: "json", sort: "score", order: "asc" }).names, ["dave/jsond", "alice/json"]);
+});
+
+test("the worker pages and counts", () => {
+  assert.deepEqual(search({ limit: "1", offset: "1" }), { names: ["carol/csv"], total: 3 });
+});
+
+test("rank lists and label errors", () => {
+  assert.deepEqual(search({ rank: "a" }).names, ["alice/json", "carol/csv"]);
+  assert.throws(() => search({ momentum: "Hot" }), /momentum must be one of New, Rising, Stable, Cooling/);
+});
+
+const fixtureItems = searchPackages.map(toIndexItem);
+
+function searchFixture(params) {
+  loadStaticSearchIndex(JSON.stringify({ items: fixtureItems }));
+  const page = searchStaticIndex(params);
+  return { names: page.indices.map((index) => fixtureItems[index].full_name), total: page.total };
+}
+
+const STATIC_SORT_CRITERIA = [
+  { label: "no criteria", params: {}, matches: () => true },
+  { label: "flat criteria", params: { minScore: "100" }, matches: (pkg) => pkg.score >= 100 },
+  { label: "query tree", params: { expr: "score>=100 OR owner:bob" }, matches: () => true }
+];
+
+for (const criteria of STATIC_SORT_CRITERIA) {
+  for (const sort of SORT_KEYS) {
+    for (const order of ["", "asc", "desc"]) {
+      test(`static sort=${sort} order=${order || "default"} with ${criteria.label}`, () => {
+        const expected = expectedOrder(searchPackages.filter(criteria.matches), sort, order);
+        assert.deepEqual(searchFixture({ ...criteria.params, sort, order }), { names: expected, total: expected.length });
+      });
+    }
+  }
+}
+
+test("static paging over the fixture", () => {
+  assert.deepEqual(searchFixture({ limit: "2", offset: "2" }), { names: ["dave/yaml", "erin/zip"], total: 5 });
+  assert.deepEqual(searchFixture({ minScore: "100", limit: "1", offset: "1" }), { names: ["carol/csv"], total: 4 });
 });
