@@ -3,7 +3,8 @@ name: deploy-static
 on:
   workflow_dispatch:
   schedule:
-    - cron: "15 2 * * *"
+    # 00:00 Japan time (UTC+9) every day.
+    - cron: "0 15 * * *"
 
 permissions:
   contents: read
@@ -41,8 +42,24 @@ jobs:
       - name: moon update
         run: moon update
 
+      # The download counts of earlier days, so that the 30-day momentum
+      # can compare downloads; build_index.py keeps 45 days of snapshots.
+      - name: restore download history
+        uses: actions/cache/restore@v4
+        with:
+          path: data/download_history.json
+          key: download-history-${{ github.run_id }}
+          restore-keys: download-history-
+
       - name: build static data
         run: npm run build:static-data
+
+      - name: save download history
+        if: always()
+        uses: actions/cache/save@v4
+        with:
+          path: data/download_history.json
+          key: download-history-${{ github.run_id }}
 
       - name: build static site
         run: npm run build:static

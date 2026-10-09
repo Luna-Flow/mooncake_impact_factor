@@ -34,13 +34,13 @@ jobs:
 
       - name: moon check
         run: |
-          moon check src/score --target all
+          moon check src/score src/metrics --target all
           moon check src/query src/query_sql src/static_search --target all
           moon check src/cli --target js
 
       - name: moon test
         run: |
-          moon test src/score --target all
+          moon test src/score src/metrics --target all
           moon test src/query src/query_sql src/static_search --target all
 
       - name: moonbit interfaces are up to date
@@ -50,6 +50,9 @@ jobs:
 
       - name: python tests
         run: python3 -m unittest scripts/build_index_test.py
+
+      - name: interface string catalogs are up to date
+        run: node scripts/i18n.mjs check
 
       - name: build moonbit modules for the web code
         run: npm run build:moonbit
@@ -63,8 +66,12 @@ jobs:
       - name: dynamic build
         run: npm run build
 
+      # The deployment fetches download counts; CI only checks that the data
+      # builds, without sending ~3000 requests to mooncakes.io on every push.
       - name: static data build
-        run: npm run build:static-data
+        run: |
+          python3 scripts/build_index.py --db data/mooncake.db --skip-mooncakes-downloads
+          python3 scripts/export_static_json.py --db data/mooncake.db --out public/data
 
       - name: static site build
         run: npm run build:static
