@@ -12,6 +12,7 @@ import {
   searchPackagesFromInput
 } from "../lib/data.ts";
 import { encodeQueryAst } from "../lib/query.ts";
+import { expectedOrder, nameOf, ownerOf, searchPackages, SORT_KEYS } from "./fixtures/search-packages.mjs";
 
 function createFixtureDatabase() {
   const tempDir = mkdtempSync(path.join(os.tmpdir(), "mooncake-impact-test-"));
@@ -78,23 +79,39 @@ function createFixtureDatabase() {
     );
   `);
 
-  db.exec(`
+  const insertPackage = db.prepare(`
     INSERT INTO packages (
       id, full_name, owner, package_name, description, repository, license,
       keywords_json, latest_version, latest_created_at, version_count,
       dependent_count, recent_dependent_count, external_dependent_count,
       dependent_owner_count, days_since_release, download_count
-    ) VALUES
-      (1, 'alice/toolkit', 'alice', 'toolkit', 'alpha toolkit package', 'https://example.com/toolkit', 'MIT', '["alpha","tooling"]', '1.10.0', NULL, 3, 9, 4, 1, 1, 400, 1200),
-      (2, 'bob/helper', 'bob', 'helper', 'helper package', NULL, 'Apache-2.0', '["helper"]', '0.4.0', '2026-01-01T00:00:00+00:00', 1, 0, 0, 0, 0, 20, 100);
-
+    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 1, ?, ?, ?, ?, ?, ?)
+  `);
+  const insertScore = db.prepare(`
     INSERT INTO package_scores (
       package_id, score, score_30d_ago, score_growth_30d, score_growth_ratio_30d,
       rank_label, momentum_label, activity_multiplier, rank_position, computed_at
-    ) VALUES
-      (1, 210.0, 120.0, 90.0, 0.75, 'A', 'Rising', 1.06, 1, '2026-06-02T00:00:00+00:00'),
-      (2, 80.0, 75.0, 5.0, 0.066, 'C', 'New', 1.00, 2, '2026-06-02T00:00:00+00:00');
+    ) VALUES (?, ?, ?, ?, ?, ?, ?, 1.0, ?, '2026-06-02T00:00:00+00:00')
+  `);
+  const insertText = db.prepare(`
+    INSERT INTO search_index (rowid, full_name, owner, package_name, description, keywords)
+    VALUES (?, ?, ?, ?, ?, ?)
+  `);
+  for (const pkg of searchPackages) {
+    insertPackage.run(
+      pkg.id, pkg.full_name, ownerOf(pkg), nameOf(pkg), pkg.description, pkg.repository, pkg.license,
+      JSON.stringify(pkg.keywords), pkg.latest_version, pkg.latest_created_at,
+      pkg.dependent_count, pkg.recent_dependent_count, pkg.external_dependent_count,
+      pkg.dependent_owner_count, pkg.days_since_release, pkg.download_count
+    );
+    insertScore.run(
+      pkg.id, pkg.score, pkg.score_30d_ago, pkg.score_growth_30d, pkg.score_growth_ratio_30d,
+      pkg.rank_label, pkg.momentum_label, pkg.rank_position
+    );
+    insertText.run(pkg.id, pkg.full_name, ownerOf(pkg), nameOf(pkg), pkg.description, pkg.keywords.join(" "));
+  }
 
+  db.exec(`
     INSERT INTO versions (id, package_id, version, created_at, deps_json) VALUES
       (10, 1, '1.9.0', NULL, '{}'),
       (11, 1, '1.10.0-rc1', NULL, '{}'),
@@ -104,9 +121,6 @@ function createFixtureDatabase() {
     INSERT INTO package_edges (source_package_id, target_package_id, first_seen_at, latest_version_id) VALUES
       (2, 1, '2026-02-01T00:00:00+00:00', 20);
 
-    INSERT INTO search_index (rowid, full_name, owner, package_name, description, keywords) VALUES
-      (1, 'alice/toolkit', 'alice', 'toolkit', 'alpha toolkit package', 'alpha tooling'),
-      (2, 'bob/helper', 'bob', 'helper', 'helper package', 'helper');
   `);
 
   db.close();
@@ -210,22 +224,25 @@ function names(page) {
 test("lists every package by rank position without criteria", () => {
   withFixture(() => {
     const page = searchPackagesFromInput({});
-    assert.deepEqual(names(page), ["alice/toolkit", "bob/helper"]);
-    assert.equal(page.total, 2);
+    assert.deepEqual(names(page), ["alice/toolkit", "carol/csv", "dave/yaml", "erin/zip", "bob/helper"]);
+    assert.equal(page.total, 5);
   });
 });
 
 test("pages with limit and offset and reports the total", () => {
   withFixture(() => {
-    const first = searchPackagesFromInput({ limit: "1" });
-    assert.deepEqual(names(first), ["alice/toolkit"]);
-    assert.equal(first.total, 2);
-    const second = searchPackagesFromInput({ limit: 1, offset: 1 });
-    assert.deepEqual(names(second), ["bob/helper"]);
-    assert.equal(second.total, 2);
-    const beyond = searchPackagesFromInput({ offset: "5" });
+    const first = searchPackagesFromInput({ limit: "2" });
+    assert.deepEqual(names(first), ["alice/toolkit", "carol/csv"]);
+    assert.equal(first.total, 5);
+    const second = searchPackagesFromInput({ limit: 2, offset: 2 });
+    assert.deepEqual(names(second), ["dave/yaml", "erin/zip"]);
+    assert.equal(second.total, 5);
+    const beyond = searchPackagesFromInput({ offset: "9" });
     assert.deepEqual(names(beyond), []);
-    assert.equal(beyond.total, 2);
+    assert.equal(beyond.total, 5);
+    const filtered = searchPackagesFromInput({ min_score: "100", limit: "1", offset: "1" });
+    assert.deepEqual(names(filtered), ["carol/csv"]);
+    assert.equal(filtered.total, 4);
   });
 });
 
@@ -233,6 +250,7 @@ test("rank and momentum accept comma-separated lists", () => {
   withFixture(() => {
     assert.deepEqual(names(searchPackagesFromInput({ rank: "a,c", sort: "name" })), ["alice/toolkit", "bob/helper"]);
     assert.deepEqual(names(searchPackagesFromInput({ momentum: "new" })), ["bob/helper"]);
+    assert.deepEqual(names(searchPackagesFromInput({ momentum: "stable,COOLING" })), ["carol/csv", "dave/yaml", "erin/zip"]);
     for (const input of [{ rank: "S,X" }, { momentum: "Hot" }, { expr: "rank=Z" }]) {
       assert.throws(
         () => searchPackagesFromInput(input),
@@ -242,21 +260,42 @@ test("rank and momentum accept comma-separated lists", () => {
   });
 });
 
-test("filters and sorts by the scoring v2 columns", () => {
+test("filters by the scoring v2 columns", () => {
   withFixture(() => {
-    assert.deepEqual(names(searchPackagesFromInput({ min_external_dependents: "1" })), ["alice/toolkit"]);
-    assert.deepEqual(names(searchPackagesFromInput({ min_owners: "1" })), ["alice/toolkit"]);
-    assert.deepEqual(names(searchPackagesFromInput({ max_age: "30" })), ["bob/helper"]);
-    assert.deepEqual(names(searchPackagesFromInput({ expr: "position<=1 OR age<=30" })), ["alice/toolkit", "bob/helper"]);
-    assert.deepEqual(names(searchPackagesFromInput({ sort: "age" })), ["bob/helper", "alice/toolkit"]);
-    assert.deepEqual(names(searchPackagesFromInput({ sort: "position", order: "desc" })), ["bob/helper", "alice/toolkit"]);
-    assert.deepEqual(names(searchPackagesFromInput({ sort: "external" })), ["alice/toolkit", "bob/helper"]);
+    assert.deepEqual(names(searchPackagesFromInput({ min_external_dependents: "1" })), ["alice/toolkit", "carol/csv"]);
+    assert.deepEqual(names(searchPackagesFromInput({ min_owners: "2" })), ["carol/csv"]);
+    assert.deepEqual(names(searchPackagesFromInput({ max_age: "30" })), ["carol/csv", "bob/helper"]);
+    assert.deepEqual(
+      names(searchPackagesFromInput({ expr: "position<=1 OR age<=30" })),
+      ["alice/toolkit", "carol/csv", "bob/helper"]
+    );
   });
 });
 
+const SORT_CRITERIA = [
+  { label: "no criteria", input: {}, matches: () => true },
+  { label: "flat criteria", input: { min_score: "100" }, matches: (pkg) => pkg.score >= 100 },
+  { label: "query tree", input: { expr: "score>=100 OR owner:bob" }, matches: () => true }
+];
+
+for (const criteria of SORT_CRITERIA) {
+  for (const sort of SORT_KEYS) {
+    for (const order of ["", "asc", "desc"]) {
+      test(`sort=${sort} order=${order || "default"} with ${criteria.label}`, () => {
+        withFixture(() => {
+          const page = searchPackagesFromInput({ ...criteria.input, sort, order });
+          const expected = expectedOrder(searchPackages.filter(criteria.matches), sort, order);
+          assert.deepEqual(names(page), expected);
+          assert.equal(page.total, expected.length);
+        });
+      });
+    }
+  }
+}
+
 test("malformed query trees are HTTP 400", () => {
   withFixture(() => {
-    for (const input of [{ ast: "{" }, { expr: "owner:" }, { sort: "constructor" }]) {
+    for (const input of [{ ast: "{" }, { expr: "owner:" }, { sort: "constructor" }, { order: "up" }]) {
       assert.throws(
         () => searchPackagesFromInput(input),
         (error) => isHttpError(error) && error.status === 400
