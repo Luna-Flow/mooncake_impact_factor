@@ -7,30 +7,72 @@ import {
 }
 
 // Values
+pub const DEPENDENTS_WEIGHT : Double = 38.0
+
+pub const DOWNLOADS_WEIGHT : Double = 22.0
+
+pub const MOMENTUM_MIN_CHANGE : Double = 10.0
+
+pub const MOMENTUM_MIN_RATIO : Double = 0.1
+
+pub const RECENT_DEPENDENTS_WEIGHT : Double = 27.0
+
+pub const SELF_DEPENDENT_WEIGHT : Double = 0.25
+
+pub const UNKNOWN_RELEASE_AGE_DAYS : Int = 3650
+
 pub fn activity_multiplier(Int) -> Double
 
 pub fn clamp_non_negative(Int) -> Int
 
-pub fn compute_momentum_label(Double, Double, Double, Int) -> String
+pub fn compute_momentum_label(Double, Double?) -> String
 
-pub fn compute_score(Int, Int, Int, Int) -> Double
+pub fn compute_score(Signals) -> Double
 
-pub fn compute_score_snapshot(Int, Int, Int, Int, Int, Int, Int, Int) -> ScoreSnapshot
+pub fn ln(Double) -> Double
 
-pub fn rank_label(Double) -> String
+pub fn log_signal(Double) -> Double
+
+pub fn rank_label(Int, Int, Double) -> String
+
+pub fn rank_positions(ArrayView[Double]) -> Array[Int]
+
+pub fn score_breakdown(Signals) -> ScoreBreakdown
+
+pub fn score_population(ArrayView[Signals], ArrayView[Signals?]) -> Array[ScoreSnapshot]
+
+pub fn weighted_dependents(Int, Int) -> Double
 
 // Errors
 
 // Types and methods
+pub struct ScoreBreakdown {
+  dependents : Double
+  recent_dependents : Double
+  downloads : Double
+  multiplier : Double
+} derive(ToJson, @debug.Debug, @json.FromJson)
+
 pub struct ScoreSnapshot {
   score : Double
   score_30d_ago : Double
   score_growth_30d : Double
   score_growth_ratio_30d : Double
   rank_label : String
+  rank_position : Int
   momentum_label : String
   activity_multiplier : Double
+  breakdown : ScoreBreakdown
 } derive(ToJson, @debug.Debug, @json.FromJson)
+
+pub(all) struct Signals {
+  external_dependents : Int
+  self_dependents : Int
+  recent_external_dependents : Int
+  recent_self_dependents : Int
+  downloads : Int
+  days_since_release : Int
+} derive(Eq, ToJson, @debug.Debug, @json.FromJson)
 
 // Type aliases
 

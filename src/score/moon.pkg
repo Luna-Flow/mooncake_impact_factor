@@ -1,5 +1,10 @@
 import {
-  "moonbitlang/core/debug",
+  "moonbitlang/core/double",
   "moonbitlang/core/json",
-  "moonbitlang/core/math",
 }
+
+// The derived ToJson, FromJson, Debug and Eq are used as traits only
+// (`Json(s)`, `@json.from_json`, `Repr(s)`, `==`); the implicit promotion of
+// their methods, which the compiler is retiring, is not part of the API.
+
+warnings = "-implicit_impl_as_method"
