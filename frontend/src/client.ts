@@ -11,27 +11,12 @@ import {
   type PackageAnalysis,
   type SearchResult
 } from "./types";
-import type { AdvancedSearchParams } from "./api";
+import { toApiParams, toStaticParams } from "./search-params";
 
 export const DATA_MODE: "static" | "dynamic" = process.env["NEXT_PUBLIC_APP_MODE"] === "static" ? "static" : "dynamic";
 const BASE_PATH = process.env["NEXT_PUBLIC_BASE_PATH"] ?? "";
 
-/** URL parameters the rankings understand, in the spelling of the API. */
-export const QUERY_KEYS = [
-  "q",
-  "expr",
-  "rank",
-  "momentum",
-  "min_external_dependents",
-  "min_owners",
-  "max_age",
-  "has_repository",
-  "has_license",
-  "sort",
-  "order"
-] as const;
-
-export const PAGE_SIZE = 50;
+export { PAGE_SIZE, QUERY_KEYS } from "./search-params";
 
 async function requestJson<T>(url: string, parse: (value: unknown) => T): Promise<T> {
   const response = await fetch(url, { cache: "no-store" });
@@ -51,23 +36,11 @@ export function packageFileKey(fullName: string): string {
   return fullName.replaceAll("/", "--");
 }
 
-function toSearchParams(query: URLSearchParams, page: number): Partial<AdvancedSearchParams> & Record<string, string> {
-  const params: Record<string, string> = {};
-  for (const key of QUERY_KEYS) {
-    const value = query.get(key);
-    if (value) params[key] = value;
-  }
-  params["limit"] = String(PAGE_SIZE);
-  params["offset"] = String((page - 1) * PAGE_SIZE);
-  return params;
-}
-
 export async function searchRegistry(query: URLSearchParams, page = 1): Promise<SearchResult> {
-  const params = toSearchParams(query, page);
   if (DATA_MODE === "static") {
-    return searchStaticPackagesPage(params);
+    return searchStaticPackagesPage(toStaticParams(query, page));
   }
-  const url = `${BASE_PATH}/api/search?${new URLSearchParams(params).toString()}`;
+  const url = `${BASE_PATH}/api/search?${new URLSearchParams(toApiParams(query, page)).toString()}`;
   return requestJson(url, (value) => searchResultSchema.parse(value));
 }
 
