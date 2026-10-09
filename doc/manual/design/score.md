@@ -3,338 +3,321 @@
 This page derives the properties of the scoring model in
 [`src/score/impact_factor.mbt`](../../../src/score/impact_factor.mbt) and
 explains why it has this shape. The [score API](../api/score.md) lists the
-functions; the [architecture guide](../architecture.md) shows where the index
-builder gets the signals from.
+functions; the [metrics design](metrics.md) explains where the signals come
+from.
 
 ## Design goal
 
 The score must order the packages of a registry snapshot by how much the
-ecosystem relies on them, from signals that a local registry index can
-provide. It must be cheap, deterministic and explainable: a reader of the web
-page should be able to see why one package outranks another, and the same
-signals must give the same score in MoonBit, in the index builder and in the
-browser.
+ecosystem relies on them, from signals that the public registry index
+provides. It must be cheap, deterministic and explainable: a reader of a
+package page should be able to see why one package outranks another, and the
+same signals must give the same score on every MoonBit backend.
+
+The model borrows its vocabulary from bibliometrics. A dependency is a
+citation: a deliberate decision by another author to build on this work. The
+journal impact factor counts citations, discounts self-citations and reports
+a journal's place within its field by quartile; the score does the same with
+dependents, dependents of the same owner, and grades.
 
 ## Mathematical background
 
+### Signals
+
+For a package $p$ at time $\tau$ the [metrics package](metrics.md)
+measures:
+
+| Symbol | Meaning |
+| --- | --- |
+| $E$ | external dependents: packages of *other* owners whose latest release depends on $p$ |
+| $O$ | dependents of the *same* owner |
+| $E_r$, $O_r$ | the dependents among $E$ and $O$ whose dependency first appeared in the 180 days before $\tau$ |
+| $W$ | downloads reported by mooncakes.io |
+| $t$ | whole days since the latest release ($3650$ when unknown) |
+
 ### The score
 
-Write $D$, $R$ and $W$ for the number of dependents, recent dependents and
-downloads, and $t$ for the days since the latest release. The implementation
-computes
+With the self-dependent weight $\lambda = 1/4$, write
 
 $$
-\sigma(n) = \ln\bigl(1 + \max(n, 0)\bigr), \qquad
-B = 38\,\sigma(D) + 27\,\sigma(R) + 22\,\sigma(W), \qquad
-S = m(t)\,B,
+D = E + \lambda O, \qquad R = E_r + \lambda O_r, \qquad
+\sigma(x) = \ln(1 + x) \ \ (x \ge 0).
 $$
 
-where $B$ is the base score and $m$ is the step function
+The score is
+
+$$
+S = m(t)\,\bigl(\underbrace{38\,\sigma(D)}_{P_D} + \underbrace{27\,\sigma(R)}_{P_R} + \underbrace{22\,\sigma(W)}_{P_W}\bigr),
+$$
+
+where the release-recency multiplier is the continuous, piecewise linear
+function
 
 $$
 m(t) =
 \begin{cases}
-1.12 & t \le 30 \\
-1.06 & 30 < t \le 90 \\
-1.00 & 90 < t \le 180 \\
-0.94 & 180 < t \le 365 \\
-0.88 & t > 365
+1.12 & t \le 30, \\[2pt]
+1.12 - 0.24\,\dfrac{t - 30}{335} & 30 < t < 365, \\[6pt]
+0.88 & t \ge 365,
 \end{cases}
 $$
 
-with negative $t$ treated as $0$. Nothing else enters the score: there is no
-normalisation against the rest of the registry, so a package's score does not
-change when other packages are added.
+with negative $t$ treated as $0$. `score_breakdown` returns $P_D$, $P_R$,
+$P_W$ and $m(t)$, so that $S = (P_D + P_R + P_W)\,m(t)$ exactly as computed.
 
 ### A logarithmic index
 
-Because $\ln a + \ln b = \ln ab$, the base score is the logarithm of a weighted
+Because $\ln a + \ln b = \ln ab$, the bracket is the logarithm of a weighted
 product:
 
 $$
-\begin{aligned}
-B &= 38\ln(1+D) + 27\ln(1+R) + 22\ln(1+W) \\
-  &= \ln\bigl((1+D)^{38}\,(1+R)^{27}\,(1+W)^{22}\bigr).
-\end{aligned}
+38\,\sigma(D) + 27\,\sigma(R) + 22\,\sigma(W) = \ln\bigl((1+D)^{38}\,(1+R)^{27}\,(1+W)^{22}\bigr).
 $$
 
-The product $(1+D)^{38}(1+R)^{27}(1+W)^{22}$ is a Cobb–Douglas index[^cd] of
-the shifted counts, and the weights are its elasticities:
-$\partial B / \partial \ln(1+D) = 38$. Two consequences follow directly.
+The product is a Cobb–Douglas index of the shifted counts and the weights are
+its elasticities. Two consequences follow.
 
-[^cd]: The Cobb–Douglas form $\prod_i x_i^{\alpha_i}$ comes from production
-    economics (Cobb and Douglas, 1928). Its logarithm is linear in
-    $\ln x_i$, which is why ranking by $B$ is the same as ranking by the
-    weighted geometric mean of the shifted counts.
+**Doubling adds a constant.** Since $\sigma(2x + 1) = \ln 2 + \sigma(x)$,
+doubling $1 + D$ adds $38 \ln 2 \approx 26.34$ points whatever $D$ was:
+going from 10 to 21 dependents is worth as much as going from 1000 to 2001.
 
-**Doubling adds a constant.** Since $\sigma(2n+1) = \ln(2n+2) = \ln 2 +
-\sigma(n)$, doubling $1 + D$ adds $38\ln 2 \approx 26.34$ points to $B$,
-whatever $D$ was. The same step is worth $27\ln 2 \approx 18.71$ points for
-recent dependents and $22\ln 2 \approx 15.25$ for downloads. A package with
-1000 dependents gains as much from the next 1001 as a package with 10 gains
-from the next 11.
-
-**Diminishing returns.** One more dependent adds
+**Diminishing returns.** One more external dependent adds
 
 $$
-38\bigl(\sigma(D+1) - \sigma(D)\bigr) = 38\ln\frac{D+2}{D+1}
-\le \frac{38}{D+1},
+38\,\bigl(\sigma(D + 1) - \sigma(D)\bigr) = 38 \ln\frac{D + 2}{D + 1} \le \frac{38}{D + 1}
 $$
 
-using $\ln(1+x) \le x$ with $x = 1/(D+1)$. The marginal value of a dependent
-falls like $1/D$. Inflating one count therefore buys little: multiplying
-$1 + W$ by ten adds exactly $22 \ln 10 \approx 50.66$ points to $B$, whatever
-$W$ was, which is less than the distance between any two neighbouring rank
-thresholds ($60$, $70$ and $80$ points).
+points (by $\ln(1 + x) \le x$), so the marginal value of a dependent falls
+like $1/D$, and inflating any one count buys little: multiplying $1 + W$ by
+ten adds exactly $22 \ln 10 \approx 50.66$ points.
 
-### Rank thresholds as counts
+### Same-owner dependents
 
-The rank buckets are thresholds on $S$: `S` from $260$, `A` from $180$, `B`
-from $110$, `C` from $50$. Inverting $\sigma$ shows what they mean in counts.
-With $m = 1$ and a single non-zero signal of weight $w$, the score reaches a
-threshold $T$ when
+A same-owner dependent counts $\lambda = 1/4$ of an external one, inside the
+logarithm. An owner who publishes $k$ packages that all depend on $p$ adds
+$38\,\sigma(k/4)$ points instead of $38\,\sigma(k)$; for large $k$ the
+difference tends to
 
 $$
-w \ln(1 + n) \ge T
-\iff n \ge e^{T/w} - 1,
+38\,\bigl(\ln(1 + k) - \ln(1 + k/4)\bigr) \to 38 \ln 4 \approx 52.68,
 $$
 
-so the smallest integer count is $\lceil e^{T/w} - 1 \rceil$:
+the value of two doublings. Splitting a project into many packages therefore
+cannot replace adoption by other people: in the registry snapshot of
+11 June 2026, 738 of the 1548 dependency edges of version 0.1 (48 %)
+connected packages of one owner, and the package with the most dependents
+after `moonbitlang/x` and `moonbitlang/async` had only same-owner
+dependents.
 
-| Threshold | Dependents only ($w = 38$) | Recent dependents only ($w = 27$) | Downloads only ($w = 22$) |
-| --- | --- | --- | --- |
-| `C` ($T = 50$) | 3 | 6 | 9 |
-| `B` ($T = 110$) | 18 | 58 | 148 |
-| `A` ($T = 180$) | 114 | 785 | 3575 |
-| `S` ($T = 260$) | 936 | 15208 | 135697 |
+### Grades
 
-For example $38\ln 937 \approx 260.02$ while $38\ln 936 \approx 259.98$, so
-936 dependents are the first count to reach `S` on their own. In practice the
-signals combine: 20 dependents, 4 recent dependents and 300 downloads already
-give $B \approx 284.7$.
-
-### Growth and momentum
-
-A snapshot evaluates the score twice, on the current signals and on the
-signals of 30 days ago, and defines
+Let $S_1, \dots, S_N$ be the scores of the $N$ packages of the registry. The
+competition position of package $i$ is
 
 $$
-G = S - S_{30}, \qquad
-r =
+\pi_i = 1 + \#\{\, j : S_j > S_i \,\},
+$$
+
+so equal scores share a position, and the share of packages that score
+strictly higher is $q_i = (\pi_i - 1)/N$. The grade is
+
+$$
+\text{grade}_i =
 \begin{cases}
-G / S_{30} & S_{30} > 0 \\
-1 & S_{30} = 0,\ G > 0 \\
-0 & S_{30} = 0,\ G \le 0.
+\texttt{D} & S_i \le 0 \text{ or } S_i \text{ is NaN}, \\
+\texttt{S} & q_i < 0.05, \\
+\texttt{A} & 0.05 \le q_i < 0.15, \\
+\texttt{B} & 0.15 \le q_i < 0.35, \\
+\texttt{C} & 0.35 \le q_i < 0.65, \\
+\texttt{D} & q_i \ge 0.65.
 \end{cases}
 $$
 
-Since $m(t) > 0$ and every term of $B$ is non-negative, $S_{30} = 0$ exactly
-when every historical count is $0$ (or negative, which clamps to $0$): the
-package had no dependents and no downloads 30 days ago. Otherwise at least
-one $\sigma$ is at least $\sigma(1) = \ln 2$, so
+Without ties exactly $\lceil 0.05 N \rceil$ packages are `S`; ties at a
+boundary all take the better grade, because $q$ counts only strictly higher
+scores. In the snapshot of 9 October 2026 ($N = 2902$) the grades split
+$146 / 290 / 580 / 876 / 1010$.
+
+### Momentum
+
+The [metrics package](metrics.md) evaluates the signals a second time as
+they were $30$ days earlier, from the releases and dependency declarations
+published by then, giving $S_{30}$, or nothing when the package had no
+release yet. With the change $G = S - S_{30}$ and the threshold
 
 $$
-S_{30} \ge 0.88 \cdot 22 \ln 2 \approx 13.42 ,
+\theta = \max\bigl(10,\ 0.1\,S_{30}\bigr),
 $$
 
-the smallest weight times the smallest multiplier. The score therefore takes
-no values in $(0, 13.42)$, and $G / S_{30}$ is never divided by a tiny
-denominator. For $S_{30} = 0$ the relative growth is undefined, and the
-implementation uses $1$ (that is, 100 %) instead of $+\infty$ so that $r$
-stays finite and can be stored and sorted. A new package with $S \ge 35$ and
-three recent dependents is therefore `Rising`.
-
-The momentum label tests three conditions at two levels:
+the label is
 
 $$
-\text{Rising} \iff G \ge 35 \land r \ge 0.35 \land R \ge 3, \qquad
-\text{Hot} \iff \lnot\text{Rising} \land G \ge 18 \land r \ge 0.18 \land R \ge 2.
+\text{momentum} =
+\begin{cases}
+\texttt{New} & S_{30} \text{ undefined}, \\
+\texttt{Rising} & G \ge \theta, \\
+\texttt{Cooling} & G \le -\theta, \\
+\texttt{Stable} & \text{otherwise (including NaN)}.
+\end{cases}
 $$
 
-The `Rising` conditions imply the `Hot` conditions, so the classes are nested
-levels of one scale rather than independent tags. When $S_{30} > 0$,
-$r \ge \rho$ is the same as $S \ge (1 + \rho) S_{30}$, so `Rising` asks for a
-score at least $1.35$ times the old one *and* an absolute gain of $35$
-points. Each bound covers a case the other misses. The absolute bound stops
-small packages from rising on a small change: a package that goes from one
-download to three ($S$ from about $15.2$ to $30.5$ with $m = 1$) doubles its
-score, $r = 1$, but gains only about $15$ points. The relative bound
-stops large packages from rising through the noise of a big base: at
-$S_{30} = 1000$, a gain of $35$ points is $r = 0.035$.
+The two bounds of $\theta$ cover each other's blind spot. The absolute bound
+stops small packages from changing label on noise: a package that goes from
+one download to three gains $22\,(\ln 4 - \ln 2) \approx 15.2$ points times
+$m$, a ratio of $100\,\%$ but a change near the bound. The relative bound
+stops large packages from changing label on a small fraction: at
+$S_{30} = 780$, a change of $12$ points is $1.5\,\%$. The ratio
+$r = G / S_{30}$ is stored as `score_growth_ratio_30d`, with $1$ for a
+package whose earlier score was $0$ and that grew, and $0$ otherwise.
+
+**Ageing alone never changes the label.** Over $30$ days the multiplier
+falls by at most $0.24 \cdot 30 / 335 \approx 0.0215$, a relative change of
+at most $0.0215 / 0.88 \approx 2.4\,\%$, below the $10\,\%$ bound. The step
+function of version 0.1 fell by up to $6.4\,\%$ in one day and made every
+package crossing $90$, $180$ or $365$ days look like it was declining.
+
+### A logarithm that is the same everywhere
+
+`ln` ports the FreeBSD msun `e_log.c`: $x = 2^k (1 + f)$ with
+$\sqrt2/2 \le 1 + f < \sqrt2$, then with $s = f / (2 + f)$
+
+$$
+\ln(1 + f) = 2s + \tfrac23 s^3 + \tfrac25 s^5 + \cdots
+= f - s\,\bigl(f - R(s^2)\bigr),
+$$
+
+where $R$ is a degree-7 polynomial in $s^2$ fitted by Remez, and
+$k \ln 2$ is added in two parts ($\ln 2_{\text{hi}}$ with a short
+significand, so that $k \ln 2_{\text{hi}}$ is exact, and the correction
+$\ln 2_{\text{lo}}$). It uses only IEEE 754 additions, multiplications,
+divisions and bit manipulation, which every backend rounds the same way, so
+the result has the same bits on js, wasm, wasm-gc and native. On $133\,225$
+inputs (all integers up to $30\,000$ and a geometric sweep from $10^{-310}$
+to $10^{300}$) the three tested backends agreed bit for bit, and $415$
+results ($0.31\,\%$) differed from the correctly rounded value, each by one
+unit in the last place, matching fdlibm's documented bound of $1$ ulp.
 
 ## Design decisions
 
-### Logarithms of counts
+### Dependents of the latest release
 
-**Problem.** Dependent and download counts are heavy-tailed: a few packages
-have thousands, most have none. A linear score would make the ranking a
-leaderboard of the largest package in each signal.
+**Problem.** Version 0.1 counted every package that had *ever* declared a
+dependency on $p$ in *any* release. A package that replaced a dependency
+kept crediting the old one forever.
 
-**Options.** Raw counts; ranks or percentiles within the registry; square
-roots; logarithms.
+**Choice.** Only the latest non-yanked release counts. In the snapshot of
+9 October 2026, `myfreess/sqlite3` lost 11 dependents that moved to
+`moonbit-community/sqlite3`; the first now shows as `Cooling` and the second
+as `Rising`, which is what happened. Yanked releases neither count as the
+latest release nor contribute dependencies, because their authors withdrew
+them.
 
-**Choice.** $\ln(1 + n)$. The shift by one keeps $\sigma(0) = 0$ finite and
-makes $S = 0$ exactly when a package has no signal at all. Percentiles would
-need the whole registry and change a package's score when other packages
-appear, which breaks the CLI's one-package-at-a-time contract. Square roots
-still grow without the scale invariance derived above.
+### Discount, not exclusion, of the same owner
 
-### Additive weights
+**Problem.** Same-owner dependents are often real reuse (a parser used by
+the author's formatter), but they are also free to create.
 
-**Problem.** The three signals must be combined into one number.
+**Options.** Count them fully (version 0.1); exclude them, like the impact
+factor without self-citations; count distinct owners only; discount them.
 
-**Choice.** A weighted sum of logarithms with weights $38 : 27 : 22$.
-Total dependents capture established adoption and weigh most. Downloads are
-an external popularity hint that is missing for packages the builder could
-not look up, so they weigh least. Recent dependents are counted *on top of* total dependents, so a
-dependent from the recent window contributes to both terms: the recent term
-is a bonus for current adoption, not a separate population. The weights are
-editorial choices of this project, not fitted parameters.
+**Choice.** A discount of $1/4$. Excluding them would make an author's own
+toolkit of tightly coupled packages look unused; counting only distinct
+owners would erase the difference between one package and fifty from the
+same external owner. The package page reports $E$, $O$ and the number of
+distinct external owners so that a reader can apply a stricter rule.
 
-### A recency multiplier, not a recency term
+### Relative grades
 
-**Problem.** Old, unmaintained packages should not hold their rank forever,
-but age must not outweigh adoption.
+**Problem.** Version 0.1 graded by fixed thresholds on $S$ ($260$, $180$,
+$110$, $50$). The thresholds were chosen for one registry size; as the
+registry and the download counts grew, `S` stopped meaning "exceptional"
+and the share of each grade drifted with every snapshot.
 
-**Choice.** A multiplicative step function between $0.88$ and $1.12$. Because
-it multiplies $B$, it changes the score by at most $\pm 12\,\%$, and the ratio
-between the freshest and the oldest package with the same signals is
-$1.12 / 0.88 \approx 1.27$. That can move a package across one rank boundary
-(for example $B = 240$ gives `S` at $1.12$ and `A` at $0.88$), but never
-across two: the scores $m(t)\,B$ of one package lie in
-$[0.88\,B,\ 1.12\,B]$, an interval whose ends differ by the factor $1.27$,
-while neighbouring thresholds differ by at least $260 / 180 \approx 1.44$
-($180 / 110 \approx 1.64$, $110 / 50 = 2.2$), so the interval contains at
-most one threshold. Nor does it turn an unused package into a ranked one:
-$B = 0$ stays $0$. An additive age term
-would give unused but freshly released packages a positive score.
+**Choice.** Shares of the registry, like journal quartiles. A grade now
+answers the reader's question, "how does this package compare with the rest
+of the registry?", and keeps its meaning as the registry grows. The score
+itself stays absolute: it does not depend on other packages, so it can be
+compared across snapshots, while positions and grades are relative. Shares
+of $5$, $10$, $20$, $30$ and $35\,\%$ grow towards the bottom because the
+bottom of the registry is dense with packages that nobody uses yet; packages
+with no signal at all are always `D`.
 
-### Fixed thresholds for labels
+### A continuous multiplier
 
-**Problem.** The web pages need short, stable labels.
+**Problem.** The step multiplier of version 0.1 moved a score by up to
+$6.4\,\%$ overnight when a package crossed a step, which the momentum then
+reported as a decline.
 
-**Choice.** Constant thresholds on $S$ and $G$. Labels therefore mean the same
-in every snapshot and need no registry-wide statistics. Quantile buckets
-("top 5 %") would need the whole registry, like percentile scores.
+**Choice.** The same bounds, $1.12$ and $0.88$, joined linearly between $30$
+and $365$ days. The bounds keep the earlier guarantees: the multiplier
+changes a score by at most $\pm 12\,\%$, the freshest and the oldest
+package with the same signals differ by the factor $1.12 / 0.88 \approx 1.27$,
+and an unused package stays at $0$.
 
-### Integers in, `Double` out
+### Momentum from the past signals, not from a stored score
 
-**Problem.** The signals are counts, but the score is real-valued.
+**Problem.** Comparing with the score computed 30 days ago would need a
+history of scores, and any change to the model would make the comparison
+meaningless.
 
-**Choice.** All inputs are `Int`, and negative values are clamped instead of
-rejected, so every function is total and can be called on raw database
-values. The scoring functions never abort and return no `Result`; the only
-non-finite output is the overflow described under
-[numerical accuracy](#numerical-accuracy).
+**Choice.** Recompute the score of 30 days ago with the current model from
+the releases published by then. Version 0.1 did this for dependents but used
+$0$ for the downloads of 30 days ago, so the whole download term counted as
+growth and almost every popular package was `Rising`. The index builder now
+keeps a short history of download counts; until a count from about 30 days
+ago exists, the current count stands in for it and downloads add no change.
+
+### Weights
+
+The weights $38 : 27 : 22$ are unchanged from version 0.1. Dependents weigh
+most because a dependency is a deliberate decision; downloads weigh least
+because they also count automated builds and are missing for packages the
+builder could not look up; recent dependents are counted *on top of* all
+dependents, a bonus for current adoption rather than a separate population.
+They are editorial choices of this project, not fitted parameters.
 
 ## Correctness / invariants
 
-### Monotonicity
-
-For counts in $[0, 2^{31} - 2]$, $S$ is non-decreasing in $D$, $R$ and $W$,
-and strictly increasing as long as the count stays below $2^{24}$:
-$\sigma$ is strictly increasing, the weights are positive and $m(t) > 0$, so
-
-$$
-D < D' \implies 38\,\sigma(D) < 38\,\sigma(D') \implies S(D, R, W, t) < S(D', R, W, t).
-$$
-
-Above $2^{24}$ the conversion through `Float` (below) can map neighbouring
-counts to the same value, so strict growth degrades to non-decreasing. $S$
-is non-increasing in $t$ because $m$ is. The blackbox tests in
-`impact_factor_test.mbt` check instances of this for dependents, downloads
-and release age.
-
-### Range
-
-$S \ge 0$, with equality exactly when $D, R, W \le 0$. For counts up to
-$2^{31} - 2$, $\sigma \le \ln 2^{31} \approx 21.49$, so
-
-$$
-S \le 1.12 \cdot (38 + 27 + 22) \cdot 31 \ln 2 \approx 2093.7 .
-$$
-
-### Labels are total
-
-`rank_label` and `compute_momentum_label` return one of their labels for every
-input. Every comparison with `NaN` is false, so a `NaN` score is ranked `D`
-and has `Stable` momentum.
-
-### Numerical accuracy
-
-`log_signal` converts $n + 1$ to `Float` before taking the logarithm in
-`Double`. Every integer up to $2^{24}$ is exact in `Float`; above it the
-conversion rounds to nearest with relative error $|\delta| \le u = 2^{-24}$.
-Then
-
-$$
-\begin{aligned}
-\bigl|\ln\bigl((n+1)(1+\delta)\bigr) - \ln(n+1)\bigr|
-  &= |\ln(1+\delta)| \\
-  &\le \frac{|\delta|}{1 - |\delta|} \le \frac{u}{1-u} \approx 5.96 \times 10^{-8},
-\end{aligned}
-$$
-
-and the error in $S$ from this conversion is at most
-$1.12 \cdot 87 \cdot u/(1-u) \approx 5.8 \times 10^{-6}$, on top of the
-ordinary `Double` rounding of a few operations. The index builder still
-contains an unused Python copy of the formula (`compute_score` in
-`scripts/build_index.py`) that calls `math.log1p` without the `Float` step;
-it agrees with the MoonBit result to this bound plus a few units in the last
-place. The database itself is filled through the MoonBit CLI.
-
-The addition $n + 1$ is done in `Int`. For $n = 2^{31} - 1$ it wraps to
-$-2^{31}$, the logarithm of a negative number is `NaN`, and the score is
-`NaN`.
-
-### Snapshot consistency
-
-`compute_score_snapshot` computes every field from the same two calls of
-`compute_score`, so `score_growth_30d == score - score_30d_ago` holds exactly
-(it is the same floating-point subtraction), and `rank_label` and
-`momentum_label` are always the labels of the stored numbers.
-
-### How scores are ranked
-
-The package only computes scores; consumers sort them. Every ordering in the
-repository breaks ties deterministically: the ranked feeds and the default
-search order use `score` descending, then `full_name` ascending, and the
-`Hot` and `Rising` feeds use `score_growth_30d` descending, then `score`,
-then `full_name`. The [static_search design](static_search.md) gives the
-orderings of the browser search.
+- **Monotonicity.** For fixed $t$, $S$ is non-decreasing in $E$, $O$,
+  $E_r$, $O_r$ and $W$, and strictly increasing in each while the others
+  are fixed, because $\sigma$ is strictly increasing, the weights are
+  positive and $m(t) > 0$. $S$ is non-increasing in $t$.
+- **Range.** $S \ge 0$, with $S = 0$ exactly when $D = R = W = 0$. Counts
+  are `Int`, so $\sigma \le \ln 2^{31} \approx 21.49$ and
+  $S \le 1.12 \cdot 87 \cdot 31 \ln 2 \approx 2093.7$.
+- **Breakdown consistency.** `compute_score` is computed from
+  `score_breakdown`, so the parts on a package page add up to the score
+  exactly as stored.
+- **Positions.** `rank_positions` sorts once ($O(N \log N)$) and assigns
+  equal positions to equal scores; `NaN` sorts last. Positions are
+  $1 \le \pi_i \le N$ and $\pi_i = 1$ for every package with the best score.
+- **Labels are total.** Every function returns one of its labels for every
+  input; `NaN` scores are `D` and `Stable`.
+- **Snapshot consistency.** `score_population` derives every field of a
+  `ScoreSnapshot` from the same two scores, so
+  `score_growth_30d == score - score_30d_ago` exactly.
 
 ## Alternatives rejected
 
-- **PageRank-style centrality** on the dependency graph would reward being
-  depended on by important packages, but it needs the whole graph, an
-  iterative solver and a damping parameter, and it cannot be explained on a
-  package page. The direct dependent count is the first step of that
-  iteration and is enough for a registry of this size.
-- **Transitive dependents** were not used: they count the same downstream
-  package many times through every path and favour low-level packages even
-  more than the logarithm can correct.
-- **Learning the weights** from a labelled ranking would need labels that do
-  not exist; the fixed weights are stated in the code and in this page.
-- **Returning `Result` for negative inputs** would push error handling into
-  every caller for a condition that has an obvious meaning (no signal).
+- **PageRank-style centrality** would reward being depended on by important
+  packages, but it needs an iterative solver and a damping parameter and
+  cannot be explained in a table on a package page.
+- **Transitive dependents** count one downstream package through every path
+  and favour low-level packages more than the logarithm can correct.
+- **Quantile scores** instead of quantile grades would change a package's
+  score whenever other packages appear; only the grade is relative.
+- **Learning the weights** would need a labelled ranking that does not
+  exist.
 
 ## Boundaries
 
-- The score measures adoption inside one registry snapshot. It does not
-  measure code quality, correctness, security or maintenance effort.
-- The package takes the signals as given. Collecting them, deciding which
-  dependents are recent and which downloads are trusted is the index
-  builder's job, described in the [architecture guide](../architecture.md).
-- The builder currently passes `0` as the historical download count, so
-  `score_growth_30d` contains the whole download term
-  $22\,m(t)\,\sigma(W)$ of the current score. Read growth together with the
-  dependent counts, which the momentum label does by requiring recent
-  dependents.
-- There is no normalisation across packages, no time decay inside a window
-  and no confidence interval: a score is a deterministic function of four
-  integers.
-- Counts of `2147483647` are not supported (the score becomes `NaN`).
-- A package whose release date is unknown is scored as released `3650`
-  days ago, now and 30 days ago, so it gets the lowest multiplier $0.88$ in
-  both snapshots. The [architecture guide](../architecture.md) gives the
-  signal definitions.
+- The score measures reliance inside one registry snapshot. It does not
+  measure quality, correctness, security or maintenance effort.
+- The package takes the signals as given; the [metrics design](metrics.md)
+  defines them.
+- Grades and positions depend on the population passed to
+  `score_population`; scores do not.
+- `ln` is reproducible across backends, but the native backend compiled by a
+  C compiler that contracts `a*b+c` into fused multiply-adds (GCC by
+  default on targets with FMA) can still differ in the last bit; Luna-Flow
+  tracks this as a toolchain issue.

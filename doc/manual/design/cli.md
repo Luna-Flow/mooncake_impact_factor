@@ -1,131 +1,85 @@
 # cli design
 
-The `cli` package is a bridge: it lets the Python index builder and other
-non-MoonBit programs evaluate the MoonBit score rules. This page explains the
-shape of that bridge. The score rules themselves are derived in the
-[score design](score.md).
+The `cli` package is a bridge: it lets the Python index builder run the
+MoonBit computation of the [metrics](metrics.md) and [score](score.md)
+packages on a whole registry. This page explains the shape of that bridge.
 
 ## Design goal
 
-There must be exactly one implementation of the score, rank and momentum
-rules, and the database the web application serves must be computed by it.
-The index builder is written in Python because it works with SQLite, the file
-system and HTTP; the rules are written in MoonBit so that MoonBit users can
-call them as a library. The bridge has to connect the two without copying the
-rules, with as little machinery as possible.
+There must be exactly one implementation of every rule that changes a
+score, and the database that the web application serves must be computed by
+it. The index builder is written in Python because it works with SQLite, the
+file system and HTTP; the rules are written in MoonBit so that MoonBit users
+can call them as a library and so that they give the same result on every
+backend. The bridge connects the two without copying a rule.
 
 ## Mathematical background
 
-The command computes a function of eight integers,
+The command computes one function,
 
 $$
-f : \mathbb{Z}^8 \to \mathbb{R}^5 \times \{\texttt{S}, \texttt{A}, \texttt{B}, \texttt{C}, \texttt{D}\} \times \{\texttt{Rising}, \texttt{Hot}, \texttt{Stable}\},
+\texttt{build-index} : \text{JSON} \to \text{JSON}, \qquad
+x \mapsto \operatorname{Json}\bigl(\texttt{@metrics.compute}(d(x))\bigr),
 $$
 
-namely `compute_score_snapshot`. Its input arrives as JSON, so the command
-first applies a total decoding map $d$ from JSON values to $\mathbb{Z}^8$ and
-prints $f(d(x))$. For each key $k$,
+where $d$ is the JSON decoding of `@metrics.Input` derived by the
+compiler. Unlike version 0.1, $d$ is strict: a missing required field, a
+value of the wrong type or an invalid `now` is an error, because a silently
+defaulted release would change every score of the registry.
 
-$$
-d_k(x) =
-\begin{cases}
-\operatorname{sat}\bigl(\operatorname{trunc}(x_k)\bigr) & x \text{ is an object and } x_k \text{ is a number} \\
-0 & \text{otherwise,}
-\end{cases}
-$$
-
-where $\operatorname{trunc}$ rounds toward zero and $\operatorname{sat}$
-clamps to $[-2^{31}, 2^{31} - 1]$. Because $d$ is total, the only failures
-are the ones outside it: wrong arguments, an unreadable file and text that is
-not JSON. Since the score clamps negative counts to $0$, the composite
-$f \circ d$ maps every JSON value to a snapshot.
-
-Two properties follow and are what callers rely on:
-
-- **Determinism.** $f$ and $d$ are pure, so the same file always gives the
-  same output, byte for byte: `Json::stringify` writes the fields in
-  declaration order and, on the JavaScript target, prints each `Double` in
-  its shortest round-trip form.
-- **Agreement with the library.** For an input object with integer values
-  in the `Int` range, $d$ is the identity on those values, so the command
-  prints exactly `Json(@score.compute_score_snapshot(...))`.
+- **Determinism.** `compute` is pure and processes packages in a fixed
+  order, and `Json::stringify` writes fields in declaration order, so the
+  same input file gives the same output byte for byte.
+- **Agreement with the library.** The output is exactly
+  `Json(@metrics.compute(input))`; nothing is recomputed outside MoonBit.
 
 ## Design decisions
 
-### A process per snapshot, through a file
+### One process per build, through files
 
-**Problem.** Python must call MoonBit code.
+**Problem.** Version 0.1 started one Node.js process per package. A process
+start costs tens of milliseconds while a score costs microseconds, so the
+scoring phase was dominated by process starts, and relative grades need the
+whole registry in one computation anyway.
 
-**Options.** Re-implement the formula in Python; call MoonBit compiled to
-WebAssembly from Python; run a long-lived MoonBit server; run a MoonBit
-program per snapshot.
-
-**Choice.** A JavaScript executable that Python starts once per package, with
-the input in a temporary file. A Python copy of the formula would be a second
-source of truth (an unused one still exists in `scripts/build_index.py`); a
-WebAssembly host or a server would add a dependency or a protocol for a job
-that runs once per index build. The file keeps the command line short and
-lets the builder delete the input in a `finally` block.
-
-The cost is one Node.js start per package. Starting a process takes tens of
-milliseconds while the score takes microseconds, so the builder's scoring
-phase is $\Theta(N)$ process starts for $N$ packages. For a registry of a few
-thousand packages that is acceptable for an offline build.
+**Choice.** One command reads the whole registry from an input file and
+writes the report to an output file. For $2902$ packages and $17\,456$
+releases the command takes about a second. Files rather than pipes keep the
+input inspectable when a build goes wrong, and a report of several megabytes
+is not limited by the size of standard output buffers.
 
 ### JavaScript only
 
-The command reads files with `fs.readFileSync` and exits with
-`process.exit`, both through `extern "js"` functions, so the package sets
-`supported_targets = "js"`. The repository needs Node.js anyway for the web
-application, so no other runtime is required.
+The command reads and writes files and exits with a status through
+`extern "js"` functions, so the package sets `supported_targets = "js"`.
+The repository needs Node.js anyway for the web application.
 
-### Lenient input, strict errors
+### Errors as JSON
 
-**Problem.** A caller may not know every signal, for example the downloads
-of a package that the builder could not look up.
-
-**Choice.** Missing and non-numeric fields decode to `0`, the neutral
-value of every signal. Malformed JSON and bad arguments, which point to a bug
-in the caller rather than to missing data, produce an `error` object and exit
-status `1`. The error objects are JSON so that a caller can parse standard
-output in every case.
-
-### Labels computed in MoonBit
-
-The command returns labels, not only numbers. If the builder computed
-`rank_label` itself from the stored score, a change of thresholds in MoonBit
-would silently not reach the database. Returning the whole snapshot keeps the
-labels and the numbers from one evaluation, so the
-[snapshot consistency](score.md#snapshot-consistency) invariant holds in the
-database too.
+Bad arguments, unreadable JSON and decoding errors print one JSON object
+with an `error` key and exit with status `1`, so that a caller can parse
+standard output in every case. The index builder raises the message.
 
 ## Correctness / invariants
 
-- Exit status `0` implies that standard output is one line containing a JSON
-  object with the seven `ScoreSnapshot` fields.
-- Exit status `1` with a JSON object on standard output implies an `error`
-  key. An unreadable input file also exits with `1` but writes only to
-  standard error.
-- The output does not depend on the current time, the environment or any
-  file other than the input: all time-dependent signals are computed by the
-  caller.
+- Exit status `0` implies that the output file (or standard output without
+  `--output`) holds one JSON object, the report.
+- Exit status `1` implies an `error` object on standard output.
+- The output depends only on the input file: the current time is the
+  input's `now`.
 
 ## Alternatives rejected
 
-- **Reading standard input.** It would avoid the temporary file, but
-  `readFileSync` on a path works the same on every platform Node.js supports,
-  and the file can be inspected when a build goes wrong.
-- **A batch mode** that scores many packages per process would remove the
-  per-package start-up cost. It is not implemented; the per-package contract
-  is simpler and fast enough for the current registry size.
-- **Command-line flags for each signal** (`--dependents 20`) would make the
-  call longer and need a parser; JSON matches the dictionary the builder
-  already has.
+- **Reading standard input**: a temporary file works the same on every
+  platform and can be kept for debugging.
+- **A long-lived server** or **WebAssembly from Python** would add a
+  protocol or a dependency for a job that runs once a day.
+- **Keeping `score-snapshot`** for single packages: a single score no
+  longer has a grade or a position, so the command would answer a different
+  question than the rankings do.
 
 ## Boundaries
 
-- The command evaluates one snapshot. It does not read the registry, query
-  SQLite, fetch downloads or compute dates.
-- It does not validate that the signals are consistent with each other.
-- It reports unreadable files through Node.js, not as JSON.
+- The command does not read the registry, fetch downloads or touch SQLite;
+  `scripts/build_index.py` does.
 - It runs only on the JavaScript target with Node.js.
