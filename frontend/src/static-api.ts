@@ -10,8 +10,11 @@ import {
   type StaticManifest,
   type StaticSearchIndexItem
 } from "./types";
-import type { AdvancedSearchParams, FeedSource } from "./api";
-import { normalizeSearchParams } from "./app-state";
+import { DEFAULT_SEARCH_PARAMS, type AdvancedSearchParams, type FeedSource } from "./api";
+
+function normalizeSearchParams(params: Partial<AdvancedSearchParams>): AdvancedSearchParams {
+  return { ...DEFAULT_SEARCH_PARAMS, ...params };
+}
 
 type StaticSearchResponse = {
   items: PackageSummary[];
@@ -100,22 +103,7 @@ type WorkerErrorResponse = {
 type WorkerResponse = WorkerReadyResponse | WorkerResultResponse | WorkerErrorResponse;
 
 function staticWorkerItemsToSummary(items: StaticSearchIndexItem[]): PackageSummary[] {
-  return items.map((pkg) => ({
-    full_name: pkg.full_name,
-    owner: pkg.owner,
-    package_name: pkg.package_name,
-    description: pkg.description,
-    latest_version: pkg.latest_version,
-    dependent_count: pkg.dependent_count,
-    recent_dependent_count: pkg.recent_dependent_count,
-    download_count: pkg.download_count,
-    score: pkg.score,
-    score_30d_ago: pkg.score_30d_ago,
-    score_growth_30d: pkg.score_growth_30d,
-    score_growth_ratio_30d: pkg.score_growth_ratio_30d,
-    rank_label: pkg.rank_label,
-    momentum_label: pkg.momentum_label
-  }));
+  return items;
 }
 
 function nextWorkerId(): number {
@@ -215,9 +203,9 @@ export async function searchStaticPackages(params: Partial<AdvancedSearchParams>
   });
 }
 
-export async function fetchStaticPackageAnalysis(owner: string, packageName: string): Promise<PackageAnalysis> {
+export async function fetchStaticPackageAnalysis(fullName: string): Promise<PackageAnalysis> {
   await fetchStaticManifest();
-  return requestJson(staticAsset(`packages/${owner}--${packageName}.json`), packageAnalysisSchema);
+  return requestJson(staticAsset(`packages/${fullName.replaceAll("/", "--")}.json`), packageAnalysisSchema);
 }
 
 export async function searchStaticPackagesResponse(params: Partial<AdvancedSearchParams> = {}): Promise<StaticSearchResponse> {
