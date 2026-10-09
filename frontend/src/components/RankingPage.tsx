@@ -277,6 +277,7 @@ function RankingRow(props: { lang: Lang; item: PackageSummary; maxScore: number 
       <td className="col-package">
         <Link href={packageHref(lang, item.full_name)} className="package-link">
           <span className="package-owner">{item.full_name.slice(0, slash + 1)}</span>
+          <wbr />
           <span className="package-name">{item.full_name.slice(slash + 1)}</span>
         </Link>
         {item.description ? <p className="package-description">{item.description}</p> : null}

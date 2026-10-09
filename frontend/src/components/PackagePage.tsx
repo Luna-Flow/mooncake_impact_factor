@@ -78,7 +78,7 @@ function Breakdown(props: { lang: Lang; analysis: PackageAnalysis; topScore: num
         {rows.map((row) => (
           <tr key={row.label}>
             <th scope="row">{row.label}</th>
-            <td className="num">{row.count}</td>
+            <td className="num breakdown-count">{row.count}</td>
             <td className="num">{formatScore(lang, row.points)}</td>
             <td className="col-bar">
               <ScoreBar value={topScore > 0 ? row.points / topScore : 0} />
@@ -116,7 +116,9 @@ function PackageBody(props: { lang: Lang; analysis: PackageAnalysis; meta: Index
   const [allDependents, setAllDependents] = useState(false);
   const [allReleases, setAllReleases] = useState(false);
   const population = meta?.population ?? 0;
-  const top = population > 0 ? pkg.rank_position / population : 0;
+  // Share of the registry at or above this position, rounded up so that the
+  // first package reads "top 0.1%" rather than "top 0.0%".
+  const top = population > 0 ? Math.ceil((pkg.rank_position / population) * 1000) / 1000 : 0;
   const external = analysis.dependents.filter((item) => !item.same_owner);
   const dependents = allDependents ? analysis.dependents : analysis.dependents.slice(0, PREVIEW.dependents);
   const releases = allReleases ? pkg.versions : pkg.versions.slice(0, PREVIEW.releases);
@@ -223,7 +225,9 @@ function PackageBody(props: { lang: Lang; analysis: PackageAnalysis; meta: Index
         <p className="section-intro">
           {t(lang, "score.intro")} <Link href={`/${lang}/method/`}>{t(lang, "rankings.howItWorks")}</Link>
         </p>
-        <Breakdown lang={lang} analysis={analysis} topScore={meta?.top_score ?? pkg.score} />
+        <div className="table-scroll">
+          <Breakdown lang={lang} analysis={analysis} topScore={meta?.top_score ?? pkg.score} />
+        </div>
       </Section>
 
       <Section id="momentum" title={t(lang, "package.momentum")}>

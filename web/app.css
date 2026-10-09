@@ -683,6 +683,10 @@ th abbr {
   text-align: left;
 }
 
+.breakdown .breakdown-count {
+  white-space: normal;
+}
+
 .breakdown .col-bar {
   width: 80px;
   padding-right: 0;
@@ -926,6 +930,25 @@ var {
 
   .col-position {
     width: 2.5rem;
+  }
+
+  .col-momentum,
+  .breakdown .col-bar {
+    display: none;
+  }
+
+  /* Fixed layout: the narrow columns keep their widths and the package
+     column takes the rest, whatever the length of a name. */
+  table.rankings {
+    table-layout: fixed;
+  }
+
+  table.rankings .col-grade {
+    width: 4rem;
+  }
+
+  table.rankings .col-package {
+    width: auto;
   }
 
   .col-package {
