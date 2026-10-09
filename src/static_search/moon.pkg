@@ -1,9 +1,21 @@
-supported_targets = "js"
+import {
+  "Luna-Flow/mooncake-impact-factor/query",
+  "moonbitlang/core/json",
+}
+
+warnings = "-implicit_impl_as_method"
 
 options(
   link: {
     "js": {
-      "exports": [ "runtime_version", "normalize_text" ],
+      "exports": [
+        "runtime_version",
+        "normalize_text",
+        "load_index",
+        "search",
+        "evaluate_json",
+        "relevance_json",
+      ],
       "format": "esm",
     },
   },
