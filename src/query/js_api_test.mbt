@@ -98,22 +98,22 @@ test "with_query_ast_patch_json" {
     ),
   )
   guard patch is Object({ "ok": Object(fields), .. }) else { fail("not ok") }
-  inspect(
+  debug_inspect(
     fields.get("expr"),
     content=(
-      #|Some(String(owner:x))
+      #|Some(String("owner:x"))
     ),
   )
-  inspect(
+  debug_inspect(
     fields.get("ast"),
     content=(
-      #|Some(String({"kind":"group","op":"and","children":[{"kind":"term","field":"owner","operator":"match","value":"x"}]}))
+      #|Some(String("{\"kind\":\"group\",\"op\":\"and\",\"children\":[{\"kind\":\"term\",\"field\":\"owner\",\"operator\":\"match\",\"value\":\"x\"}]}"))
     ),
   )
-  inspect(
+  debug_inspect(
     fields.get("minScore"),
     content=(
-      #|Some(String())
+      #|Some(String(""))
     ),
   )
 }

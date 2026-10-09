@@ -55,16 +55,37 @@ pub fn legacy_params() -> Array[LegacyParam] {
 }
 
 ///|
-/// Converts flat parameters to a query tree: an `And` group with one term
+/// Converts flat parameters to a query tree: an `And` group with one entry
 /// per non-blank parameter, in the order of `legacy_params()`. Missing keys
 /// count as blank; keys that are not flat parameters are ignored.
-pub fn legacy_params_to_ast(params : Map[String, String]) -> Group {
+///
+/// `rank` and `momentum` take comma-separated lists (`"S,A"`). Their labels
+/// are canonicalised with `parse_rank_list` and `parse_momentum_list`; one
+/// label gives one `=` term, several give an `Or` group of `=` terms. An
+/// unknown label raises `QueryError`.
+pub fn legacy_params_to_ast(
+  params : Map[String, String],
+) -> Group raise QueryError {
   let children : Array[Node] = []
   for param in legacy_param_list {
     let raw = params.get(param.key).unwrap_or("")
     let value = if param.trimmed { trim(raw) } else { raw }
-    if value != "" {
-      children.push(term(param.field, param.operator, value))
+    if value == "" {
+      continue
+    }
+    let labels = match param.field {
+      Rank => Some(parse_rank_list(value))
+      Momentum => Some(parse_momentum_list(value))
+      _ => None
+    }
+    match labels {
+      None => children.push(term(param.field, param.operator, value))
+      Some([]) => ()
+      Some([label]) => children.push(term(param.field, param.operator, label))
+      Some(many) =>
+        children.push(
+          group(Or, many.map(label => term(param.field, param.operator, label))),
+        )
     }
   }
   Group::make(And, children)

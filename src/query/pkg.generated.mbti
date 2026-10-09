@@ -16,6 +16,10 @@ pub fn decode_from_params(Map[String, String]) -> Group? raise QueryError
 
 pub fn decode_from_params_json(String) -> String
 
+pub let default_page_limit : Int
+
+pub fn default_sort(Bool) -> SortKey
+
 pub fn derive_ast(Map[String, String]) -> Group raise QueryError
 
 pub fn derive_ast_json(String) -> String
@@ -34,7 +38,9 @@ pub fn is_white_space(Int) -> Bool
 
 pub fn legacy_params() -> Array[LegacyParam]
 
-pub fn legacy_params_to_ast(Map[String, String]) -> Group
+pub fn legacy_params_to_ast(Map[String, String]) -> Group raise QueryError
+
+pub let max_page_limit : Int
 
 pub fn momentum_labels() -> Array[String]
 
@@ -42,11 +48,21 @@ pub fn momentum_labels_json() -> String
 
 pub fn number_value(String) -> Double
 
+pub fn page_limit(String) -> Int
+
+pub fn page_offset(String) -> Int
+
 pub fn params_from_json(Json) -> Map[String, String]
 
 pub fn parse_expression(String) -> Group raise QueryError
 
 pub fn parse_expression_json(String) -> String
+
+pub fn parse_label(Field, String) -> String raise QueryError
+
+pub fn parse_momentum_list(String) -> Array[String] raise QueryError
+
+pub fn parse_rank_list(String) -> Array[String] raise QueryError
 
 pub fn rank_labels() -> Array[String]
 
@@ -144,6 +160,25 @@ pub(all) enum Operator {
 pub fn Operator::from_name(String) -> Self?
 pub fn Operator::name(Self) -> String
 pub fn Operator::symbol(Self) -> String
+
+pub(all) enum SortKey {
+  Relevance
+  Score
+  Growth
+  Downloads
+  Dependents
+  Recent
+  Updated
+  Name
+  External
+  Owners
+  Position
+  Age
+} derive(Eq, @debug.Debug)
+pub fn SortKey::all() -> Array[Self]
+pub fn SortKey::ascending_by_default(Self) -> Bool
+pub fn SortKey::from_name(String) -> Self?
+pub fn SortKey::name(Self) -> String
 
 pub(all) struct Term {
   field : Field

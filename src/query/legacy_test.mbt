@@ -28,6 +28,40 @@ test "flat parameters become an and group in a fixed order" {
 }
 
 ///|
+test "rank and momentum lists become or groups" {
+  inspect(
+    derived({ "rank": "S,a", "momentum": "rising" }),
+    content=(
+      #|(rank=S OR rank=A) AND momentum=Rising
+    ),
+  )
+  inspect(
+    derived({ "rank": " , ", "momentum": "New, Cooling" }),
+    content=(
+      #|(momentum=New OR momentum=Cooling)
+    ),
+  )
+  inspect(
+    derived({ "rank": "S,Z" }),
+    content=(
+      #|error: rank must be one of S, A, B, C, D
+    ),
+  )
+  inspect(
+    derived({ "momentum": "Hot" }),
+    content=(
+      #|error: momentum must be one of New, Rising, Stable, Cooling
+    ),
+  )
+  inspect(
+    derived({ "expr": "rank=x", "rank": "Z" }),
+    content=(
+      #|rank=x
+    ),
+  )
+}
+
+///|
 test "presence flags keep their value untrimmed" {
   let ast = @query.legacy_params_to_ast({ "hasRepository": " true" })
   guard ast.children is [Term(term)] else { fail("expected one term") }
