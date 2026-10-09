@@ -2,8 +2,10 @@ import { z } from "zod";
 
 import {
   packageAnalysisSchema,
+  packageSearchPageSchema,
   packageSummaryListSchema,
   type PackageAnalysis,
+  type PackageSearchPage,
   type PackageSummary
 } from "./types";
 
@@ -15,11 +17,17 @@ export type SearchSort =
   | "dependents"
   | "recent"
   | "updated"
-  | "name";
+  | "name"
+  | "external"
+  | "owners"
+  | "position"
+  | "age";
 
 export type SearchOrder = "asc" | "desc";
-export type SearchRank = "" | "S" | "A" | "B" | "C" | "D";
-export type SearchMomentum = "" | "Hot" | "Rising" | "Stable";
+// Rank and momentum take one label or a comma-separated list ("S,A"); the
+// label sets are RANK_LABELS and MOMENTUM_LABELS in lib/query.ts.
+export type SearchRank = "" | "S" | "A" | "B" | "C" | "D" | (string & {});
+export type SearchMomentum = "" | "New" | "Rising" | "Stable" | "Cooling" | (string & {});
 export type FeedSource = "top" | "hot" | "rising";
 
 export type AdvancedSearchParams = {
@@ -36,6 +44,9 @@ export type AdvancedSearchParams = {
   maxScore: string;
   minDependents: string;
   minRecentDependents: string;
+  minExternalDependents: string;
+  minOwners: string;
+  maxAge: string;
   minDownloads: string;
   fromYear: string;
   toYear: string;
@@ -43,6 +54,10 @@ export type AdvancedSearchParams = {
   hasLicense: "" | "true" | "false";
   sort: SearchSort | "";
   order: SearchOrder | "";
+  /** Page size; blank means 50, at most 200. */
+  limit: string;
+  /** Matches to skip; blank means 0. */
+  offset: string;
   expr: string;
   ast: string;
 };
@@ -61,6 +76,9 @@ export const DEFAULT_SEARCH_PARAMS: AdvancedSearchParams = {
   maxScore: "",
   minDependents: "",
   minRecentDependents: "",
+  minExternalDependents: "",
+  minOwners: "",
+  maxAge: "",
   minDownloads: "",
   fromYear: "",
   toYear: "",
@@ -68,6 +86,8 @@ export const DEFAULT_SEARCH_PARAMS: AdvancedSearchParams = {
   hasLicense: "",
   sort: "",
   order: "",
+  limit: "",
+  offset: "",
   expr: "",
   ast: ""
 };
@@ -124,6 +144,9 @@ function buildSearchQuery(params: Partial<AdvancedSearchParams>): URLSearchParam
   appendNumericIfPresent(query, "max_score", params.maxScore ?? "");
   appendNumericIfPresent(query, "min_dependents", params.minDependents ?? "");
   appendNumericIfPresent(query, "min_recent_dependents", params.minRecentDependents ?? "");
+  appendNumericIfPresent(query, "min_external_dependents", params.minExternalDependents ?? "");
+  appendNumericIfPresent(query, "min_owners", params.minOwners ?? "");
+  appendNumericIfPresent(query, "max_age", params.maxAge ?? "");
   appendNumericIfPresent(query, "min_downloads", params.minDownloads ?? "");
   appendNumericIfPresent(query, "from_year", params.fromYear ?? "");
   appendNumericIfPresent(query, "to_year", params.toYear ?? "");
@@ -131,6 +154,8 @@ function buildSearchQuery(params: Partial<AdvancedSearchParams>): URLSearchParam
   appendBooleanIfPresent(query, "has_license", params.hasLicense ?? "");
   appendIfPresent(query, "sort", params.sort ?? "");
   appendIfPresent(query, "order", params.order ?? "");
+  appendNumericIfPresent(query, "limit", params.limit ?? "");
+  appendNumericIfPresent(query, "offset", params.offset ?? "");
   appendIfPresent(query, "expr", params.expr ?? "");
   appendIfPresent(query, "ast", params.ast ?? "");
   return query;
@@ -145,14 +170,15 @@ export async function fetchFeed(source: FeedSource, limit = 50): Promise<Package
   return data.items;
 }
 
-export async function searchPackages(params: Partial<AdvancedSearchParams> = {}): Promise<PackageSummary[]> {
+/** One page of `/api/search` results with the total number of matches. */
+export async function searchPackagesPage(params: Partial<AdvancedSearchParams> = {}): Promise<PackageSearchPage> {
   const query = buildSearchQuery(params);
   const suffix = query.toString();
-  const data = await requestJson(
-    `/api/search${suffix ? `?${suffix}` : ""}`,
-    packageSummaryListSchema
-  );
-  return data.items;
+  return requestJson(`/api/search${suffix ? `?${suffix}` : ""}`, packageSearchPageSchema);
+}
+
+export async function searchPackages(params: Partial<AdvancedSearchParams> = {}): Promise<PackageSummary[]> {
+  return (await searchPackagesPage(params)).items;
 }
 
 export async function fetchPackageAnalysis(owner: string, packageName: string): Promise<PackageAnalysis> {

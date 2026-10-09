@@ -8,9 +8,10 @@ export const dynamic = "force-dynamic";
 export async function GET(request: Request) {
   try {
     const { searchParams } = new URL(request.url);
-    const items = searchPackagesFromInput({
+    const page = searchPackagesFromInput({
       q: searchParams.get("q"),
       limit: searchParams.get("limit"),
+      offset: searchParams.get("offset"),
       owner: searchParams.get("owner"),
       package: searchParams.get("package"),
       keyword: searchParams.get("keyword"),
@@ -23,6 +24,9 @@ export async function GET(request: Request) {
       max_score: searchParams.get("max_score"),
       min_dependents: searchParams.get("min_dependents"),
       min_recent_dependents: searchParams.get("min_recent_dependents"),
+      min_external_dependents: searchParams.get("min_external_dependents"),
+      min_owners: searchParams.get("min_owners"),
+      max_age: searchParams.get("max_age"),
       min_downloads: searchParams.get("min_downloads"),
       from_year: searchParams.get("from_year"),
       to_year: searchParams.get("to_year"),
@@ -34,7 +38,7 @@ export async function GET(request: Request) {
       ast: searchParams.get("ast")
     });
 
-    return NextResponse.json({ items });
+    return NextResponse.json({ items: page.items, total: page.total });
   } catch (error: unknown) {
     if (isHttpError(error)) {
       return NextResponse.json({ error: error.message }, { status: error.status });

@@ -133,6 +133,9 @@ export function buildSearchHref(
     appendIfPresent(query, "max_score", params.maxScore);
     appendIfPresent(query, "min_dependents", params.minDependents);
     appendIfPresent(query, "min_recent_dependents", params.minRecentDependents);
+    appendIfPresent(query, "min_external_dependents", params.minExternalDependents);
+    appendIfPresent(query, "min_owners", params.minOwners);
+    appendIfPresent(query, "max_age", params.maxAge);
     appendIfPresent(query, "min_downloads", params.minDownloads);
     appendIfPresent(query, "from_year", params.fromYear);
     appendIfPresent(query, "to_year", params.toYear);
@@ -140,6 +143,8 @@ export function buildSearchHref(
     appendBooleanIfPresent(query, "has_license", params.hasLicense);
     appendIfPresent(query, "sort", params.sort);
     appendIfPresent(query, "order", params.order);
+    appendIfPresent(query, "limit", params.limit);
+    appendIfPresent(query, "offset", params.offset);
     appendIfPresent(query, "expr", params.expr);
     appendIfPresent(query, "ast", params.ast);
   }

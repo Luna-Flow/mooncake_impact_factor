@@ -110,6 +110,9 @@ function getCurrentSearchParams(): Partial<AdvancedSearchParams> {
     maxScore: query.get("max_score") ?? "",
     minDependents: query.get("min_dependents") ?? "",
     minRecentDependents: query.get("min_recent_dependents") ?? "",
+    minExternalDependents: query.get("min_external_dependents") ?? "",
+    minOwners: query.get("min_owners") ?? "",
+    maxAge: query.get("max_age") ?? "",
     minDownloads: query.get("min_downloads") ?? "",
     fromYear: query.get("from_year") ?? "",
     toYear: query.get("to_year") ?? "",
@@ -117,6 +120,8 @@ function getCurrentSearchParams(): Partial<AdvancedSearchParams> {
     hasLicense: (query.get("has_license") ?? "") as AdvancedSearchParams["hasLicense"],
     sort: (query.get("sort") ?? "") as AdvancedSearchParams["sort"],
     order: (query.get("order") ?? "") as AdvancedSearchParams["order"],
+    limit: query.get("limit") ?? "",
+    offset: query.get("offset") ?? "",
     expr: query.get("expr") ?? "",
     ast: query.get("ast") ?? ""
   };

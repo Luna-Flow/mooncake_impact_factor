@@ -62,6 +62,12 @@ export const packageSummaryListSchema = z.object({
   items: z.array(packageSummarySchema)
 });
 
+/** One page of search results; `total` counts the matches before paging. */
+export const packageSearchPageSchema = z.object({
+  items: z.array(packageSummarySchema),
+  total: z.number()
+});
+
 export const staticManifestSchema = z.object({
   schema_version: z.string(),
   generated_at: z.string(),
@@ -89,6 +95,10 @@ export const staticSearchPackageListSchema = z.object({
 
 export const staticSearchIndexItemSchema = packageSummarySchema.extend({
   latest_created_at: z.string().nullable(),
+  external_dependent_count: z.number(),
+  dependent_owner_count: z.number(),
+  days_since_release: z.number(),
+  rank_position: z.number(),
   repository_present: z.boolean(),
   license_present: z.boolean(),
   normalized_full_text: z.string(),
@@ -114,6 +124,7 @@ export const packageAnalysisSchema = z.object({
 });
 
 export type PackageSummary = z.infer<typeof packageSummarySchema>;
+export type PackageSearchPage = z.infer<typeof packageSearchPageSchema>;
 export type DependentItem = z.infer<typeof dependentItemSchema>;
 export type PackageVersion = z.infer<typeof packageVersionSchema>;
 export type PackageDetail = z.infer<typeof packageDetailSchema>;
