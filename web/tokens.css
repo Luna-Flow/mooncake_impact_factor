@@ -1,18 +1,17 @@
+/* Copied unchanged from Luna-Flow.github.io, src/styles/tokens.css, so that
+   the documentation site and this application share one look. Change the
+   tokens there first, then copy the file here. */
+
 /*
- * Design tokens, mirrored from the Luna-Flow documentation site
- * (Luna-Flow.github.io/src/styles/tokens.css, https://lunaflow.cn).
+ * Design tokens.
  *
- * Paper and ink, one accent. The accent is the Luna-Flow magenta of the logo
- * and marks only what the reader can act on or where they are: primary
- * actions, the current page or row, focus. Structure comes from space first,
- * then a hairline rule; surfaces and shadows are kept for controls and
- * floating layers.
+ * Paper and ink, one accent. The accent is the Luna-Flow magenta of the
+ * logo and marks only what the reader can act on or where they are: links on
+ * hover, the current page, focus. Structure comes from space first, then a
+ * hairline rule; never from boxes or shadows.
  *
  * Space follows a 4px base: 4 8 12 16 24 32 48 64 96.
- * Type: a serif for display text, a sans for the interface, a mono for code.
- *
- * The light and dark palettes follow prefers-color-scheme until the theme
- * menu sets data-theme on <html>, exactly as on the documentation site.
+ * Type: a serif for reading, a sans for interface, a mono for code.
  */
 
 :root {
@@ -28,7 +27,6 @@
   --rule-strong: rgb(29 27 24 / 0.22);
 
   --accent: #9e1084;
-  --accent-ink: #fbfaf7;
   --accent-wash: rgb(158 16 132 / 0.07);
   --focus: rgb(158 16 132 / 0.45);
 
@@ -38,23 +36,23 @@
   --warning: #8a5800;
   --caution: #a3262b;
 
-  --shadow-menu: 0 8px 24px rgb(0 0 0 / 0.08);
-  --shadow-dialog: 0 24px 64px rgb(0 0 0 / 0.18);
-  --backdrop: rgb(20 18 16 / 0.35);
-
   --font-serif: 'Source Serif 4', 'Noto Serif SC', 'Noto Serif JP', Georgia, 'Songti SC', 'Hiragino Mincho ProN', serif;
   --font-sans: 'IBM Plex Sans', system-ui, -apple-system, 'Segoe UI', 'PingFang SC', 'Hiragino Sans', 'Noto Sans CJK SC', sans-serif;
   --font-mono: 'IBM Plex Mono', ui-monospace, 'SFMono-Regular', Menlo, Consolas, monospace;
+  /* Running text. Latin prose reads well in the serif; CJK prose does not, so
+     Chinese and Japanese pages set body text in sans and keep the serif for
+     headings and other display text. */
+  --font-text: var(--font-serif);
 
   --text-xs: 0.75rem;
   --text-sm: 0.8125rem;
   --text-ui: 0.875rem;
-  --text-base: 1rem;
+  --text-base: 1.0625rem;
   --text-lg: 1.25rem;
   --text-xl: 1.5rem;
   --text-2xl: 2rem;
   --text-3xl: 2.625rem;
-  --leading: 1.6;
+  --leading: 1.65;
 
   --s1: 4px;
   --s2: 8px;
@@ -67,30 +65,23 @@
   --s9: 96px;
 
   --measure: 42rem;
-  --content: 80rem;
-  --gutter: var(--s5);
+  --sidebar: 16.5rem;
+  --margin: 15rem;
+  --gutter: 3rem;
   --header: 56px;
   --radius: 6px;
-  --radius-sm: 4px;
-  --radius-lg: 10px;
-  --control: 36px;
-
-  --z-masthead: 20;
-  --z-dropdown: 40;
-  --z-modal-backdrop: 50;
-  --z-modal-panel: 60;
 }
 
 :root:lang(zh-CN) {
-  --leading: 1.75;
+  --leading: 1.8;
   --font-serif: 'Source Serif 4', 'Noto Serif SC', 'Songti SC', serif;
-  --font-sans: 'IBM Plex Sans', 'PingFang SC', 'Noto Sans SC', 'Microsoft YaHei', system-ui, sans-serif;
+  --font-text: 'IBM Plex Sans', 'Noto Sans SC', 'PingFang SC', 'Microsoft YaHei', system-ui, sans-serif;
 }
 
 :root:lang(ja) {
-  --leading: 1.75;
+  --leading: 1.8;
   --font-serif: 'Source Serif 4', 'Noto Serif JP', 'Hiragino Mincho ProN', serif;
-  --font-sans: 'IBM Plex Sans', 'Hiragino Sans', 'Noto Sans JP', 'Yu Gothic', system-ui, sans-serif;
+  --font-text: 'IBM Plex Sans', 'Noto Sans JP', 'Hiragino Sans', 'Yu Gothic', system-ui, sans-serif;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -105,7 +96,6 @@
     --rule: rgb(232 229 223 / 0.12);
     --rule-strong: rgb(232 229 223 / 0.22);
     --accent: #e98ad6;
-    --accent-ink: #151418;
     --accent-wash: rgb(233 138 214 / 0.09);
     --focus: rgb(233 138 214 / 0.5);
     --note: #8fb3dd;
@@ -113,9 +103,6 @@
     --important: #c3a6ea;
     --warning: #e2b25d;
     --caution: #ef8f8f;
-    --shadow-menu: 0 8px 24px rgb(0 0 0 / 0.36);
-    --shadow-dialog: 0 24px 64px rgb(0 0 0 / 0.5);
-    --backdrop: rgb(0 0 0 / 0.55);
   }
 }
 
@@ -130,7 +117,6 @@
   --rule: rgb(232 229 223 / 0.12);
   --rule-strong: rgb(232 229 223 / 0.22);
   --accent: #e98ad6;
-  --accent-ink: #151418;
   --accent-wash: rgb(233 138 214 / 0.09);
   --focus: rgb(233 138 214 / 0.5);
   --note: #8fb3dd;
@@ -138,13 +124,4 @@
   --important: #c3a6ea;
   --warning: #e2b25d;
   --caution: #ef8f8f;
-  --shadow-menu: 0 8px 24px rgb(0 0 0 / 0.36);
-  --shadow-dialog: 0 24px 64px rgb(0 0 0 / 0.5);
-  --backdrop: rgb(0 0 0 / 0.55);
-}
-
-@media (max-width: 560px) {
-  :root {
-    --gutter: var(--s4);
-  }
 }
