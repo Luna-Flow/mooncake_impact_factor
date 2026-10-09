@@ -34,7 +34,6 @@ web-build:
 build-static-data:
   just refresh-index
   moon build src/cli --target js
-  moon build src/static_search --target js
   python3 scripts/build_index.py --db {{db}}
   python3 scripts/export_static_json.py --db {{db}} --out public/data
 
@@ -47,12 +46,17 @@ static-serve:
 web-typecheck:
   npm run typecheck
 
+build-moonbit:
+  npm run build:moonbit
+
 check:
   moon check src/score --target all
+  moon check src/query src/query_sql src/static_search --target all
   moon check src/cli --target js
 
 test:
   moon test src/score --target all
+  moon test src/query src/query_sql src/static_search --target all
   npm test
 
 fmt:

@@ -35,16 +35,24 @@ jobs:
       - name: moon check
         run: |
           moon check src/score --target all
+          moon check src/query src/query_sql src/static_search --target all
           moon check src/cli --target js
-          moon check src/static_search --target js
 
       - name: moon test
         run: |
           moon test src/score --target all
-          moon test src/static_search --target js
+          moon test src/query src/query_sql src/static_search --target all
+
+      - name: moonbit interfaces are up to date
+        run: |
+          moon info
+          git diff --exit-code -- 'src/**/pkg.generated.mbti'
 
       - name: python tests
         run: python3 -m unittest scripts/build_index_test.py
+
+      - name: build moonbit modules for the web code
+        run: npm run build:moonbit
 
       - name: web typecheck
         run: npm run typecheck

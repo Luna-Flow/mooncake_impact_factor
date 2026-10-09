@@ -3,13 +3,18 @@
   "private": true,
   "type": "module",
   "scripts": {
+    "build:moonbit": "node scripts/build_moonbit.mjs",
+    "predev": "npm run build:moonbit",
     "dev": "next dev",
+    "prebuild": "npm run build:moonbit",
     "build": "next build",
-    "build:static-data": "moon build src/cli --target js && moon build src/static_search --target js && python3 scripts/build_index.py --db data/mooncake.db && python3 scripts/export_static_json.py --db data/mooncake.db --out public/data",
+    "build:static-data": "moon build src/cli --target js && python3 scripts/build_index.py --db data/mooncake.db && python3 scripts/export_static_json.py --db data/mooncake.db --out public/data",
     "build:static": "node scripts/build_static_site.mjs",
     "serve:static": "python3 -m http.server 4173 -d out",
     "start": "next start",
+    "pretypecheck": "npm run build:moonbit",
     "typecheck": "tsc --project tsconfig.json --noEmit",
+    "pretest": "npm run build:moonbit",
     "test": "node --experimental-specifier-resolution=node --test tests/*.test.mjs"
   },
   "dependencies": {
