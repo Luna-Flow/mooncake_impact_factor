@@ -92,15 +92,22 @@ Supported search parameters:
 - `q`: global full-text query with `AND`, `OR`, `NOT`, parentheses, quoted phrases, and field prefixes such as `owner:`, `author:`, `package:`, `keyword:`, `description:`, and `name:`
 - `owner`, `package`, `keyword`, `description`: field-specific full-text filters combined with `AND`
 - `license`, `repository`: metadata substring filters
-- `rank`: `S`, `A`, `B`, `C`, `D`
-- `momentum`: `Rising`, `Hot`, `Stable`
+- `rank`: `S`, `A`, `B`, `C`, `D`, or a comma-separated list such as `S,A`
+- `momentum`: `New`, `Rising`, `Stable`, `Cooling`, or a list such as `Rising,New`
 - `min_score`, `max_score`
-- `min_dependents`, `min_recent_dependents`, `min_downloads`
+- `min_dependents`, `min_recent_dependents`, `min_external_dependents`, `min_owners`, `min_downloads`
+- `max_age`: days since the latest release
 - `from_year`, `to_year`
 - `has_repository`, `has_license`: `true` or `false`
-- `sort`: `relevance`, `score`, `growth`, `downloads`, `dependents`, `recent`, `updated`, `name`
+- `sort`: `relevance`, `score`, `growth`, `downloads`, `dependents`, `recent`, `updated`, `name`, `external`, `owners`, `position`, `age`
 - `order`: `asc` or `desc`
-- `limit`: maximum `100`
+- `limit`: page size, `50` by default, at most `200`
+- `offset`: matches to skip, `0` by default
+
+The answer is `{ "items": [...], "total": n }`, where `total` counts the
+matches before paging. A request without any criterion lists every package
+by rank position. Invalid parameters, including a malformed `ast` or `expr`,
+are answered with HTTP 400 and `{ "error": "<message>" }`.
 
 Field semantics:
 
@@ -117,7 +124,8 @@ GET /api/search?q=owner:gmlewis AND "http client"&limit=20
 GET /api/search?q=author:gmlewis AND keyword:json
 GET /api/search?keyword=json&min_score=180&min_downloads=500&sort=downloads
 GET /api/search?description=parser&from_year=2024&to_year=2026&has_repository=true&sort=updated
-GET /api/search?rank=A&momentum=Rising&min_dependents=5&sort=growth
+GET /api/search?rank=S,A&momentum=Rising&min_dependents=5&sort=growth
+GET /api/search?expr=owners>=3 AND age<=90&limit=20&offset=20
 ```
 
 Feeds:

@@ -48,7 +48,9 @@ multiplier $m(t)$ between $0.88$ and $1.12$.
 | --- | --- |
 | `score` | Impact score, rank labels (`S` to `D`), momentum labels (`Rising`, `Hot`, `Stable`) and score snapshots. |
 | `cli` | JavaScript command `score-snapshot` that scores one package from a JSON file; used by the Python index builder. |
-| `static_search` | Version tag and text normalisation for the browser search of the static site (JavaScript only). |
+| `query` | Search query language: query tree, expression parser and serializer, flat parameters, labels, sort keys, paging. |
+| `query_sql` | Compiles search requests to SQLite statements for the dynamic site. |
+| `static_search` | Search engine of the static site: evaluation, relevance, sorting, paging. |
 
 Outside MoonBit, `scripts/build_index.py` builds the SQLite database from the
 local registry index, `scripts/export_static_json.py` exports it for the
