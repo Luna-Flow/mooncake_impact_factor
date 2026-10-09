@@ -84,7 +84,7 @@ test "flat parameters" {
       #|    2024,
       #|    2026
       #|  ],
-      #|  "orderBy": "bm25(search_index) ASC, s.score DESC, p.full_name ASC",
+      #|  "orderBy": "bm25(search_index) ASC, s.rank_position ASC, p.full_name ASC",
       #|  "limit": 20,
       #|  "offset": 0
       #|}
@@ -257,18 +257,18 @@ test "order by" {
     ],
     content=(
       #|[
-      #|  "bm25(search_index) ASC, s.score DESC, p.full_name ASC",
+      #|  "bm25(search_index) ASC, s.rank_position ASC, p.full_name ASC",
       #|  "s.rank_position ASC, p.full_name ASC",
-      #|  "s.score DESC, p.full_name ASC",
-      #|  "s.score DESC, p.full_name ASC",
+      #|  "s.rank_position ASC, p.full_name ASC",
+      #|  "s.score DESC, s.rank_position ASC, p.full_name ASC",
       #|  "p.full_name ASC",
       #|  "p.full_name DESC",
       #|  "s.rank_position ASC, p.full_name ASC",
-      #|  "p.days_since_release ASC, s.score DESC, p.full_name ASC",
-      #|  "p.external_dependent_count DESC, s.score DESC, p.full_name ASC",
-      #|  "p.dependent_owner_count ASC, s.score DESC, p.full_name ASC",
-      #|  "COALESCE(p.latest_created_at, '') DESC, p.full_name ASC",
-      #|  "s.score_growth_30d DESC, s.score DESC, p.full_name ASC",
+      #|  "p.days_since_release ASC, s.rank_position ASC, p.full_name ASC",
+      #|  "p.external_dependent_count DESC, s.rank_position ASC, p.full_name ASC",
+      #|  "p.dependent_owner_count ASC, s.rank_position ASC, p.full_name ASC",
+      #|  "COALESCE(p.latest_created_at, '') DESC, s.rank_position ASC, p.full_name ASC",
+      #|  "s.score_growth_30d DESC, s.rank_position ASC, p.full_name ASC",
       #|  "error: sort must be one of relevance, score, growth, downloads, dependents, recent, updated, name, external, owners, position, age",
       #|]
     ),

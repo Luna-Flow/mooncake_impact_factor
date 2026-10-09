@@ -283,7 +283,7 @@ test "sort keys and tie-breaks" {
   debug_inspect(
     sorted("score", ""),
     content=(
-      #|["a/x", "a-b/x", "b/x", "A/x"]
+      #|["a-b/x", "a/x", "A/x", "b/x"]
     ),
   )
   debug_inspect(
@@ -295,7 +295,7 @@ test "sort keys and tie-breaks" {
   debug_inspect(
     sorted("downloads", ""),
     content=(
-      #|["b/x", "A/x", "a/x", "a-b/x"]
+      #|["A/x", "b/x", "a-b/x", "a/x"]
     ),
   )
   debug_inspect(
@@ -313,13 +313,13 @@ test "sort keys and tie-breaks" {
   debug_inspect(
     sorted("unknown", ""),
     content=(
-      #|["a/x", "a-b/x", "b/x", "A/x"]
+      #|["a-b/x", "a/x", "A/x", "b/x"]
     ),
   )
   debug_inspect(
     sorted("updated", ""),
     content=(
-      #|["b/x", "A/x", "a/x", "a-b/x"]
+      #|["a-b/x", "a/x", "A/x", "b/x"]
     ),
   )
 }

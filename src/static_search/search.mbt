@@ -61,10 +61,9 @@ fn sort_value(key : @query.SortKey?, item : IndexItem) -> Double {
 /// A blank `sort` means relevance when the query has intent and position
 /// otherwise; a blank `order` means the key's default direction (an unknown
 /// key sorts like `score`, descending). `order` is `asc` or anything else
-/// for descending. Relevance sorts by matched leaves (most first), then
-/// score (highest first), then name, whatever `order` says. Every other key
-/// compares its value and then the name with `collate`, both in the chosen
-/// direction. Equal items keep their index order.
+/// for descending, and it flips the key only. Relevance sorts by matched
+/// leaves (most first) whatever `order` says. Ties are broken by rank
+/// position (best first), then by name with `collate`, then by index.
 pub fn sort_indices(
   items : Array[IndexItem],
   indices : Array[Int],
@@ -96,31 +95,24 @@ pub fn sort_indices(
   positions.sort_by((a, b) => {
     let left = items[indices[a]]
     let right = items[indices[b]]
-    let order = if by_relevance {
-      let by_matches = scores[b].compare(scores[a])
-      if by_matches != 0 {
-        by_matches
-      } else {
-        let by_score = compare_doubles(right.score, left.score)
-        if by_score != 0 {
-          by_score
-        } else {
-          collate(left.full_name, right.full_name)
-        }
-      }
+    // The key in the chosen direction; 0 when the key ties.
+    let by_key = if by_relevance {
+      scores[b].compare(scores[a])
     } else if key is Some(Name) {
       factor * collate(left.full_name, right.full_name)
     } else {
-      let by_value = compare_doubles(
-        sort_value(key, left),
-        sort_value(key, right),
-      )
-      factor *
-      (if by_value != 0 {
-        by_value
+      factor * compare_doubles(sort_value(key, left), sort_value(key, right))
+    }
+    // Ties: rank position (best first), then name, then index order.
+    let order = if by_key != 0 {
+      by_key
+    } else {
+      let by_position = compare_doubles(left.rank_position, right.rank_position)
+      if by_position != 0 {
+        by_position
       } else {
         collate(left.full_name, right.full_name)
-      })
+      }
     }
     if order != 0 {
       order

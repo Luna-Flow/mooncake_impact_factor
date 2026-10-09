@@ -1,23 +1,27 @@
 ///|
-/// `ORDER BY` terms of a sort key in one direction. Ties fall back to the
-/// score (best first) and then to the package name, so every order is
-/// total and pages never overlap.
+/// Tie-break shared by every order: rank position (best first), then name.
+/// It makes every order total, so pages never overlap.
+let tie_break = "s.rank_position ASC, p.full_name ASC"
+
+///|
+/// `ORDER BY` terms of a sort key in one direction. `order` flips the key
+/// only; ties always fall back to `tie_break`.
 fn order_clause(key : @query.SortKey, ascending : Bool) -> String {
   let dir = if ascending { "ASC" } else { "DESC" }
-  match key {
-    Relevance | Score => "s.score \{dir}, p.full_name ASC"
-    Growth => "s.score_growth_30d \{dir}, s.score DESC, p.full_name ASC"
-    Downloads => "p.download_count \{dir}, s.score DESC, p.full_name ASC"
-    Dependents => "p.dependent_count \{dir}, s.score DESC, p.full_name ASC"
-    Recent => "p.recent_dependent_count \{dir}, s.score DESC, p.full_name ASC"
-    Updated => "COALESCE(p.latest_created_at, '') \{dir}, p.full_name ASC"
-    Name => "p.full_name \{dir}"
-    External =>
-      "p.external_dependent_count \{dir}, s.score DESC, p.full_name ASC"
-    Owners => "p.dependent_owner_count \{dir}, s.score DESC, p.full_name ASC"
-    Position => "s.rank_position \{dir}, p.full_name ASC"
-    Age => "p.days_since_release \{dir}, s.score DESC, p.full_name ASC"
+  let column = match key {
+    Name => return "p.full_name \{dir}"
+    Position => return "s.rank_position \{dir}, p.full_name ASC"
+    Relevance | Score => "s.score"
+    Growth => "s.score_growth_30d"
+    Downloads => "p.download_count"
+    Dependents => "p.dependent_count"
+    Recent => "p.recent_dependent_count"
+    Updated => "COALESCE(p.latest_created_at, '')"
+    External => "p.external_dependent_count"
+    Owners => "p.dependent_owner_count"
+    Age => "p.days_since_release"
   }
+  "\{column} \{dir}, \{tie_break}"
 }
 
 ///|
@@ -26,7 +30,9 @@ fn order_clause(key : @query.SortKey, ascending : Bool) -> String {
 /// A blank `sort` means `@query.default_sort(has_fts_query)` and a blank
 /// `order` the key's default direction; both are read ignoring ASCII case.
 /// Relevance is FTS5's `bm25` rank when the query has an FTS5 `MATCH` and
-/// the score otherwise, and it ignores `order`.
+/// the rank position otherwise, and it ignores `order`. Every other key is
+/// followed by the rank position (ascending) and the name (ascending), so
+/// ties never depend on the direction.
 pub fn resolve_order_by(
   sort : String,
   order : String,
@@ -59,9 +65,9 @@ pub fn resolve_order_by(
   match key {
     Relevance =>
       if has_fts_query {
-        "bm25(search_index) ASC, s.score DESC, p.full_name ASC"
+        "bm25(search_index) ASC, \{tie_break}"
       } else {
-        "s.score DESC, p.full_name ASC"
+        tie_break
       }
     _ => order_clause(key, order_name == "asc")
   }
