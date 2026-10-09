@@ -1,0 +1,8 @@
+import {
+  "Luna-Flow/mooncake-impact-factor/score",
+  "moonbitlang/core/json",
+}
+
+// See src/score/moon.pkg: derived traits are used as traits only.
+
+warnings = "-implicit_impl_as_method"

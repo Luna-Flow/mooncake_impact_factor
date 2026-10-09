@@ -1,0 +1,97 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "Luna-Flow/mooncake-impact-factor/metrics"
+
+import {
+  "Luna-Flow/mooncake-impact-factor/score",
+  "moonbitlang/core/debug",
+  "moonbitlang/core/json",
+}
+
+// Values
+pub const DOWNLOAD_HISTORY_TOLERANCE_DAYS : Int = 7
+
+pub const MILLIS_PER_DAY : Int64 = 86_400_000
+
+pub const MOMENTUM_WINDOW_DAYS : Int = 30
+
+pub const RECENT_WINDOW_DAYS : Int = 180
+
+pub fn compare_text(String, String) -> Int
+
+pub fn compare_versions(String, String) -> Int
+
+pub fn compute(Input) -> Report raise MetricsError
+
+pub fn days_between(Int64, Int64) -> Int
+
+pub fn format_timestamp(Int64) -> String
+
+pub fn owner_of(String) -> String
+
+pub fn parse_timestamp(String) -> Int64?
+
+// Errors
+pub suberror MetricsError {
+  InvalidNow(String)
+} derive(@debug.Debug)
+pub impl Show for MetricsError
+
+// Types and methods
+pub(all) struct DownloadSnapshot {
+  taken_at : String
+  counts : Map[String, Int]
+} derive(Eq, ToJson, @debug.Debug, @json.FromJson)
+
+pub(all) struct Edge {
+  source : String
+  target : String
+  first_seen_at : String?
+  same_owner : Bool
+} derive(Eq, ToJson, @debug.Debug, @json.FromJson)
+
+pub(all) struct Input {
+  now : String
+  releases : Array[Release]
+  downloads : Map[String, Int]
+  download_history : Array[DownloadSnapshot]
+} derive(Eq, ToJson, @debug.Debug, @json.FromJson)
+
+pub(all) struct PackageReport {
+  name : String
+  owner : String
+  package_name : String
+  latest_version : String?
+  latest_created_at : String?
+  version_count : Int
+  dependents : Int
+  external_dependents : Int
+  self_dependents : Int
+  recent_dependents : Int
+  dependent_owners : Int
+  downloads : Int
+  downloads_30d_ago : Int?
+  days_since_release : Int
+  signals : @score.Signals
+  signals_30d_ago : @score.Signals?
+  snapshot : @score.ScoreSnapshot
+} derive(ToJson, @debug.Debug, @json.FromJson)
+
+pub(all) struct Release {
+  name : String
+  version : String
+  created_at : String?
+  deps : Array[String]
+  yanked : Bool
+} derive(Eq, ToJson, @debug.Debug, @json.FromJson)
+
+pub(all) struct Report {
+  computed_at : String
+  population : Int
+  download_history_used : Bool
+  packages : Array[PackageReport]
+  edges : Array[Edge]
+} derive(ToJson, @debug.Debug, @json.FromJson)
+
+// Type aliases
+
+// Traits
