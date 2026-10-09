@@ -225,12 +225,16 @@ msgid "`now` is not an RFC 3339 timestamp"
 msgstr "`now` 不是 RFC 3339 时间戳"
 
 #: manual/api/cli.md:271
+msgid "If the input path cannot be read, the command prints `{\"error\":\"Failed to read input: <path>\"}`. The output path is opened only after the input has been parsed and computed."
+msgstr "如果输入路径无法读取，命令会打印 JSON 错误对象。只有在输入解析并计算完成后，才会打开输出路径。"
+
+#: manual/api/cli.md:275
 msgid "The texts of the parser and decoder messages come from `moonbitlang/core/json` and may change with the compiler; match on the `error` key, not on the text."
 msgstr "解析器和解码器消息的文本来自 `moonbitlang/core/json`，可能随编译器变化；请匹配 `error` 键，而不要匹配文本。"
 
-#: manual/api/cli.md:275
-msgid "A file that cannot be read or written is not reported this way: Node.js raises an uncaught `ENOENT` (or similar) error, prints a stack trace to standard error and exits with status `1`. Callers should treat any non-zero status as a failure and use the report only on status `0`, as the index builder does."
-msgstr "无法读取或写入的文件不会以这种方式报告：Node.js 会抛出未捕获的 `ENOENT`（或类似）错误，向标准错误打印堆栈跟踪，并以状态 `1` 退出。调用方应把任何非零状态视为失败，并且只在状态为 `0` 时使用报告，索引构建器就是这样做的。"
+#: manual/api/cli.md:279
+msgid "An output file that cannot be written is still reported by Node.js and may print a stack trace to standard error. Callers should treat any non-zero status as a failure and use the report only on status `0`, as the index builder does."
+msgstr "无法写入的输出文件仍由 Node.js 报告，并可能向标准错误打印堆栈跟踪。调用方应将任何非零状态视为失败，并且只在状态为 0 时使用报告，索引构建器就是这样做的。"
 
 #: manual/api/metrics.md:1
 msgid "metrics API"
@@ -2113,8 +2117,8 @@ msgid "Errors as JSON"
 msgstr "以 JSON 报告错误"
 
 #: manual/design/cli.md:59
-msgid "Bad arguments, unreadable JSON and decoding errors print one JSON object with an `error` key and exit with status `1`, so that a caller can parse standard output in every case. The index builder raises the message."
-msgstr "错误的参数、无法读取的 JSON 和解码错误都会打印一个带 `error` 键的 JSON 对象，并以状态 `1` 退出，这样调用方在任何情况下都能解析标准输出。索引构建器会把该消息作为异常抛出。"
+msgid "Bad arguments, input read failures, unreadable JSON and decoding errors print one JSON object with an `error` key and exit with status `1`. The index builder raises the message. Output write failures remain Node.js errors."
+msgstr "参数错误、输入读取失败、JSON 无法解析或解码失败时，命令会打印带有 error 键的 JSON 对象并以状态 1 退出。索引构建器会抛出该错误消息。输出写入失败仍由 Node.js 报告。"
 
 #: manual/design/cli.md:63
 #: manual/design/metrics.md:150
@@ -2130,14 +2134,14 @@ msgid "Exit status `0` implies that the output file (or standard output without 
 msgstr "退出状态 `0` 意味着输出文件（不带 `--output` 时为标准输出）存放一个 JSON 对象，即报告。"
 
 #: manual/design/cli.md:67
-msgid "Exit status `1` implies an `error` object on standard output."
-msgstr "退出状态 `1` 意味着标准输出上有一个 `error` 对象。"
+msgid "A handled usage, input read, parse or decoding failure exits with status `1` and an `error` object on standard output."
+msgstr "已处理的用法错误、输入读取错误、解析错误或解码错误会以状态 1 退出，并在标准输出中给出 error 对象。"
 
-#: manual/design/cli.md:68
+#: manual/design/cli.md:69
 msgid "The output depends only on the input file: the current time is the input's `now`."
 msgstr "输出只依赖于输入文件：当前时间就是输入中的 `now`。"
 
-#: manual/design/cli.md:71
+#: manual/design/cli.md:72
 #: manual/design/metrics.md:169
 #: manual/design/query.md:187
 #: manual/design/score.md:300
@@ -2145,19 +2149,19 @@ msgstr "输出只依赖于输入文件：当前时间就是输入中的 `now`。
 msgid "Alternatives rejected"
 msgstr "被否决的方案"
 
-#: manual/design/cli.md:73
+#: manual/design/cli.md:74
 msgid "**Reading standard input**: a temporary file works the same on every platform and can be kept for debugging."
 msgstr "**读取标准输入**：临时文件在每个平台上的行为都相同，而且可以保留下来用于调试。"
 
-#: manual/design/cli.md:75
+#: manual/design/cli.md:76
 msgid "**A long-lived server** or **WebAssembly from Python** would add a protocol or a dependency for a job that runs once a day."
 msgstr "**常驻服务器**或**从 Python 调用 WebAssembly**，都会为一个每天只运行一次的任务增加一套协议或一个依赖。"
 
-#: manual/design/cli.md:77
+#: manual/design/cli.md:78
 msgid "**Keeping `score-snapshot`** for single packages: a single score no longer has a grade or a position, so the command would answer a different question than the rankings do."
 msgstr "**为单个包保留 `score-snapshot`**：单个分数不再有等级或名次，因此该命令回答的问题将与排名所回答的不同。"
 
-#: manual/design/cli.md:81
+#: manual/design/cli.md:82
 #: manual/design/metrics.md:179
 #: manual/design/query.md:197
 #: manual/design/query_sql.md:123
@@ -2166,11 +2170,11 @@ msgstr "**为单个包保留 `score-snapshot`**：单个分数不再有等级或
 msgid "Boundaries"
 msgstr "边界"
 
-#: manual/design/cli.md:83
+#: manual/design/cli.md:84
 msgid "The command does not read the registry, fetch downloads or touch SQLite; `scripts/build_index.py` does."
 msgstr "该命令不读取注册表、不获取下载量，也不接触 SQLite；这些由 `scripts/build_index.py` 完成。"
 
-#: manual/design/cli.md:85
+#: manual/design/cli.md:86
 msgid "It runs only on the JavaScript target with Node.js."
 msgstr "它只在 JavaScript 目标上配合 Node.js 运行。"
 
@@ -4050,73 +4054,77 @@ msgid "An unknown release date written as `null` instead of an absent key:"
 msgstr "未知的发布日期写成了 `null`，而不是省略该键："
 
 #: manual/tutorial/cli.md:291
-msgid "Check the exit status before you use the output. A missing input file also exits with status `1`, but Node.js prints a stack trace to standard error instead of JSON."
-msgstr "使用输出之前先检查退出状态。输入文件缺失时同样以状态 `1` 退出，但 Node.js 会向标准错误输出堆栈跟踪，而不是 JSON。"
+msgid "An input path that does not exist, or cannot be read, prints a JSON error and exits with status `1`:"
+msgstr "输入路径不存在或无法读取时，会打印 JSON 错误并以状态 1 退出："
 
-#: manual/tutorial/cli.md:295
+#: manual/tutorial/cli.md:303
+msgid "Check the exit status before you use the output. An output path that cannot be written is still reported by Node.js and may print a stack trace to standard error."
+msgstr "使用输出前请检查退出状态。无法写入的输出路径仍由 Node.js 报告，并可能向标准错误打印堆栈跟踪。"
+
+#: manual/tutorial/cli.md:307
 #: manual/tutorial/metrics.md:391
 #: manual/tutorial/score.md:295
 msgid "Going further"
 msgstr "进阶"
 
-#: manual/tutorial/cli.md:297
+#: manual/tutorial/cli.md:309
 msgid "**Measure the real registry.** `python3 scripts/build_index.py` reads the local registry index under `~/.moon/registry/index/user`, fetches the download counts, keeps a 45-day download history in `data/download_history.json`, runs `build-index` once and writes the report to the SQLite database of the web application. `--now` fixes the point in time; the [architecture guide](../architecture.md) describes the whole pipeline."
 msgstr "**度量真实的注册表。** `python3 scripts/build_index.py` 读取 `~/.moon/registry/index/user` 下的本地注册表索引，获取下载量，在 `data/download_history.json` 中保留 45 天的下载量历史，运行一次 `build-index`，并把报告写入 Web 应用的 SQLite 数据库。`--now` 固定时间点；[架构指南](../architecture.md)描述了完整的管道。"
 
-#: manual/tutorial/cli.md:304
+#: manual/tutorial/cli.md:316
 msgid "**Work in MoonBit instead.** Inside a MoonBit program, call `@metrics.compute` directly, as in the [metrics tutorial](metrics.md); the command adds only file reading and JSON."
 msgstr "**改在 MoonBit 中处理。** 在 MoonBit 程序内部，直接调用 `@metrics.compute`，如 [metrics 教程](metrics.md)所示；该命令只是额外加上了文件读取和 JSON。"
 
-#: manual/tutorial/cli.md:307
+#: manual/tutorial/cli.md:319
 msgid "**Exact rules.** The [metrics API](../api/metrics.md#compute) lists every counting rule; the [cli API](../api/cli.md) lists the input and output contract."
 msgstr "**精确规则。** [metrics API](../api/metrics.md#compute) 列出了每条计数规则；[cli API](../api/cli.md) 列出了输入和输出约定。"
 
-#: manual/tutorial/cli.md:311
+#: manual/tutorial/cli.md:323
 #: manual/tutorial/metrics.md:408
 #: manual/tutorial/score.md:315
 msgid "Common pitfalls"
 msgstr "常见陷阱"
 
-#: manual/tutorial/cli.md:313
+#: manual/tutorial/cli.md:325
 msgid "**`null` for unknown values.** Leave the key out. Only `created_at` is optional in the input; every other key is required."
 msgstr "**用 `null` 表示未知值。** 应省略该键。输入中只有 `created_at` 是可选的；其他每个键都是必填的。"
 
-#: manual/tutorial/cli.md:315
+#: manual/tutorial/cli.md:327
 msgid "**Wrong argument order.** `build-index` must be the first argument after the script; `--input input.json build-index` prints the usage error."
 msgstr "**参数顺序错误。** `build-index` 必须是脚本之后的第一个参数；`--input input.json build-index` 会输出用法错误。"
 
-#: manual/tutorial/cli.md:317
+#: manual/tutorial/cli.md:329
 msgid "**Stale build.** Rebuild after you change `src/score` or `src/metrics`, or the report follows the old rules. The index builder rebuilds before every run; a hand-run `node` command does not."
 msgstr "**构建过期。** 修改 `src/score` 或 `src/metrics` 之后要重新构建，否则报告仍按旧规则计算。索引构建器每次运行前都会重新构建；手动运行的 `node` 命令则不会。"
 
-#: manual/tutorial/cli.md:320
+#: manual/tutorial/cli.md:332
 msgid "**Reading standard output with `--output`.** With `--output` the command prints nothing on success; read the file."
 msgstr "**带 `--output` 时读取标准输出。** 带 `--output` 时，命令成功后什么也不打印；请读取文件。"
 
-#: manual/tutorial/cli.md:322
+#: manual/tutorial/cli.md:334
 msgid "**Comparing reports from different inputs.** Ranks are shares of the population in the input. A report built from a few packages ranks them among themselves, not against the registry."
 msgstr "**比较来自不同输入的报告。** 等级是在输入总体中所占的比例。由少数几个包构建的报告只在它们之间排名，而不是与整个注册表比较。"
 
-#: manual/tutorial/cli.md:326
+#: manual/tutorial/cli.md:338
 #: manual/tutorial/metrics.md:423
 #: manual/tutorial/score.md:333
 #: manual/tutorial/static_search.md:178
 msgid "Next steps"
 msgstr "下一步"
 
-#: manual/tutorial/cli.md:328
+#: manual/tutorial/cli.md:340
 msgid "[cli API](../api/cli.md) for the exact input, output and error contract."
 msgstr "[cli API](../api/cli.md)：精确的输入、输出和错误约定。"
 
-#: manual/tutorial/cli.md:329
+#: manual/tutorial/cli.md:341
 msgid "[cli design](../design/cli.md) for why the bridge is a file-based command."
 msgstr "[cli 设计](../design/cli.md)：为何这座桥是基于文件的命令。"
 
-#: manual/tutorial/cli.md:330
+#: manual/tutorial/cli.md:342
 msgid "[metrics API](../api/metrics.md) for the meaning of every report field."
 msgstr "[metrics API](../api/metrics.md)：每个报告字段的含义。"
 
-#: manual/tutorial/cli.md:331
+#: manual/tutorial/cli.md:343
 msgid "[score API](../api/score.md) for the score, the ranks and the momentum labels."
 msgstr "[score API](../api/score.md)：分数、等级和势头标签。"
 
@@ -4902,6 +4910,12 @@ msgstr "[static_search API](../api/static_search.md)：每个函数和 JavaScrip
 #: manual/tutorial/static_search.md:185
 msgid "[architecture guide](../architecture.md) for the whole data pipeline."
 msgstr "[架构指南](../architecture.md)：完整的数据管道。"
+
+#~ msgid "Exit status `1` implies an `error` object on standard output."
+#~ msgstr "退出状态 `1` 意味着标准输出上有一个 `error` 对象。"
+
+#~ msgid "Check the exit status before you use the output. A missing input file also exits with status `1`, but Node.js prints a stack trace to standard error instead of JSON."
+#~ msgstr "使用输出之前先检查退出状态。输入文件缺失时同样以状态 `1` 退出，但 Node.js 会向标准错误输出堆栈跟踪，而不是 JSON。"
 
 #~ msgid "`score-snapshot` computes one score snapshot from a JSON input file."
 #~ msgstr "`score-snapshot` 根据一个 JSON 输入文件计算一个分数快照。"

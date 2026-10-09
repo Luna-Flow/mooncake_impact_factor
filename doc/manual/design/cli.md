@@ -56,15 +56,16 @@ The repository needs Node.js anyway for the web application.
 
 ### Errors as JSON
 
-Bad arguments, unreadable JSON and decoding errors print one JSON object
-with an `error` key and exit with status `1`, so that a caller can parse
-standard output in every case. The index builder raises the message.
+Bad arguments, input read failures, unreadable JSON and decoding errors print
+one JSON object with an `error` key and exit with status `1`. The index
+builder raises the message. Output write failures remain Node.js errors.
 
 ## Correctness / invariants
 
 - Exit status `0` implies that the output file (or standard output without
   `--output`) holds one JSON object, the report.
-- Exit status `1` implies an `error` object on standard output.
+- A handled usage, input read, parse or decoding failure exits with status `1`
+  and an `error` object on standard output.
 - The output depends only on the input file: the current time is the
   input's `now`.
 

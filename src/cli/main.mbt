@@ -1,10 +1,22 @@
 ///|
 #borrow(path)
-extern "js" fn read_file(path : String) -> String =
+extern "js" fn read_file_json(path : String) -> String =
   #| (path) => {
   #|   const fs = process.getBuiltinModule("fs");
-  #|   return fs.readFileSync(path, "utf8");
+  #|   try {
+  #|     return JSON.stringify(fs.readFileSync(path, "utf8"));
+  #|   } catch (_error) {
+  #|     return "null";
+  #|   }
   #| }
+
+///|
+fn read_file(path : String) -> Result[String, String] raise {
+  match @json.parse(read_file_json(path)) {
+    String(contents) => Ok(contents)
+    _ => Err("Failed to read input: " + path)
+  }
+}
 
 ///|
 #borrow(path, text)
@@ -42,10 +54,14 @@ fn option_value(args : Array[String], name : String) -> String? {
 ///|
 /// Reads an `@metrics.Input` from `input_path` and returns the
 /// `@metrics.Report` as JSON text.
-fn build_index(input_path : String) -> String raise {
-  let payload = @json.parse(read_file(input_path))
+fn build_index(input_path : String) -> Result[String, String] raise {
+  let contents = match read_file(input_path) {
+    Ok(contents) => contents
+    Err(message) => return Err(message)
+  }
+  let payload = @json.parse(contents)
   let input : @metrics.Input = @json.from_json(payload)
-  Json(@metrics.compute(input)).stringify()
+  Ok(Json(@metrics.compute(input)).stringify())
 }
 
 ///|
@@ -59,14 +75,13 @@ fn main {
     fail(USAGE)
     return
   }
-  let output = build_index(input_path) catch {
-    error => {
-      fail(error.to_string())
-      return
-    }
-  }
-  match option_value(args, "--output") {
-    Some(path) => write_file(path, output)
-    None => println(output)
+  let output = build_index(input_path) catch { error => Err(error.to_string()) }
+  match output {
+    Err(message) => fail(message)
+    Ok(output) =>
+      match option_value(args, "--output") {
+        Some(path) => write_file(path, output)
+        None => println(output)
+      }
   }
 }

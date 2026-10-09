@@ -3,6 +3,13 @@
 All notable changes to `Luna-Flow/mooncake-impact-factor` are listed here.
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## Unreleased
+
+### Fixed
+
+- `cli build-index` reports an unreadable input file as a JSON error instead
+  of leaking a Node.js `ENOENT` stack trace.
+
 ## 0.2.0 - 2026-10-09
 
 Scoring v2, the computation of the registry signals and the whole search

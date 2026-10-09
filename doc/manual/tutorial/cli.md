@@ -288,9 +288,21 @@ node $CLI build-index --input null-date.json; echo "status $?"
 status 1
 ```
 
-Check the exit status before you use the output. A missing input file also
-exits with status `1`, but Node.js prints a stack trace to standard error
-instead of JSON.
+An input path that does not exist, or cannot be read, prints a JSON error
+and exits with status `1`:
+
+```bash
+node $CLI build-index --input missing.json; echo "status $?"
+```
+
+```text
+{"error":"Failed to read input: missing.json"}
+status 1
+```
+
+Check the exit status before you use the output. An output path that cannot
+be written is still reported by Node.js and may print a stack trace to
+standard error.
 
 ## Going further
 

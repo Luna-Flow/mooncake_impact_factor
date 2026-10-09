@@ -225,12 +225,16 @@ msgid "`now` is not an RFC 3339 timestamp"
 msgstr "`now` が RFC 3339 のタイムスタンプでない"
 
 #: manual/api/cli.md:271
+msgid "If the input path cannot be read, the command prints `{\"error\":\"Failed to read input: <path>\"}`. The output path is opened only after the input has been parsed and computed."
+msgstr "入力パスを読み取れない場合、コマンドは JSON エラーオブジェクトを出力します。入力の解析と計算が完了してから、出力パスを開きます。"
+
+#: manual/api/cli.md:275
 msgid "The texts of the parser and decoder messages come from `moonbitlang/core/json` and may change with the compiler; match on the `error` key, not on the text."
 msgstr "パーサーとデコーダーのメッセージの文面は `moonbitlang/core/json` に由来し、コンパイラーによって変わることがあります。文面ではなく `error` キーで判定してください。"
 
-#: manual/api/cli.md:275
-msgid "A file that cannot be read or written is not reported this way: Node.js raises an uncaught `ENOENT` (or similar) error, prints a stack trace to standard error and exits with status `1`. Callers should treat any non-zero status as a failure and use the report only on status `0`, as the index builder does."
-msgstr "読み書きできないファイルはこの方法では報告されません。Node.js が捕捉されない `ENOENT`（または同様の）エラーを送出し、スタックトレースを標準エラーに出力してステータス `1` で終了します。呼び出し側は、インデックスビルダーと同じように、0 以外のステータスをすべて失敗とみなし、ステータスが `0` のときだけレポートを使ってください。"
+#: manual/api/cli.md:279
+msgid "An output file that cannot be written is still reported by Node.js and may print a stack trace to standard error. Callers should treat any non-zero status as a failure and use the report only on status `0`, as the index builder does."
+msgstr "書き込めない出力ファイルも Node.js によって報告され、スタックトレースが標準エラーに出力されることがあります。呼び出し側は、インデックスビルダーと同じように、0 以外のステータスをすべて失敗とみなし、ステータスが 0 のときだけレポートを使用してください。"
 
 #: manual/api/metrics.md:1
 msgid "metrics API"
@@ -2113,8 +2117,8 @@ msgid "Errors as JSON"
 msgstr "JSON としてのエラー"
 
 #: manual/design/cli.md:59
-msgid "Bad arguments, unreadable JSON and decoding errors print one JSON object with an `error` key and exit with status `1`, so that a caller can parse standard output in every case. The index builder raises the message."
-msgstr "不正な引数、読み取れない JSON、デコードエラーでは、`error` キーを持つ JSON オブジェクトを 1 つ出力してステータス `1` で終了するので、呼び出し側はどの場合でも標準出力を解析できます。インデックスビルダーはそのメッセージで例外を送出します。"
+msgid "Bad arguments, input read failures, unreadable JSON and decoding errors print one JSON object with an `error` key and exit with status `1`. The index builder raises the message. Output write failures remain Node.js errors."
+msgstr "引数の誤り、入力の読み取りエラー、JSON の解析エラー、デコードエラーでは、error キーを持つ JSON オブジェクトを出力してステータス 1 で終了します。インデックスビルダーはそのエラーメッセージを送出します。出力の書き込みエラーは引き続き Node.js が報告します。"
 
 #: manual/design/cli.md:63
 #: manual/design/metrics.md:150
@@ -2130,14 +2134,14 @@ msgid "Exit status `0` implies that the output file (or standard output without 
 msgstr "終了ステータス `0` は、出力ファイル（`--output` がなければ標準出力）が 1 つの JSON オブジェクト、つまりレポートを含むことを意味します。"
 
 #: manual/design/cli.md:67
-msgid "Exit status `1` implies an `error` object on standard output."
-msgstr "終了ステータス `1` は、標準出力に `error` オブジェクトがあることを意味します。"
+msgid "A handled usage, input read, parse or decoding failure exits with status `1` and an `error` object on standard output."
+msgstr "処理された使い方の誤り、入力の読み取りエラー、解析エラー、デコードエラーは、ステータス 1 で終了し、標準出力に error オブジェクトを出力します。"
 
-#: manual/design/cli.md:68
+#: manual/design/cli.md:69
 msgid "The output depends only on the input file: the current time is the input's `now`."
 msgstr "出力は入力ファイルだけに依存します。現在時刻は入力の `now` です。"
 
-#: manual/design/cli.md:71
+#: manual/design/cli.md:72
 #: manual/design/metrics.md:169
 #: manual/design/query.md:187
 #: manual/design/score.md:300
@@ -2145,19 +2149,19 @@ msgstr "出力は入力ファイルだけに依存します。現在時刻は入
 msgid "Alternatives rejected"
 msgstr "採用しなかった案"
 
-#: manual/design/cli.md:73
+#: manual/design/cli.md:74
 msgid "**Reading standard input**: a temporary file works the same on every platform and can be kept for debugging."
 msgstr "**標準入力からの読み込み**：一時ファイルはどのプラットフォームでも同じように動作し、デバッグのために残しておけます。"
 
-#: manual/design/cli.md:75
+#: manual/design/cli.md:76
 msgid "**A long-lived server** or **WebAssembly from Python** would add a protocol or a dependency for a job that runs once a day."
 msgstr "**常駐するサーバー** や **Python からの WebAssembly** は、1 日 1 回動くだけの処理のためにプロトコルや依存関係を増やすことになります。"
 
-#: manual/design/cli.md:77
+#: manual/design/cli.md:78
 msgid "**Keeping `score-snapshot`** for single packages: a single score no longer has a grade or a position, so the command would answer a different question than the rankings do."
 msgstr "単一パッケージ向けの **`score-snapshot` の維持**：単独のスコアにはもはやグレードも順位もないので、コマンドはランキングとは別の問いに答えることになります。"
 
-#: manual/design/cli.md:81
+#: manual/design/cli.md:82
 #: manual/design/metrics.md:179
 #: manual/design/query.md:197
 #: manual/design/query_sql.md:123
@@ -2166,11 +2170,11 @@ msgstr "単一パッケージ向けの **`score-snapshot` の維持**：単独�
 msgid "Boundaries"
 msgstr "境界"
 
-#: manual/design/cli.md:83
+#: manual/design/cli.md:84
 msgid "The command does not read the registry, fetch downloads or touch SQLite; `scripts/build_index.py` does."
 msgstr "コマンドはレジストリの読み込み、ダウンロード数の取得、SQLite の操作を行いません。それらは `scripts/build_index.py` が行います。"
 
-#: manual/design/cli.md:85
+#: manual/design/cli.md:86
 msgid "It runs only on the JavaScript target with Node.js."
 msgstr "JavaScript ターゲットと Node.js でのみ動作します。"
 
@@ -4050,73 +4054,77 @@ msgid "An unknown release date written as `null` instead of an absent key:"
 msgstr "不明なリリース日を、キーを省略せずに `null` と書いた場合:"
 
 #: manual/tutorial/cli.md:291
-msgid "Check the exit status before you use the output. A missing input file also exits with status `1`, but Node.js prints a stack trace to standard error instead of JSON."
-msgstr "出力を使う前に終了ステータスを確認してください。入力ファイルがない場合もステータス `1` で終了しますが、Node.js は JSON ではなくスタックトレースを標準エラーに出力します。"
+msgid "An input path that does not exist, or cannot be read, prints a JSON error and exits with status `1`:"
+msgstr "入力パスが存在しない、または読み取れない場合は、JSON エラーを出力し、ステータス 1 で終了します。"
 
-#: manual/tutorial/cli.md:295
+#: manual/tutorial/cli.md:303
+msgid "Check the exit status before you use the output. An output path that cannot be written is still reported by Node.js and may print a stack trace to standard error."
+msgstr "出力を使う前に終了ステータスを確認してください。書き込めない出力パスも Node.js が報告し、スタックトレースを標準エラーに出力することがあります。"
+
+#: manual/tutorial/cli.md:307
 #: manual/tutorial/metrics.md:391
 #: manual/tutorial/score.md:295
 msgid "Going further"
 msgstr "さらに進んで"
 
-#: manual/tutorial/cli.md:297
+#: manual/tutorial/cli.md:309
 msgid "**Measure the real registry.** `python3 scripts/build_index.py` reads the local registry index under `~/.moon/registry/index/user`, fetches the download counts, keeps a 45-day download history in `data/download_history.json`, runs `build-index` once and writes the report to the SQLite database of the web application. `--now` fixes the point in time; the [architecture guide](../architecture.md) describes the whole pipeline."
 msgstr "**実際のレジストリを計測する。** `python3 scripts/build_index.py` は、`~/.moon/registry/index/user` 以下のローカルのレジストリインデックスを読み込み、ダウンロード数を取得し、45 日分のダウンロード履歴を `data/download_history.json` に保持し、`build-index` を 1 回実行して、レポートを Web アプリケーションの SQLite データベースに書き込みます。`--now` で時点を固定できます。パイプライン全体は [アーキテクチャガイド](../architecture.md) で説明しています。"
 
-#: manual/tutorial/cli.md:304
+#: manual/tutorial/cli.md:316
 msgid "**Work in MoonBit instead.** Inside a MoonBit program, call `@metrics.compute` directly, as in the [metrics tutorial](metrics.md); the command adds only file reading and JSON."
 msgstr "**代わりに MoonBit で処理する。** MoonBit のプログラムの中では、[metrics チュートリアル](metrics.md) のように `@metrics.compute` を直接呼び出します。コマンドが加えるのはファイルの読み込みと JSON だけです。"
 
-#: manual/tutorial/cli.md:307
+#: manual/tutorial/cli.md:319
 msgid "**Exact rules.** The [metrics API](../api/metrics.md#compute) lists every counting rule; the [cli API](../api/cli.md) lists the input and output contract."
 msgstr "**正確な規則。** 計数の規則はすべて [metrics API](../api/metrics.md#compute) に、入力と出力の約束は [cli API](../api/cli.md) にあります。"
 
-#: manual/tutorial/cli.md:311
+#: manual/tutorial/cli.md:323
 #: manual/tutorial/metrics.md:408
 #: manual/tutorial/score.md:315
 msgid "Common pitfalls"
 msgstr "よくある落とし穴"
 
-#: manual/tutorial/cli.md:313
+#: manual/tutorial/cli.md:325
 msgid "**`null` for unknown values.** Leave the key out. Only `created_at` is optional in the input; every other key is required."
 msgstr "**不明な値に `null` を使う。** キーを省略してください。入力で省略できるのは `created_at` だけで、ほかのキーはすべて必須です。"
 
-#: manual/tutorial/cli.md:315
+#: manual/tutorial/cli.md:327
 msgid "**Wrong argument order.** `build-index` must be the first argument after the script; `--input input.json build-index` prints the usage error."
 msgstr "**引数の順序の誤り。** `build-index` はスクリプトの直後の引数でなければなりません。`--input input.json build-index` では使い方のエラーが出力されます。"
 
-#: manual/tutorial/cli.md:317
+#: manual/tutorial/cli.md:329
 msgid "**Stale build.** Rebuild after you change `src/score` or `src/metrics`, or the report follows the old rules. The index builder rebuilds before every run; a hand-run `node` command does not."
 msgstr "**古いビルド。** `src/score` や `src/metrics` を変更したら再ビルドしてください。そうしないとレポートは古い規則に従います。インデックスビルダーは実行のたびに再ビルドしますが、手で実行する `node` コマンドは再ビルドしません。"
 
-#: manual/tutorial/cli.md:320
+#: manual/tutorial/cli.md:332
 msgid "**Reading standard output with `--output`.** With `--output` the command prints nothing on success; read the file."
 msgstr "**`--output` を付けて標準出力を読む。** `--output` を付けると、コマンドは成功時に何も出力しません。ファイルを読んでください。"
 
-#: manual/tutorial/cli.md:322
+#: manual/tutorial/cli.md:334
 msgid "**Comparing reports from different inputs.** Ranks are shares of the population in the input. A report built from a few packages ranks them among themselves, not against the registry."
 msgstr "**異なる入力から得たレポートを比べる。** ランクは入力の母集団に対する割合です。少数のパッケージから作ったレポートは、それらをレジストリ全体とではなく、それら同士の間で順位付けします。"
 
-#: manual/tutorial/cli.md:326
+#: manual/tutorial/cli.md:338
 #: manual/tutorial/metrics.md:423
 #: manual/tutorial/score.md:333
 #: manual/tutorial/static_search.md:178
 msgid "Next steps"
 msgstr "次のステップ"
 
-#: manual/tutorial/cli.md:328
+#: manual/tutorial/cli.md:340
 msgid "[cli API](../api/cli.md) for the exact input, output and error contract."
 msgstr "[cli API](../api/cli.md): 入力、出力、エラーの正確な約束。"
 
-#: manual/tutorial/cli.md:329
+#: manual/tutorial/cli.md:341
 msgid "[cli design](../design/cli.md) for why the bridge is a file-based command."
 msgstr "[cli の設計](../design/cli.md): 橋渡しがファイルベースのコマンドである理由。"
 
-#: manual/tutorial/cli.md:330
+#: manual/tutorial/cli.md:342
 msgid "[metrics API](../api/metrics.md) for the meaning of every report field."
 msgstr "[metrics API](../api/metrics.md): レポートの各フィールドの意味。"
 
-#: manual/tutorial/cli.md:331
+#: manual/tutorial/cli.md:343
 msgid "[score API](../api/score.md) for the score, the ranks and the momentum labels."
 msgstr "[score API](../api/score.md): スコア、ランク、勢いのラベル。"
 
@@ -4902,6 +4910,12 @@ msgstr "[static_search API](../api/static_search.md): すべての関数と Java
 #: manual/tutorial/static_search.md:185
 msgid "[architecture guide](../architecture.md) for the whole data pipeline."
 msgstr "[アーキテクチャガイド](../architecture.md): データパイプライン全体。"
+
+#~ msgid "Exit status `1` implies an `error` object on standard output."
+#~ msgstr "終了ステータス `1` は、標準出力に `error` オブジェクトがあることを意味します。"
+
+#~ msgid "Check the exit status before you use the output. A missing input file also exits with status `1`, but Node.js prints a stack trace to standard error instead of JSON."
+#~ msgstr "出力を使う前に終了ステータスを確認してください。入力ファイルがない場合もステータス `1` で終了しますが、Node.js は JSON ではなくスタックトレースを標準エラーに出力します。"
 
 #~ msgid "`score-snapshot` computes one score snapshot from a JSON input file."
 #~ msgstr "`score-snapshot` は 1 つの JSON 入力ファイルから 1 つのスコアスナップショットを計算します。"
