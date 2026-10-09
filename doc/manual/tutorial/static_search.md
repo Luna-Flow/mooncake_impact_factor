@@ -88,7 +88,7 @@ Worker, which runs the MoonBit engine compiled to JavaScript.
 | `owner:moonbitlang AND keyword:json` | packages of that owner with a keyword containing `json` |
 | `(yaml OR toml) AND NOT rank=D` | YAML or TOML packages outside rank `D` |
 | `momentum=rising AND recent_dependents>=5` | fast-growing packages with at least five recent dependents |
-| `age<=30 AND owners>=2` | released in the last 30 days and used by two other owners |
+| `age<=30 AND owners>=2` | released in the last 30 days and used by at least two other owners |
 
 The flat filters of the interface work too: `rank=S,A` in the URL keeps
 ranks `S` and `A`, and `limit` and `offset` page through the results.
@@ -142,8 +142,10 @@ test "order of results" {
 ```
 
 `alice/json` matches both words; the other two match one each and are
-ordered by rank position (all positions are `0` here, so by name). For `json AND parser` every result matches both words, so
-the order is the plain score order.
+ordered by rank position (all positions are `0` here, so by name). With
+`json AND parser` only `alice/json` matches. Results that tie on relevance
+are always ordered by rank position and then by name, whatever the sort
+direction.
 
 ### Use the engine from JavaScript
 

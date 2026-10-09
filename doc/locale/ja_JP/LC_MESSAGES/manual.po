@@ -1982,8 +1982,8 @@ msgid "Repository conventions"
 msgstr "リポジトリ規約"
 
 #: manual/conventions.md:3
-msgid "These rules add to the Luna-Flow documentation standard for `mooncake_impact_factor`. The repository combines five MoonBit packages (`score`, `cli`, `query`, `query_sql` and `static_search`), a Python index builder, and a Next.js application, so its documentation must keep all of them in step."
-msgstr "これらの規則は、`mooncake_impact_factor` 向けに Luna-Flow のドキュメント標準を補うものです。このリポジトリは 5 つの MoonBit パッケージ（`score`、`cli`、`query`、`query_sql`、`static_search`）、Python のインデックスビルダー、Next.js アプリケーションを組み合わせているため、ドキュメントはそのすべてと歩調を合わせなければなりません。"
+msgid "These rules add to the Luna-Flow documentation standard for `mooncake_impact_factor`. The repository combines six MoonBit packages (`score`, `metrics`, `cli`, `query`, `query_sql` and `static_search`), a Python index builder, and a Next.js application, so its documentation must keep all of them in step."
+msgstr "これらの規則は、`mooncake_impact_factor` 向けに Luna-Flow のドキュメント標準を補うものです。このリポジトリは 6 つの MoonBit パッケージ（`score`、`metrics`、`cli`、`query`、`query_sql`、`static_search`）、Python のインデックスビルダー、Next.js アプリケーションを組み合わせているため、ドキュメントはそのすべてと歩調を合わせなければなりません。"
 
 #: manual/conventions.md:8
 msgid "Scope"
@@ -2022,16 +2022,16 @@ msgid "Distinguish local registry facts from authoritative mooncakes facts."
 msgstr "ローカルレジストリ上の事実と、mooncakes が権威を持つ事実を区別します。"
 
 #: manual/conventions.md:21
-msgid "The score formula, rank thresholds and momentum rules are owned by `src/score`. The design page derives their properties from the code; change both in the same commit."
-msgstr "スコアの式、ランクのしきい値、モメンタムの規則は `src/score` が持ち主です。設計ページはその性質をコードから導出するので、両者は同じコミットで変更してください。"
+msgid "The score formula, the grades and the momentum rules are owned by `src/score`, and the signal definitions by `src/metrics`. The design pages derive their properties from the code; change both in the same commit."
+msgstr "スコアの式、グレード、勢いの規則は `src/score` が、シグナルの定義は `src/metrics` が持ち主です。設計ページはその性質をコードから導出するので、両者は同じコミットで変更してください。"
 
 #: manual/conventions.md:22
 msgid "The query language, its SQL compilation and the static search are owned by `src/query`, `src/query_sql` and `src/static_search`; the TypeScript files only wrap them."
 msgstr "クエリ言語、その SQL へのコンパイル、静的検索は、それぞれ `src/query`、`src/query_sql`、`src/static_search` が持ち主です。TypeScript のファイルはそれらを包むだけです。"
 
 #: manual/conventions.md:23
-msgid "Behaviour implemented outside MoonBit (signal counting) is documented in the guide or design page that uses it, with a link to the file that implements it."
-msgstr "MoonBit の外で実装されている振る舞い（シグナルの集計）は、それを使うガイドや設計ページで説明し、実装ファイルへのリンクを付けます。"
+msgid "Behaviour implemented outside MoonBit (fetching downloads, keeping the download history, writing SQLite) is documented in the guide that uses it, with a link to the file that implements it."
+msgstr "MoonBit の外で実装されている振る舞い（ダウンロード数の取得、ダウンロード履歴の保持、SQLite への書き込み）は、それを使うガイドで説明し、実装ファイルへのリンクを付けます。"
 
 #: manual/design/cli.md:1
 msgid "cli design"
@@ -4100,7 +4100,7 @@ msgstr "**異なる入力から得たレポートを比べる。** ランクは�
 #: manual/tutorial/cli.md:326
 #: manual/tutorial/metrics.md:423
 #: manual/tutorial/score.md:333
-#: manual/tutorial/static_search.md:176
+#: manual/tutorial/static_search.md:178
 msgid "Next steps"
 msgstr "次のステップ"
 
@@ -4474,7 +4474,7 @@ msgstr "`encode` は Web インターフェースが URL パラメーター `ast
 
 #: manual/tutorial/query.md:155
 #: manual/tutorial/query_sql.md:91
-#: manual/tutorial/static_search.md:162
+#: manual/tutorial/static_search.md:164
 msgid "Pitfalls"
 msgstr "落とし穴"
 
@@ -4575,7 +4575,7 @@ msgid "**Columns of scoring v2.** `external_dependents`, `owners`, `age` and `po
 msgstr "**スコアリング v2 の列。** `external_dependents`、`owners`、`age`、`position` には、インデックスビルダーが書き出す `external_dependent_count`、`dependent_owner_count`、`days_since_release`、`rank_position` の列が必要です。"
 
 #: manual/tutorial/query_sql.md:104
-#: manual/tutorial/static_search.md:182
+#: manual/tutorial/static_search.md:184
 msgid "[query tutorial](query.md) for the expression language."
 msgstr "[query チュートリアル](query.md): 式言語。"
 
@@ -4848,8 +4848,8 @@ msgid "fast-growing packages with at least five recent dependents"
 msgstr "最近の依存元が 5 つ以上ある急成長中のパッケージ"
 
 #: manual/tutorial/static_search.md:91
-msgid "released in the last 30 days and used by two other owners"
-msgstr "過去 30 日以内にリリースされ、ほかの 2 人のオーナーに使われているもの"
+msgid "released in the last 30 days and used by at least two other owners"
+msgstr "過去 30 日以内にリリースされ、少なくとも 2 人のほかのオーナーに使われているもの"
 
 #: manual/tutorial/static_search.md:93
 msgid "The flat filters of the interface work too: `rank=S,A` in the URL keeps ranks `S` and `A`, and `limit` and `offset` page through the results."
@@ -4864,42 +4864,42 @@ msgid "Without an explicit sort, a query orders results by how many of its posit
 msgstr "明示的な並べ替えがなければ、クエリは結果を、パッケージが一致する肯定の項の数、次に順位、次に名前の順に並べます。クエリがなければ、一覧は順位順に並びます。明示的な並べ替えがある場合、`order` はキーを反転させ、同順位は常に順位の高いものから並びます。"
 
 #: manual/tutorial/static_search.md:144
-msgid "`alice/json` matches both words; the other two match one each and are ordered by rank position (all positions are `0` here, so by name). For `json AND parser` every result matches both words, so the order is the plain score order."
-msgstr "`alice/json` は両方の単語に一致し、残りの 2 つはそれぞれ 1 つずつ一致して順位順に並びます（ここでは順位がすべて `0` なので名前順）。`json AND parser` ではどの結果も両方の単語に一致するので、順序は単純なスコア順です。"
+msgid "`alice/json` matches both words; the other two match one each and are ordered by rank position (all positions are `0` here, so by name). With `json AND parser` only `alice/json` matches. Results that tie on relevance are always ordered by rank position and then by name, whatever the sort direction."
+msgstr "`alice/json` は両方の単語に一致し、残りの 2 つはそれぞれ 1 つずつ一致して順位順に並びます（ここでは順位がすべて `0` なので名前順）。`json AND parser` では `alice/json` だけが一致します。関連度が同じ結果は、並べ替えの向きにかかわらず、常に順位、次に名前の順に並びます。"
 
-#: manual/tutorial/static_search.md:148
+#: manual/tutorial/static_search.md:150
 msgid "Use the engine from JavaScript"
 msgstr "JavaScript からエンジンを使う"
 
-#: manual/tutorial/static_search.md:150
+#: manual/tutorial/static_search.md:152
 msgid "`npm run build:moonbit` writes `lib/moonbit/static_search/static_search.js`. `lib/static-search.ts` wraps it:"
 msgstr "`npm run build:moonbit` は `lib/moonbit/static_search/static_search.js` を書き出します。`lib/static-search.ts` がそれを包みます。"
 
-#: manual/tutorial/static_search.md:164
+#: manual/tutorial/static_search.md:166
 msgid "**Implicit AND.** `json parser` without `AND` is a syntax error in the expression language. In the simple search field (`q`) the same text is one substring, `json parser`."
 msgstr "**暗黙の AND。** 式言語では `AND` のない `json parser` は構文エラーです。簡易検索フィールド（`q`）では、同じテキストが 1 つの部分文字列 `json parser` になります。"
 
-#: manual/tutorial/static_search.md:167
+#: manual/tutorial/static_search.md:169
 msgid "**Field operators.** `score:180` means `score = 180`, not at least 180. Use `score>=180`."
 msgstr "**フィールドの演算子。** `score:180` は 180 以上ではなく `score = 180` を意味します。`score>=180` を使ってください。"
 
-#: manual/tutorial/static_search.md:169
+#: manual/tutorial/static_search.md:171
 msgid "**`NOT` does not raise relevance.** Only positive terms count, so for `NOT rank=D OR json` every package that mentions `json` ranks above the rest, by score among themselves, whatever its rank."
 msgstr "**`NOT` は関連度を上げない。** 肯定的な項だけが数えられるので、`NOT rank=D OR json` では `json` に言及するパッケージがランクに関係なくすべて残りより前に来て、その中ではスコア順になります。"
 
-#: manual/tutorial/static_search.md:172
+#: manual/tutorial/static_search.md:174
 msgid "**Index fields.** An index exported before scoring v2 lacks `rank_position` and the other new counts; `load_index` rejects it. Export the data again."
 msgstr "**インデックスのフィールド。** スコアリング v2 より前にエクスポートしたインデックスには `rank_position` やその他の新しい件数がなく、`load_index` はそれを拒否します。データをエクスポートし直してください。"
 
-#: manual/tutorial/static_search.md:178
+#: manual/tutorial/static_search.md:180
 msgid "[static_search design](../design/static_search.md) for the index layout, the relevance count, the collation and the cost of a query."
 msgstr "[static_search の設計](../design/static_search.md): インデックスのレイアウト、関連度の計数、照合順序、クエリのコスト。"
 
-#: manual/tutorial/static_search.md:180
+#: manual/tutorial/static_search.md:182
 msgid "[static_search API](../api/static_search.md) for every function and the JavaScript exports."
 msgstr "[static_search API](../api/static_search.md): すべての関数と JavaScript のエクスポート。"
 
-#: manual/tutorial/static_search.md:183
+#: manual/tutorial/static_search.md:185
 msgid "[architecture guide](../architecture.md) for the whole data pipeline."
 msgstr "[アーキテクチャガイド](../architecture.md): データパイプライン全体。"
 

@@ -1982,7 +1982,7 @@ msgid "Repository conventions"
 msgstr ""
 
 #: manual/conventions.md:3
-msgid "These rules add to the Luna-Flow documentation standard for `mooncake_impact_factor`. The repository combines five MoonBit packages (`score`, `cli`, `query`, `query_sql` and `static_search`), a Python index builder, and a Next.js application, so its documentation must keep all of them in step."
+msgid "These rules add to the Luna-Flow documentation standard for `mooncake_impact_factor`. The repository combines six MoonBit packages (`score`, `metrics`, `cli`, `query`, `query_sql` and `static_search`), a Python index builder, and a Next.js application, so its documentation must keep all of them in step."
 msgstr ""
 
 #: manual/conventions.md:8
@@ -2022,7 +2022,7 @@ msgid "Distinguish local registry facts from authoritative mooncakes facts."
 msgstr ""
 
 #: manual/conventions.md:21
-msgid "The score formula, rank thresholds and momentum rules are owned by `src/score`. The design page derives their properties from the code; change both in the same commit."
+msgid "The score formula, the grades and the momentum rules are owned by `src/score`, and the signal definitions by `src/metrics`. The design pages derive their properties from the code; change both in the same commit."
 msgstr ""
 
 #: manual/conventions.md:22
@@ -2030,7 +2030,7 @@ msgid "The query language, its SQL compilation and the static search are owned b
 msgstr ""
 
 #: manual/conventions.md:23
-msgid "Behaviour implemented outside MoonBit (signal counting) is documented in the guide or design page that uses it, with a link to the file that implements it."
+msgid "Behaviour implemented outside MoonBit (fetching downloads, keeping the download history, writing SQLite) is documented in the guide that uses it, with a link to the file that implements it."
 msgstr ""
 
 #: manual/design/cli.md:1
@@ -4091,7 +4091,7 @@ msgstr ""
 #: manual/tutorial/cli.md:326
 #: manual/tutorial/metrics.md:423
 #: manual/tutorial/score.md:333
-#: manual/tutorial/static_search.md:176
+#: manual/tutorial/static_search.md:178
 msgid "Next steps"
 msgstr ""
 
@@ -4465,7 +4465,7 @@ msgstr ""
 
 #: manual/tutorial/query.md:155
 #: manual/tutorial/query_sql.md:91
-#: manual/tutorial/static_search.md:162
+#: manual/tutorial/static_search.md:164
 msgid "Pitfalls"
 msgstr ""
 
@@ -4566,7 +4566,7 @@ msgid "**Columns of scoring v2.** `external_dependents`, `owners`, `age` and `po
 msgstr ""
 
 #: manual/tutorial/query_sql.md:104
-#: manual/tutorial/static_search.md:182
+#: manual/tutorial/static_search.md:184
 msgid "[query tutorial](query.md) for the expression language."
 msgstr ""
 
@@ -4839,7 +4839,7 @@ msgid "fast-growing packages with at least five recent dependents"
 msgstr ""
 
 #: manual/tutorial/static_search.md:91
-msgid "released in the last 30 days and used by two other owners"
+msgid "released in the last 30 days and used by at least two other owners"
 msgstr ""
 
 #: manual/tutorial/static_search.md:93
@@ -4855,41 +4855,41 @@ msgid "Without an explicit sort, a query orders results by how many of its posit
 msgstr ""
 
 #: manual/tutorial/static_search.md:144
-msgid "`alice/json` matches both words; the other two match one each and are ordered by rank position (all positions are `0` here, so by name). For `json AND parser` every result matches both words, so the order is the plain score order."
-msgstr ""
-
-#: manual/tutorial/static_search.md:148
-msgid "Use the engine from JavaScript"
+msgid "`alice/json` matches both words; the other two match one each and are ordered by rank position (all positions are `0` here, so by name). With `json AND parser` only `alice/json` matches. Results that tie on relevance are always ordered by rank position and then by name, whatever the sort direction."
 msgstr ""
 
 #: manual/tutorial/static_search.md:150
+msgid "Use the engine from JavaScript"
+msgstr ""
+
+#: manual/tutorial/static_search.md:152
 msgid "`npm run build:moonbit` writes `lib/moonbit/static_search/static_search.js`. `lib/static-search.ts` wraps it:"
 msgstr ""
 
-#: manual/tutorial/static_search.md:164
+#: manual/tutorial/static_search.md:166
 msgid "**Implicit AND.** `json parser` without `AND` is a syntax error in the expression language. In the simple search field (`q`) the same text is one substring, `json parser`."
 msgstr ""
 
-#: manual/tutorial/static_search.md:167
+#: manual/tutorial/static_search.md:169
 msgid "**Field operators.** `score:180` means `score = 180`, not at least 180. Use `score>=180`."
 msgstr ""
 
-#: manual/tutorial/static_search.md:169
+#: manual/tutorial/static_search.md:171
 msgid "**`NOT` does not raise relevance.** Only positive terms count, so for `NOT rank=D OR json` every package that mentions `json` ranks above the rest, by score among themselves, whatever its rank."
 msgstr ""
 
-#: manual/tutorial/static_search.md:172
+#: manual/tutorial/static_search.md:174
 msgid "**Index fields.** An index exported before scoring v2 lacks `rank_position` and the other new counts; `load_index` rejects it. Export the data again."
 msgstr ""
 
-#: manual/tutorial/static_search.md:178
+#: manual/tutorial/static_search.md:180
 msgid "[static_search design](../design/static_search.md) for the index layout, the relevance count, the collation and the cost of a query."
 msgstr ""
 
-#: manual/tutorial/static_search.md:180
+#: manual/tutorial/static_search.md:182
 msgid "[static_search API](../api/static_search.md) for every function and the JavaScript exports."
 msgstr ""
 
-#: manual/tutorial/static_search.md:183
+#: manual/tutorial/static_search.md:185
 msgid "[architecture guide](../architecture.md) for the whole data pipeline."
 msgstr ""

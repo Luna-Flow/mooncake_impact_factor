@@ -1982,8 +1982,8 @@ msgid "Repository conventions"
 msgstr "仓库约定"
 
 #: manual/conventions.md:3
-msgid "These rules add to the Luna-Flow documentation standard for `mooncake_impact_factor`. The repository combines five MoonBit packages (`score`, `cli`, `query`, `query_sql` and `static_search`), a Python index builder, and a Next.js application, so its documentation must keep all of them in step."
-msgstr "这些规则是对 Luna-Flow 文档标准针对 `mooncake_impact_factor` 的补充。本仓库包含五个 MoonBit 包（`score`、`cli`、`query`、`query_sql` 和 `static_search`）、一个 Python 索引构建器和一个 Next.js 应用，因此其文档必须让所有这些部分保持一致。"
+msgid "These rules add to the Luna-Flow documentation standard for `mooncake_impact_factor`. The repository combines six MoonBit packages (`score`, `metrics`, `cli`, `query`, `query_sql` and `static_search`), a Python index builder, and a Next.js application, so its documentation must keep all of them in step."
+msgstr "这些规则是对 Luna-Flow 文档标准针对 `mooncake_impact_factor` 的补充。本仓库包含六个 MoonBit 包（`score`、`metrics`、`cli`、`query`、`query_sql` 和 `static_search`）、一个 Python 索引构建器和一个 Next.js 应用，因此其文档必须让所有这些部分保持一致。"
 
 #: manual/conventions.md:8
 msgid "Scope"
@@ -2022,16 +2022,16 @@ msgid "Distinguish local registry facts from authoritative mooncakes facts."
 msgstr "要区分“本地注册表事实”和“mooncakes 权威事实”。"
 
 #: manual/conventions.md:21
-msgid "The score formula, rank thresholds and momentum rules are owned by `src/score`. The design page derives their properties from the code; change both in the same commit."
-msgstr "分数公式、等级阈值和势头规则归 `src/score` 所有。设计页面根据代码推导它们的性质；两者要在同一个提交中修改。"
+msgid "The score formula, the grades and the momentum rules are owned by `src/score`, and the signal definitions by `src/metrics`. The design pages derive their properties from the code; change both in the same commit."
+msgstr "分数公式、等级和势头规则归 `src/score` 所有，信号的定义归 `src/metrics` 所有。设计页面根据代码推导它们的性质；两者要在同一个提交中修改。"
 
 #: manual/conventions.md:22
 msgid "The query language, its SQL compilation and the static search are owned by `src/query`, `src/query_sql` and `src/static_search`; the TypeScript files only wrap them."
 msgstr "查询语言、其 SQL 编译和静态搜索分别归 `src/query`、`src/query_sql` 和 `src/static_search` 所有；TypeScript 文件只是包装它们。"
 
 #: manual/conventions.md:23
-msgid "Behaviour implemented outside MoonBit (signal counting) is documented in the guide or design page that uses it, with a link to the file that implements it."
-msgstr "在 MoonBit 之外实现的行为（信号统计）记录在使用它的指南或设计页面中，并链接到实现它的文件。"
+msgid "Behaviour implemented outside MoonBit (fetching downloads, keeping the download history, writing SQLite) is documented in the guide that uses it, with a link to the file that implements it."
+msgstr "在 MoonBit 之外实现的行为（抓取下载量、保存下载量历史、写入 SQLite）记录在使用它的指南中，并链接到实现它的文件。"
 
 #: manual/design/cli.md:1
 msgid "cli design"
@@ -4100,7 +4100,7 @@ msgstr "**比较来自不同输入的报告。** 等级是在输入总体中所�
 #: manual/tutorial/cli.md:326
 #: manual/tutorial/metrics.md:423
 #: manual/tutorial/score.md:333
-#: manual/tutorial/static_search.md:176
+#: manual/tutorial/static_search.md:178
 msgid "Next steps"
 msgstr "下一步"
 
@@ -4474,7 +4474,7 @@ msgstr "`encode` 给出 Web 界面放在 `ast` URL 参数中的 JSON 文本，`d
 
 #: manual/tutorial/query.md:155
 #: manual/tutorial/query_sql.md:91
-#: manual/tutorial/static_search.md:162
+#: manual/tutorial/static_search.md:164
 msgid "Pitfalls"
 msgstr "陷阱"
 
@@ -4575,7 +4575,7 @@ msgid "**Columns of scoring v2.** `external_dependents`, `owners`, `age` and `po
 msgstr "**评分 v2 的列。** `external_dependents`、`owners`、`age` 和 `position` 需要索引构建器写入的 `external_dependent_count`、`dependent_owner_count`、`days_since_release` 和 `rank_position` 列。"
 
 #: manual/tutorial/query_sql.md:104
-#: manual/tutorial/static_search.md:182
+#: manual/tutorial/static_search.md:184
 msgid "[query tutorial](query.md) for the expression language."
 msgstr "[query 教程](query.md)：表达式语言。"
 
@@ -4848,8 +4848,8 @@ msgid "fast-growing packages with at least five recent dependents"
 msgstr "至少有五个近期依赖方的快速增长的包"
 
 #: manual/tutorial/static_search.md:91
-msgid "released in the last 30 days and used by two other owners"
-msgstr "在最近 30 天内发布、且被两个其他所有者使用的包"
+msgid "released in the last 30 days and used by at least two other owners"
+msgstr "在最近 30 天内发布、且被至少两个其他所有者使用的包"
 
 #: manual/tutorial/static_search.md:93
 msgid "The flat filters of the interface work too: `rank=S,A` in the URL keeps ranks `S` and `A`, and `limit` and `offset` page through the results."
@@ -4864,42 +4864,42 @@ msgid "Without an explicit sort, a query orders results by how many of its posit
 msgstr "没有显式排序时，有查询的结果按一个包匹配的正项数排序，然后按名次，然后按名称；没有查询时，列表按名次排序。有显式排序时，`order` 翻转排序键，而并列项总是按名次从好到差列出。"
 
 #: manual/tutorial/static_search.md:144
-msgid "`alice/json` matches both words; the other two match one each and are ordered by rank position (all positions are `0` here, so by name). For `json AND parser` every result matches both words, so the order is the plain score order."
-msgstr "`alice/json` 匹配两个词；另外两个各匹配一个，按名次排序（这里所有名次都是 `0`，因此按名称排序）。对于 `json AND parser`，每个结果都匹配两个词，因此顺序就是普通的分数顺序。"
+msgid "`alice/json` matches both words; the other two match one each and are ordered by rank position (all positions are `0` here, so by name). With `json AND parser` only `alice/json` matches. Results that tie on relevance are always ordered by rank position and then by name, whatever the sort direction."
+msgstr "`alice/json` 匹配两个词；另外两个各匹配一个，按名次排序（这里所有名次都是 `0`，因此按名称排序）。用 `json AND parser` 时只有 `alice/json` 匹配。相关度相同的结果总是先按名次、再按名称排序，与排序方向无关。"
 
-#: manual/tutorial/static_search.md:148
+#: manual/tutorial/static_search.md:150
 msgid "Use the engine from JavaScript"
 msgstr "在 JavaScript 中使用该引擎"
 
-#: manual/tutorial/static_search.md:150
+#: manual/tutorial/static_search.md:152
 msgid "`npm run build:moonbit` writes `lib/moonbit/static_search/static_search.js`. `lib/static-search.ts` wraps it:"
 msgstr "`npm run build:moonbit` 写出 `lib/moonbit/static_search/static_search.js`。`lib/static-search.ts` 包装它："
 
-#: manual/tutorial/static_search.md:164
+#: manual/tutorial/static_search.md:166
 msgid "**Implicit AND.** `json parser` without `AND` is a syntax error in the expression language. In the simple search field (`q`) the same text is one substring, `json parser`."
 msgstr "**隐式 AND。** 在表达式语言中，不带 `AND` 的 `json parser` 是语法错误。在简单搜索字段（`q`）中，同样的文本是一个子串 `json parser`。"
 
-#: manual/tutorial/static_search.md:167
+#: manual/tutorial/static_search.md:169
 msgid "**Field operators.** `score:180` means `score = 180`, not at least 180. Use `score>=180`."
 msgstr "**字段运算符。** `score:180` 表示 `score = 180`，而不是至少 180。请使用 `score>=180`。"
 
-#: manual/tutorial/static_search.md:169
+#: manual/tutorial/static_search.md:171
 msgid "**`NOT` does not raise relevance.** Only positive terms count, so for `NOT rank=D OR json` every package that mentions `json` ranks above the rest, by score among themselves, whatever its rank."
 msgstr "**`NOT` 不会提高相关度。** 只有正词项计数，因此对 `NOT rank=D OR json`，每个提到 `json` 的包都排在其余包之前，彼此之间按分数排序，与等级无关。"
 
-#: manual/tutorial/static_search.md:172
+#: manual/tutorial/static_search.md:174
 msgid "**Index fields.** An index exported before scoring v2 lacks `rank_position` and the other new counts; `load_index` rejects it. Export the data again."
 msgstr "**索引字段。** 在评分 v2 之前导出的索引缺少 `rank_position` 和其他新增的计数；`load_index` 会拒绝它。请重新导出数据。"
 
-#: manual/tutorial/static_search.md:178
+#: manual/tutorial/static_search.md:180
 msgid "[static_search design](../design/static_search.md) for the index layout, the relevance count, the collation and the cost of a query."
 msgstr "[static_search 设计](../design/static_search.md)：索引布局、相关度计数、排序规则以及查询的开销。"
 
-#: manual/tutorial/static_search.md:180
+#: manual/tutorial/static_search.md:182
 msgid "[static_search API](../api/static_search.md) for every function and the JavaScript exports."
 msgstr "[static_search API](../api/static_search.md)：每个函数和 JavaScript 导出项。"
 
-#: manual/tutorial/static_search.md:183
+#: manual/tutorial/static_search.md:185
 msgid "[architecture guide](../architecture.md) for the whole data pipeline."
 msgstr "[架构指南](../architecture.md)：完整的数据管道。"
 
