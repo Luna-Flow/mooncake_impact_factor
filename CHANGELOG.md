@@ -5,7 +5,50 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## Unreleased
 
+### Added
+
+- New MoonBit package `query`: the search query language (query tree, JSON
+  form, expression parser and serializer, flat-parameter derivation), the
+  rank and momentum label sets, the sort keys and the paging rules. It was
+  TypeScript in `lib/query.ts`, which now wraps the generated JavaScript.
+- New MoonBit package `query_sql`: compiles query trees and `/api/search`
+  requests (validation, FTS5 expressions, ordering, paging) to SQLite
+  statements. It replaces the compiler in `lib/data.ts`.
+- `scripts/build_moonbit.mjs` (`npm run build:moonbit`) builds `query`,
+  `query_sql` and `static_search` to ES modules in `lib/moonbit/`; npm runs
+  it before `dev`, `build`, `typecheck` and `test`.
+- Query fields `external_dependents`, `owners`, `age` and `position`, the
+  flat parameters `min_external_dependents`, `min_owners` and `max_age`
+  (`minExternalDependents`, `minOwners`, `maxAge` in the interface state),
+  and the sort keys `external`, `owners`, `position` and `age`.
+- `rank` and `momentum` accept comma-separated lists (`rank=S,A`), which
+  match any of the labels.
+- Searches accept `limit` (default 50, at most 200) and `offset`, and
+  return `{ items, total }` with the number of matches before paging, on
+  the server (`/api/search`) and in the static worker.
+
 ### Changed
+
+- `static_search` is now the search engine of the static site (index
+  loading, evaluation, relevance, sorting, paging) instead of a version tag
+  and a lower-casing helper. It builds for every target, lower-cases and
+  collates text with its own tables instead of the host's `toLowerCase` and
+  `localeCompare`, and exports `load_index` and `search` for the worker.
+  `runtime_version` is now `"static-search-v2"`.
+- The momentum labels are `New`, `Rising`, `Stable` and `Cooling`; `Hot` is
+  no longer accepted in queries.
+- A search without criteria lists every package (paged), ordered by rank
+  position and honouring `sort` and `order`, instead of returning the top
+  feed.
+- The default sort without a text query is `position` (ascending). Ties of
+  every sort key are broken by rank position and then by name, whatever the
+  direction; `order` flips only the key. This applies to the server and the
+  static site alike.
+- Malformed `ast` or `expr` parameters are answered with HTTP 400 and the
+  parser's message instead of HTTP 500.
+- The static rank and momentum terms ignore case and surrounding spaces
+  (`rank=a` matches rank `A`), as on the server.
+- The static site is built with webpack (`next build --webpack`).
 
 - Migrated to MoonBit 0.10 (`moonc` 0.10 or later is required).
 - `moon.mod` sets `source = "src"` directly instead of through `options(...)`,
@@ -46,11 +89,22 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ### Fixed
 
+- The static search worker runs again: Turbopack copied the worker's
+  TypeScript source as a static asset instead of bundling it, so the
+  browser could not start it.
+- `serialize` keeps the parentheses of a negated group (`NOT (a OR b)` was
+  written `NOT a OR b`) and quotes values with a colon or a keyword
+  (`repository:"https://x"`, `owner:"and"`), so expressions shown in the
+  interface parse back to the same query.
+- An unclosed quote in an expression (`owner:"gml`) is a syntax error
+  instead of silently ending the value at the end of the text.
+- `sort=constructor` (or another inherited object property) is rejected
+  with HTTP 400 instead of producing invalid SQL.
+
 - The static search no longer counts negated terms in its relevance order:
   a term under `NOT`, directly or through a negated group, adds no
   relevance, so `NOT rank=D OR json` no longer ranks the rank-`D` packages
-  first (#4). The query evaluation moved to `lib/static-search.ts`, where
-  `tests/static-search.test.mjs` tests it.
+  first (#4). The query evaluation now lives in `src/static_search`.
 - `scripts/build_index.py` uses the same days since release, `3650`, for
   the current and the 30-days-ago snapshot when the release date is unknown.
   Before, the historical value was `0`, so such packages got the multiplier
