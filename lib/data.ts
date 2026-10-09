@@ -2,7 +2,7 @@ import { existsSync } from "node:fs";
 import path from "node:path";
 import { DatabaseSync } from "node:sqlite";
 
-import type { DependentItem, PackageDetail, PackageSummary, PackageVersion } from "../frontend/src/types";
+import type { DependencyItem, DependentItem, IndexMeta, PackageAnalysis, PackageDetail, PackageSummary, PackageVersion } from "../frontend/src/types";
 import type { FeedSource } from "../frontend/src/api";
 import {
   decodeQueryAstFromParams,
@@ -432,84 +432,6 @@ function compileFtsExpression(input: string): string {
   return compiled.join(" ");
 }
 
-function toEpochMillis(value: string | null): number {
-  if (!value) return 0;
-  const epoch = Date.parse(value);
-  return Number.isNaN(epoch) ? 0 : epoch;
-}
-
-function parseSemverKey(version: string | null): readonly [readonly [number, number, number], readonly [number, readonly (readonly [number, number | string])[]]] {
-  if (!version) {
-    return [[0, 0, 0], [0, []]];
-  }
-
-  const splitVersion = version.split("-", 2);
-  const coreText = splitVersion[0] ?? "";
-  const prereleaseText = splitVersion[1] ?? "";
-  const coreParts = coreText.split(".");
-  const coreNumbers: [number, number, number] = [0, 0, 0];
-  for (let index = 0; index < 3; index += 1) {
-    const part = coreParts[index] ?? "";
-    coreNumbers[index] = /^\d+$/.test(part) ? Number(part) : 0;
-  }
-
-  if (!prereleaseText) {
-    return [coreNumbers, [1, []]];
-  }
-
-  const prereleaseParts = prereleaseText.split(".").map((identifier) => (
-    /^\d+$/.test(identifier)
-      ? [0, Number(identifier)] as const
-      : [1, identifier] as const
-  ));
-  return [coreNumbers, [0, prereleaseParts]];
-}
-
-function compareSemverDesc(left: string | null, right: string | null): number {
-  const leftKey = parseSemverKey(left);
-  const rightKey = parseSemverKey(right);
-
-  for (let index = 0; index < 3; index += 1) {
-    const leftCore = leftKey[0][index] ?? 0;
-    const rightCore = rightKey[0][index] ?? 0;
-    if (leftCore !== rightCore) {
-      return rightCore - leftCore;
-    }
-  }
-
-  if (leftKey[1][0] !== rightKey[1][0]) {
-    return rightKey[1][0] - leftKey[1][0];
-  }
-
-  const maxLength = Math.max(leftKey[1][1].length, rightKey[1][1].length);
-  for (let index = 0; index < maxLength; index += 1) {
-    const leftPart = leftKey[1][1][index];
-    const rightPart = rightKey[1][1][index];
-    if (!leftPart) return 1;
-    if (!rightPart) return -1;
-    if (leftPart[0] !== rightPart[0]) {
-      return rightPart[0] - leftPart[0];
-    }
-    if (leftPart[1] === rightPart[1]) continue;
-    if (typeof leftPart[1] === "number" && typeof rightPart[1] === "number") {
-      return rightPart[1] - leftPart[1];
-    }
-    return String(rightPart[1]).localeCompare(String(leftPart[1]));
-  }
-
-  return 0;
-}
-
-function sortVersionsDescending(versions: PackageVersion[]): PackageVersion[] {
-  return [...versions].sort((left, right) => {
-    const createdAtOrder = toEpochMillis(right.created_at) - toEpochMillis(left.created_at);
-    if (createdAtOrder !== 0) {
-      return createdAtOrder;
-    }
-    return compareSemverDesc(left.version, right.version);
-  });
-}
-
 function normalizeSqliteSearchError(error: unknown): never {
   if (error instanceof HttpError) {
     throw error;
@@ -724,6 +646,18 @@ function compileAstNode(node: QueryNode): { sql: string; values: Array<string | 
   return node.negated ? { sql: `NOT (${sql})`, values } : { sql, values };
 }
 
+/** The columns of a PackageSummary, for queries over packages p JOIN package_scores s. */
+export const SUMMARY_COLUMNS = `
+  p.full_name, p.owner, p.package_name, p.description, p.latest_version, p.latest_created_at,
+  p.dependent_count, p.external_dependent_count, p.self_dependent_count, p.dependent_owner_count,
+  p.recent_dependent_count, p.download_count, p.days_since_release,
+  s.score, s.score_30d_ago, s.score_growth_30d, s.score_growth_ratio_30d,
+  s.rank_label, s.rank_position, s.momentum_label`;
+
+function text(value: unknown): string | null {
+  return value === null || value === undefined ? null : String(value);
+}
+
 function mapPackageSummary(row: RowRecord): PackageSummary {
   return {
     full_name: String(row["full_name"] ?? ""),
@@ -739,7 +673,13 @@ function mapPackageSummary(row: RowRecord): PackageSummary {
     score_growth_30d: Number(row["score_growth_30d"] ?? 0),
     score_growth_ratio_30d: Number(row["score_growth_ratio_30d"] ?? 0),
     rank_label: String(row["rank_label"] ?? ""),
-    momentum_label: String(row["momentum_label"] ?? "")
+    rank_position: Number(row["rank_position"] ?? 0),
+    momentum_label: String(row["momentum_label"] ?? ""),
+    latest_created_at: text(row["latest_created_at"]),
+    external_dependent_count: Number(row["external_dependent_count"] ?? 0),
+    self_dependent_count: Number(row["self_dependent_count"] ?? 0),
+    dependent_owner_count: Number(row["dependent_owner_count"] ?? 0),
+    days_since_release: Number(row["days_since_release"] ?? 0)
   };
 }
 
@@ -752,15 +692,19 @@ function mapDependentItem(row: RowRecord): DependentItem {
     latest_version: row["latest_version"] === null ? null : String(row["latest_version"] ?? ""),
     score: Number(row["score"] ?? 0),
     rank_label: String(row["rank_label"] ?? ""),
-    momentum_label: String(row["momentum_label"] ?? "")
+    rank_position: Number(row["rank_position"] ?? 0),
+    momentum_label: String(row["momentum_label"] ?? ""),
+    same_owner: Number(row["same_owner"] ?? 0) === 1,
+    first_seen_at: text(row["first_seen_at"])
   };
 }
 
 function mapVersion(row: RowRecord): PackageVersion {
   return {
     version: String(row["version"] ?? ""),
-    created_at: row["created_at"] === null ? null : String(row["created_at"] ?? ""),
-    deps: JSON.parse(String(row["deps_json"] ?? "[]"))
+    created_at: text(row["created_at"]),
+    yanked: Number(row["yanked"] ?? 0) === 1,
+    deps: JSON.parse(String(row["deps_json"] ?? "{}"))
   };
 }
 
@@ -776,56 +720,59 @@ function mapPackageDetail(row: RowRecord): PackageDetail {
     latest_created_at: row["latest_created_at"] === null ? null : String(row["latest_created_at"] ?? ""),
     version_count: Number(row["version_count"] ?? 0),
     dependent_count: Number(row["dependent_count"] ?? 0),
+    external_dependent_count: Number(row["external_dependent_count"] ?? 0),
+    self_dependent_count: Number(row["self_dependent_count"] ?? 0),
+    dependent_owner_count: Number(row["dependent_owner_count"] ?? 0),
     recent_dependent_count: Number(row["recent_dependent_count"] ?? 0),
     download_count: Number(row["download_count"] ?? 0),
+    download_count_30d_ago: row["download_count_30d_ago"] === null || row["download_count_30d_ago"] === undefined ? null : Number(row["download_count_30d_ago"]),
+    days_since_release: Number(row["days_since_release"] ?? 0),
     score: Number(row["score"] ?? 0),
     score_30d_ago: Number(row["score_30d_ago"] ?? 0),
     score_growth_30d: Number(row["score_growth_30d"] ?? 0),
     score_growth_ratio_30d: Number(row["score_growth_ratio_30d"] ?? 0),
     rank_label: String(row["rank_label"] ?? ""),
+    rank_position: Number(row["rank_position"] ?? 0),
     momentum_label: String(row["momentum_label"] ?? ""),
     activity_multiplier: Number(row["activity_multiplier"] ?? 0),
+    breakdown: {
+      dependents: Number(row["part_dependents"] ?? 0),
+      recent_dependents: Number(row["part_recent_dependents"] ?? 0),
+      downloads: Number(row["part_downloads"] ?? 0),
+      multiplier: Number(row["activity_multiplier"] ?? 0)
+    },
     keywords: JSON.parse(String(row["keywords_json"] ?? "[]")),
     versions: []
   };
 }
 
 export function getFeedPackages(source: FeedSource, limit = 40): PackageSummary[] {
-  const clampedLimit = clampLimit(limit, source === "top" ? 200 : 100, source === "top" ? 40 : 24);
+  const clampedLimit = clampLimit(limit, 200, 40);
   const db = getDatabase();
-  let sql = `
-    SELECT
-      p.full_name,
-      p.owner,
-      p.package_name,
-      p.description,
-      p.latest_version,
-      p.dependent_count,
-      p.recent_dependent_count,
-      p.download_count,
-      s.score,
-      s.score_30d_ago,
-      s.score_growth_30d,
-      s.score_growth_ratio_30d,
-      s.rank_label,
-      s.momentum_label
-    FROM packages p
-    JOIN package_scores s ON s.package_id = p.id
-  `;
+  let sql = `SELECT ${SUMMARY_COLUMNS} FROM packages p JOIN package_scores s ON s.package_id = p.id `;
   const params: Array<string | number> = [];
-
-  if (source === "hot") {
-    sql += "WHERE s.momentum_label = ? ORDER BY s.score_growth_30d DESC, s.score DESC, p.full_name ASC LIMIT ?";
-    params.push("Hot", clampedLimit);
-  } else if (source === "rising") {
-    sql += "WHERE s.momentum_label = ? ORDER BY s.score_growth_30d DESC, s.score DESC, p.full_name ASC LIMIT ?";
-    params.push("Rising", clampedLimit);
+  if (source === "rising") {
+    sql += "WHERE s.momentum_label = 'Rising' ORDER BY s.score_growth_30d DESC, s.score DESC, p.full_name ASC LIMIT ?";
+  } else if (source === "new") {
+    sql += "WHERE s.momentum_label = 'New' ORDER BY s.score DESC, p.full_name ASC LIMIT ?";
   } else {
-    sql += "ORDER BY s.score DESC, p.full_name ASC LIMIT ?";
-    params.push(clampedLimit);
+    sql += "ORDER BY s.rank_position ASC, p.full_name ASC LIMIT ?";
   }
-
+  params.push(clampedLimit);
   return (db.prepare(sql).all(...params) as RowRecord[]).map(mapPackageSummary);
+}
+
+/** When the index was computed, how many packages it ranks, and whether download history was used. */
+export function getIndexMeta(): IndexMeta {
+  const rows = getDatabase().prepare("SELECT key, value FROM index_meta").all() as RowRecord[];
+  const meta = new Map(rows.map((row) => [String(row["key"]), String(row["value"])]));
+  return {
+    computed_at: meta.get("computed_at") ?? "",
+    population: Number(meta.get("population") ?? 0),
+    download_history_used: meta.get("download_history_used") === "true",
+    rank_counts: JSON.parse(meta.get("rank_counts") ?? "{}"),
+    momentum_counts: JSON.parse(meta.get("momentum_counts") ?? "{}")
+  };
 }
 
 export function searchPackagesFromInput(input: SearchInput): PackageSummary[] {
@@ -836,20 +783,7 @@ export function searchPackagesFromInput(input: SearchInput): PackageSummary[] {
     if (astQuery && hasQueryAstIntent(astQuery)) {
       let sql = `
       SELECT
-        p.full_name,
-        p.owner,
-        p.package_name,
-        p.description,
-        p.latest_version,
-        p.dependent_count,
-        p.recent_dependent_count,
-        p.download_count,
-        s.score,
-        s.score_30d_ago,
-        s.score_growth_30d,
-        s.score_growth_ratio_30d,
-        s.rank_label,
-        s.momentum_label
+        ${SUMMARY_COLUMNS}
       FROM packages p
       JOIN package_scores s ON s.package_id = p.id
       WHERE `;
@@ -867,20 +801,7 @@ export function searchPackagesFromInput(input: SearchInput): PackageSummary[] {
 
     let sql = `
     SELECT
-      p.full_name,
-      p.owner,
-      p.package_name,
-      p.description,
-      p.latest_version,
-      p.dependent_count,
-      p.recent_dependent_count,
-      p.download_count,
-      s.score,
-      s.score_30d_ago,
-      s.score_growth_30d,
-      s.score_growth_ratio_30d,
-      s.rank_label,
-      s.momentum_label
+      ${SUMMARY_COLUMNS}
     FROM packages p
     JOIN package_scores s ON s.package_id = p.id
     `;
@@ -960,35 +881,17 @@ export function searchPackagesFromInput(input: SearchInput): PackageSummary[] {
   }
 }
 
-export function getPackageAnalysis(owner: string, packageName: string): { detail: PackageDetail; dependents: DependentItem[] } {
+export function getPackageAnalysis(fullName: string): PackageAnalysis {
   const db = getDatabase();
   const detailRow = db.prepare(`
     SELECT
-      p.id,
-      p.full_name,
-      p.owner,
-      p.package_name,
-      p.description,
-      p.repository,
-      p.license,
-      p.latest_version,
-      p.latest_created_at,
-      p.version_count,
-      p.dependent_count,
-      p.recent_dependent_count,
-      p.download_count,
-      p.keywords_json,
-      s.score,
-      s.score_30d_ago,
-      s.score_growth_30d,
-      s.score_growth_ratio_30d,
-      s.rank_label,
-      s.momentum_label,
-      s.activity_multiplier
+      p.id, p.repository, p.license, p.version_count, p.keywords_json, p.download_count_30d_ago,
+      s.activity_multiplier, s.part_dependents, s.part_recent_dependents, s.part_downloads,
+      ${SUMMARY_COLUMNS}
     FROM packages p
     JOIN package_scores s ON s.package_id = p.id
-    WHERE p.owner = ? AND p.package_name = ?
-  `).get(owner, packageName) as RowRecord | undefined;
+    WHERE p.full_name = ?
+  `).get(fullName) as RowRecord | undefined;
 
   if (!detailRow) {
     throw new HttpError(404, "Package not found");
@@ -997,32 +900,48 @@ export function getPackageAnalysis(owner: string, packageName: string): { detail
   const detail = mapPackageDetail(detailRow);
   const packageId = Number(detailRow["id"]);
 
-  detail.versions = sortVersionsDescending((db.prepare(`
-    SELECT version, created_at, deps_json
+  detail.versions = (db.prepare(`
+    SELECT version, created_at, yanked, deps_json
     FROM versions
     WHERE package_id = ?
-    ORDER BY created_at DESC, version DESC
-    LIMIT 20
-  `).all(packageId) as RowRecord[]).map(mapVersion));
+    ORDER BY position ASC
+  `).all(packageId) as RowRecord[]).map(mapVersion);
 
   const dependents = (db.prepare(`
     SELECT
-      p.full_name,
-      p.owner,
-      p.package_name,
-      p.description,
-      p.latest_version,
-      s.score,
-      s.rank_label,
-      s.momentum_label
+      p.full_name, p.owner, p.package_name, p.description, p.latest_version,
+      s.score, s.rank_label, s.rank_position, s.momentum_label,
+      e.same_owner, e.first_seen_at
     FROM package_edges e
     JOIN packages p ON p.id = e.source_package_id
     JOIN package_scores s ON s.package_id = p.id
     WHERE e.target_package_id = ?
-    ORDER BY s.score DESC, p.full_name ASC
+    ORDER BY e.same_owner ASC, s.rank_position ASC, p.full_name ASC
   `).all(packageId) as RowRecord[]).map(mapDependentItem);
 
-  return { detail, dependents };
+  const latest = detail.versions.find((version) => version.version === detail.latest_version);
+  const declared = latest && latest.deps && typeof latest.deps === "object" ? Object.entries(latest.deps as Record<string, unknown>) : [];
+  const lookup = db.prepare(`
+    SELECT p.description, s.score, s.rank_label, s.rank_position
+    FROM packages p JOIN package_scores s ON s.package_id = p.id
+    WHERE p.full_name = ?
+  `);
+  const dependencies: DependencyItem[] = declared
+    .map(([name, requirement]) => {
+      const row = lookup.get(name) as RowRecord | undefined;
+      return {
+        full_name: name,
+        version_req: typeof requirement === "string" ? requirement : null,
+        in_registry: Boolean(row),
+        description: row ? text(row["description"]) : null,
+        score: row ? Number(row["score"]) : null,
+        rank_label: row ? String(row["rank_label"]) : null,
+        rank_position: row ? Number(row["rank_position"]) : null
+      };
+    })
+    .sort((a, b) => (a.rank_position ?? Infinity) - (b.rank_position ?? Infinity) || a.full_name.localeCompare(b.full_name));
+
+  return { detail, dependents, dependencies };
 }
 
 export function isHttpError(error: unknown): error is HttpError {

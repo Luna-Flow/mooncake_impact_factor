@@ -19,8 +19,8 @@ export type SearchSort =
 
 export type SearchOrder = "asc" | "desc";
 export type SearchRank = "" | "S" | "A" | "B" | "C" | "D";
-export type SearchMomentum = "" | "Hot" | "Rising" | "Stable";
-export type FeedSource = "top" | "hot" | "rising";
+export type SearchMomentum = "" | "New" | "Rising" | "Stable" | "Cooling";
+export type FeedSource = "top" | "rising" | "new";
 
 export type AdvancedSearchParams = {
   q: string;

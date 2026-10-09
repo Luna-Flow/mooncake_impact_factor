@@ -8,7 +8,7 @@ export const dynamic = "force-dynamic";
 export async function GET(request: Request, context: { params: Promise<{ source: string }> }) {
   try {
     const { source } = await context.params;
-    if (source !== "top" && source !== "hot" && source !== "rising") {
+    if (source !== "top" && source !== "rising" && source !== "new") {
       return NextResponse.json({ error: "Unknown feed source" }, { status: 404 });
     }
 
