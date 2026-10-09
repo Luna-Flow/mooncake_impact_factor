@@ -1,0 +1,673 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: mooncake_impact_factor web interface\n"
+"Report-Msgid-Bugs-To: https://github.com/Luna-Flow/mooncake_impact_factor\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: conf.json:strings.site.name
+msgid "Luna Flow"
+msgstr ""
+
+#: conf.json:strings.site.product
+msgid "Impact Factor"
+msgstr ""
+
+#: conf.json:strings.site.title
+msgid "Impact Factor · Luna Flow"
+msgstr ""
+
+#: conf.json:strings.site.description
+msgid "Rankings of MoonBit packages by how much the ecosystem relies on them."
+msgstr ""
+
+#: conf.json:strings.nav.rankings
+#: conf.json:strings.rankings.title
+msgid "Rankings"
+msgstr ""
+
+#: conf.json:strings.nav.method
+#: conf.json:strings.rankings.howItWorks
+#: conf.json:strings.method.heading
+msgid "How scores work"
+msgstr ""
+
+#: conf.json:strings.nav.docs
+msgid "Documentation"
+msgstr ""
+
+#: conf.json:strings.nav.github
+msgid "GitHub"
+msgstr ""
+
+#: conf.json:strings.nav.skip
+msgid "Skip to content"
+msgstr ""
+
+#: conf.json:strings.nav.filters
+#: conf.json:strings.filters.title
+msgid "Filters"
+msgstr ""
+
+#: conf.json:strings.nav.close
+msgid "Close"
+msgstr ""
+
+#: conf.json:strings.lang.label
+msgid "Language"
+msgstr ""
+
+#: conf.json:strings.theme.label
+msgid "Theme"
+msgstr ""
+
+#: conf.json:strings.theme.auto
+msgid "Match system"
+msgstr ""
+
+#: conf.json:strings.theme.light
+msgid "Light"
+msgstr ""
+
+#: conf.json:strings.theme.dark
+msgid "Dark"
+msgstr ""
+
+#: conf.json:strings.search.open
+msgid "Search"
+msgstr ""
+
+#: conf.json:strings.search.placeholder
+msgid "Search packages by name, keyword or description"
+msgstr ""
+
+#: conf.json:strings.search.loading
+msgid "Searching…"
+msgstr ""
+
+#: conf.json:strings.search.empty
+msgid "No package matches."
+msgstr ""
+
+#: conf.json:strings.search.unavailable
+msgid "Search is unavailable."
+msgstr ""
+
+#: conf.json:strings.search.where
+msgid "#{position} · grade {grade}"
+msgstr ""
+
+#: conf.json:strings.search.all
+msgid "All {count} results in the rankings"
+msgstr ""
+
+#: conf.json:strings.search.keys
+msgid "↑ ↓ to choose, Enter to open"
+msgstr ""
+
+#: conf.json:strings.footer.note
+msgid "Computed from the mooncakes.io registry index and download counts. Not an official ranking of the MoonBit ecosystem. A Luna Flow project."
+msgstr ""
+
+#: conf.json:strings.common.unknown
+msgid "Unknown"
+msgstr ""
+
+#: conf.json:strings.common.noDescription
+msgid "No description."
+msgstr ""
+
+#: conf.json:strings.common.retry
+msgid "Try again"
+msgstr ""
+
+#: conf.json:strings.common.showAll
+msgid "Show all {count}"
+msgstr ""
+
+#: conf.json:strings.common.showFewer
+msgid "Show fewer"
+msgstr ""
+
+#: conf.json:strings.rankings.heading
+msgid "MoonBit package rankings"
+msgstr ""
+
+#: conf.json:strings.rankings.lead
+msgid "Every package of the mooncakes.io registry, ranked by how much other packages rely on it."
+msgstr ""
+
+#: conf.json:strings.rankings.summary
+msgid "{count} packages · {date}"
+msgstr ""
+
+#: conf.json:strings.rankings.filterLabel
+#: conf.json:strings.rankings.filterPlaceholder
+msgid "Filter by name, keyword or description"
+msgstr ""
+
+#: conf.json:strings.rankings.range
+msgid "{first}–{last} of {total} packages"
+msgstr ""
+
+#: conf.json:strings.rankings.rangeFiltered
+msgid "{first}–{last} of {total} matching packages"
+msgstr ""
+
+#: conf.json:strings.rankings.none
+msgid "No matching packages"
+msgstr ""
+
+#: conf.json:strings.rankings.loading
+msgid "Loading the rankings…"
+msgstr ""
+
+#: conf.json:strings.rankings.caption
+msgid "Packages with their position, grade, dependents, change over 30 days, latest release, downloads and score"
+msgstr ""
+
+#: conf.json:strings.rankings.errorTitle
+msgid "The rankings could not be loaded."
+msgstr ""
+
+#: conf.json:strings.rankings.emptyBody
+msgid "No package matches these filters."
+msgstr ""
+
+#: conf.json:strings.filters.all
+msgid "All packages"
+msgstr ""
+
+#: conf.json:strings.filters.momentum
+#: conf.json:strings.method.momentum.title
+msgid "Momentum"
+msgstr ""
+
+#: conf.json:strings.filters.grade
+#: conf.json:strings.table.grade
+#: conf.json:strings.standing.grade
+msgid "Grade"
+msgstr ""
+
+#: conf.json:strings.filters.adoption
+msgid "Adoption"
+msgstr ""
+
+#: conf.json:strings.filters.minExternal
+msgid "At least this many dependents"
+msgstr ""
+
+#: conf.json:strings.filters.minOwners
+msgid "From at least this many owners"
+msgstr ""
+
+#: conf.json:strings.filters.released
+#: conf.json:strings.score.recency
+msgid "Latest release"
+msgstr ""
+
+#: conf.json:strings.filters.anyTime
+msgid "Any time"
+msgstr ""
+
+#: conf.json:strings.filters.within30
+msgid "In the last 30 days"
+msgstr ""
+
+#: conf.json:strings.filters.within90
+msgid "In the last 90 days"
+msgstr ""
+
+#: conf.json:strings.filters.within365
+msgid "In the last year"
+msgstr ""
+
+#: conf.json:strings.filters.metadata
+msgid "Metadata"
+msgstr ""
+
+#: conf.json:strings.filters.hasRepository
+msgid "Links a repository"
+msgstr ""
+
+#: conf.json:strings.filters.hasLicense
+msgid "Declares a license"
+msgstr ""
+
+#: conf.json:strings.filters.expression
+msgid "Query expression"
+msgstr ""
+
+#: conf.json:strings.filters.expressionHelp
+msgid "Combine fields with AND, OR and NOT; Ctrl+Enter applies."
+msgstr ""
+
+#: conf.json:strings.filters.expressionInvalid
+msgid "This expression cannot be read."
+msgstr ""
+
+#: conf.json:strings.filters.syntax
+msgid "Syntax"
+msgstr ""
+
+#: conf.json:strings.filters.apply
+msgid "Apply"
+msgstr ""
+
+#: conf.json:strings.filters.clear
+msgid "Clear filters"
+msgstr ""
+
+#: conf.json:strings.grade.top
+#: conf.json:strings.standing.top
+msgid "top {share}"
+msgstr ""
+
+#: conf.json:strings.grade.rest
+msgid "the rest"
+msgstr ""
+
+#: conf.json:strings.grade.title.S
+msgid "Grade S: the top 5% of the registry"
+msgstr ""
+
+#: conf.json:strings.grade.title.A
+msgid "Grade A: the next 10%, down to the top 15%"
+msgstr ""
+
+#: conf.json:strings.grade.title.B
+msgid "Grade B: the next 20%, down to the top 35%"
+msgstr ""
+
+#: conf.json:strings.grade.title.C
+msgid "Grade C: the next 30%, down to the top 65%"
+msgstr ""
+
+#: conf.json:strings.grade.title.D
+msgid "Grade D: the remaining 35%, and every package without any signal"
+msgstr ""
+
+#: conf.json:strings.momentum.Rising
+msgid "Rising"
+msgstr ""
+
+#: conf.json:strings.momentum.Cooling
+msgid "Cooling"
+msgstr ""
+
+#: conf.json:strings.momentum.Stable
+msgid "Stable"
+msgstr ""
+
+#: conf.json:strings.momentum.New
+msgid "New"
+msgstr ""
+
+#: conf.json:strings.momentum.title.Rising
+msgid "Rising: the score grew by at least 10 points and at least 10% in 30 days."
+msgstr ""
+
+#: conf.json:strings.momentum.title.Cooling
+msgid "Cooling: the score fell by at least 10 points and at least 10% in 30 days."
+msgstr ""
+
+#: conf.json:strings.momentum.title.Stable
+msgid "Stable: the score changed by less than 10 points or less than 10% in 30 days."
+msgstr ""
+
+#: conf.json:strings.momentum.title.New
+msgid "New: the first release is less than 30 days old, so there is nothing to compare with."
+msgstr ""
+
+#: conf.json:strings.momentum.explain
+msgid "The score was {before} 30 days ago and is {now} now ({change}): {label}."
+msgstr ""
+
+#: conf.json:strings.momentum.explainNew
+msgid "The package had no release 30 days ago."
+msgstr ""
+
+#: conf.json:strings.momentum.downloads
+msgid "Downloads grew from {before} to {now} in the same period."
+msgstr ""
+
+#: conf.json:strings.momentum.noDownloadHistory
+msgid "Download counts from 30 days ago are not recorded yet, so the comparison uses today's downloads for both points and only dependencies and release age can change the score."
+msgstr ""
+
+#: conf.json:strings.table.package
+msgid "Package"
+msgstr ""
+
+#: conf.json:strings.table.gradeTitle
+msgid "Grade within the registry: S is the top 5%, then A, B, C and D"
+msgstr ""
+
+#: conf.json:strings.table.dependents
+#: conf.json:strings.package.dependents
+#: conf.json:strings.score.dependents
+msgid "Dependents"
+msgstr ""
+
+#: conf.json:strings.table.dependentsTitle
+msgid "{external} packages of other owners depend on it; {own} of the same owner"
+msgstr ""
+
+#: conf.json:strings.table.owners
+msgid "Owners"
+msgstr ""
+
+#: conf.json:strings.table.change
+#: conf.json:strings.standing.change
+msgid "30 days"
+msgstr ""
+
+#: conf.json:strings.table.released
+#: conf.json:strings.package.released
+msgid "Released"
+msgstr ""
+
+#: conf.json:strings.table.downloads
+#: conf.json:strings.score.downloads
+msgid "Downloads"
+msgstr ""
+
+#: conf.json:strings.table.score
+#: conf.json:strings.standing.score
+#: conf.json:strings.score.total
+msgid "Score"
+msgstr ""
+
+#: conf.json:strings.table.sortBy
+msgid "Sort by {column}"
+msgstr ""
+
+#: conf.json:strings.pager.label
+msgid "Pages"
+msgstr ""
+
+#: conf.json:strings.pager.previous
+msgid "Previous"
+msgstr ""
+
+#: conf.json:strings.pager.next
+msgid "Next"
+msgstr ""
+
+#: conf.json:strings.pager.status
+msgid "Page {page} of {pages}"
+msgstr ""
+
+#: conf.json:strings.package.onThisPage
+msgid "On this page"
+msgstr ""
+
+#: conf.json:strings.package.breadcrumbs
+msgid "Breadcrumbs"
+msgstr ""
+
+#: conf.json:strings.package.standing
+msgid "Standing"
+msgstr ""
+
+#: conf.json:strings.package.score
+msgid "Where the score comes from"
+msgstr ""
+
+#: conf.json:strings.package.momentum
+msgid "Last 30 days"
+msgstr ""
+
+#: conf.json:strings.package.dependencies
+msgid "Dependencies"
+msgstr ""
+
+#: conf.json:strings.package.releases
+msgid "Releases"
+msgstr ""
+
+#: conf.json:strings.package.version
+msgid "Version"
+msgstr ""
+
+#: conf.json:strings.package.license
+msgid "License"
+msgstr ""
+
+#: conf.json:strings.package.noLicense
+msgid "None declared"
+msgstr ""
+
+#: conf.json:strings.package.links
+msgid "Links"
+msgstr ""
+
+#: conf.json:strings.package.repository
+msgid "Repository"
+msgstr ""
+
+#: conf.json:strings.package.keywords
+msgid "Keywords"
+msgstr ""
+
+#: conf.json:strings.package.loading
+msgid "Loading {name}…"
+msgstr ""
+
+#: conf.json:strings.package.notFoundTitle
+msgid "Package not found"
+msgstr ""
+
+#: conf.json:strings.package.notFound
+msgid "The registry snapshot has no package named {name}."
+msgstr ""
+
+#: conf.json:strings.package.noName
+msgid "No package was named in the address."
+msgstr ""
+
+#: conf.json:strings.package.searchInstead
+msgid "Search the rankings instead"
+msgstr ""
+
+#: conf.json:strings.standing.position
+msgid "Position"
+msgstr ""
+
+#: conf.json:strings.standing.of
+msgid "of {count}"
+msgstr ""
+
+#: conf.json:strings.score.intro
+msgid "Each signal adds weight × ln(1 + count) points; the sum is then scaled by how recent the latest release is."
+msgstr ""
+
+#: conf.json:strings.score.signal
+msgid "Signal"
+msgstr ""
+
+#: conf.json:strings.score.count
+msgid "Count"
+msgstr ""
+
+#: conf.json:strings.score.points
+msgid "Points"
+msgstr ""
+
+#: conf.json:strings.score.share
+msgid "Points relative to the best score"
+msgstr ""
+
+#: conf.json:strings.score.dependentsCount
+msgid "{external} + {own} of the same owner at ¼"
+msgstr ""
+
+#: conf.json:strings.score.recent
+msgid "New dependents in 180 days"
+msgstr ""
+
+#: conf.json:strings.score.subtotal
+msgid "Sum"
+msgstr ""
+
+#: conf.json:strings.dependents.none
+msgid "No package depends on it: no latest release in the registry declares it as a dependency."
+msgstr ""
+
+#: conf.json:strings.dependents.summary
+msgid "{external} packages from {owners} other owners depend on it. {own} more come from {owner} itself and count a quarter each."
+msgstr ""
+
+#: conf.json:strings.dependents.relation
+msgid "Owner"
+msgstr ""
+
+#: conf.json:strings.dependents.sameOwner
+msgid "Same owner"
+msgstr ""
+
+#: conf.json:strings.dependents.otherOwner
+msgid "Other"
+msgstr ""
+
+#: conf.json:strings.dependents.since
+msgid "Depends since"
+msgstr ""
+
+#: conf.json:strings.dependencies.none
+msgid "The latest release declares no dependencies."
+msgstr ""
+
+#: conf.json:strings.dependencies.requirement
+msgid "Requirement"
+msgstr ""
+
+#: conf.json:strings.dependencies.local
+msgid "Local path or Git"
+msgstr ""
+
+#: conf.json:strings.dependencies.notInRegistry
+msgid "Not in the registry"
+msgstr ""
+
+#: conf.json:strings.releases.summary
+msgid "{count} versions published."
+msgstr ""
+
+#: conf.json:strings.releases.dependencies
+msgid "Dependency count"
+msgstr ""
+
+#: conf.json:strings.releases.yanked
+msgid "Yanked"
+msgstr ""
+
+#: conf.json:strings.method.lead
+msgid "A package matters to the MoonBit ecosystem when other packages build on it. The score measures that reliance from the public registry, the way a journal impact factor measures how often a journal is cited."
+msgstr ""
+
+#: conf.json:strings.method.formulaLabel
+msgid "Score formula"
+msgstr ""
+
+#: conf.json:strings.method.symbol
+msgid "Symbol"
+msgstr ""
+
+#: conf.json:strings.method.weight
+msgid "Weight"
+msgstr ""
+
+#: conf.json:strings.method.signals.title
+msgid "Three signals"
+msgstr ""
+
+#: conf.json:strings.method.signals.body
+msgid "Every package gets a score S from three counts and the age of its latest release t:"
+msgstr ""
+
+#: conf.json:strings.method.signals.dependents
+msgid "Dependents: packages whose latest release declares this package as a dependency"
+msgstr ""
+
+#: conf.json:strings.method.signals.recent
+msgid "New dependents: those whose dependency first appeared in the last 180 days"
+msgstr ""
+
+#: conf.json:strings.method.signals.downloads
+msgid "Downloads reported by mooncakes.io"
+msgstr ""
+
+#: conf.json:strings.method.signals.log
+msgid "The logarithm gives diminishing returns: going from 10 to 21 dependents adds as many points as going from 1000 to 2001. Dependents weigh most because a dependency is a deliberate decision; downloads also count automated builds."
+msgstr ""
+
+#: conf.json:strings.method.owners.title
+msgid "Dependents of the same owner"
+msgstr ""
+
+#: conf.json:strings.method.owners.body
+msgid "An author who splits one project into many packages adds a dependent for every package. Such dependents count a quarter each, as citation indicators discount self-citations, so a package ranks high only when other people build on it. The package page shows both counts."
+msgstr ""
+
+#: conf.json:strings.method.recency.title
+msgid "Release recency"
+msgstr ""
+
+#: conf.json:strings.method.recency.body
+msgid "The sum is multiplied by m(t): 1.12 for a release in the last 30 days, falling linearly to 0.88 at one year, and 0.88 after that. Maintained packages rank a little higher; an old package with many dependents still ranks high."
+msgstr ""
+
+#: conf.json:strings.method.grades.title
+msgid "Grades"
+msgstr ""
+
+#: conf.json:strings.method.grades.body
+msgid "Grades place a package within the registry rather than on an absolute scale, like journal quartiles. Packages are sorted by score and cut at fixed shares; equal scores share a position."
+msgstr ""
+
+#: conf.json:strings.method.grades.share
+msgid "Share of the registry"
+msgstr ""
+
+#: conf.json:strings.method.grades.count
+msgid "Packages"
+msgstr ""
+
+#: conf.json:strings.method.momentum.body
+msgid "The score is computed again as it would have been 30 days ago, from the releases and dependencies published by then. A change counts only when it is at least 10 points and at least 10% of the earlier score, so neither a large package nor a tiny one changes label on noise."
+msgstr ""
+
+#: conf.json:strings.method.data.title
+msgid "Data and updates"
+msgstr ""
+
+#: conf.json:strings.method.data.body
+msgid "The rankings are rebuilt every day from the mooncakes.io registry index and its download counts. Yanked releases are ignored, and only the dependencies of each package's latest release count."
+msgstr ""
+
+#: conf.json:strings.method.data.current
+msgid "This snapshot was computed on {date} and ranks {count} packages."
+msgstr ""
+
+#: conf.json:strings.method.limits.title
+msgid "What the score does not say"
+msgstr ""
+
+#: conf.json:strings.method.limits.body
+msgid "The score measures reliance, not quality. A young, excellent package can rank low, and a widely used one can still have bugs. Read the package page, its repository and its documentation before you depend on it."
+msgstr ""
+
+#: conf.json:strings.method.design
+msgid "The full derivation in the score design notes"
+msgstr ""
+
+#: conf.json:strings.method.back
+msgid "Back to the rankings"
+msgstr ""
+
+#: conf.json:strings.momentum.rule
+msgid "A change counts as rising or cooling only when it reaches both 10 points and 10% of the earlier score."
+msgstr ""

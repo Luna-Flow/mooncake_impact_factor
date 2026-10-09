@@ -1,0 +1,673 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: mooncake_impact_factor web interface\n"
+"Report-Msgid-Bugs-To: https://github.com/Luna-Flow/mooncake_impact_factor\n"
+"Language: ja_JP\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: conf.json:strings.site.name
+msgid "Luna Flow"
+msgstr "Luna Flow"
+
+#: conf.json:strings.site.product
+msgid "Impact Factor"
+msgstr "インパクトファクター"
+
+#: conf.json:strings.site.title
+msgid "Impact Factor · Luna Flow"
+msgstr "インパクトファクター · Luna Flow"
+
+#: conf.json:strings.site.description
+msgid "Rankings of MoonBit packages by how much the ecosystem relies on them."
+msgstr "エコシステムがどれだけ依存しているかで MoonBit パッケージを順位付けします。"
+
+#: conf.json:strings.nav.rankings
+#: conf.json:strings.rankings.title
+msgid "Rankings"
+msgstr "ランキング"
+
+#: conf.json:strings.nav.method
+#: conf.json:strings.rankings.howItWorks
+#: conf.json:strings.method.heading
+msgid "How scores work"
+msgstr "スコアの仕組み"
+
+#: conf.json:strings.nav.docs
+msgid "Documentation"
+msgstr "ドキュメント"
+
+#: conf.json:strings.nav.github
+msgid "GitHub"
+msgstr "GitHub"
+
+#: conf.json:strings.nav.skip
+msgid "Skip to content"
+msgstr "本文へ移動"
+
+#: conf.json:strings.nav.filters
+#: conf.json:strings.filters.title
+msgid "Filters"
+msgstr "絞り込み"
+
+#: conf.json:strings.nav.close
+msgid "Close"
+msgstr "閉じる"
+
+#: conf.json:strings.lang.label
+msgid "Language"
+msgstr "言語"
+
+#: conf.json:strings.theme.label
+msgid "Theme"
+msgstr "テーマ"
+
+#: conf.json:strings.theme.auto
+msgid "Match system"
+msgstr "システムに合わせる"
+
+#: conf.json:strings.theme.light
+msgid "Light"
+msgstr "ライト"
+
+#: conf.json:strings.theme.dark
+msgid "Dark"
+msgstr "ダーク"
+
+#: conf.json:strings.search.open
+msgid "Search"
+msgstr "検索"
+
+#: conf.json:strings.search.placeholder
+msgid "Search packages by name, keyword or description"
+msgstr "名前・キーワード・説明でパッケージを検索"
+
+#: conf.json:strings.search.loading
+msgid "Searching…"
+msgstr "検索中…"
+
+#: conf.json:strings.search.empty
+msgid "No package matches."
+msgstr "一致するパッケージはありません。"
+
+#: conf.json:strings.search.unavailable
+msgid "Search is unavailable."
+msgstr "検索は現在利用できません。"
+
+#: conf.json:strings.search.where
+msgid "#{position} · grade {grade}"
+msgstr "{position} 位 · グレード {grade}"
+
+#: conf.json:strings.search.all
+msgid "All {count} results in the rankings"
+msgstr "ランキングで {count} 件すべてを見る"
+
+#: conf.json:strings.search.keys
+msgid "↑ ↓ to choose, Enter to open"
+msgstr "↑ ↓ で選択、Enter で開く"
+
+#: conf.json:strings.footer.note
+msgid "Computed from the mooncakes.io registry index and download counts. Not an official ranking of the MoonBit ecosystem. A Luna Flow project."
+msgstr "mooncakes.io のレジストリ索引とダウンロード数から算出しています。MoonBit エコシステムの公式ランキングではありません。Luna Flow のプロジェクトです。"
+
+#: conf.json:strings.common.unknown
+msgid "Unknown"
+msgstr "不明"
+
+#: conf.json:strings.common.noDescription
+msgid "No description."
+msgstr "説明はありません。"
+
+#: conf.json:strings.common.retry
+msgid "Try again"
+msgstr "再試行"
+
+#: conf.json:strings.common.showAll
+msgid "Show all {count}"
+msgstr "{count} 件すべて表示"
+
+#: conf.json:strings.common.showFewer
+msgid "Show fewer"
+msgstr "折りたたむ"
+
+#: conf.json:strings.rankings.heading
+msgid "MoonBit package rankings"
+msgstr "MoonBit パッケージランキング"
+
+#: conf.json:strings.rankings.lead
+msgid "Every package of the mooncakes.io registry, ranked by how much other packages rely on it."
+msgstr "mooncakes.io レジストリのすべてのパッケージを、ほかのパッケージにどれだけ依存されているかで順位付けしています。"
+
+#: conf.json:strings.rankings.summary
+msgid "{count} packages · {date}"
+msgstr "{count} パッケージ · {date}"
+
+#: conf.json:strings.rankings.filterLabel
+#: conf.json:strings.rankings.filterPlaceholder
+msgid "Filter by name, keyword or description"
+msgstr "名前・キーワード・説明で絞り込む"
+
+#: conf.json:strings.rankings.range
+msgid "{first}–{last} of {total} packages"
+msgstr "{total} パッケージ中 {first}–{last}"
+
+#: conf.json:strings.rankings.rangeFiltered
+msgid "{first}–{last} of {total} matching packages"
+msgstr "一致する {total} パッケージ中 {first}–{last}"
+
+#: conf.json:strings.rankings.none
+msgid "No matching packages"
+msgstr "一致するパッケージはありません"
+
+#: conf.json:strings.rankings.loading
+msgid "Loading the rankings…"
+msgstr "ランキングを読み込み中…"
+
+#: conf.json:strings.rankings.caption
+msgid "Packages with their position, grade, dependents, change over 30 days, latest release, downloads and score"
+msgstr "各パッケージの順位、グレード、被依存数、30 日間の変化、最新リリース、ダウンロード数、スコア"
+
+#: conf.json:strings.rankings.errorTitle
+msgid "The rankings could not be loaded."
+msgstr "ランキングを読み込めませんでした。"
+
+#: conf.json:strings.rankings.emptyBody
+msgid "No package matches these filters."
+msgstr "この条件に一致するパッケージはありません。"
+
+#: conf.json:strings.filters.all
+msgid "All packages"
+msgstr "すべてのパッケージ"
+
+#: conf.json:strings.filters.momentum
+#: conf.json:strings.method.momentum.title
+msgid "Momentum"
+msgstr "勢い"
+
+#: conf.json:strings.filters.grade
+#: conf.json:strings.table.grade
+#: conf.json:strings.standing.grade
+msgid "Grade"
+msgstr "グレード"
+
+#: conf.json:strings.filters.adoption
+msgid "Adoption"
+msgstr "採用状況"
+
+#: conf.json:strings.filters.minExternal
+msgid "At least this many dependents"
+msgstr "被依存数がこれ以上"
+
+#: conf.json:strings.filters.minOwners
+msgid "From at least this many owners"
+msgstr "依存元のオーナー数がこれ以上"
+
+#: conf.json:strings.filters.released
+#: conf.json:strings.score.recency
+msgid "Latest release"
+msgstr "最新リリース"
+
+#: conf.json:strings.filters.anyTime
+msgid "Any time"
+msgstr "指定なし"
+
+#: conf.json:strings.filters.within30
+msgid "In the last 30 days"
+msgstr "過去 30 日以内"
+
+#: conf.json:strings.filters.within90
+msgid "In the last 90 days"
+msgstr "過去 90 日以内"
+
+#: conf.json:strings.filters.within365
+msgid "In the last year"
+msgstr "過去 1 年以内"
+
+#: conf.json:strings.filters.metadata
+msgid "Metadata"
+msgstr "メタデータ"
+
+#: conf.json:strings.filters.hasRepository
+msgid "Links a repository"
+msgstr "リポジトリへのリンクあり"
+
+#: conf.json:strings.filters.hasLicense
+msgid "Declares a license"
+msgstr "ライセンスを宣言している"
+
+#: conf.json:strings.filters.expression
+msgid "Query expression"
+msgstr "クエリ式"
+
+#: conf.json:strings.filters.expressionHelp
+msgid "Combine fields with AND, OR and NOT; Ctrl+Enter applies."
+msgstr "フィールドを AND・OR・NOT で組み合わせます。Ctrl+Enter で適用。"
+
+#: conf.json:strings.filters.expressionInvalid
+msgid "This expression cannot be read."
+msgstr "この式は解釈できません。"
+
+#: conf.json:strings.filters.syntax
+msgid "Syntax"
+msgstr "構文"
+
+#: conf.json:strings.filters.apply
+msgid "Apply"
+msgstr "適用"
+
+#: conf.json:strings.filters.clear
+msgid "Clear filters"
+msgstr "絞り込みを解除"
+
+#: conf.json:strings.grade.top
+#: conf.json:strings.standing.top
+msgid "top {share}"
+msgstr "上位 {share}"
+
+#: conf.json:strings.grade.rest
+msgid "the rest"
+msgstr "残り"
+
+#: conf.json:strings.grade.title.S
+msgid "Grade S: the top 5% of the registry"
+msgstr "グレード S：レジストリの上位 5%"
+
+#: conf.json:strings.grade.title.A
+msgid "Grade A: the next 10%, down to the top 15%"
+msgstr "グレード A：次の 10%（上位 15% まで）"
+
+#: conf.json:strings.grade.title.B
+msgid "Grade B: the next 20%, down to the top 35%"
+msgstr "グレード B：次の 20%（上位 35% まで）"
+
+#: conf.json:strings.grade.title.C
+msgid "Grade C: the next 30%, down to the top 65%"
+msgstr "グレード C：次の 30%（上位 65% まで）"
+
+#: conf.json:strings.grade.title.D
+msgid "Grade D: the remaining 35%, and every package without any signal"
+msgstr "グレード D：残りの 35% と、シグナルがまったくないパッケージ"
+
+#: conf.json:strings.momentum.Rising
+msgid "Rising"
+msgstr "上昇"
+
+#: conf.json:strings.momentum.Cooling
+msgid "Cooling"
+msgstr "減速"
+
+#: conf.json:strings.momentum.Stable
+msgid "Stable"
+msgstr "安定"
+
+#: conf.json:strings.momentum.New
+msgid "New"
+msgstr "新着"
+
+#: conf.json:strings.momentum.title.Rising
+msgid "Rising: the score grew by at least 10 points and at least 10% in 30 days."
+msgstr "上昇：30 日間でスコアが 10 点以上、かつ 10% 以上伸びました。"
+
+#: conf.json:strings.momentum.title.Cooling
+msgid "Cooling: the score fell by at least 10 points and at least 10% in 30 days."
+msgstr "減速：30 日間でスコアが 10 点以上、かつ 10% 以上下がりました。"
+
+#: conf.json:strings.momentum.title.Stable
+msgid "Stable: the score changed by less than 10 points or less than 10% in 30 days."
+msgstr "安定：30 日間のスコアの変化が 10 点未満、または 10% 未満です。"
+
+#: conf.json:strings.momentum.title.New
+msgid "New: the first release is less than 30 days old, so there is nothing to compare with."
+msgstr "新着：最初のリリースから 30 日未満のため、比較対象がありません。"
+
+#: conf.json:strings.momentum.explain
+msgid "The score was {before} 30 days ago and is {now} now ({change}): {label}."
+msgstr "30 日前のスコアは {before}、現在は {now}（{change}）：{label}。"
+
+#: conf.json:strings.momentum.explainNew
+msgid "The package had no release 30 days ago."
+msgstr "30 日前、このパッケージはまだリリースされていませんでした。"
+
+#: conf.json:strings.momentum.downloads
+msgid "Downloads grew from {before} to {now} in the same period."
+msgstr "同じ期間にダウンロード数は {before} から {now} に増えました。"
+
+#: conf.json:strings.momentum.noDownloadHistory
+msgid "Download counts from 30 days ago are not recorded yet, so the comparison uses today's downloads for both points and only dependencies and release age can change the score."
+msgstr "30 日前のダウンロード数はまだ記録されていないため、両時点で今日のダウンロード数を使っています。スコアを変えるのは依存関係とリリースからの日数だけです。"
+
+#: conf.json:strings.table.package
+msgid "Package"
+msgstr "パッケージ"
+
+#: conf.json:strings.table.gradeTitle
+msgid "Grade within the registry: S is the top 5%, then A, B, C and D"
+msgstr "レジストリ内でのグレード：S が上位 5%、以下 A・B・C・D"
+
+#: conf.json:strings.table.dependents
+#: conf.json:strings.package.dependents
+#: conf.json:strings.score.dependents
+msgid "Dependents"
+msgstr "被依存"
+
+#: conf.json:strings.table.dependentsTitle
+msgid "{external} packages of other owners depend on it; {own} of the same owner"
+msgstr "ほかのオーナーの {external} パッケージが依存しています。同じオーナーは {own}"
+
+#: conf.json:strings.table.owners
+msgid "Owners"
+msgstr "オーナー"
+
+#: conf.json:strings.table.change
+#: conf.json:strings.standing.change
+msgid "30 days"
+msgstr "30 日"
+
+#: conf.json:strings.table.released
+#: conf.json:strings.package.released
+msgid "Released"
+msgstr "リリース"
+
+#: conf.json:strings.table.downloads
+#: conf.json:strings.score.downloads
+msgid "Downloads"
+msgstr "ダウンロード"
+
+#: conf.json:strings.table.score
+#: conf.json:strings.standing.score
+#: conf.json:strings.score.total
+msgid "Score"
+msgstr "スコア"
+
+#: conf.json:strings.table.sortBy
+msgid "Sort by {column}"
+msgstr "{column}で並べ替え"
+
+#: conf.json:strings.pager.label
+msgid "Pages"
+msgstr "ページ"
+
+#: conf.json:strings.pager.previous
+msgid "Previous"
+msgstr "前へ"
+
+#: conf.json:strings.pager.next
+msgid "Next"
+msgstr "次へ"
+
+#: conf.json:strings.pager.status
+msgid "Page {page} of {pages}"
+msgstr "{pages} ページ中 {page} ページ"
+
+#: conf.json:strings.package.onThisPage
+msgid "On this page"
+msgstr "このページの内容"
+
+#: conf.json:strings.package.breadcrumbs
+msgid "Breadcrumbs"
+msgstr "パンくずリスト"
+
+#: conf.json:strings.package.standing
+msgid "Standing"
+msgstr "順位"
+
+#: conf.json:strings.package.score
+msgid "Where the score comes from"
+msgstr "スコアの内訳"
+
+#: conf.json:strings.package.momentum
+msgid "Last 30 days"
+msgstr "直近 30 日"
+
+#: conf.json:strings.package.dependencies
+msgid "Dependencies"
+msgstr "依存関係"
+
+#: conf.json:strings.package.releases
+msgid "Releases"
+msgstr "リリース"
+
+#: conf.json:strings.package.version
+msgid "Version"
+msgstr "バージョン"
+
+#: conf.json:strings.package.license
+msgid "License"
+msgstr "ライセンス"
+
+#: conf.json:strings.package.noLicense
+msgid "None declared"
+msgstr "宣言なし"
+
+#: conf.json:strings.package.links
+msgid "Links"
+msgstr "リンク"
+
+#: conf.json:strings.package.repository
+msgid "Repository"
+msgstr "リポジトリ"
+
+#: conf.json:strings.package.keywords
+msgid "Keywords"
+msgstr "キーワード"
+
+#: conf.json:strings.package.loading
+msgid "Loading {name}…"
+msgstr "{name} を読み込み中…"
+
+#: conf.json:strings.package.notFoundTitle
+msgid "Package not found"
+msgstr "パッケージが見つかりません"
+
+#: conf.json:strings.package.notFound
+msgid "The registry snapshot has no package named {name}."
+msgstr "レジストリのスナップショットに {name} というパッケージはありません。"
+
+#: conf.json:strings.package.noName
+msgid "No package was named in the address."
+msgstr "アドレスにパッケージ名が指定されていません。"
+
+#: conf.json:strings.package.searchInstead
+msgid "Search the rankings instead"
+msgstr "ランキングで検索する"
+
+#: conf.json:strings.standing.position
+msgid "Position"
+msgstr "順位"
+
+#: conf.json:strings.standing.of
+msgid "of {count}"
+msgstr "{count} 中"
+
+#: conf.json:strings.score.intro
+msgid "Each signal adds weight × ln(1 + count) points; the sum is then scaled by how recent the latest release is."
+msgstr "各シグナルは 重み × ln(1 + 件数) 点を加えます。合計は最新リリースの新しさに応じて調整されます。"
+
+#: conf.json:strings.score.signal
+msgid "Signal"
+msgstr "シグナル"
+
+#: conf.json:strings.score.count
+msgid "Count"
+msgstr "件数"
+
+#: conf.json:strings.score.points
+msgid "Points"
+msgstr "点数"
+
+#: conf.json:strings.score.share
+msgid "Points relative to the best score"
+msgstr "最高スコアに対する点数"
+
+#: conf.json:strings.score.dependentsCount
+msgid "{external} + {own} of the same owner at ¼"
+msgstr "{external} + 同じオーナーの {own}（¼ で計算）"
+
+#: conf.json:strings.score.recent
+msgid "New dependents in 180 days"
+msgstr "180 日以内の新しい依存元"
+
+#: conf.json:strings.score.subtotal
+msgid "Sum"
+msgstr "合計"
+
+#: conf.json:strings.dependents.none
+msgid "No package depends on it: no latest release in the registry declares it as a dependency."
+msgstr "依存しているパッケージはありません。レジストリのどの最新リリースもこのパッケージを依存関係として宣言していません。"
+
+#: conf.json:strings.dependents.summary
+msgid "{external} packages from {owners} other owners depend on it. {own} more come from {owner} itself and count a quarter each."
+msgstr "{owners} 人のほかのオーナーによる {external} パッケージが依存しています。ほかに {owner} 自身のパッケージが {own} あり、それぞれ 4 分の 1 として数えます。"
+
+#: conf.json:strings.dependents.relation
+msgid "Owner"
+msgstr "オーナー"
+
+#: conf.json:strings.dependents.sameOwner
+msgid "Same owner"
+msgstr "同じオーナー"
+
+#: conf.json:strings.dependents.otherOwner
+msgid "Other"
+msgstr "ほか"
+
+#: conf.json:strings.dependents.since
+msgid "Depends since"
+msgstr "依存開始"
+
+#: conf.json:strings.dependencies.none
+msgid "The latest release declares no dependencies."
+msgstr "最新リリースは依存関係を宣言していません。"
+
+#: conf.json:strings.dependencies.requirement
+msgid "Requirement"
+msgstr "バージョン要件"
+
+#: conf.json:strings.dependencies.local
+msgid "Local path or Git"
+msgstr "ローカルパスまたは Git"
+
+#: conf.json:strings.dependencies.notInRegistry
+msgid "Not in the registry"
+msgstr "レジストリにありません"
+
+#: conf.json:strings.releases.summary
+msgid "{count} versions published."
+msgstr "{count} バージョンを公開しています。"
+
+#: conf.json:strings.releases.dependencies
+msgid "Dependency count"
+msgstr "依存数"
+
+#: conf.json:strings.releases.yanked
+msgid "Yanked"
+msgstr "取り下げ済み"
+
+#: conf.json:strings.method.lead
+msgid "A package matters to the MoonBit ecosystem when other packages build on it. The score measures that reliance from the public registry, the way a journal impact factor measures how often a journal is cited."
+msgstr "パッケージが MoonBit エコシステムにとって重要なのは、ほかのパッケージがその上に作られているときです。スコアはその依存度を公開レジストリから測ります。学術誌のインパクトファクターが被引用の頻度を測るのと同じ考え方です。"
+
+#: conf.json:strings.method.formulaLabel
+msgid "Score formula"
+msgstr "スコアの式"
+
+#: conf.json:strings.method.symbol
+msgid "Symbol"
+msgstr "記号"
+
+#: conf.json:strings.method.weight
+msgid "Weight"
+msgstr "重み"
+
+#: conf.json:strings.method.signals.title
+msgid "Three signals"
+msgstr "三つのシグナル"
+
+#: conf.json:strings.method.signals.body
+msgid "Every package gets a score S from three counts and the age of its latest release t:"
+msgstr "各パッケージのスコア S は、三つの件数と最新リリースからの日数 t で決まります："
+
+#: conf.json:strings.method.signals.dependents
+msgid "Dependents: packages whose latest release declares this package as a dependency"
+msgstr "被依存：最新リリースでこのパッケージを依存関係として宣言しているパッケージ"
+
+#: conf.json:strings.method.signals.recent
+msgid "New dependents: those whose dependency first appeared in the last 180 days"
+msgstr "新しい依存元：そのうち依存関係が過去 180 日以内に初めて現れたもの"
+
+#: conf.json:strings.method.signals.downloads
+msgid "Downloads reported by mooncakes.io"
+msgstr "mooncakes.io が報告するダウンロード数"
+
+#: conf.json:strings.method.signals.log
+msgid "The logarithm gives diminishing returns: going from 10 to 21 dependents adds as many points as going from 1000 to 2001. Dependents weigh most because a dependency is a deliberate decision; downloads also count automated builds."
+msgstr "対数により効果は逓減します。被依存数が 10 から 21 に増えたときと、1000 から 2001 に増えたときの加点は同じです。依存は意図的な選択なので被依存の重みが最も大きく、ダウンロード数には自動ビルドも含まれます。"
+
+#: conf.json:strings.method.owners.title
+msgid "Dependents of the same owner"
+msgstr "同じオーナーの依存元"
+
+#: conf.json:strings.method.owners.body
+msgid "An author who splits one project into many packages adds a dependent for every package. Such dependents count a quarter each, as citation indicators discount self-citations, so a package ranks high only when other people build on it. The package page shows both counts."
+msgstr "一つのプロジェクトを多くのパッケージに分けた作者は、パッケージごとに依存元を一つ増やします。こうした依存元は、引用指標が自己引用を割り引くように 4 分の 1 として数えるため、ほかの人がその上に作っている場合にだけ上位になります。パッケージページには両方の件数を表示します。"
+
+#: conf.json:strings.method.recency.title
+msgid "Release recency"
+msgstr "リリースの新しさ"
+
+#: conf.json:strings.method.recency.body
+msgid "The sum is multiplied by m(t): 1.12 for a release in the last 30 days, falling linearly to 0.88 at one year, and 0.88 after that. Maintained packages rank a little higher; an old package with many dependents still ranks high."
+msgstr "合計に m(t) を掛けます。過去 30 日以内のリリースなら 1.12、そこから直線的に下がって 1 年で 0.88、その後は 0.88 です。保守されているパッケージがやや上位になり、依存元の多い古いパッケージも上位に残ります。"
+
+#: conf.json:strings.method.grades.title
+msgid "Grades"
+msgstr "グレード"
+
+#: conf.json:strings.method.grades.body
+msgid "Grades place a package within the registry rather than on an absolute scale, like journal quartiles. Packages are sorted by score and cut at fixed shares; equal scores share a position."
+msgstr "グレードは絶対的な尺度ではなく、学術誌の四分位のようにレジストリ内での位置を表します。パッケージをスコア順に並べ、決まった割合で区切ります。同じスコアは同じ順位です。"
+
+#: conf.json:strings.method.grades.share
+msgid "Share of the registry"
+msgstr "レジストリ内の割合"
+
+#: conf.json:strings.method.grades.count
+msgid "Packages"
+msgstr "パッケージ数"
+
+#: conf.json:strings.method.momentum.body
+msgid "The score is computed again as it would have been 30 days ago, from the releases and dependencies published by then. A change counts only when it is at least 10 points and at least 10% of the earlier score, so neither a large package nor a tiny one changes label on noise."
+msgstr "30 日前に公開されていたリリースと依存関係だけを使って、当時のスコアを計算し直します。変化は 10 点以上、かつ以前のスコアの 10% 以上のときだけ数えるので、大きなパッケージも小さなパッケージもノイズでラベルが変わりません。"
+
+#: conf.json:strings.method.data.title
+msgid "Data and updates"
+msgstr "データと更新"
+
+#: conf.json:strings.method.data.body
+msgid "The rankings are rebuilt every day from the mooncakes.io registry index and its download counts. Yanked releases are ignored, and only the dependencies of each package's latest release count."
+msgstr "ランキングは mooncakes.io のレジストリ索引とダウンロード数から毎日再構築されます。取り下げられたリリースは無視し、各パッケージの最新リリースの依存関係だけを数えます。"
+
+#: conf.json:strings.method.data.current
+msgid "This snapshot was computed on {date} and ranks {count} packages."
+msgstr "このスナップショットは {date} に計算され、{count} パッケージを順位付けしています。"
+
+#: conf.json:strings.method.limits.title
+msgid "What the score does not say"
+msgstr "スコアが示さないこと"
+
+#: conf.json:strings.method.limits.body
+msgid "The score measures reliance, not quality. A young, excellent package can rank low, and a widely used one can still have bugs. Read the package page, its repository and its documentation before you depend on it."
+msgstr "スコアが測るのは依存度で、品質ではありません。若くて優れたパッケージが下位にいることも、広く使われているパッケージにバグがあることもあります。依存する前にパッケージページ、リポジトリ、ドキュメントを確認してください。"
+
+#: conf.json:strings.method.design
+msgid "The full derivation in the score design notes"
+msgstr "スコア設計ノートの詳しい導出"
+
+#: conf.json:strings.method.back
+msgid "Back to the rankings"
+msgstr "ランキングに戻る"
+
+#: conf.json:strings.momentum.rule
+msgid "A change counts as rising or cooling only when it reaches both 10 points and 10% of the earlier score."
+msgstr "変化が 10 点以上かつ以前のスコアの 10% 以上のときだけ、上昇または減速と数えます。"

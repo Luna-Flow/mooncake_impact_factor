@@ -1,0 +1,673 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: mooncake_impact_factor web interface\n"
+"Report-Msgid-Bugs-To: https://github.com/Luna-Flow/mooncake_impact_factor\n"
+"Language: zh_CN\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: conf.json:strings.site.name
+msgid "Luna Flow"
+msgstr "Luna Flow"
+
+#: conf.json:strings.site.product
+msgid "Impact Factor"
+msgstr "影响因子"
+
+#: conf.json:strings.site.title
+msgid "Impact Factor · Luna Flow"
+msgstr "影响因子 · Luna Flow"
+
+#: conf.json:strings.site.description
+msgid "Rankings of MoonBit packages by how much the ecosystem relies on them."
+msgstr "按生态对 MoonBit 包的依赖程度排名。"
+
+#: conf.json:strings.nav.rankings
+#: conf.json:strings.rankings.title
+msgid "Rankings"
+msgstr "排名"
+
+#: conf.json:strings.nav.method
+#: conf.json:strings.rankings.howItWorks
+#: conf.json:strings.method.heading
+msgid "How scores work"
+msgstr "评分方法"
+
+#: conf.json:strings.nav.docs
+msgid "Documentation"
+msgstr "文档"
+
+#: conf.json:strings.nav.github
+msgid "GitHub"
+msgstr "GitHub"
+
+#: conf.json:strings.nav.skip
+msgid "Skip to content"
+msgstr "跳到正文"
+
+#: conf.json:strings.nav.filters
+#: conf.json:strings.filters.title
+msgid "Filters"
+msgstr "筛选"
+
+#: conf.json:strings.nav.close
+msgid "Close"
+msgstr "关闭"
+
+#: conf.json:strings.lang.label
+msgid "Language"
+msgstr "语言"
+
+#: conf.json:strings.theme.label
+msgid "Theme"
+msgstr "主题"
+
+#: conf.json:strings.theme.auto
+msgid "Match system"
+msgstr "跟随系统"
+
+#: conf.json:strings.theme.light
+msgid "Light"
+msgstr "浅色"
+
+#: conf.json:strings.theme.dark
+msgid "Dark"
+msgstr "深色"
+
+#: conf.json:strings.search.open
+msgid "Search"
+msgstr "搜索"
+
+#: conf.json:strings.search.placeholder
+msgid "Search packages by name, keyword or description"
+msgstr "按名称、关键词或描述搜索包"
+
+#: conf.json:strings.search.loading
+msgid "Searching…"
+msgstr "正在搜索…"
+
+#: conf.json:strings.search.empty
+msgid "No package matches."
+msgstr "没有匹配的包。"
+
+#: conf.json:strings.search.unavailable
+msgid "Search is unavailable."
+msgstr "搜索暂不可用。"
+
+#: conf.json:strings.search.where
+msgid "#{position} · grade {grade}"
+msgstr "第 {position} 名 · {grade} 级"
+
+#: conf.json:strings.search.all
+msgid "All {count} results in the rankings"
+msgstr "在排名中查看全部 {count} 个结果"
+
+#: conf.json:strings.search.keys
+msgid "↑ ↓ to choose, Enter to open"
+msgstr "↑ ↓ 选择，Enter 打开"
+
+#: conf.json:strings.footer.note
+msgid "Computed from the mooncakes.io registry index and download counts. Not an official ranking of the MoonBit ecosystem. A Luna Flow project."
+msgstr "根据 mooncakes.io 注册表索引与下载量计算，并非 MoonBit 生态的官方排名。Luna Flow 项目。"
+
+#: conf.json:strings.common.unknown
+msgid "Unknown"
+msgstr "未知"
+
+#: conf.json:strings.common.noDescription
+msgid "No description."
+msgstr "暂无描述。"
+
+#: conf.json:strings.common.retry
+msgid "Try again"
+msgstr "重试"
+
+#: conf.json:strings.common.showAll
+msgid "Show all {count}"
+msgstr "显示全部 {count} 项"
+
+#: conf.json:strings.common.showFewer
+msgid "Show fewer"
+msgstr "收起"
+
+#: conf.json:strings.rankings.heading
+msgid "MoonBit package rankings"
+msgstr "MoonBit 包排名"
+
+#: conf.json:strings.rankings.lead
+msgid "Every package of the mooncakes.io registry, ranked by how much other packages rely on it."
+msgstr "mooncakes.io 注册表中的所有包，按其他包对它的依赖程度排名。"
+
+#: conf.json:strings.rankings.summary
+msgid "{count} packages · {date}"
+msgstr "{count} 个包 · {date}"
+
+#: conf.json:strings.rankings.filterLabel
+#: conf.json:strings.rankings.filterPlaceholder
+msgid "Filter by name, keyword or description"
+msgstr "按名称、关键词或描述筛选"
+
+#: conf.json:strings.rankings.range
+msgid "{first}–{last} of {total} packages"
+msgstr "第 {first}–{last} 个，共 {total} 个包"
+
+#: conf.json:strings.rankings.rangeFiltered
+msgid "{first}–{last} of {total} matching packages"
+msgstr "第 {first}–{last} 个，共 {total} 个匹配的包"
+
+#: conf.json:strings.rankings.none
+msgid "No matching packages"
+msgstr "没有匹配的包"
+
+#: conf.json:strings.rankings.loading
+msgid "Loading the rankings…"
+msgstr "正在加载排名…"
+
+#: conf.json:strings.rankings.caption
+msgid "Packages with their position, grade, dependents, change over 30 days, latest release, downloads and score"
+msgstr "各包的名次、等级、被依赖数、30 天变化、最新发布、下载量和分数"
+
+#: conf.json:strings.rankings.errorTitle
+msgid "The rankings could not be loaded."
+msgstr "排名加载失败。"
+
+#: conf.json:strings.rankings.emptyBody
+msgid "No package matches these filters."
+msgstr "没有符合这些条件的包。"
+
+#: conf.json:strings.filters.all
+msgid "All packages"
+msgstr "全部包"
+
+#: conf.json:strings.filters.momentum
+#: conf.json:strings.method.momentum.title
+msgid "Momentum"
+msgstr "势头"
+
+#: conf.json:strings.filters.grade
+#: conf.json:strings.table.grade
+#: conf.json:strings.standing.grade
+msgid "Grade"
+msgstr "等级"
+
+#: conf.json:strings.filters.adoption
+msgid "Adoption"
+msgstr "采用情况"
+
+#: conf.json:strings.filters.minExternal
+msgid "At least this many dependents"
+msgstr "被依赖数至少"
+
+#: conf.json:strings.filters.minOwners
+msgid "From at least this many owners"
+msgstr "来自至少这么多所有者"
+
+#: conf.json:strings.filters.released
+#: conf.json:strings.score.recency
+msgid "Latest release"
+msgstr "最新发布"
+
+#: conf.json:strings.filters.anyTime
+msgid "Any time"
+msgstr "不限"
+
+#: conf.json:strings.filters.within30
+msgid "In the last 30 days"
+msgstr "最近 30 天"
+
+#: conf.json:strings.filters.within90
+msgid "In the last 90 days"
+msgstr "最近 90 天"
+
+#: conf.json:strings.filters.within365
+msgid "In the last year"
+msgstr "最近一年"
+
+#: conf.json:strings.filters.metadata
+msgid "Metadata"
+msgstr "元信息"
+
+#: conf.json:strings.filters.hasRepository
+msgid "Links a repository"
+msgstr "附有仓库链接"
+
+#: conf.json:strings.filters.hasLicense
+msgid "Declares a license"
+msgstr "声明了许可证"
+
+#: conf.json:strings.filters.expression
+msgid "Query expression"
+msgstr "查询表达式"
+
+#: conf.json:strings.filters.expressionHelp
+msgid "Combine fields with AND, OR and NOT; Ctrl+Enter applies."
+msgstr "用 AND、OR、NOT 组合字段；Ctrl+Enter 应用。"
+
+#: conf.json:strings.filters.expressionInvalid
+msgid "This expression cannot be read."
+msgstr "无法解析这个表达式。"
+
+#: conf.json:strings.filters.syntax
+msgid "Syntax"
+msgstr "语法"
+
+#: conf.json:strings.filters.apply
+msgid "Apply"
+msgstr "应用"
+
+#: conf.json:strings.filters.clear
+msgid "Clear filters"
+msgstr "清除筛选"
+
+#: conf.json:strings.grade.top
+#: conf.json:strings.standing.top
+msgid "top {share}"
+msgstr "前 {share}"
+
+#: conf.json:strings.grade.rest
+msgid "the rest"
+msgstr "其余"
+
+#: conf.json:strings.grade.title.S
+msgid "Grade S: the top 5% of the registry"
+msgstr "S 级：注册表中前 5% 的包"
+
+#: conf.json:strings.grade.title.A
+msgid "Grade A: the next 10%, down to the top 15%"
+msgstr "A 级：接下来的 10%，到前 15% 为止"
+
+#: conf.json:strings.grade.title.B
+msgid "Grade B: the next 20%, down to the top 35%"
+msgstr "B 级：接下来的 20%，到前 35% 为止"
+
+#: conf.json:strings.grade.title.C
+msgid "Grade C: the next 30%, down to the top 65%"
+msgstr "C 级：接下来的 30%，到前 65% 为止"
+
+#: conf.json:strings.grade.title.D
+msgid "Grade D: the remaining 35%, and every package without any signal"
+msgstr "D 级：其余 35%，以及没有任何信号的包"
+
+#: conf.json:strings.momentum.Rising
+msgid "Rising"
+msgstr "上升"
+
+#: conf.json:strings.momentum.Cooling
+msgid "Cooling"
+msgstr "降温"
+
+#: conf.json:strings.momentum.Stable
+msgid "Stable"
+msgstr "稳定"
+
+#: conf.json:strings.momentum.New
+msgid "New"
+msgstr "新包"
+
+#: conf.json:strings.momentum.title.Rising
+msgid "Rising: the score grew by at least 10 points and at least 10% in 30 days."
+msgstr "上升：30 天内分数增加至少 10 分，且至少 10%。"
+
+#: conf.json:strings.momentum.title.Cooling
+msgid "Cooling: the score fell by at least 10 points and at least 10% in 30 days."
+msgstr "降温：30 天内分数下降至少 10 分，且至少 10%。"
+
+#: conf.json:strings.momentum.title.Stable
+msgid "Stable: the score changed by less than 10 points or less than 10% in 30 days."
+msgstr "稳定：30 天内分数变化不足 10 分或不足 10%。"
+
+#: conf.json:strings.momentum.title.New
+msgid "New: the first release is less than 30 days old, so there is nothing to compare with."
+msgstr "新包：首次发布不足 30 天，没有可比较的历史。"
+
+#: conf.json:strings.momentum.explain
+msgid "The score was {before} 30 days ago and is {now} now ({change}): {label}."
+msgstr "30 天前分数为 {before}，现在为 {now}（{change}）：{label}。"
+
+#: conf.json:strings.momentum.explainNew
+msgid "The package had no release 30 days ago."
+msgstr "30 天前这个包还没有发布。"
+
+#: conf.json:strings.momentum.downloads
+msgid "Downloads grew from {before} to {now} in the same period."
+msgstr "同期下载量从 {before} 增加到 {now}。"
+
+#: conf.json:strings.momentum.noDownloadHistory
+msgid "Download counts from 30 days ago are not recorded yet, so the comparison uses today's downloads for both points and only dependencies and release age can change the score."
+msgstr "尚未记录 30 天前的下载量，因此两个时间点都使用今天的下载量，只有依赖关系和发布时间会改变分数。"
+
+#: conf.json:strings.table.package
+msgid "Package"
+msgstr "包"
+
+#: conf.json:strings.table.gradeTitle
+msgid "Grade within the registry: S is the top 5%, then A, B, C and D"
+msgstr "在注册表中的等级：S 为前 5%，其后依次为 A、B、C、D"
+
+#: conf.json:strings.table.dependents
+#: conf.json:strings.package.dependents
+#: conf.json:strings.score.dependents
+msgid "Dependents"
+msgstr "被依赖"
+
+#: conf.json:strings.table.dependentsTitle
+msgid "{external} packages of other owners depend on it; {own} of the same owner"
+msgstr "其他所有者的 {external} 个包依赖它；同一所有者的 {own} 个"
+
+#: conf.json:strings.table.owners
+msgid "Owners"
+msgstr "所有者"
+
+#: conf.json:strings.table.change
+#: conf.json:strings.standing.change
+msgid "30 days"
+msgstr "30 天"
+
+#: conf.json:strings.table.released
+#: conf.json:strings.package.released
+msgid "Released"
+msgstr "发布"
+
+#: conf.json:strings.table.downloads
+#: conf.json:strings.score.downloads
+msgid "Downloads"
+msgstr "下载量"
+
+#: conf.json:strings.table.score
+#: conf.json:strings.standing.score
+#: conf.json:strings.score.total
+msgid "Score"
+msgstr "分数"
+
+#: conf.json:strings.table.sortBy
+msgid "Sort by {column}"
+msgstr "按{column}排序"
+
+#: conf.json:strings.pager.label
+msgid "Pages"
+msgstr "分页"
+
+#: conf.json:strings.pager.previous
+msgid "Previous"
+msgstr "上一页"
+
+#: conf.json:strings.pager.next
+msgid "Next"
+msgstr "下一页"
+
+#: conf.json:strings.pager.status
+msgid "Page {page} of {pages}"
+msgstr "第 {page} 页，共 {pages} 页"
+
+#: conf.json:strings.package.onThisPage
+msgid "On this page"
+msgstr "本页内容"
+
+#: conf.json:strings.package.breadcrumbs
+msgid "Breadcrumbs"
+msgstr "导航路径"
+
+#: conf.json:strings.package.standing
+msgid "Standing"
+msgstr "排名位置"
+
+#: conf.json:strings.package.score
+msgid "Where the score comes from"
+msgstr "分数从何而来"
+
+#: conf.json:strings.package.momentum
+msgid "Last 30 days"
+msgstr "最近 30 天"
+
+#: conf.json:strings.package.dependencies
+msgid "Dependencies"
+msgstr "依赖"
+
+#: conf.json:strings.package.releases
+msgid "Releases"
+msgstr "发布记录"
+
+#: conf.json:strings.package.version
+msgid "Version"
+msgstr "版本"
+
+#: conf.json:strings.package.license
+msgid "License"
+msgstr "许可证"
+
+#: conf.json:strings.package.noLicense
+msgid "None declared"
+msgstr "未声明"
+
+#: conf.json:strings.package.links
+msgid "Links"
+msgstr "链接"
+
+#: conf.json:strings.package.repository
+msgid "Repository"
+msgstr "仓库"
+
+#: conf.json:strings.package.keywords
+msgid "Keywords"
+msgstr "关键词"
+
+#: conf.json:strings.package.loading
+msgid "Loading {name}…"
+msgstr "正在加载 {name}…"
+
+#: conf.json:strings.package.notFoundTitle
+msgid "Package not found"
+msgstr "找不到这个包"
+
+#: conf.json:strings.package.notFound
+msgid "The registry snapshot has no package named {name}."
+msgstr "注册表快照中没有名为 {name} 的包。"
+
+#: conf.json:strings.package.noName
+msgid "No package was named in the address."
+msgstr "地址中没有指定包名。"
+
+#: conf.json:strings.package.searchInstead
+msgid "Search the rankings instead"
+msgstr "改为在排名中搜索"
+
+#: conf.json:strings.standing.position
+msgid "Position"
+msgstr "名次"
+
+#: conf.json:strings.standing.of
+msgid "of {count}"
+msgstr "共 {count} 个"
+
+#: conf.json:strings.score.intro
+msgid "Each signal adds weight × ln(1 + count) points; the sum is then scaled by how recent the latest release is."
+msgstr "每个信号贡献 权重 × ln(1 + 计数) 分；总和再按最新发布的新旧程度缩放。"
+
+#: conf.json:strings.score.signal
+msgid "Signal"
+msgstr "信号"
+
+#: conf.json:strings.score.count
+msgid "Count"
+msgstr "计数"
+
+#: conf.json:strings.score.points
+msgid "Points"
+msgstr "分值"
+
+#: conf.json:strings.score.share
+msgid "Points relative to the best score"
+msgstr "相对于最高分的分值"
+
+#: conf.json:strings.score.dependentsCount
+msgid "{external} + {own} of the same owner at ¼"
+msgstr "{external} + 同一所有者的 {own} 个（按 ¼ 计）"
+
+#: conf.json:strings.score.recent
+msgid "New dependents in 180 days"
+msgstr "180 天内新增的依赖方"
+
+#: conf.json:strings.score.subtotal
+msgid "Sum"
+msgstr "合计"
+
+#: conf.json:strings.dependents.none
+msgid "No package depends on it: no latest release in the registry declares it as a dependency."
+msgstr "没有包依赖它：注册表中没有任何最新版本把它声明为依赖。"
+
+#: conf.json:strings.dependents.summary
+msgid "{external} packages from {owners} other owners depend on it. {own} more come from {owner} itself and count a quarter each."
+msgstr "来自 {owners} 个其他所有者的 {external} 个包依赖它。另有 {own} 个来自 {owner} 自己，每个按四分之一计。"
+
+#: conf.json:strings.dependents.relation
+msgid "Owner"
+msgstr "所有者"
+
+#: conf.json:strings.dependents.sameOwner
+msgid "Same owner"
+msgstr "同一所有者"
+
+#: conf.json:strings.dependents.otherOwner
+msgid "Other"
+msgstr "其他"
+
+#: conf.json:strings.dependents.since
+msgid "Depends since"
+msgstr "开始依赖于"
+
+#: conf.json:strings.dependencies.none
+msgid "The latest release declares no dependencies."
+msgstr "最新版本没有声明依赖。"
+
+#: conf.json:strings.dependencies.requirement
+msgid "Requirement"
+msgstr "版本要求"
+
+#: conf.json:strings.dependencies.local
+msgid "Local path or Git"
+msgstr "本地路径或 Git"
+
+#: conf.json:strings.dependencies.notInRegistry
+msgid "Not in the registry"
+msgstr "不在注册表中"
+
+#: conf.json:strings.releases.summary
+msgid "{count} versions published."
+msgstr "共发布 {count} 个版本。"
+
+#: conf.json:strings.releases.dependencies
+msgid "Dependency count"
+msgstr "依赖数"
+
+#: conf.json:strings.releases.yanked
+msgid "Yanked"
+msgstr "已撤回"
+
+#: conf.json:strings.method.lead
+msgid "A package matters to the MoonBit ecosystem when other packages build on it. The score measures that reliance from the public registry, the way a journal impact factor measures how often a journal is cited."
+msgstr "一个包对 MoonBit 生态是否重要，要看有没有其他包建立在它之上。分数从公开的注册表衡量这种依赖，就像期刊影响因子衡量期刊被引用的频率。"
+
+#: conf.json:strings.method.formulaLabel
+msgid "Score formula"
+msgstr "评分公式"
+
+#: conf.json:strings.method.symbol
+msgid "Symbol"
+msgstr "符号"
+
+#: conf.json:strings.method.weight
+msgid "Weight"
+msgstr "权重"
+
+#: conf.json:strings.method.signals.title
+msgid "Three signals"
+msgstr "三个信号"
+
+#: conf.json:strings.method.signals.body
+msgid "Every package gets a score S from three counts and the age of its latest release t:"
+msgstr "每个包的分数 S 由三个计数和最新发布距今的天数 t 决定："
+
+#: conf.json:strings.method.signals.dependents
+msgid "Dependents: packages whose latest release declares this package as a dependency"
+msgstr "被依赖：最新版本把这个包声明为依赖的包"
+
+#: conf.json:strings.method.signals.recent
+msgid "New dependents: those whose dependency first appeared in the last 180 days"
+msgstr "新增依赖方：其中依赖关系在最近 180 天内首次出现的包"
+
+#: conf.json:strings.method.signals.downloads
+msgid "Downloads reported by mooncakes.io"
+msgstr "mooncakes.io 报告的下载量"
+
+#: conf.json:strings.method.signals.log
+msgid "The logarithm gives diminishing returns: going from 10 to 21 dependents adds as many points as going from 1000 to 2001. Dependents weigh most because a dependency is a deliberate decision; downloads also count automated builds."
+msgstr "对数带来边际递减：被依赖数从 10 增加到 21，与从 1000 增加到 2001 所加的分数相同。被依赖的权重最高，因为依赖是有意的选择；下载量还包含自动构建。"
+
+#: conf.json:strings.method.owners.title
+msgid "Dependents of the same owner"
+msgstr "同一所有者的依赖方"
+
+#: conf.json:strings.method.owners.body
+msgid "An author who splits one project into many packages adds a dependent for every package. Such dependents count a quarter each, as citation indicators discount self-citations, so a package ranks high only when other people build on it. The package page shows both counts."
+msgstr "把一个项目拆成许多包的作者，每拆出一个包就多一个依赖方。这类依赖方每个按四分之一计，正如引文指标会打折自引，因此只有别人在它之上构建时，一个包才会排名靠前。包页面会分别显示两种计数。"
+
+#: conf.json:strings.method.recency.title
+msgid "Release recency"
+msgstr "发布新旧"
+
+#: conf.json:strings.method.recency.body
+msgid "The sum is multiplied by m(t): 1.12 for a release in the last 30 days, falling linearly to 0.88 at one year, and 0.88 after that. Maintained packages rank a little higher; an old package with many dependents still ranks high."
+msgstr "总和再乘以 m(t)：最近 30 天内有发布为 1.12，之后线性下降，一年时为 0.88，此后保持 0.88。持续维护的包会略微靠前；拥有许多依赖方的旧包仍然排名靠前。"
+
+#: conf.json:strings.method.grades.title
+msgid "Grades"
+msgstr "等级"
+
+#: conf.json:strings.method.grades.body
+msgid "Grades place a package within the registry rather than on an absolute scale, like journal quartiles. Packages are sorted by score and cut at fixed shares; equal scores share a position."
+msgstr "等级表示一个包在注册表中的相对位置，而非绝对刻度，类似期刊分区。所有包按分数排序，并按固定比例切分；分数相同的包名次相同。"
+
+#: conf.json:strings.method.grades.share
+msgid "Share of the registry"
+msgstr "在注册表中的比例"
+
+#: conf.json:strings.method.grades.count
+msgid "Packages"
+msgstr "包数"
+
+#: conf.json:strings.method.momentum.body
+msgid "The score is computed again as it would have been 30 days ago, from the releases and dependencies published by then. A change counts only when it is at least 10 points and at least 10% of the earlier score, so neither a large package nor a tiny one changes label on noise."
+msgstr "分数会按 30 天前的情况重新计算一次，只使用当时已经发布的版本和依赖。变化必须同时达到 10 分和原分数的 10% 才算数，因此无论大包还是小包都不会因噪声改变标签。"
+
+#: conf.json:strings.method.data.title
+msgid "Data and updates"
+msgstr "数据与更新"
+
+#: conf.json:strings.method.data.body
+msgid "The rankings are rebuilt every day from the mooncakes.io registry index and its download counts. Yanked releases are ignored, and only the dependencies of each package's latest release count."
+msgstr "排名每天根据 mooncakes.io 注册表索引及其下载量重建。已撤回的版本会被忽略，并且只计入每个包最新版本的依赖。"
+
+#: conf.json:strings.method.data.current
+msgid "This snapshot was computed on {date} and ranks {count} packages."
+msgstr "本快照计算于 {date}，共排名 {count} 个包。"
+
+#: conf.json:strings.method.limits.title
+msgid "What the score does not say"
+msgstr "分数不能说明什么"
+
+#: conf.json:strings.method.limits.body
+msgid "The score measures reliance, not quality. A young, excellent package can rank low, and a widely used one can still have bugs. Read the package page, its repository and its documentation before you depend on it."
+msgstr "分数衡量的是依赖程度，而不是质量。年轻而优秀的包可能排名靠后，被广泛使用的包也可能有缺陷。决定依赖之前，请阅读包页面、它的仓库和文档。"
+
+#: conf.json:strings.method.design
+msgid "The full derivation in the score design notes"
+msgstr "评分设计说明中的完整推导"
+
+#: conf.json:strings.method.back
+msgid "Back to the rankings"
+msgstr "返回排名"
+
+#: conf.json:strings.momentum.rule
+msgid "A change counts as rising or cooling only when it reaches both 10 points and 10% of the earlier score."
+msgstr "只有变化同时达到 10 分和原分数的 10%，才算上升或降温。"

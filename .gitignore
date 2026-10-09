@@ -23,6 +23,7 @@ data/*.sqlite
 data/*.sqlite3
 data/downloads*.json
 data/download_cache.json
+data/download_history.json
 coverage_summary.txt
 
 # AI agent / assistant local state (never track)
@@ -35,3 +36,6 @@ coverage_summary.txt
 .windsurf/
 .aider*
 CLAUDE.local.md
+
+# Compiled interface strings (node scripts/i18n.mjs compile)
+frontend/src/generated/
