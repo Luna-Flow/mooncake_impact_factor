@@ -1,0 +1,160 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "Luna-Flow/mooncake-impact-factor/query"
+
+import {
+  "moonbitlang/core/debug",
+}
+
+// Values
+pub fn canonical_momentum_label(String) -> String?
+
+pub fn canonical_rank_label(String) -> String?
+
+pub fn decode(String) -> Group raise QueryError
+
+pub fn decode_from_params(Map[String, String]) -> Group? raise QueryError
+
+pub fn decode_from_params_json(String) -> String
+
+pub fn derive_ast(Map[String, String]) -> Group raise QueryError
+
+pub fn derive_ast_json(String) -> String
+
+pub fn empty_ast() -> Group
+
+pub fn empty_ast_json() -> String
+
+pub fn encode(Group) -> String
+
+pub fn group(GroupOp, Array[Node], negated? : Bool) -> Node
+
+pub fn has_intent_json(String) -> Bool
+
+pub fn is_white_space(Int) -> Bool
+
+pub fn legacy_params() -> Array[LegacyParam]
+
+pub fn legacy_params_to_ast(Map[String, String]) -> Group
+
+pub fn momentum_labels() -> Array[String]
+
+pub fn momentum_labels_json() -> String
+
+pub fn number_value(String) -> Double
+
+pub fn params_from_json(Json) -> Map[String, String]
+
+pub fn parse_expression(String) -> Group raise QueryError
+
+pub fn parse_expression_json(String) -> String
+
+pub fn rank_labels() -> Array[String]
+
+pub fn rank_labels_json() -> String
+
+pub fn serialize(Group) -> String
+
+pub fn serialize_json(String) -> String
+
+pub fn term(Field, Operator, String, negated? : Bool) -> Node
+
+pub fn trim(String) -> String
+
+pub fn validate(Json) -> Group raise QueryError
+
+pub fn validate_json(String) -> String
+
+pub fn with_query_ast_patch(Group) -> Map[String, String]
+
+pub fn with_query_ast_patch_json(String) -> String
+
+// Errors
+pub suberror QueryError {
+  QueryError(String)
+} derive(Eq, @debug.Debug)
+pub fn QueryError::message(Self) -> String
+
+// Types and methods
+pub(all) enum Field {
+  Text
+  Owner
+  Package
+  Keyword
+  Description
+  License
+  Repository
+  Rank
+  Momentum
+  Score
+  Dependents
+  RecentDependents
+  ExternalDependents
+  Owners
+  Downloads
+  Year
+  Age
+  Position
+  HasRepository
+  HasLicense
+} derive(Eq, @debug.Debug)
+pub fn Field::all() -> Array[Self]
+pub fn Field::from_name(String) -> Self?
+pub fn Field::name(Self) -> String
+
+pub(all) struct Group {
+  op : GroupOp
+  children : Array[Node]
+  negated : Bool
+} derive(Eq, @debug.Debug)
+pub fn Group::has_intent(Self) -> Bool
+pub fn Group::make(GroupOp, Array[Node], negated? : Bool) -> Self
+pub fn Group::to_json(Self) -> Json
+pub impl ToJson for Group
+
+pub(all) enum GroupOp {
+  And
+  Or
+} derive(Eq, @debug.Debug)
+pub fn GroupOp::from_name(String) -> Self?
+pub fn GroupOp::name(Self) -> String
+
+pub(all) struct LegacyParam {
+  key : String
+  field : Field
+  operator : Operator
+  trimmed : Bool
+} derive(Eq, @debug.Debug)
+
+pub(all) enum Node {
+  Term(Term)
+  Group(Group)
+} derive(Eq, @debug.Debug)
+pub fn Node::has_intent(Self) -> Bool
+pub fn Node::negated(Self) -> Bool
+pub fn Node::to_json(Self) -> Json
+pub fn Node::toggle_negation(Self) -> Self
+pub impl ToJson for Node
+
+pub(all) enum Operator {
+  Match
+  Eq
+  Gte
+  Lte
+} derive(Eq, @debug.Debug)
+pub fn Operator::from_name(String) -> Self?
+pub fn Operator::name(Self) -> String
+pub fn Operator::symbol(Self) -> String
+
+pub(all) struct Term {
+  field : Field
+  operator : Operator
+  value : String
+  negated : Bool
+} derive(Eq, @debug.Debug)
+pub fn Term::make(Field, Operator, String, negated? : Bool) -> Self
+pub fn Term::to_json(Self) -> Json
+pub impl ToJson for Term
+
+// Type aliases
+
+// Traits

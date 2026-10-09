@@ -1,0 +1,119 @@
+///|
+test "envelopes" {
+  inspect(
+    @query.parse_expression_json("NOT rank=D"),
+    content=(
+      #|{"ok":{"kind":"group","op":"and","children":[{"kind":"term","field":"rank","operator":"eq","value":"D","negated":true}]}}
+    ),
+  )
+  inspect(
+    @query.parse_expression_json("("),
+    content=(
+      #|{"error":"Unexpected end of query expression"}
+    ),
+  )
+  inspect(
+    @query.serialize_json(@query.empty_ast_json()),
+    content=(
+      #|{"ok":"()"}
+    ),
+  )
+  inspect(
+    @query.serialize_json("{\"kind\":\"term\"}"),
+    content=(
+      #|{"error":"Query AST root must be a group"}
+    ),
+  )
+  inspect(
+    @query.validate_json(
+      "{\"kind\":\"group\",\"op\":\"or\",\"negated\":false,\"children\":[]}",
+    ),
+    content=(
+      #|{"ok":{"kind":"group","op":"or","children":[]}}
+    ),
+  )
+  inspect(
+    @query.derive_ast_json("{\"q\":\"json\",\"minScore\":12,\"rank\":\"A\"}"),
+    content=(
+      #|{"ok":{"kind":"group","op":"and","children":[{"kind":"term","field":"text","operator":"match","value":"json"},{"kind":"term","field":"rank","operator":"eq","value":"A"}]}}
+    ),
+  )
+  inspect(
+    @query.decode_from_params_json("{\"q\":\"json\"}"),
+    content=(
+      #|{"ok":null}
+    ),
+  )
+  inspect(
+    @query.decode_from_params_json("{\"expr\":\"owner:x\"}"),
+    content=(
+      #|{"ok":{"kind":"group","op":"and","children":[{"kind":"term","field":"owner","operator":"match","value":"x"}]}}
+    ),
+  )
+  inspect(
+    @query.decode_from_params_json("not json"),
+    content=(
+      #|{"error":"Invalid JSON input: Invalid character 'o' at line 1, column 1"}
+    ),
+  )
+  inspect(
+    @query.has_intent_json(@query.empty_ast_json()),
+    content=(
+      #|false
+    ),
+  )
+  inspect(
+    @query.has_intent_json(
+      "{\"kind\":\"group\",\"op\":\"and\",\"children\":[{\"kind\":\"term\",\"field\":\"text\",\"operator\":\"match\",\"value\":\"x\"}]}",
+    ),
+    content=(
+      #|true
+    ),
+  )
+  inspect(
+    @query.has_intent_json("garbage"),
+    content=(
+      #|false
+    ),
+  )
+  inspect(
+    @query.rank_labels_json(),
+    content=(
+      #|["S","A","B","C","D"]
+    ),
+  )
+  inspect(
+    @query.momentum_labels_json(),
+    content=(
+      #|["New","Rising","Stable","Cooling"]
+    ),
+  )
+}
+
+///|
+test "with_query_ast_patch_json" {
+  let patch = @json.parse(
+    @query.with_query_ast_patch_json(
+      "{\"kind\":\"group\",\"op\":\"and\",\"children\":[{\"kind\":\"term\",\"field\":\"owner\",\"operator\":\"match\",\"value\":\"x\"}]}",
+    ),
+  )
+  guard patch is Object({ "ok": Object(fields), .. }) else { fail("not ok") }
+  inspect(
+    fields.get("expr"),
+    content=(
+      #|Some(String(owner:x))
+    ),
+  )
+  inspect(
+    fields.get("ast"),
+    content=(
+      #|Some(String({"kind":"group","op":"and","children":[{"kind":"term","field":"owner","operator":"match","value":"x"}]}))
+    ),
+  )
+  inspect(
+    fields.get("minScore"),
+    content=(
+      #|Some(String())
+    ),
+  )
+}
