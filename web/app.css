@@ -57,6 +57,13 @@
   list-style: none;
 }
 
+/* Matches in names are marked like matches in excerpts on the site. */
+.search-title mark {
+  background: none;
+  color: inherit;
+  box-shadow: inset 0 -2px 0 var(--accent);
+}
+
 /* ------------------------------------------------------------ controls */
 
 .button {

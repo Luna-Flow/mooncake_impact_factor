@@ -94,6 +94,10 @@ export function SearchDialog(props: { lang: Lang; open: boolean; onClose: () => 
     };
   }, [lang, query]);
 
+  useEffect(() => {
+    if (active >= 0) document.getElementById(`search-result-${active}`)?.scrollIntoView({ block: "nearest" });
+  }, [active]);
+
   function showAll(): void {
     onClose();
     router.push(`/${lang}/?q=${encodeURIComponent(query.trim())}`);
