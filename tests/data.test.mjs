@@ -33,6 +33,9 @@ function createFixtureDatabase() {
       version_count INTEGER NOT NULL DEFAULT 0,
       dependent_count INTEGER NOT NULL DEFAULT 0,
       recent_dependent_count INTEGER NOT NULL DEFAULT 0,
+      external_dependent_count INTEGER NOT NULL DEFAULT 0,
+      dependent_owner_count INTEGER NOT NULL DEFAULT 0,
+      days_since_release INTEGER NOT NULL DEFAULT 0,
       download_count INTEGER NOT NULL DEFAULT 0
     );
 
@@ -61,6 +64,7 @@ function createFixtureDatabase() {
       rank_label TEXT NOT NULL,
       momentum_label TEXT NOT NULL,
       activity_multiplier REAL NOT NULL,
+      rank_position INTEGER NOT NULL DEFAULT 0,
       computed_at TEXT NOT NULL
     );
 
@@ -78,17 +82,18 @@ function createFixtureDatabase() {
     INSERT INTO packages (
       id, full_name, owner, package_name, description, repository, license,
       keywords_json, latest_version, latest_created_at, version_count,
-      dependent_count, recent_dependent_count, download_count
+      dependent_count, recent_dependent_count, external_dependent_count,
+      dependent_owner_count, days_since_release, download_count
     ) VALUES
-      (1, 'alice/toolkit', 'alice', 'toolkit', 'alpha toolkit package', 'https://example.com/toolkit', 'MIT', '["alpha","tooling"]', '1.10.0', NULL, 3, 9, 4, 1200),
-      (2, 'bob/helper', 'bob', 'helper', 'helper package', NULL, 'Apache-2.0', '["helper"]', '0.4.0', '2026-01-01T00:00:00+00:00', 1, 0, 0, 100);
+      (1, 'alice/toolkit', 'alice', 'toolkit', 'alpha toolkit package', 'https://example.com/toolkit', 'MIT', '["alpha","tooling"]', '1.10.0', NULL, 3, 9, 4, 1, 1, 400, 1200),
+      (2, 'bob/helper', 'bob', 'helper', 'helper package', NULL, 'Apache-2.0', '["helper"]', '0.4.0', '2026-01-01T00:00:00+00:00', 1, 0, 0, 0, 0, 20, 100);
 
     INSERT INTO package_scores (
       package_id, score, score_30d_ago, score_growth_30d, score_growth_ratio_30d,
-      rank_label, momentum_label, activity_multiplier, computed_at
+      rank_label, momentum_label, activity_multiplier, rank_position, computed_at
     ) VALUES
-      (1, 210.0, 120.0, 90.0, 0.75, 'A', 'Rising', 1.06, '2026-06-02T00:00:00+00:00'),
-      (2, 80.0, 75.0, 5.0, 0.066, 'C', 'Stable', 1.00, '2026-06-02T00:00:00+00:00');
+      (1, 210.0, 120.0, 90.0, 0.75, 'A', 'Rising', 1.06, 1, '2026-06-02T00:00:00+00:00'),
+      (2, 80.0, 75.0, 5.0, 0.066, 'C', 'New', 1.00, 2, '2026-06-02T00:00:00+00:00');
 
     INSERT INTO versions (id, package_id, version, created_at, deps_json) VALUES
       (10, 1, '1.9.0', NULL, '{}'),
@@ -140,11 +145,11 @@ test("rejects malformed FTS queries with HttpError 400", () => {
 
 test("accepts valid FTS queries", () => {
   withFixture(() => {
-    const items = searchPackagesFromInput({ q: "owner:alice AND package:toolkit" });
+    const { items } = searchPackagesFromInput({ q: "owner:alice AND package:toolkit" });
     assert.equal(items.length, 1);
     assert.equal(items[0]?.full_name, "alice/toolkit");
 
-    const excluded = searchPackagesFromInput({ q: "toolkit NOT helper" });
+    const { items: excluded } = searchPackagesFromInput({ q: "toolkit NOT helper" });
     assert.equal(excluded.length, 1);
     assert.equal(excluded[0]?.full_name, "alice/toolkit");
   });
@@ -162,7 +167,7 @@ test("package analysis sorts versions by semver when timestamps tie", () => {
 
 test("supports native expression search input", () => {
   withFixture(() => {
-    const items = searchPackagesFromInput({
+    const { items } = searchPackagesFromInput({
       expr: "(owner:alice OR keyword:helper) AND score>=80"
     });
     assert.deepEqual(
@@ -190,10 +195,72 @@ test("supports serialized AST search input", () => {
       ]
     });
 
-    const items = searchPackagesFromInput({ ast });
+    const { items } = searchPackagesFromInput({ ast });
     assert.deepEqual(
       items.map((item) => item.full_name),
       ["alice/toolkit", "bob/helper"]
     );
+  });
+});
+
+function names(page) {
+  return page.items.map((item) => item.full_name);
+}
+
+test("lists every package by rank position without criteria", () => {
+  withFixture(() => {
+    const page = searchPackagesFromInput({});
+    assert.deepEqual(names(page), ["alice/toolkit", "bob/helper"]);
+    assert.equal(page.total, 2);
+  });
+});
+
+test("pages with limit and offset and reports the total", () => {
+  withFixture(() => {
+    const first = searchPackagesFromInput({ limit: "1" });
+    assert.deepEqual(names(first), ["alice/toolkit"]);
+    assert.equal(first.total, 2);
+    const second = searchPackagesFromInput({ limit: 1, offset: 1 });
+    assert.deepEqual(names(second), ["bob/helper"]);
+    assert.equal(second.total, 2);
+    const beyond = searchPackagesFromInput({ offset: "5" });
+    assert.deepEqual(names(beyond), []);
+    assert.equal(beyond.total, 2);
+  });
+});
+
+test("rank and momentum accept comma-separated lists", () => {
+  withFixture(() => {
+    assert.deepEqual(names(searchPackagesFromInput({ rank: "a,c", sort: "name" })), ["alice/toolkit", "bob/helper"]);
+    assert.deepEqual(names(searchPackagesFromInput({ momentum: "new" })), ["bob/helper"]);
+    for (const input of [{ rank: "S,X" }, { momentum: "Hot" }, { expr: "rank=Z" }]) {
+      assert.throws(
+        () => searchPackagesFromInput(input),
+        (error) => isHttpError(error) && error.status === 400 && /must be one of/.test(error.message)
+      );
+    }
+  });
+});
+
+test("filters and sorts by the scoring v2 columns", () => {
+  withFixture(() => {
+    assert.deepEqual(names(searchPackagesFromInput({ min_external_dependents: "1" })), ["alice/toolkit"]);
+    assert.deepEqual(names(searchPackagesFromInput({ min_owners: "1" })), ["alice/toolkit"]);
+    assert.deepEqual(names(searchPackagesFromInput({ max_age: "30" })), ["bob/helper"]);
+    assert.deepEqual(names(searchPackagesFromInput({ expr: "position<=1 OR age<=30" })), ["alice/toolkit", "bob/helper"]);
+    assert.deepEqual(names(searchPackagesFromInput({ sort: "age" })), ["bob/helper", "alice/toolkit"]);
+    assert.deepEqual(names(searchPackagesFromInput({ sort: "position", order: "desc" })), ["bob/helper", "alice/toolkit"]);
+    assert.deepEqual(names(searchPackagesFromInput({ sort: "external" })), ["alice/toolkit", "bob/helper"]);
+  });
+});
+
+test("malformed query trees are HTTP 400", () => {
+  withFixture(() => {
+    for (const input of [{ ast: "{" }, { expr: "owner:" }, { sort: "constructor" }]) {
+      assert.throws(
+        () => searchPackagesFromInput(input),
+        (error) => isHttpError(error) && error.status === 400
+      );
+    }
   });
 });
