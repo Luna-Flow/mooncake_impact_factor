@@ -7,6 +7,19 @@
 pub const SELF_DEPENDENT_WEIGHT : Double = 0.25
 
 ///|
+/// The rank labels, best first. The scoring model owns them; the query
+/// language, the SQL compiler and the static search take them from here.
+pub fn rank_labels() -> Array[String] {
+  ["S", "A", "B", "C", "D"]
+}
+
+///|
+/// The momentum labels that `compute_momentum_label` returns.
+pub fn momentum_labels() -> Array[String] {
+  ["New", "Rising", "Stable", "Cooling"]
+}
+
+///|
 /// Days since release used when the release date is unknown.
 pub const UNKNOWN_RELEASE_AGE_DAYS : Int = 3650
 

@@ -120,3 +120,19 @@ test "score_population ranks and compares" {
   inspect(snapshots[2].score_growth_ratio_30d, content="0")
   inspect(snapshots[1].score_growth_30d, content="0")
 }
+
+///|
+test "labels come from one list" {
+  let all = @score.momentum_labels()
+  for s in [None, Some(100.0), Some(50.0), Some(200.0)] {
+    let label = @score.compute_momentum_label(120.0, s)
+    inspect(all.contains(label), content="true")
+  }
+  let grades = @score.rank_labels()
+  for position in [1, 10, 30, 60, 90] {
+    inspect(
+      grades.contains(@score.rank_label(position, 100, 1.0)),
+      content="true",
+    )
+  }
+}

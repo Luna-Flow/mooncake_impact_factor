@@ -33,7 +33,11 @@ pub fn ln(Double) -> Double
 
 pub fn log_signal(Double) -> Double
 
+pub fn momentum_labels() -> Array[String]
+
 pub fn rank_label(Int, Int, Double) -> String
+
+pub fn rank_labels() -> Array[String]
 
 pub fn rank_positions(ArrayView[Double]) -> Array[Int]
 

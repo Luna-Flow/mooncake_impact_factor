@@ -1,14 +1,16 @@
 ///|
-/// The rank labels, best first. This is the only list of rank values in the
-/// query, SQL and static search code; everything else derives from it.
-let rank_label_list : FixedArray[String] = ["S", "A", "B", "C", "D"]
+/// The rank labels, best first, as the scoring model defines them
+/// (`@score.rank_labels`). The query, SQL and static search code derive every
+/// list of rank values from this one.
+let rank_label_list : FixedArray[String] = FixedArray::from_array(
+  @score.rank_labels(),
+)
 
 ///|
-/// The momentum labels. This is the only list of momentum values in the
-/// query, SQL and static search code; extend it here to add a label.
-let momentum_label_list : FixedArray[String] = [
-  "New", "Rising", "Stable", "Cooling",
-]
+/// The momentum labels of the scoring model (`@score.momentum_labels`).
+let momentum_label_list : FixedArray[String] = FixedArray::from_array(
+  @score.momentum_labels(),
+)
 
 ///|
 /// The rank labels `S`, `A`, `B`, `C`, `D`, best first.
