@@ -7,7 +7,7 @@ application, so its documentation must keep all of them in step.
 
 ## Scope
 
-- Describe the current **`0.1.2`** baseline on the branch.
+- Describe the current **`0.2.0`** baseline on the branch.
 - Do not document unpublished commands, routes, fields, or MoonBit exports.
 - When behavior is local-only, say so directly instead of implying a global
   service contract.

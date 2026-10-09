@@ -49,7 +49,7 @@ ignoring case.
 Add the module and import the package:
 
 ```bash
-moon add Luna-Flow/mooncake-impact-factor@0.1.2
+moon add Luna-Flow/mooncake-impact-factor@0.2.0
 ```
 
 ```moonbit nocheck

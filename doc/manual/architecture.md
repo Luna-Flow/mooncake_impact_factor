@@ -1,8 +1,9 @@
 # Architecture
 
 `mooncake_impact_factor` is a MoonBit module inside a larger application. The
-MoonBit packages define the score rules, the search query language, its SQL
-compilation and the static search engine; Python builds the data; a Next.js
+MoonBit packages define the registry signals, the score rules, the search
+query language, its SQL compilation and the static search engine; Python
+moves the data; a Next.js
 application serves it, either dynamically from SQLite or as static files. This guide follows the data from the registry to
 the browser and names the file responsible for each step.
 
@@ -10,64 +11,53 @@ the browser and names the file responsible for each step.
 
 | Component | Path | Language | Role |
 | --- | --- | --- | --- |
-| `score` | `src/score` | MoonBit | Score, rank and momentum rules ([API](api/score.md)). |
-| `cli` | `src/cli` | MoonBit (JS) | Command that evaluates a score snapshot for other languages ([API](api/cli.md)). |
+| `score` | `src/score` | MoonBit | Score, grade and momentum rules, rank positions ([API](api/score.md)). |
+| `metrics` | `src/metrics` | MoonBit | Latest releases, current dependency edges, signals now and 30 days ago, and the scores of the whole registry ([API](api/metrics.md)). |
+| `cli` | `src/cli` | MoonBit (JS) | `build-index` command that runs `metrics` on a registry file for the index builder ([API](api/cli.md)). |
 | `query` | `src/query` | MoonBit | Query tree, expression parser and serializer, flat parameters, labels, sort keys, paging ([API](api/query.md)). |
 | `query_sql` | `src/query_sql` | MoonBit | Search requests to SQLite `WHERE`/`ORDER BY`/paging plans ([API](api/query_sql.md)). |
 | `static_search` | `src/static_search` | MoonBit | Static search engine: evaluation, relevance, sorting, paging ([API](api/static_search.md)). |
-| Index builder | `scripts/build_index.py` | Python | Reads the registry, writes the SQLite database. |
+| Index builder | `scripts/build_index.py` | Python | Reads the registry, fetches downloads, runs `cli build-index`, writes the SQLite database. |
 | Static exporter | `scripts/export_static_json.py` | Python | Writes `public/data/**` from the database. |
 | MoonBit bridge | `scripts/build_moonbit.mjs`, `lib/query.ts`, `lib/static-search.ts` | JavaScript, TypeScript | Builds `query`, `query_sql` and `static_search` to ES modules in `lib/moonbit/` and wraps them with TypeScript types. |
 | Web application | `app`, `frontend/src`, `lib/data.ts`, `web` | TypeScript | Pages, route handlers, database access, the static search worker and the stylesheets. |
+| Interface strings | `web/i18n`, `scripts/i18n.mjs` | JSON, gettext | English strings and their zh_CN and ja_JP catalogs, compiled to `frontend/src/generated/strings.json`. |
 
 ## From registry to scores
 
-`scripts/build_index.py` rebuilds the database from scratch on every run.
+`scripts/build_index.py` rebuilds the database from scratch on every run. It
+only moves data; every decision that changes a score is made by the MoonBit
+`metrics` and `score` packages.
 
 1. **Read the registry.** Every line of every `*.index` file under
    `~/.moon/registry/index/user` is one published version: name, version,
-   creation time, metadata and dependencies. `moon update` refreshes this
-   local copy; the ranking covers exactly the packages in it.
-2. **Choose the latest version** of each package by creation time, then by
-   semantic version. Its description, keywords, repository and license
-   describe the package.
-3. **Collect downloads.** Unless `--skip-mooncakes-downloads` is given, the
+   creation time, yanked flag, metadata and dependencies. `moon update`
+   refreshes this local copy; the ranking covers exactly the packages in it.
+2. **Collect downloads.** Unless `--skip-mooncakes-downloads` is given, the
    builder asks `https://mooncakes.io/api/v0/manifest/<package>` for each
-   package not yet in `data/download_cache.json`, with eight threads, and
-   stores the answers in the cache. `--downloads-json` overrides individual
-   counts. Unknown counts are `0`.
-4. **Build edges.** For every version that depends on another package of the
-   snapshot, the builder records a package-level edge from the dependent to
-   the dependency. Self-dependencies are ignored. `first_seen_at` is the
-   creation time of the earliest version of the dependent that uses the
-   dependency.
-5. **Count signals.** With $\tau$ the build time, a package's signals are
-
-   | Signal | Definition |
-   | --- | --- |
-   | `dependents` | Number of edges into the package. |
-   | `recent_dependents` | Edges with `first_seen_at` $\ge \tau - 180$ days. |
-   | `downloads` | The collected download count. |
-   | `days_since_release` | Whole days from the latest release to $\tau$; `3650` when the date is unknown. |
-   | `historical_dependents` | Edges with `first_seen_at` $\le \tau - 30$ days. |
-   | `historical_recent_dependents` | Edges with `first_seen_at` in $[\tau - 210, \tau - 30]$ days. |
-   | `historical_downloads` | Always `0`; the registry has no download history. |
-   | `historical_days_since_release` | `days_since_release` $- 30$ when the latest release is at least 30 days old, else `0`; `3650`, like the current value, when the release date is unknown. |
-
-   The historical window is the recent window shifted 30 days back, so the
-   two snapshots are computed the same way, with one exception: downloads
-   have no history, so the whole download term counts as growth. A package
-   whose release date is unknown gets the multiplier $0.88$ in both
-   snapshots, so unchanged counts give zero growth.
-6. **Score.** For each package the builder runs the [`cli`](api/cli.md)
-   command with these eight signals and stores the returned snapshot in the
-   `package_scores` table. The score rules therefore live only in
-   [`src/score`](api/score.md).
-7. **Index text.** An SQLite FTS5 table holds full name, owner, package name,
+   package with eight threads. Without `--refresh-downloads` it reuses the
+   counts in `data/download_cache.json` and fetches only missing ones.
+   `--downloads-json` overrides individual counts.
+3. **Keep a download history.** Freshly fetched counts are appended to
+   `data/download_history.json`, one snapshot per day, and snapshots older
+   than 45 days are dropped. The deployment keeps this file between runs in
+   the GitHub Actions cache.
+4. **Compute.** The builder writes the releases (name, version, date,
+   dependency names, yanked), the downloads and the history to a temporary
+   JSON file and runs `cli build-index` once. The command returns, for every
+   package, the latest release, the current dependency edges, external and
+   same-owner dependents, distinct dependent owners, recent dependents, the
+   signals 30 days ago, the score, the rank position, the grade, the
+   momentum label and the score breakdown; and for the registry the
+   population, the top score and the label counts. The
+   [metrics design](design/metrics.md) defines the signals and the
+   [score design](design/score.md) the rules.
+5. **Write SQLite.** The report goes unchanged into the tables `packages`,
+   `versions` (with the release order that MoonBit computed and the yanked
+   flag), `dependencies`, `package_edges` (current edges with their first
+   appearance and ownership), `package_scores` and `index_meta`, and an
+   SQLite FTS5 table `search_index` holds full name, owner, package name,
    description and keywords for full-text search.
-
-The database tables are `packages`, `versions`, `dependencies`,
-`package_edges`, `package_scores` and `search_index`.
 
 ## Serving
 
@@ -78,11 +68,19 @@ JSON route handlers backed by the database:
 
 | Route | Returns |
 | --- | --- |
-| `GET /api/feeds/top?limit=<n>` | Packages by score descending, then name. |
-| `GET /api/feeds/hot?limit=<n>` | `Hot` packages by 30-day growth, then score, then name. |
-| `GET /api/feeds/rising?limit=<n>` | `Rising` packages, ordered like `hot`. |
+| `GET /api/feeds/top?limit=<n>` | Packages by rank position, then name. |
+| `GET /api/feeds/rising?limit=<n>` | `Rising` packages by 30-day change, then score, then name. |
+| `GET /api/feeds/new?limit=<n>` | `New` packages by score, then name. |
 | `GET /api/search?...` | `{ "items": [...], "total": n }`: one page of package summaries (`limit` 50 by default, at most 200, from `offset`) and the number of matches. |
-| `GET /api/packages/<owner>/<package>/analysis` | `{ "detail": ..., "dependents": [...] }`. |
+| `GET /api/packages/<full name>` | `{ "detail": ..., "dependents": [...], "dependencies": [...] }`; the full name may have more than two segments. |
+| `GET /api/meta` | When the index was computed, its population, the top score, the label counts and whether download history was used. |
+
+The pages live under one segment per language, as on the documentation
+site: `/en/`, `/zh-cn/` and `/ja/` are the rankings, `/<lang>/package/?name=<full name>`
+a package and `/<lang>/method/` the explanation of the score. `/` picks the
+reader's stored choice (`lf-lang`), then the browser's languages, then
+English; `/search` and `/advanced-search` from version 0.1 redirect with
+their filters.
 
 The [getting started guide](getting_started.md#3-query-the-apis) lists the
 search parameters. `lib/data.ts` passes them to `plan_search` of
@@ -95,7 +93,8 @@ request without criteria lists every package by rank position.
 
 `npm run build:static-data` runs the index builder and then
 `scripts/export_static_json.py`, which writes the feeds, a search index, one
-file per package and a manifest to `public/data`. `npm run build:static`
+file per package (`owner--name.json`, with every `/` of the full name
+replaced by `--`) and a manifest with the index metadata to `public/data`. `npm run build:static`
 builds the MoonBit modules and runs `next build --webpack` with
 `NEXT_PUBLIC_APP_MODE=static`, which exports the site to `out/` without
 route handlers. In the browser, feeds and package pages are plain file
@@ -115,18 +114,28 @@ The modules exchange JSON strings: `lib/query.ts` wraps `query`,
 `static_search` for the worker. The
 `deploy-static` workflow rebuilds and publishes this site daily.
 
+## Interface strings
+
+The interface is localised the way the documentation site localises its own.
+English strings by key live in `web/i18n/conf.json`, translations in
+`web/i18n/locale/<locale>/LC_MESSAGES/app.po`, and the locales in
+`web/i18n/locales.json`, a copy of the site's `config/locales.json`.
+`node scripts/i18n.mjs update` regenerates `app.pot` and merges it into
+every catalog with lunadoc's msgmerge semantics, `check` fails when a
+catalog is behind or a translation drops a `{placeholder}`, and `compile`
+writes the table that `t(lang, key, vars)` reads; npm runs `compile` before
+`dev`, `build`, `typecheck` and `test`.
+
 ## Where the rules live
 
 Every rule has one owner, and the others call it:
 
 | Rule | Owner |
 | --- | --- |
-| Score, rank and momentum | `src/score` (called through `src/cli`) |
-| Signal definitions and time windows | `scripts/build_index.py` |
-| Query language, flat parameters, labels, sort keys, paging | `src/query` |
+| Latest release, current dependencies, signals and time windows | `src/metrics` (called through `src/cli`) |
+| Score, grades, rank positions and momentum; the label lists | `src/score` |
+| Query language, flat parameters, sort keys, paging | `src/query` |
 | SQL compilation, parameter validation and dynamic ordering | `src/query_sql` |
 | Static evaluation, relevance and ordering | `src/static_search` |
 
-`scripts/build_index.py` still contains Python functions `compute_score` and
-`compute_momentum_label` that mirror the MoonBit rules; the build does not
-call them.
+Python and TypeScript contain no copy of these rules.

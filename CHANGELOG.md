@@ -3,130 +3,145 @@
 All notable changes to `Luna-Flow/mooncake-impact-factor` are listed here.
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
-## Unreleased
+## 0.2.0 - 2026-10-09
+
+Scoring v2, the computation of the registry signals and the whole search
+in MoonBit, and a web interface rebuilt after the Luna-Flow documentation
+site. This release breaks the MoonBit API of `score` and `cli`, the HTTP
+routes of the analysis and the hot feed, and the static data schema.
+
+### Changed (scoring)
+
+- **Dependents come from the latest release.** A dependent is a package
+  whose latest non-yanked release declares the dependency; version 0.1
+  counted every package that had ever declared it in any release.
+- **Dependents of the same owner count a quarter.** `Signals` separates
+  external from same-owner dependents, and `SELF_DEPENDENT_WEIGHT` is `1/4`.
+  In the registry of June 2026, 48 % of the dependency edges connected
+  packages of one owner.
+- **Grades are shares of the registry.** `S`, `A`, `B`, `C` and `D` are the
+  top 5 %, 15 %, 35 %, 65 % and the rest by competition position
+  (`rank_positions`, `rank_label(position, population, score)`); a package
+  without any signal is always `D`. Version 0.1 used fixed thresholds on the
+  score.
+- **Momentum is `New`, `Rising`, `Stable` or `Cooling`.** `New` has no
+  release 30 days ago; `Rising` and `Cooling` need a change of at least 10
+  points and 10 % of the earlier score. `Hot` is removed.
+- **The 30-day growth no longer counts every download.** Version 0.1 scored
+  the past with zero downloads, so the whole download term counted as growth
+  and almost every popular package was `Rising`. The past now uses a
+  download snapshot from about 30 days ago, or today's counts when none is
+  recorded yet.
+- **The release-recency multiplier is continuous:** `1.12` up to 30 days,
+  falling linearly to `0.88` at 365 days, instead of steps that changed a
+  score by up to 6.4 % overnight.
+- **The score is the same on every backend.** `ln` ports FreeBSD msun
+  `e_log.c` with IEEE 754 basic operations only, instead of `@math.ln`,
+  which uses `Math.log` on js.
+- `score_population` scores a registry and returns `ScoreSnapshot` with
+  `rank_position` and a `ScoreBreakdown` of the three terms; `rank_labels`
+  and `momentum_labels` are the only lists of labels.
 
 ### Added
 
-- New MoonBit package `query`: the search query language (query tree, JSON
+- MoonBit package `metrics`: latest releases (by date, then SemVer 2.0.0
+  precedence), current dependency edges with their first appearance and
+  ownership, external, same-owner and recent dependents, distinct dependent
+  owners, the signals 30 days ago, release order, label counts and the
+  scores of the whole registry, with an RFC 3339 parser.
+- MoonBit package `query`: the search query language (query tree, JSON
   form, expression parser and serializer, flat-parameter derivation), the
-  rank and momentum label sets, the sort keys and the paging rules. It was
-  TypeScript in `lib/query.ts`, which now wraps the generated JavaScript.
-- New MoonBit package `query_sql`: compiles query trees and `/api/search`
+  sort keys and the paging rules. It was TypeScript in `lib/query.ts`, which
+  now wraps the generated JavaScript.
+- MoonBit package `query_sql`: compiles query trees and `/api/search`
   requests (validation, FTS5 expressions, ordering, paging) to SQLite
   statements. It replaces the compiler in `lib/data.ts`.
-- `scripts/build_moonbit.mjs` (`npm run build:moonbit`) builds `query`,
-  `query_sql` and `static_search` to ES modules in `lib/moonbit/`; npm runs
-  it before `dev`, `build`, `typecheck` and `test`.
+- `cli build-index --input <path> [--output <path>]` scores the whole
+  registry in one process.
 - Query fields `external_dependents`, `owners`, `age` and `position`, the
-  flat parameters `min_external_dependents`, `min_owners` and `max_age`
-  (`minExternalDependents`, `minOwners`, `maxAge` in the interface state),
-  and the sort keys `external`, `owners`, `position` and `age`.
-- `rank` and `momentum` accept comma-separated lists (`rank=S,A`), which
-  match any of the labels.
-- Searches accept `limit` (default 50, at most 200) and `offset`, and
-  return `{ items, total }` with the number of matches before paging, on
-  the server (`/api/search`) and in the static worker.
+  parameters `min_external_dependents`, `min_owners` and `max_age`, the sort
+  keys `external`, `owners`, `position` and `age`, and lists in `rank` and
+  `momentum` (`rank=S,A`).
+- Searches accept `limit` (default 50, at most 200) and `offset` and return
+  `{ items, total }`, on the server and in the static worker.
+- `GET /api/meta`, `GET /api/feeds/new`, and the dependencies of the latest
+  release in the package analysis.
+- `build_index.py --refresh-downloads` refetches every count and records it
+  in `data/download_history.json` (45 days); `--now` scores the registry as
+  of another moment. The deployment keeps the history in the Actions cache.
+- Web interface, rebuilt after the Luna-Flow documentation site with its
+  tokens and page chrome copied unchanged:
+  - the rankings are the home page: one sortable table of every package
+    (position, grade, dependents, owners, 30-day change, release age,
+    downloads, score) with filters in the sidebar and every view in the URL;
+  - every package has a page: standing, where the score comes from, the last
+    30 days, dependents with ownership, dependencies, releases;
+  - a page explains how scores work, and the site's search dialog (`/`,
+    `Ctrl+K`) searches packages;
+  - the layout works down to 375 px in light and dark themes.
+- Localisation as on the documentation site: pages under `/en/`, `/zh-cn/`
+  and `/ja/`, `/` choosing the stored, then the browser language, and
+  interface strings in gettext catalogs (`web/i18n`) handled by
+  `scripts/i18n.mjs` with lunadoc's msgmerge semantics. Chinese and Japanese
+  are complete.
 
 ### Changed
 
-- `static_search` is now the search engine of the static site (index
-  loading, evaluation, relevance, sorting, paging) instead of a version tag
-  and a lower-casing helper. It builds for every target, lower-cases and
-  collates text with its own tables instead of the host's `toLowerCase` and
-  `localeCompare`, and exports `load_index` and `search` for the worker.
-  `runtime_version` is now `"static-search-v2"`.
-- The momentum labels are `New`, `Rising`, `Stable` and `Cooling`; `Hot` is
-  no longer accepted in queries.
-- A search without criteria lists every package (paged), ordered by rank
-  position and honouring `sort` and `order`, instead of returning the top
-  feed.
-- The default sort without a text query is `position` (ascending). Ties of
-  every sort key are broken by rank position and then by name, whatever the
-  direction; `order` flips only the key. This applies to the server and the
-  static site alike.
-- Malformed `ast` or `expr` parameters are answered with HTTP 400 and the
-  parser's message instead of HTTP 500.
-- The static rank and momentum terms ignore case and surrounding spaces
-  (`rank=a` matches rank `A`), as on the server.
-- The static site is built with webpack (`next build --webpack`).
+- `build_index.py` only moves data; it runs `cli` once instead of once per
+  package (about one second for 2902 packages), and Python and TypeScript
+  no longer contain copies of the rules or a SemVer sort.
+- `static_search` is the search engine of the static site (index loading,
+  evaluation, relevance, sorting, paging), builds for every target, and
+  lower-cases and collates text with its own tables instead of the host's
+  `toLowerCase` and `localeCompare`. `runtime_version` is
+  `"static-search-v2"`.
+- A search without criteria lists every package ordered by rank position
+  and honours `sort` and `order`, instead of returning the top feed. Ties of
+  every sort key are broken by rank position, then by name.
+- Static data schema 2: summaries carry the new signals; package files are
+  named `owner--name.json` with every `/` replaced, so nested names such as
+  `tonyfettes/tree-sitter/cli` work; feeds are `top`, `rising` and `new`.
+- The package analysis moved to `GET /api/packages/<full name>`.
+- `/search` and `/advanced-search` redirect to the rankings with their
+  filters. The graphical query builder is replaced by a query expression
+  field with live validation.
+- Migrated to MoonBit 0.10 (`moonc` 0.10 or later): `moon.mod` sets
+  `source = "src"` and `preferred_target = "js"`, `cli` is a
+  `pkgtype(kind: "executable")`, and the generated `pkg.generated.mbti`
+  files are committed.
+- The daily deployment runs at 00:00 Japan time.
 
-- Migrated to MoonBit 0.10 (`moonc` 0.10 or later is required).
-- `moon.mod` sets `source = "src"` directly instead of through `options(...)`,
-  and declares `preferred_target = "js"`.
-- `cli` is declared with `pkgtype(kind: "executable")` instead of the legacy
-  `"is-main"` option. `cli` and `static_search` declare
-  `supported_targets = "js"`, because they use JavaScript foreign functions.
-- Unused `moonbitlang/core` imports were removed from the package manifests.
-- The JavaScript foreign functions in `cli` and `static_search` annotate their
-  `String` parameters with `#borrow`.
-- `cli` serialises snapshots with `Json(...)` instead of the deprecated
-  `to_json` method. The output is unchanged.
-- Blackbox tests call the packages under test with qualified names
-  (`@score.compute_score`, `@static_search.runtime_version`).
-- The generated interface files `pkg.generated.mbti` are now committed for all
-  three packages.
+### Removed
 
-- The web application was restyled after the Luna-Flow documentation site
-  (lunaflow.cn). The stylesheets in `web/` are split into `tokens.css`,
-  `base.css` and one file per screen, and use the colour, type, spacing and
-  radius tokens of the documentation site, with light and dark themes that
-  follow `prefers-color-scheme` until a theme is chosen. The header is a
-  sticky hairline bar with the Luna-Flow logo, links to the manual and the
-  repository, and the current page underlined in the accent. Rankings are
-  rows with a score bar instead of boxed cards, rank and momentum labels have
-  their own colours, and the package analysis sits in a margin column. The
-  layout has no horizontal scroll down to 375 px.
-- An explicit theme choice is applied before the first paint, and the pages
-  have a skip link and a footer.
-
-### Deprecated
-
-- The methods `ScoreSnapshot::to_json`, `ScoreSnapshot::from_json` and
-  `ScoreSnapshot::to_repr`, which earlier compilers created implicitly from
-  the derived traits, are kept through explicit, hidden and deprecated
-  promotions in `src/score/extends.mbt`. Use `Json(s)`,
-  `@json.from_json(json)` and `Repr(s)` instead.
+- `compute_score(Int, Int, Int, Int)`, `rank_label(Double)`,
+  `compute_momentum_label(Double, Double, Double, Int)` and
+  `compute_score_snapshot`; use `Signals`, `compute_score`, `rank_label`,
+  `compute_momentum_label` and `score_population`.
+- `cli score-snapshot`; use `cli build-index`.
+- The momentum label `Hot`, the `hot` feed and
+  `GET /api/packages/<owner>/<package>/analysis`.
+- The landing page, the animations (gsap) and the icon library.
 
 ### Fixed
 
 - The static search worker runs again: Turbopack copied the worker's
-  TypeScript source as a static asset instead of bundling it, so the
-  browser could not start it.
-- `serialize` keeps the parentheses of a negated group (`NOT (a OR b)` was
-  written `NOT a OR b`) and quotes values with a colon or a keyword
-  (`repository:"https://x"`, `owner:"and"`), so expressions shown in the
-  interface parse back to the same query.
-- An unclosed quote in an expression (`owner:"gml`) is a syntax error
-  instead of silently ending the value at the end of the text.
-- `sort=constructor` (or another inherited object property) is rejected
-  with HTTP 400 instead of producing invalid SQL.
-
-- The static search no longer counts negated terms in its relevance order:
-  a term under `NOT`, directly or through a negated group, adds no
-  relevance, so `NOT rank=D OR json` no longer ranks the rank-`D` packages
-  first (#4). The query evaluation now lives in `src/static_search`.
-- `scripts/build_index.py` uses the same days since release, `3650`, for
-  the current and the 30-days-ago snapshot when the release date is unknown.
-  Before, the historical value was `0`, so such packages got the multiplier
-  `1.12` 30 days ago and `0.88` now and always showed negative growth (#5).
-- Opening the advanced search dialog from the search page no longer crashes
-  the page: a hook in the dialog ran only while it was open, which changed
-  the hook order between renders.
+  TypeScript source as a static asset instead of bundling it.
+- `serialize` keeps the parentheses of a negated group and quotes values
+  with a colon or a keyword, so displayed expressions parse back.
+- An unclosed quote in an expression is a syntax error.
+- `sort=constructor` and malformed `ast` or `expr` parameters are answered
+  with HTTP 400 instead of invalid SQL or HTTP 500.
+- Negated terms add no relevance to the static order (#4).
+- Unknown release dates give the same age now and 30 days ago (#5).
+- A failed request no longer leaves earlier results on screen.
 
 ### Documentation
 
-- Documentation rewritten: API, tutorial and design pages for `score`, `cli`
-  and `static_search`, a new architecture guide, and complete zh_CN and ja_JP
-  translations.
-- The README describes only the current version; this changelog was added.
-- The manual follows the luna-generic layout: an overview with install,
-  pages, exported items, reading paths and validation sections; purpose and
-  importing sections on the API pages; task tables and `inspect`-checked
-  examples in the tutorials. The design pages now derive the smallest
-  positive score, why the recency multiplier crosses at most one rank
-  boundary, and why negated terms add no static relevance; they list every
-  difference between static and server search. The pages describe the
-  fixes of #4 and #5.
+- API, tutorial and design pages for all six packages; the score design
+  derives the same-owner discount, the relative grades and the momentum
+  thresholds, the metrics design defines the signals. The architecture and
+  getting-started guides describe the new pipeline, routes and
+  localisation. zh_CN and ja_JP translations are updated.
 
 ## 0.1.2
 

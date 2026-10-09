@@ -2,7 +2,7 @@
 
 This guide takes you from a fresh checkout to a running web application with
 your own rankings, and shows how to query its HTTP API. It describes version
-`0.1.2`. The [architecture guide](architecture.md) explains what each step
+`0.2.0`. The [architecture guide](architecture.md) explains what each step
 does.
 
 ## Prerequisites
@@ -15,24 +15,29 @@ does.
 
 ## 1. Build the database
 
-Build the `cli` command that scores packages, then the database, with live
-mooncakes download lookup enabled:
+Refresh the registry, then build the database with fresh download counts
+from mooncakes.io:
 
 ```bash
 moon update
-moon build src/cli --target js
-python3 scripts/build_index.py --db data/mooncake.db
+python3 scripts/build_index.py --db data/mooncake.db --refresh-downloads
 ```
 
 This command:
 
 - reads every `*.index` record under the local registry
-- recreates the SQLite schema from scratch
-- fetches missing download counts from mooncakes unless disabled
-- computes package edges, reverse-dependent counts, score snapshots (through
-  the MoonBit `cli` command), and the FTS index
+- fetches the download count of every package (about 3,000 requests; without
+  `--refresh-downloads` it reuses `data/download_cache.json` and fetches only
+  missing packages)
+- adds today's counts to `data/download_history.json`, which later builds
+  use for the downloads of 30 days ago
+- builds the MoonBit command `cli` and runs `build-index` once on the whole
+  registry: latest releases, current dependents, signals now and 30 days
+  ago, scores, positions, grades and momentum
+- recreates the SQLite schema from scratch and writes the report and the
+  full-text index
 
-Build without live mooncakes requests:
+Build without network requests, with the counts already in the cache:
 
 ```bash
 python3 scripts/build_index.py --db data/mooncake.db --skip-mooncakes-downloads
@@ -54,6 +59,9 @@ The override file must be a JSON object keyed by full package name:
 }
 ```
 
+`--now 2026-10-01T00:00:00Z` scores the registry as of another moment,
+which is useful in tests.
+
 ## 2. Run the local app
 
 Install dependencies:
@@ -68,13 +76,18 @@ Run the full-stack Next.js app:
 MOONCAKE_DB_PATH=data/mooncake.db npm run dev -- --hostname 127.0.0.1 --port 3000
 ```
 
-Then open `http://127.0.0.1:3000`.
+`npm run dev` first builds the MoonBit modules the web code imports and
+compiles the interface strings. Then open `http://127.0.0.1:3000`, which
+sends you to `/en/`, `/zh-cn/` or `/ja/` by your stored or browser
+language.
 
-The app currently serves:
+The app serves:
 
-- `/`: ranked package browsing UI
-- `/search`: main search results page
-- `/advanced-search`: graphical advanced-search UI with grouped conditions and native-expression editing
+- `/<lang>/`: the rankings, with filters in the sidebar and sortable columns;
+  every view is a URL, for example `/en/?momentum=Rising&sort=growth`
+- `/<lang>/package/?name=<owner>/<name>`: one package: standing, where the
+  score comes from, the last 30 days, dependents, dependencies, releases
+- `/<lang>/method/`: how scores work
 - `/api/*`: JSON APIs backed directly by SQLite
 
 ## 3. Query the APIs
@@ -87,7 +100,7 @@ GET /api/search?q=io&limit=20
 
 Supported search parameters:
 
-- `ast`: serialized grouped query AST used by the advanced query builder
+- `ast`: a serialized query tree (see the [query API](api/query.md))
 - `expr`: native boolean search expression compiled into the shared query AST
 - `q`: global full-text query with `AND`, `OR`, `NOT`, parentheses, quoted phrases, and field prefixes such as `owner:`, `author:`, `package:`, `keyword:`, `description:`, and `name:`
 - `owner`, `package`, `keyword`, `description`: field-specific full-text filters combined with `AND`
@@ -132,28 +145,41 @@ Feeds:
 
 ```text
 GET /api/feeds/top?limit=50
-GET /api/feeds/hot?limit=24
-GET /api/feeds/rising?limit=24
+GET /api/feeds/rising?limit=40
+GET /api/feeds/new?limit=40
 ```
 
-Package analysis:
+Package analysis, with dependents, dependencies and every release; the full
+name may have more than two segments:
 
 ```text
-GET /api/packages/<owner>/<packageName>/analysis
+GET /api/packages/moonbitlang/x
+GET /api/packages/tonyfettes/tree-sitter/cli
+```
+
+Index metadata (computation time, population, top score, label counts):
+
+```text
+GET /api/meta
 ```
 
 ## 4. Validate changes
 
 ```bash
 moon fmt
-moon check --target all
-moon test --target js
-moon test src/score --target all
+moon check src/score src/metrics src/query src/query_sql src/static_search --target all
+moon check src/cli --target js
+moon test src/score src/metrics src/query src/query_sql src/static_search --target all
 python3 -m unittest scripts/build_index_test.py
+node scripts/i18n.mjs check
 npm run typecheck
 npm run build
 npm test
 ```
+
+After changing interface strings in `web/i18n/conf.json`, run
+`node scripts/i18n.mjs update` and translate the new or fuzzy entries of
+`web/i18n/locale/*/LC_MESSAGES/app.po`.
 
 Repository shortcuts:
 
@@ -170,8 +196,8 @@ just dev
 ## Notes
 
 - The SQLite database is rebuilt from scratch on each index build.
-- Download counts may come from live mooncakes responses, `data/download_cache.json`, or a local override file.
+- Download counts may come from live mooncakes responses, `data/download_cache.json`, or a local override file. Only freshly fetched counts enter the download history.
 - When `sort=relevance` and at least one full-text condition is present, results are ordered by SQLite `bm25` relevance first.
-- The advanced query builder and the native `expr` input both compile through the same shared query AST layer.
+- The query expression in the sidebar, the `expr` parameter and the `ast` parameter compile through the same MoonBit query tree.
 - Static publishing (`npm run build:static-data`, `npm run build:static`) is
   described in the [static_search tutorial](tutorial/static_search.md).
