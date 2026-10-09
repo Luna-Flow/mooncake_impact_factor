@@ -2,10 +2,9 @@
 // routes; the static site reads the JSON files exported to public/data and
 // searches in a web worker. Both return the same shapes.
 
-import { fetchStaticManifest, searchStaticPackages } from "./static-api";
+import { fetchStaticManifest, searchStaticPackagesPage } from "./static-api";
 import {
   indexMetaSchema,
-  packageSummaryListSchema,
   packageAnalysisSchema,
   searchResultSchema,
   type IndexMeta,
@@ -66,21 +65,10 @@ function toSearchParams(query: URLSearchParams, page: number): Partial<AdvancedS
 export async function searchRegistry(query: URLSearchParams, page = 1): Promise<SearchResult> {
   const params = toSearchParams(query, page);
   if (DATA_MODE === "static") {
-    const result: unknown = await searchStaticPackages(params);
-    // The worker pages its results itself; an older worker returns them all.
-    if (Array.isArray(result)) {
-      const offset = (page - 1) * PAGE_SIZE;
-      return { items: result.slice(offset, offset + PAGE_SIZE), total: result.length };
-    }
-    return searchResultSchema.parse(result);
+    return searchStaticPackagesPage(params);
   }
   const url = `${BASE_PATH}/api/search?${new URLSearchParams(params).toString()}`;
-  return requestJson(url, (value) => {
-    // TEMPORARY until the paged search lands: an API without `total`.
-    const items = packageSummaryListSchema.parse(value).items;
-    const total = typeof (value as { total?: unknown }).total === "number" ? (value as { total: number }).total : items.length;
-    return { items, total };
-  });
+  return requestJson(url, (value) => searchResultSchema.parse(value));
 }
 
 export async function fetchPackage(fullName: string): Promise<PackageAnalysis> {

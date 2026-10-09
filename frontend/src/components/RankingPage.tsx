@@ -9,7 +9,7 @@ import Link from "next/link";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
 
-import { parseNativeExpression } from "../../../lib/query";
+import { MOMENTUM_LABELS, parseNativeExpression, RANK_LABELS } from "../../../lib/query";
 import { fetchIndexMeta, PAGE_SIZE, searchRegistry } from "../client";
 import {
   formatAge,
@@ -26,8 +26,10 @@ import { docsUrl, SiteFooter, SiteHeader } from "./Chrome";
 import { GradeMark, MomentumChange, ScoreBar } from "./marks";
 import { packageHref } from "./SearchDialog";
 
-const GRADES = ["S", "A", "B", "C", "D"] as const;
-const MOMENTA = ["Rising", "New", "Cooling", "Stable"] as const;
+// The labels come from the scoring model (src/score) through lib/query.
+const GRADES = RANK_LABELS;
+// Views in the order a reader looks for them: what moves first.
+const MOMENTA = ["Rising", "New", "Cooling", "Stable"].filter((label) => MOMENTUM_LABELS.includes(label));
 const AGES = ["", "30", "90", "365"] as const;
 
 type SortKey = "position" | "name" | "external" | "owners" | "growth" | "age" | "downloads";
