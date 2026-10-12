@@ -38,17 +38,17 @@ const LG6 : Double = 1.531383769920937332e-01
 const LG7 : Double = 1.479819860511658591e-01
 
 ///|
-fn high_word(x : Double) -> Int {
+fn high_word(x : Double) -> Int32 {
   (x.reinterpret_as_uint64() >> 32).to_int()
 }
 
 ///|
-fn low_word(x : Double) -> UInt {
+fn low_word(x : Double) -> UInt32 {
   x.reinterpret_as_uint64().to_uint()
 }
 
 ///|
-fn with_high_word(x : Double, high : Int) -> Double {
+fn with_high_word(x : Double, high : Int32) -> Double {
   let low = x.reinterpret_as_uint64() & 0xFFFFFFFFUL
   ((high.to_uint64() << 32) | low).reinterpret_as_double()
 }

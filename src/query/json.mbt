@@ -4,9 +4,9 @@
 pub impl ToJson for Term with fn to_json(self) {
   let object : Map[String, Json] = {
     "kind": "term",
-    "field": self.field.name().to_json(),
-    "operator": self.operator.name().to_json(),
-    "value": self.value.to_json(),
+    "field": Json(self.field.name()),
+    "operator": Json(self.operator.name()),
+    "value": Json(self.value),
   }
   if self.negated {
     object["negated"] = true
@@ -20,7 +20,7 @@ pub impl ToJson for Term with fn to_json(self) {
 pub impl ToJson for Group with fn to_json(self) {
   let object : Map[String, Json] = {
     "kind": "group",
-    "op": self.op.name().to_json(),
+    "op": Json(self.op.name()),
     "children": Json::array(self.children.map(child => child.to_json())),
   }
   if self.negated {

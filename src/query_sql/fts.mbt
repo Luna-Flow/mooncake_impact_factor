@@ -14,7 +14,7 @@ pub fn SqlError::message(self : SqlError) -> String {
 }
 
 ///|
-fn is_ascii_alnum(code : Int) -> Bool {
+fn is_ascii_alnum(code : Int32) -> Bool {
   (code >= 'A'.to_int() && code <= 'Z'.to_int()) ||
   (code >= 'a'.to_int() && code <= 'z'.to_int()) ||
   (code >= '0'.to_int() && code <= '9'.to_int())
@@ -23,7 +23,7 @@ fn is_ascii_alnum(code : Int) -> Bool {
 ///|
 /// Characters FTS5 sees as part of a word in this index: ASCII letters and
 /// digits and `_ . - * #`.
-fn is_fts_word_code(code : Int) -> Bool {
+fn is_fts_word_code(code : Int32) -> Bool {
   is_ascii_alnum(code) ||
   code == '_'.to_int() ||
   code == '.'.to_int() ||

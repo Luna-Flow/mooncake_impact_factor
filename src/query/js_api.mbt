@@ -11,7 +11,7 @@ fn envelope_ok(value : Json) -> String {
 
 ///|
 fn envelope_error(message : String) -> String {
-  Json::object({ "error": message.to_json() }).stringify()
+  Json::object({ "error": Json(message) }).stringify()
 }
 
 ///|
@@ -75,7 +75,7 @@ pub fn serialize_json(ast_json : String) -> String {
   let ast = validate(parse_json_text(ast_json)) catch {
     error => return envelope_error(error.message())
   }
-  envelope_ok(serialize(ast).to_json())
+  envelope_ok(Json(serialize(ast)))
 }
 
 ///|
@@ -107,17 +107,17 @@ pub fn with_query_ast_patch_json(ast_json : String) -> String {
   let ast = validate(parse_json_text(ast_json)) catch {
     error => return envelope_error(error.message())
   }
-  envelope_ok(with_query_ast_patch(ast).to_json())
+  envelope_ok(Json(with_query_ast_patch(ast)))
 }
 
 ///|
 /// JSON array of `rank_labels()`.
 pub fn rank_labels_json() -> String {
-  rank_labels().to_json().stringify()
+  Json(rank_labels()).stringify()
 }
 
 ///|
 /// JSON array of `momentum_labels()`.
 pub fn momentum_labels_json() -> String {
-  momentum_labels().to_json().stringify()
+  Json(momentum_labels()).stringify()
 }

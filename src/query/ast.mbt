@@ -194,7 +194,7 @@ pub fn Term::make(
   field : Field,
   operator : Operator,
   value : String,
-  negated? : Bool = false,
+  negated~ : Bool = false,
 ) -> Term {
   { field, operator, value, negated, }
 }
@@ -213,7 +213,7 @@ pub(all) struct Group {
 pub fn Group::make(
   op : GroupOp,
   children : Array[Node],
-  negated? : Bool = false,
+  negated~ : Bool = false,
 ) -> Group {
   { op, children, negated, }
 }
@@ -231,7 +231,7 @@ pub fn term(
   field : Field,
   operator : Operator,
   value : String,
-  negated? : Bool = false,
+  negated~ : Bool = false,
 ) -> Node {
   Term(Term::make(field, operator, value, negated~))
 }
@@ -241,7 +241,7 @@ pub fn term(
 pub fn group(
   op : GroupOp,
   children : Array[Node],
-  negated? : Bool = false,
+  negated~ : Bool = false,
 ) -> Node {
   Group(Group::make(op, children, negated~))
 }

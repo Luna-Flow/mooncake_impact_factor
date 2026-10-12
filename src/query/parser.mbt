@@ -14,7 +14,7 @@ priv enum Token {
 }
 
 ///|
-fn code_at(input : String, index : Int) -> Int {
+fn code_at(input : String, index : Int32) -> Int32 {
   input.at(index).to_int()
 }
 
@@ -125,7 +125,7 @@ fn tokenize(input : String) -> Array[Token] raise QueryError {
 ///|
 priv struct Cursor {
   tokens : Array[Token]
-  mut index : Int
+  mut index : Int32
 }
 
 ///|

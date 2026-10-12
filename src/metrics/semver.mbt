@@ -6,7 +6,7 @@
 /// ASCII order; a shorter list ranks lower when it is a prefix). Build
 /// metadata after `+` is ignored. A core component that is missing or not
 /// a number counts as `0`, so malformed versions still order totally.
-pub fn compare_versions(a : String, b : String) -> Int {
+pub fn compare_versions(a : String, b : String) -> Int32 {
   let (core_a, pre_a) = split_version(a)
   let (core_b, pre_b) = split_version(b)
   for k in 0..<3 {
@@ -45,7 +45,7 @@ fn split_dots(text : String) -> Array[String] {
 }
 
 ///|
-fn core_part(parts : Array[String], k : Int) -> String {
+fn core_part(parts : Array[String], k : Int32) -> String {
   if k < parts.length() && is_numeric(parts[k]) {
     parts[k]
   } else {
@@ -68,7 +68,7 @@ fn is_numeric(text : String) -> Bool {
 
 ///|
 /// Compares two strings of decimal digits by value, without overflow.
-fn compare_numeric(a : String, b : String) -> Int {
+fn compare_numeric(a : String, b : String) -> Int32 {
   let x = strip_leading_zeros(a)
   let y = strip_leading_zeros(b)
   if x.length() != y.length() {
@@ -88,7 +88,7 @@ fn strip_leading_zeros(text : String) -> String {
 }
 
 ///|
-fn compare_prerelease(a : Array[String], b : Array[String]) -> Int {
+fn compare_prerelease(a : Array[String], b : Array[String]) -> Int32 {
   let n = if a.length() < b.length() { a.length() } else { b.length() }
   for k in 0..<n {
     let x = a[k]

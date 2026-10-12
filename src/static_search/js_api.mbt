@@ -10,7 +10,7 @@ let loaded_items : Ref[Array[IndexItem]] = { val: [], }
 fn envelope(result : Result[Json, String]) -> String {
   match result {
     Ok(value) => Json::object({ "ok": value }).stringify()
-    Err(message) => Json::object({ "error": message.to_json() }).stringify()
+    Err(message) => Json::object({ "error": Json(message) }).stringify()
   }
 }
 
@@ -18,7 +18,7 @@ fn envelope(result : Result[Json, String]) -> String {
 /// Parses an index document (see `parse_index`), keeps its items for
 /// `search` and returns how many there are. On error the previous index is
 /// kept and the result is `-1`.
-pub fn load_index(json : String) -> Int {
+pub fn load_index(json : String) -> Int32 {
   let items = parse_index(json) catch { _ => return -1 }
   loaded_items.val = items
   items.length()
@@ -54,7 +54,7 @@ pub fn evaluate_json(item_json : String, ast_json : String) -> String {
   let (item, ast) = item_and_ast(item_json, ast_json) catch {
     error => return envelope(Err(error_message(error)))
   }
-  envelope(Ok(evaluate(item, Group(ast)).to_json()))
+  envelope(Ok(Json(evaluate(item, Group(ast)))))
 }
 
 ///|
@@ -64,7 +64,7 @@ pub fn relevance_json(item_json : String, ast_json : String) -> String {
   let (item, ast) = item_and_ast(item_json, ast_json) catch {
     error => return envelope(Err(error_message(error)))
   }
-  envelope(Ok(relevance(item, ast).to_json()))
+  envelope(Ok(Json(relevance(item, ast))))
 }
 
 ///|

@@ -10,16 +10,16 @@ pub fn runtime_version() -> String {
 /// One page of search results.
 pub(all) struct SearchResult {
   /// Indices into the searched items, in result order.
-  indices : Array[Int]
+  indices : Array[Int32]
   /// Number of matching items before paging.
-  total : Int
+  total : Int32
 } derive(Eq, Debug)
 
 ///|
 pub impl ToJson for SearchResult with fn to_json(self) {
   Json::object({
-    "indices": Json::array(self.indices.map(index => index.to_json())),
-    "total": self.total.to_json(),
+    "indices": Json::array(self.indices.map(index => Json(index))),
+    "total": Json(self.total),
   })
 }
 
@@ -27,7 +27,7 @@ pub impl ToJson for SearchResult with fn to_json(self) {
 pub extend SearchResult with ToJson::{to_json}
 
 ///|
-fn compare_doubles(left : Double, right : Double) -> Int {
+fn compare_doubles(left : Double, right : Double) -> Int32 {
   if left < right {
     -1
   } else if left > right {
@@ -66,11 +66,11 @@ fn sort_value(key : @query.SortKey?, item : IndexItem) -> Double {
 /// position (best first), then by name with `collate`, then by index.
 pub fn sort_indices(
   items : Array[IndexItem],
-  indices : Array[Int],
+  indices : Array[Int32],
   ast : @query.Group,
   sort~ : String,
   order~ : String,
-) -> Array[Int] {
+) -> Array[Int32] {
   let sort_name = if sort == "" {
     @query.default_sort(ast.has_intent()).name()
   } else {

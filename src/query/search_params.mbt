@@ -100,17 +100,17 @@ pub fn default_sort(has_text_query : Bool) -> SortKey {
 
 ///|
 /// Page size used when `limit` is missing or not a positive number.
-pub let default_page_limit : Int = 50
+pub let default_page_limit : Int32 = 50
 
 ///|
 /// Largest page size a request may ask for.
-pub let max_page_limit : Int = 200
+pub let max_page_limit : Int32 = 200
 
 ///|
 /// The page size a `limit` parameter asks for: `number_value(input)`
 /// truncated toward zero and capped at `max_page_limit`, or
 /// `default_page_limit` when it is not a finite number above zero.
-pub fn page_limit(input : String) -> Int {
+pub fn page_limit(input : String) -> Int32 {
   let value = number_value(input)
   if value.is_nan() || value.is_inf() || value <= 0.0 {
     return default_page_limit
@@ -127,7 +127,7 @@ pub fn page_limit(input : String) -> Int {
 /// The number of matches an `offset` parameter skips: `number_value(input)`
 /// truncated toward zero, or `0` when it is not a finite number of at least
 /// zero. Offsets beyond the last match give an empty page.
-pub fn page_offset(input : String) -> Int {
+pub fn page_offset(input : String) -> Int32 {
   let value = number_value(input)
   if value.is_nan() || value.is_inf() || value < 0.0 {
     return 0
