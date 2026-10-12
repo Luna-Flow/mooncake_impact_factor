@@ -3,7 +3,7 @@
 /// ECMAScript `String.prototype.trim` and the regular expression class `\s`:
 /// the WhiteSpace and LineTerminator code points of ECMA-262. All of them
 /// are in the Basic Multilingual Plane, so testing code units is exact.
-pub fn is_white_space(code : Int) -> Bool {
+pub fn is_white_space(code : Int32) -> Bool {
   match code {
     0x09 | 0x0A | 0x0B | 0x0C | 0x0D | 0x20 => true
     0xA0 | 0x1680 | 0x2028 | 0x2029 | 0x202F | 0x205F | 0x3000 | 0xFEFF => true
@@ -33,7 +33,7 @@ pub fn trim(input : String) -> String {
 }
 
 ///|
-fn digit_value(code : Int, radix : Int) -> Int {
+fn digit_value(code : Int32, radix : Int32) -> Int32 {
   let value = if code >= '0'.to_int() && code <= '9'.to_int() {
     code - '0'.to_int()
   } else if code >= 'a'.to_int() && code <= 'z'.to_int() {
@@ -61,7 +61,7 @@ fn positive_infinity() -> Double {
 }
 
 ///|
-fn parse_radix_integer(text : String, start : Int, radix : Int) -> Double {
+fn parse_radix_integer(text : String, start : Int32, radix : Int32) -> Double {
   let len = text.length()
   if start >= len {
     return not_a_number()
@@ -78,7 +78,7 @@ fn parse_radix_integer(text : String, start : Int, radix : Int) -> Double {
 }
 
 ///|
-fn is_ascii_digit_code(code : Int) -> Bool {
+fn is_ascii_digit_code(code : Int32) -> Bool {
   code >= '0'.to_int() && code <= '9'.to_int()
 }
 

@@ -21,7 +21,7 @@ pub fn momentum_labels() -> Array[String] {
 
 ///|
 /// Days since release used when the release date is unknown.
-pub const UNKNOWN_RELEASE_AGE_DAYS : Int = 3650
+pub const UNKNOWN_RELEASE_AGE_DAYS : Int32 = 3650
 
 ///|
 /// The signals of one package at one point in time.
@@ -31,16 +31,16 @@ pub const UNKNOWN_RELEASE_AGE_DAYS : Int = 3650
 /// owner, and recent when the dependency first appeared in the 180 days
 /// before the point in time.
 pub(all) struct Signals {
-  external_dependents : Int
-  self_dependents : Int
-  recent_external_dependents : Int
-  recent_self_dependents : Int
-  downloads : Int
-  days_since_release : Int
+  external_dependents : Int32
+  self_dependents : Int32
+  recent_external_dependents : Int32
+  recent_self_dependents : Int32
+  downloads : Int32
+  days_since_release : Int32
 } derive(ToJson, FromJson, Debug, Eq)
 
 ///|
-pub fn clamp_non_negative(value : Int) -> Int {
+pub fn clamp_non_negative(value : Int32) -> Int32 {
   if value < 0 {
     0
   } else {
@@ -52,7 +52,7 @@ pub fn clamp_non_negative(value : Int) -> Int {
 /// The release-recency factor m(t): 1.12 up to 30 days after the latest
 /// release, falling linearly to 0.88 at 365 days, and 0.88 afterwards.
 /// Negative days count as 0.
-pub fn activity_multiplier(days_since_release : Int) -> Double {
+pub fn activity_multiplier(days_since_release : Int32) -> Double {
   let days = clamp_non_negative(days_since_release)
   if days <= 30 {
     1.12
@@ -66,7 +66,7 @@ pub fn activity_multiplier(days_since_release : Int) -> Double {
 ///|
 /// The dependent count that enters the score: external dependents count
 /// once, dependents of the same owner count `SELF_DEPENDENT_WEIGHT`.
-pub fn weighted_dependents(external : Int, self_owned : Int) -> Double {
+pub fn weighted_dependents(external : Int32, self_owned : Int32) -> Double {
   clamp_non_negative(external).to_double() +
   SELF_DEPENDENT_WEIGHT * clamp_non_negative(self_owned).to_double()
 }
@@ -137,7 +137,7 @@ pub fn compute_score(signals : Signals) -> Double {
 /// Competition ranks of `scores`, best first: the position of a score is one
 /// plus the number of strictly greater scores, so equal scores share a
 /// position. `NaN` counts as smaller than every number.
-pub fn rank_positions(scores : ArrayView[Double]) -> Array[Int] {
+pub fn rank_positions(scores : ArrayView[Double]) -> Array[Int32] {
   let n = scores.length()
   let order = Array::makei(n, i => i)
   order.sort_by((a, b) => compare_scores_descending(scores[a], scores[b]))
@@ -155,7 +155,7 @@ pub fn rank_positions(scores : ArrayView[Double]) -> Array[Int] {
 }
 
 ///|
-fn compare_scores_descending(a : Double, b : Double) -> Int {
+fn compare_scores_descending(a : Double, b : Double) -> Int32 {
   match (a.is_nan(), b.is_nan()) {
     (true, true) => 0
     (true, false) => 1
@@ -172,7 +172,11 @@ fn compare_scores_descending(a : Double, b : Double) -> Int {
 ///   S if q < 5%, A if q < 15%, B if q < 35%, C if q < 65%, D otherwise.
 ///
 /// A package without any signal (`score <= 0` or `NaN`) is always `D`.
-pub fn rank_label(position : Int, population : Int, score : Double) -> String {
+pub fn rank_label(
+  position : Int32,
+  population : Int32,
+  score : Double,
+) -> String {
   if population <= 0 || position <= 0 || score.is_nan() || score <= 0.0 {
     return "D"
   }
@@ -240,7 +244,7 @@ pub struct ScoreSnapshot {
   score_growth_30d : Double
   score_growth_ratio_30d : Double
   rank_label : String
-  rank_position : Int
+  rank_position : Int32
   momentum_label : String
   activity_multiplier : Double
   breakdown : ScoreBreakdown

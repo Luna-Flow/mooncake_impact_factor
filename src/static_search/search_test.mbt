@@ -4,10 +4,10 @@ fn item(
   rank_label : String,
   text : String,
   score : Double,
-  momentum_label? : String = "Stable",
-  downloads? : Double = 0.0,
-  position? : Double = 0.0,
-  created? : String? = Some("2026-01-01T00:00:00Z"),
+  momentum_label~ : String = "Stable",
+  downloads~ : Double = 0.0,
+  position~ : Double = 0.0,
+  created~ : String? = Some("2026-01-01T00:00:00Z"),
 ) -> @static_search.IndexItem {
   let (owner, package_name) = match full_name.split_once("/") {
     Some((a, b)) => (a.to_owned(), b.to_owned())
@@ -49,7 +49,7 @@ let packages : Array[@static_search.IndexItem] = [
 ]
 
 ///|
-fn relevance_of(expression : String) -> Array[(String, Int)] raise {
+fn relevance_of(expression : String) -> Array[(String, Int32)] raise {
   let ast = @query.parse_expression(expression)
   packages.map(pkg => (pkg.full_name, @static_search.relevance(pkg, ast)))
 }

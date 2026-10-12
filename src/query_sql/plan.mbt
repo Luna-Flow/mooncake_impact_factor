@@ -118,23 +118,23 @@ pub(all) struct SearchPlan {
   /// The `ORDER BY` clause.
   order_by : String
   /// Page size, for `LIMIT ?`.
-  limit : Int
+  limit : Int32
   /// Matches to skip, for `OFFSET ?`.
-  offset : Int
+  offset : Int32
 } derive(Eq, Debug)
 
 ///|
 /// `{"from","where","values","orderBy","limit","offset"}`
 pub impl ToJson for SearchPlan with fn to_json(self) {
   Json::object({
-    "from": self.from.to_json(),
-    "where": self.where_clause.sql.to_json(),
+    "from": Json(self.from),
+    "where": Json(self.where_clause.sql),
     "values": Json::array(
       self.where_clause.values.map(value => value.to_json()),
     ),
-    "orderBy": self.order_by.to_json(),
-    "limit": self.limit.to_json(),
-    "offset": self.offset.to_json(),
+    "orderBy": Json(self.order_by),
+    "limit": Json(self.limit),
+    "offset": Json(self.offset),
   })
 }
 

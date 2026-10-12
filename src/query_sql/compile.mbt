@@ -9,7 +9,7 @@ pub(all) enum SqlValue {
 /// A JSON string or number.
 pub impl ToJson for SqlValue with fn to_json(self) {
   match self {
-    Text(text) => text.to_json()
+    Text(text) => Json(text)
     Number(number) => Json::number(number)
   }
 }
@@ -28,7 +28,7 @@ pub(all) struct Fragment {
 /// `{"sql":…,"values":[…]}`
 pub impl ToJson for Fragment with fn to_json(self) {
   Json::object({
-    "sql": self.sql.to_json(),
+    "sql": Json(self.sql),
     "values": Json::array(self.values.map(value => value.to_json())),
   })
 }
@@ -43,7 +43,7 @@ pub extend Fragment with ToJson::{to_json}
 pub fn parse_number(
   value : String,
   label : String,
-  integer? : Bool = false,
+  integer~ : Bool = false,
 ) -> Double? raise SqlError {
   if value == "" {
     return None

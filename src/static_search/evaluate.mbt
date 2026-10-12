@@ -112,7 +112,7 @@ fn count_matches(
   item : IndexItem,
   node : @query.Node,
   negated_above : Bool,
-) -> Int {
+) -> Int32 {
   let negated = negated_above != node.negated()
   match node {
     Term(term) => if !negated && match_term(item, term) { 1 } else { 0 }
@@ -132,6 +132,6 @@ fn count_matches(
 /// A leaf whose effective polarity is negative (negated itself, or below an
 /// odd number of negated groups) never counts: matching it is what the
 /// query excludes, so it must not rank a package higher (issue #4).
-pub fn relevance(item : IndexItem, ast : @query.Group) -> Int {
+pub fn relevance(item : IndexItem, ast : @query.Group) -> Int32 {
   count_matches(item, Group(ast), false)
 }

@@ -59,8 +59,8 @@ fn release(
   name : String,
   version : String,
   at : String,
-  deps? : Array[String] = [],
-  yanked? : Bool = false,
+  deps~ : Array[String] = [],
+  yanked~ : Bool = false,
 ) -> @metrics.Release {
   { name, version, created_at: Some(at), deps, yanked, }
 }

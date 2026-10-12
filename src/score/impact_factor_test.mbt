@@ -1,11 +1,11 @@
 ///|
 fn signals(
-  external? : Int = 0,
-  self_owned? : Int = 0,
-  recent_external? : Int = 0,
-  recent_self? : Int = 0,
-  downloads? : Int = 0,
-  days? : Int = 100,
+  external~ : Int32 = 0,
+  self_owned~ : Int32 = 0,
+  recent_external~ : Int32 = 0,
+  recent_self~ : Int32 = 0,
+  downloads~ : Int32 = 0,
+  days~ : Int32 = 100,
 ) -> @score.Signals {
   {
     external_dependents: external,

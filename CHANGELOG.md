@@ -5,6 +5,12 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## Unreleased
 
+### Changed
+
+- Builds with the latest MoonBit toolchain (moon 0.1.20261012, moonc 0.10.15):
+  the deprecated `value.to_json()` calls (22 sites) are written `Json(value)` and
+  the sources follow the formatter of that toolchain. No behavior change.
+
 ### Fixed
 
 - `cli build-index` reports an unreadable input file as a JSON error instead

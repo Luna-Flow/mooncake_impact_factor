@@ -1,7 +1,7 @@
 ///|
 /// Lower-case form of one UTF-16 code unit, or `-1` when the code unit has
 /// none in the covered blocks.
-fn lower_code(code : Int) -> Int {
+fn lower_code(code : Int32) -> Int32 {
   if code < 0x80 {
     return if code >= 0x41 && code <= 0x5A { code + 32 } else { -1 }
   }
@@ -139,7 +139,7 @@ let ascii_punctuation_order = "_-,;:!?.'\"()[]{}@*/\\&#%`^+<=>|~$"
 ///|
 /// Primary, secondary and tertiary weight of one code point; `None` for
 /// characters the collation ignores (ASCII control characters).
-fn collation_weights(char : Char) -> (Int, Int, Int)? {
+fn collation_weights(char : Char) -> (Int32, Int32, Int32)? {
   let code = char.to_int()
   if code >= 0x09 && code <= 0x0D {
     return Some((code - 0x08, 0, 0))
@@ -195,7 +195,7 @@ fn collation_weights(char : Char) -> (Int, Int, Int)? {
 }
 
 ///|
-fn collation_key(text : String) -> Array[(Int, Int, Int)] {
+fn collation_key(text : String) -> Array[(Int32, Int32, Int32)] {
   let key = []
   for char in text {
     if collation_weights(char) is Some(weights) {
@@ -207,10 +207,10 @@ fn collation_key(text : String) -> Array[(Int, Int, Int)] {
 
 ///|
 fn compare_level(
-  left : Array[(Int, Int, Int)],
-  right : Array[(Int, Int, Int)],
-  level : Int,
-) -> Int {
+  left : Array[(Int32, Int32, Int32)],
+  right : Array[(Int32, Int32, Int32)],
+  level : Int32,
+) -> Int32 {
   let common = if left.length() < right.length() {
     left.length()
   } else {
@@ -233,7 +233,7 @@ fn compare_level(
 }
 
 ///|
-fn compare_code_units(left : String, right : String) -> Int {
+fn compare_code_units(left : String, right : String) -> Int32 {
   let common = if left.length() < right.length() {
     left.length()
   } else {
@@ -266,7 +266,7 @@ fn compare_code_units(left : String, right : String) -> Int {
 /// finally by UTF-16 code units. Outside ASCII it approximates CLDR:
 /// Latin-1 letters sort with their base letter, punctuation, symbols and
 /// emoji before the digits, and other scripts after Latin by code point.
-pub fn collate(left : String, right : String) -> Int {
+pub fn collate(left : String, right : String) -> Int32 {
   if left == right {
     return 0
   }

@@ -7,7 +7,7 @@
 fn envelope(result : Result[Json, String]) -> String {
   match result {
     Ok(value) => Json::object({ "ok": value }).stringify()
-    Err(message) => Json::object({ "error": message.to_json() }).stringify()
+    Err(message) => Json::object({ "error": Json(message) }).stringify()
   }
 }
 

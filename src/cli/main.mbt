@@ -27,7 +27,7 @@ extern "js" fn write_file(path : String, text : String) -> Unit =
   #| }
 
 ///|
-extern "js" fn exit_with_code(code : Int) -> Unit =
+extern "js" fn exit_with_code(code : Int32) -> Unit =
   #| (code) => {
   #|   process.exit(code);
   #| }

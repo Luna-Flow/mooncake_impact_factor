@@ -95,14 +95,14 @@ pub fn parse_timestamp(text : String) -> Int64? {
 ///|
 /// Whole days from `earlier` to `later` (both in epoch milliseconds),
 /// rounded towards negative infinity.
-pub fn days_between(earlier : Int64, later : Int64) -> Int {
+pub fn days_between(earlier : Int64, later : Int64) -> Int32 {
   let diff = later - earlier
   let days = diff / MILLIS_PER_DAY
   (if diff % MILLIS_PER_DAY < 0L { days - 1L } else { days }).to_int()
 }
 
 ///|
-fn digits(chars : Array[Char], start : Int, count : Int) -> Int? {
+fn digits(chars : Array[Char], start : Int32, count : Int32) -> Int32? {
   if start + count > chars.length() {
     return None
   }
@@ -118,12 +118,12 @@ fn digits(chars : Array[Char], start : Int, count : Int) -> Int? {
 }
 
 ///|
-fn is_leap_year(year : Int) -> Bool {
+fn is_leap_year(year : Int32) -> Bool {
   (year % 4 == 0 && year % 100 != 0) || year % 400 == 0
 }
 
 ///|
-fn days_in_month(year : Int, month : Int) -> Int {
+fn days_in_month(year : Int32, month : Int32) -> Int32 {
   match month {
     2 => if is_leap_year(year) { 29 } else { 28 }
     4 | 6 | 9 | 11 => 30
@@ -134,7 +134,7 @@ fn days_in_month(year : Int, month : Int) -> Int {
 ///|
 /// Days since 1970-01-01 of a proleptic Gregorian date (H. Hinnant's
 /// `days_from_civil`).
-fn days_from_civil(year : Int, month : Int, day : Int) -> Int64 {
+fn days_from_civil(year : Int32, month : Int32, day : Int32) -> Int64 {
   let y = (if month <= 2 { year - 1 } else { year }).to_int64()
   let era = (if y >= 0L { y } else { y - 399L }) / 400L
   let yoe = y - era * 400L
@@ -170,7 +170,7 @@ fn floor_div(a : Int64, b : Int64) -> Int64 {
 }
 
 ///|
-fn pad(value : Int, width : Int) -> String {
+fn pad(value : Int32, width : Int32) -> String {
   let text = value.to_string()
   let buf = StringBuilder()
   for _ in text.length()..<width {
@@ -183,7 +183,7 @@ fn pad(value : Int, width : Int) -> String {
 ///|
 /// The proleptic Gregorian date of a day count since 1970-01-01 (H. Hinnant's
 /// `civil_from_days`).
-fn civil_from_days(days : Int64) -> (Int, Int, Int) {
+fn civil_from_days(days : Int64) -> (Int32, Int32, Int32) {
   let z = days + 719468L
   let era = (if z >= 0L { z } else { z - 146096L }) / 146097L
   let doe = z - era * 146097L

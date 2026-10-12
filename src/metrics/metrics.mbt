@@ -1,15 +1,15 @@
 ///|
 /// Length of the window in which a new dependent counts as recent.
-pub const RECENT_WINDOW_DAYS : Int = 180
+pub const RECENT_WINDOW_DAYS : Int32 = 180
 
 ///|
 /// Distance between the two snapshots that the momentum compares.
-pub const MOMENTUM_WINDOW_DAYS : Int = 30
+pub const MOMENTUM_WINDOW_DAYS : Int32 = 30
 
 ///|
 /// How far a download snapshot may be from the 30-days-ago point and still
 /// stand for it.
-pub const DOWNLOAD_HISTORY_TOLERANCE_DAYS : Int = 7
+pub const DOWNLOAD_HISTORY_TOLERANCE_DAYS : Int32 = 7
 
 ///|
 /// One published version of a package, as listed in the registry index.
@@ -26,7 +26,7 @@ pub(all) struct Release {
 /// Download counts of every package at one moment.
 pub(all) struct DownloadSnapshot {
   taken_at : String
-  counts : Map[String, Int]
+  counts : Map[String, Int32]
 } derive(ToJson, FromJson, Debug, Eq)
 
 ///|
@@ -34,7 +34,7 @@ pub(all) struct DownloadSnapshot {
 pub(all) struct Input {
   now : String
   releases : Array[Release]
-  downloads : Map[String, Int]
+  downloads : Map[String, Int32]
   download_history : Array[DownloadSnapshot]
 } derive(ToJson, FromJson, Debug, Eq)
 
@@ -55,18 +55,18 @@ pub(all) struct PackageReport {
   package_name : String
   latest_version : String?
   latest_created_at : String?
-  version_count : Int
+  version_count : Int32
   /// Every published version, newest first: by release date, then by
   /// version precedence; undated releases come last.
   versions : Array[String]
-  dependents : Int
-  external_dependents : Int
-  self_dependents : Int
-  recent_dependents : Int
-  dependent_owners : Int
-  downloads : Int
-  downloads_30d_ago : Int?
-  days_since_release : Int
+  dependents : Int32
+  external_dependents : Int32
+  self_dependents : Int32
+  recent_dependents : Int32
+  dependent_owners : Int32
+  downloads : Int32
+  downloads_30d_ago : Int32?
+  days_since_release : Int32
   signals : @score.Signals
   signals_30d_ago : @score.Signals?
   snapshot : @score.ScoreSnapshot
@@ -75,11 +75,11 @@ pub(all) struct PackageReport {
 ///|
 pub(all) struct Report {
   computed_at : String
-  population : Int
+  population : Int32
   download_history_used : Bool
   /// Number of packages per rank label and per momentum label.
-  rank_counts : Map[String, Int]
-  momentum_counts : Map[String, Int]
+  rank_counts : Map[String, Int32]
+  momentum_counts : Map[String, Int32]
   /// The best score of the registry, the scale of relative score bars.
   top_score : Double
   packages : Array[PackageReport]
@@ -135,7 +135,7 @@ fn dated_before(at : Int64?, limit : Int64) -> Bool {
 
 ///|
 /// Orders releases by date, then by version precedence.
-fn compare_dated(a : Dated, b : Dated) -> Int {
+fn compare_dated(a : Dated, b : Dated) -> Int32 {
   let by_time = match (a.at, b.at) {
     (None, None) => 0
     (None, Some(_)) => -1
@@ -185,10 +185,10 @@ fn latest_at(
 ///|
 /// Signals of one package at one point in time, from the current edges.
 priv struct Counts {
-  mut external : Int
-  mut self_owned : Int
-  mut recent_external : Int
-  mut recent_self : Int
+  mut external : Int32
+  mut self_owned : Int32
+  mut recent_external : Int32
+  mut recent_self : Int32
   owners : Set[String]
 }
 
@@ -323,8 +323,8 @@ fn downloads_near(
 ///|
 fn signals_of(
   counts : Counts?,
-  downloads : Int,
-  days_since_release : Int,
+  downloads : Int32,
+  days_since_release : Int32,
 ) -> @score.Signals {
   match counts {
     Some(c) =>
@@ -349,7 +349,7 @@ fn signals_of(
 }
 
 ///|
-fn age_in_days(latest : Dated?, limit : Int64) -> Int {
+fn age_in_days(latest : Dated?, limit : Int64) -> Int32 {
   match latest {
     Some({ at: Some(t), .. }) =>
       @score.clamp_non_negative(days_between(t, limit))
@@ -467,8 +467,8 @@ pub fn compute(input : Input) -> Report raise MetricsError {
     same_owner: owner_of(e.source) == owner_of(e.target),
   })
   let mut top_score = 0.0
-  let rank_counts : Map[String, Int] = Map([])
-  let momentum_counts : Map[String, Int] = Map([])
+  let rank_counts : Map[String, Int32] = Map([])
+  let momentum_counts : Map[String, Int32] = Map([])
   for s in snapshots {
     if s.score > top_score {
       top_score = s.score
@@ -496,7 +496,7 @@ pub fn compute(input : Input) -> Report raise MetricsError {
 
 ///|
 /// Compares two strings code unit by code unit.
-pub fn compare_text(a : String, b : String) -> Int {
+pub fn compare_text(a : String, b : String) -> Int32 {
   let n = if a.length() < b.length() { a.length() } else { b.length() }
   for i in 0..<n {
     let c = a.code_unit_at(i).compare(b.code_unit_at(i))
