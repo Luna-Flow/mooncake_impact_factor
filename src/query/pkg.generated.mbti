@@ -16,7 +16,7 @@ pub fn decode_from_params(Map[String, String]) -> Group? raise QueryError
 
 pub fn decode_from_params_json(String) -> String
 
-pub let default_page_limit : Int
+pub let default_page_limit : Int32
 
 pub fn default_sort(Bool) -> SortKey
 
@@ -34,13 +34,13 @@ pub fn group(GroupOp, Array[Node], negated? : Bool) -> Node
 
 pub fn has_intent_json(String) -> Bool
 
-pub fn is_white_space(Int) -> Bool
+pub fn is_white_space(Int32) -> Bool
 
 pub fn legacy_params() -> Array[LegacyParam]
 
 pub fn legacy_params_to_ast(Map[String, String]) -> Group raise QueryError
 
-pub let max_page_limit : Int
+pub let max_page_limit : Int32
 
 pub fn momentum_labels() -> Array[String]
 
@@ -48,9 +48,9 @@ pub fn momentum_labels_json() -> String
 
 pub fn number_value(String) -> Double
 
-pub fn page_limit(String) -> Int
+pub fn page_limit(String) -> Int32
 
-pub fn page_offset(String) -> Int
+pub fn page_offset(String) -> Int32
 
 pub fn params_from_json(Json) -> Map[String, String]
 

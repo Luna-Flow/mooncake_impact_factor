@@ -8,21 +8,21 @@ import {
 }
 
 // Values
-pub const DOWNLOAD_HISTORY_TOLERANCE_DAYS : Int = 7
+pub const DOWNLOAD_HISTORY_TOLERANCE_DAYS : Int32 = 7
 
 pub const MILLIS_PER_DAY : Int64 = 86_400_000
 
-pub const MOMENTUM_WINDOW_DAYS : Int = 30
+pub const MOMENTUM_WINDOW_DAYS : Int32 = 30
 
-pub const RECENT_WINDOW_DAYS : Int = 180
+pub const RECENT_WINDOW_DAYS : Int32 = 180
 
-pub fn compare_text(String, String) -> Int
+pub fn compare_text(String, String) -> Int32
 
-pub fn compare_versions(String, String) -> Int
+pub fn compare_versions(String, String) -> Int32
 
 pub fn compute(Input) -> Report raise MetricsError
 
-pub fn days_between(Int64, Int64) -> Int
+pub fn days_between(Int64, Int64) -> Int32
 
 pub fn format_timestamp(Int64) -> String
 
@@ -39,7 +39,7 @@ pub impl Show for MetricsError
 // Types and methods
 pub(all) struct DownloadSnapshot {
   taken_at : String
-  counts : Map[String, Int]
+  counts : Map[String, Int32]
 } derive(Eq, ToJson, @debug.Debug, @json.FromJson)
 
 pub(all) struct Edge {
@@ -52,7 +52,7 @@ pub(all) struct Edge {
 pub(all) struct Input {
   now : String
   releases : Array[Release]
-  downloads : Map[String, Int]
+  downloads : Map[String, Int32]
   download_history : Array[DownloadSnapshot]
 } derive(Eq, ToJson, @debug.Debug, @json.FromJson)
 
@@ -62,16 +62,16 @@ pub(all) struct PackageReport {
   package_name : String
   latest_version : String?
   latest_created_at : String?
-  version_count : Int
+  version_count : Int32
   versions : Array[String]
-  dependents : Int
-  external_dependents : Int
-  self_dependents : Int
-  recent_dependents : Int
-  dependent_owners : Int
-  downloads : Int
-  downloads_30d_ago : Int?
-  days_since_release : Int
+  dependents : Int32
+  external_dependents : Int32
+  self_dependents : Int32
+  recent_dependents : Int32
+  dependent_owners : Int32
+  downloads : Int32
+  downloads_30d_ago : Int32?
+  days_since_release : Int32
   signals : @score.Signals
   signals_30d_ago : @score.Signals?
   snapshot : @score.ScoreSnapshot
@@ -87,10 +87,10 @@ pub(all) struct Release {
 
 pub(all) struct Report {
   computed_at : String
-  population : Int
+  population : Int32
   download_history_used : Bool
-  rank_counts : Map[String, Int]
-  momentum_counts : Map[String, Int]
+  rank_counts : Map[String, Int32]
+  momentum_counts : Map[String, Int32]
   top_score : Double
   packages : Array[PackageReport]
   edges : Array[Edge]
