@@ -59,8 +59,8 @@ pub(all) struct SearchPlan {
   from : String
   where_clause : Fragment
   order_by : String
-  limit : Int
-  offset : Int
+  limit : Int32
+  offset : Int32
 } derive(Eq, @debug.Debug)
 pub fn SearchPlan::to_json(Self) -> Json
 pub impl ToJson for SearchPlan

@@ -7,13 +7,13 @@ import {
 }
 
 // Values
-pub fn collate(String, String) -> Int
+pub fn collate(String, String) -> Int32
 
 pub fn evaluate(IndexItem, @query.Node) -> Bool
 
 pub fn evaluate_json(String, String) -> String
 
-pub fn load_index(String) -> Int
+pub fn load_index(String) -> Int32
 
 pub fn match_term(IndexItem, @query.Term) -> Bool
 
@@ -23,7 +23,7 @@ pub fn package_year(IndexItem) -> Double
 
 pub fn parse_index(String) -> Array[IndexItem] raise IndexError
 
-pub fn relevance(IndexItem, @query.Group) -> Int
+pub fn relevance(IndexItem, @query.Group) -> Int32
 
 pub fn relevance_json(String, String) -> String
 
@@ -33,7 +33,7 @@ pub fn search(String) -> String
 
 pub fn search_items(Array[IndexItem], Map[String, String]) -> SearchResult raise @query.QueryError
 
-pub fn sort_indices(Array[IndexItem], Array[Int], @query.Group, sort~ : String, order~ : String) -> Array[Int]
+pub fn sort_indices(Array[IndexItem], Array[Int32], @query.Group, sort~ : String, order~ : String) -> Array[Int32]
 
 // Errors
 pub suberror IndexError {
@@ -69,8 +69,8 @@ pub(all) struct IndexItem {
 pub fn IndexItem::from_json(Json) -> Self raise IndexError
 
 pub(all) struct SearchResult {
-  indices : Array[Int]
-  total : Int
+  indices : Array[Int32]
+  total : Int32
 } derive(Eq, @debug.Debug)
 pub fn SearchResult::to_json(Self) -> Json
 pub impl ToJson for SearchResult

@@ -30,7 +30,6 @@ jobs:
           moon update
       - name: moon check
         run: |
-          moon install
           moon check src/score src/metrics src/query src/query_sql src/static_search --target all
           moon check src/cli --target js
       - name: moon test
