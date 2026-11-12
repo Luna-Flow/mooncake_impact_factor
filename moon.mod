@@ -1,6 +1,6 @@
 name = "Luna-Flow/mooncake-impact-factor"
 
-version = "0.2.1"
+version = "0.2.2"
 
 readme = "README.md"
 
