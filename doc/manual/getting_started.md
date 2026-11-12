@@ -8,7 +8,7 @@ does.
 ## Prerequisites
 
 - Python 3
-- MoonBit toolchain with `moonc` 0.10 or later
+- MoonBit toolchain with `moonc` 0.10.20 or later
 - Node.js 20.16, 22.3 or later, and npm
 - A local MoonBit registry snapshot under `~/.moon/registry/index/user`;
   `moon update` creates or refreshes it

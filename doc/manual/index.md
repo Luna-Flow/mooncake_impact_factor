@@ -33,7 +33,7 @@ Then import the package you need in your `moon.pkg`, for example
 `query_sql` and `static_search` build for every target, and `score` gives
 the same bits on every backend; `cli` builds only for the
 JavaScript target. The module
-needs the MoonBit toolchain 0.10 or later (`moonc` ≥ 0.10). Running `cli`
+needs the MoonBit toolchain 0.10.20 or later (`moonc` ≥ 0.10.20). Running `cli`
 and the web application also needs Node.js 20.16, 22.3 or later, and the
 index builder needs Python 3.
 

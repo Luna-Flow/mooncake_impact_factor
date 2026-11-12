@@ -103,7 +103,7 @@ authoritative ranking of the ecosystem.
 
 ## Toolchain
 
-- MoonBit with `moonc` 0.10 or later (`moon.mod` / `moon.pkg` manifests).
+- MoonBit with `moonc` 0.10.20 or later (verified with `moon 0.1.20261104` and `moonc v0.10.20`; older 0.10 compilers ignore `#derive`) (`moon.mod` / `moon.pkg` manifests).
 - Node.js 20.16, 22.3 or later, and npm.
 - Python 3.
 

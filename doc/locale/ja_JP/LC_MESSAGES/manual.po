@@ -3414,8 +3414,8 @@ msgid "Python 3"
 msgstr "Python 3"
 
 #: manual/getting_started.md:11
-msgid "MoonBit toolchain with `moonc` 0.10 or later"
-msgstr "`moonc` 0.10 以降の MoonBit ツールチェーン"
+msgid "MoonBit toolchain with `moonc` 0.10.20 or later"
+msgstr "`moonc` 0.10.20 以降の MoonBit ツールチェーン"
 
 #: manual/getting_started.md:12
 msgid "Node.js 20.16, 22.3 or later, and npm"
@@ -3662,8 +3662,8 @@ msgid "Install"
 msgstr "インストール"
 
 #: manual/index.md:31
-msgid "Then import the package you need in your `moon.pkg`, for example `\"Luna-Flow/mooncake-impact-factor/score\"`. `score`, `metrics`, `query`, `query_sql` and `static_search` build for every target, and `score` gives the same bits on every backend; `cli` builds only for the JavaScript target. The module needs the MoonBit toolchain 0.10 or later (`moonc` ≥ 0.10). Running `cli` and the web application also needs Node.js 20.16, 22.3 or later, and the index builder needs Python 3."
-msgstr "次に、必要なパッケージを `moon.pkg` でインポートします（例: `\"Luna-Flow/mooncake-impact-factor/score\"`）。`score`、`metrics`、`query`、`query_sql`、`static_search` はすべてのターゲットでビルドでき、`score` はどのバックエンドでも同じビット列を返します。`cli` は JavaScript ターゲット専用です。モジュールには MoonBit ツールチェーン 0.10 以降（`moonc` ≥ 0.10）が必要です。`cli` と Web アプリケーションの実行にはさらに Node.js 20.16、22.3 以降が、インデックスビルダーには Python 3 が必要です。"
+msgid "Then import the package you need in your `moon.pkg`, for example `\"Luna-Flow/mooncake-impact-factor/score\"`. `score`, `metrics`, `query`, `query_sql` and `static_search` build for every target, and `score` gives the same bits on every backend; `cli` builds only for the JavaScript target. The module needs the MoonBit toolchain 0.10.20 or later (`moonc` ≥ 0.10.20). Running `cli` and the web application also needs Node.js 20.16, 22.3 or later, and the index builder needs Python 3."
+msgstr "次に、必要なパッケージを `moon.pkg` でインポートします（例: `\"Luna-Flow/mooncake-impact-factor/score\"`）。`score`、`metrics`、`query`、`query_sql`、`static_search` はすべてのターゲットでビルドでき、`score` はどのバックエンドでも同じビット列を返します。`cli` は JavaScript ターゲット専用です。モジュールには MoonBit ツールチェーン 0.10.20 以降（`moonc` ≥ 0.10.20）が必要です。`cli` と Web アプリケーションの実行にはさらに Node.js 20.16、22.3 以降が、インデックスビルダーには Python 3 が必要です。"
 
 #: manual/index.md:40
 msgid "Pages"

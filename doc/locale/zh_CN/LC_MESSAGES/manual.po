@@ -3414,8 +3414,8 @@ msgid "Python 3"
 msgstr "Python 3"
 
 #: manual/getting_started.md:11
-msgid "MoonBit toolchain with `moonc` 0.10 or later"
-msgstr "`moonc` 0.10 或更高版本的 MoonBit 工具链"
+msgid "MoonBit toolchain with `moonc` 0.10.20 or later"
+msgstr "`moonc` 0.10.20 或更高版本的 MoonBit 工具链"
 
 #: manual/getting_started.md:12
 msgid "Node.js 20.16, 22.3 or later, and npm"
@@ -3662,8 +3662,8 @@ msgid "Install"
 msgstr "安装"
 
 #: manual/index.md:31
-msgid "Then import the package you need in your `moon.pkg`, for example `\"Luna-Flow/mooncake-impact-factor/score\"`. `score`, `metrics`, `query`, `query_sql` and `static_search` build for every target, and `score` gives the same bits on every backend; `cli` builds only for the JavaScript target. The module needs the MoonBit toolchain 0.10 or later (`moonc` ≥ 0.10). Running `cli` and the web application also needs Node.js 20.16, 22.3 or later, and the index builder needs Python 3."
-msgstr "然后在你的 `moon.pkg` 中导入所需的包，例如 `\"Luna-Flow/mooncake-impact-factor/score\"`。`score`、`metrics`、`query`、`query_sql` 和 `static_search` 可为所有目标构建，且 `score` 在每个后端上给出逐位相同的结果；`cli` 只能为 JavaScript 目标构建。本模块需要 MoonBit 工具链 0.10 或更高版本（`moonc` ≥ 0.10）。运行 `cli` 和 Web 应用还需要 Node.js 20.16、22.3 或更高版本，索引构建器需要 Python 3。"
+msgid "Then import the package you need in your `moon.pkg`, for example `\"Luna-Flow/mooncake-impact-factor/score\"`. `score`, `metrics`, `query`, `query_sql` and `static_search` build for every target, and `score` gives the same bits on every backend; `cli` builds only for the JavaScript target. The module needs the MoonBit toolchain 0.10.20 or later (`moonc` ≥ 0.10.20). Running `cli` and the web application also needs Node.js 20.16, 22.3 or later, and the index builder needs Python 3."
+msgstr "然后在你的 `moon.pkg` 中导入所需的包，例如 `\"Luna-Flow/mooncake-impact-factor/score\"`。`score`、`metrics`、`query`、`query_sql` 和 `static_search` 可为所有目标构建，且 `score` 在每个后端上给出逐位相同的结果；`cli` 只能为 JavaScript 目标构建。本模块需要 MoonBit 工具链 0.10.20 或更高版本（`moonc` ≥ 0.10.20）。运行 `cli` 和 Web 应用还需要 Node.js 20.16、22.3 或更高版本，索引构建器需要 Python 3。"
 
 #: manual/index.md:40
 msgid "Pages"
