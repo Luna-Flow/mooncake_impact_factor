@@ -14,41 +14,46 @@ pub const DOWNLOAD_HISTORY_TOLERANCE_DAYS : Int32 = 7
 ///|
 /// One published version of a package, as listed in the registry index.
 /// `deps` holds the names of the packages it declares as dependencies.
+#derive(ToJson, FromJson, Debug, Eq)
 pub(all) struct Release {
   name : String
   version : String
   created_at : String?
   deps : Array[String]
   yanked : Bool
-} derive(ToJson, FromJson, Debug, Eq)
+}
 
 ///|
 /// Download counts of every package at one moment.
+#derive(ToJson, FromJson, Debug, Eq)
 pub(all) struct DownloadSnapshot {
   taken_at : String
   counts : Map[String, Int32]
-} derive(ToJson, FromJson, Debug, Eq)
+}
 
 ///|
 /// Everything the index builder hands to the computation.
+#derive(ToJson, FromJson, Debug, Eq)
 pub(all) struct Input {
   now : String
   releases : Array[Release]
   downloads : Map[String, Int32]
   download_history : Array[DownloadSnapshot]
-} derive(ToJson, FromJson, Debug, Eq)
+}
 
 ///|
 /// A current dependency: the latest release of `source` declares `target`.
+#derive(ToJson, FromJson, Debug, Eq)
 pub(all) struct Edge {
   source : String
   target : String
   first_seen_at : String?
   same_owner : Bool
-} derive(ToJson, FromJson, Debug, Eq)
+}
 
 ///|
 /// The measured signals and the score of one package.
+#derive(ToJson, FromJson, Debug)
 pub(all) struct PackageReport {
   name : String
   owner : String
@@ -70,9 +75,10 @@ pub(all) struct PackageReport {
   signals : @score.Signals
   signals_30d_ago : @score.Signals?
   snapshot : @score.ScoreSnapshot
-} derive(ToJson, FromJson, Debug)
+}
 
 ///|
+#derive(ToJson, FromJson, Debug)
 pub(all) struct Report {
   computed_at : String
   population : Int32
@@ -84,13 +90,14 @@ pub(all) struct Report {
   top_score : Double
   packages : Array[PackageReport]
   edges : Array[Edge]
-} derive(ToJson, FromJson, Debug)
+}
 
 ///|
 /// Errors in the input that make the computation meaningless.
+#derive(Debug)
 pub suberror MetricsError {
   InvalidNow(String)
-} derive(Debug)
+}
 
 ///|
 pub impl Show for MetricsError with fn output(self, logger) {
@@ -104,7 +111,7 @@ pub impl Show for MetricsError with fn output(self, logger) {
 /// The owner of `owner/package`, or the whole name when it has no slash.
 pub fn owner_of(name : String) -> String {
   match name.find("/") {
-    Some(i) => name.view(end_offset=i).to_owned()
+    Some(i) => name.exact_view(end=i).to_owned()
     None => name
   }
 }
@@ -112,7 +119,7 @@ pub fn owner_of(name : String) -> String {
 ///|
 fn package_name_of(name : String) -> String {
   match name.find("/") {
-    Some(i) => name.view(start_offset=i + 1).to_owned()
+    Some(i) => name.exact_view(start=i + 1).to_owned()
     None => name
   }
 }

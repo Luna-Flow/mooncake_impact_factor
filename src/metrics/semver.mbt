@@ -26,13 +26,13 @@ pub fn compare_versions(a : String, b : String) -> Int32 {
 ///|
 fn split_version(version : String) -> (Array[String], Array[String]?) {
   let without_build = match version.find("+") {
-    Some(i) => version.view(end_offset=i).to_owned()
+    Some(i) => version.exact_view(end=i).to_owned()
     None => version
   }
   match without_build.find("-") {
     Some(i) => {
-      let core = without_build.view(end_offset=i).to_owned()
-      let pre = without_build.view(start_offset=i + 1).to_owned()
+      let core = without_build.exact_view(end=i).to_owned()
+      let pre = without_build.exact_view(start=i + 1).to_owned()
       (split_dots(core), Some(split_dots(pre)))
     }
     None => (split_dots(without_build), None)

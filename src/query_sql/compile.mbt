@@ -1,9 +1,10 @@
 ///|
 /// A value bound to a `?` placeholder.
+#derive(Eq, Debug)
 pub(all) enum SqlValue {
   Text(String)
   Number(Double)
-} derive(Eq, Debug)
+}
 
 ///|
 /// A JSON string or number.
@@ -19,10 +20,11 @@ pub extend SqlValue with ToJson::{to_json}
 
 ///|
 /// A piece of SQL with its placeholder values, in placeholder order.
+#derive(Eq, Debug)
 pub(all) struct Fragment {
   sql : String
   values : Array[SqlValue]
-} derive(Eq, Debug)
+}
 
 ///|
 /// `{"sql":…,"values":[…]}`

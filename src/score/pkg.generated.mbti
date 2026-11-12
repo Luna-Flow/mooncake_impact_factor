@@ -50,13 +50,15 @@ pub fn weighted_dependents(Int32, Int32) -> Double
 // Errors
 
 // Types and methods
+#derive(@debug.Debug, @json.FromJson, @json.ToJson)
 pub struct ScoreBreakdown {
   dependents : Double
   recent_dependents : Double
   downloads : Double
   multiplier : Double
-} derive(ToJson, @debug.Debug, @json.FromJson)
+}
 
+#derive(@debug.Debug, @json.FromJson, @json.ToJson)
 pub struct ScoreSnapshot {
   score : Double
   score_30d_ago : Double
@@ -67,8 +69,9 @@ pub struct ScoreSnapshot {
   momentum_label : String
   activity_multiplier : Double
   breakdown : ScoreBreakdown
-} derive(ToJson, @debug.Debug, @json.FromJson)
+}
 
+#derive(Eq, @debug.Debug, @json.FromJson, @json.ToJson)
 pub(all) struct Signals {
   external_dependents : Int32
   self_dependents : Int32
@@ -76,7 +79,7 @@ pub(all) struct Signals {
   recent_self_dependents : Int32
   downloads : Int32
   days_since_release : Int32
-} derive(Eq, ToJson, @debug.Debug, @json.FromJson)
+}
 
 // Type aliases
 

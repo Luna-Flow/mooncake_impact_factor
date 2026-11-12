@@ -4,6 +4,7 @@ package "Luna-Flow/mooncake-impact-factor/query_sql"
 import {
   "Luna-Flow/mooncake-impact-factor/query",
   "moonbitlang/core/debug",
+  "moonbitlang/core/json",
 }
 
 // Values
@@ -42,35 +43,39 @@ pub fn plan_search_json(String) -> String
 pub fn resolve_order_by(String, String, Bool) -> String raise SqlError
 
 // Errors
+#derive(Eq, @debug.Debug)
 pub suberror SqlError {
   SqlError(String)
-} derive(Eq, @debug.Debug)
+}
 pub fn SqlError::message(Self) -> String
 
 // Types and methods
+#derive(Eq, @debug.Debug)
 pub(all) struct Fragment {
   sql : String
   values : Array[SqlValue]
-} derive(Eq, @debug.Debug)
-pub fn Fragment::to_json(Self) -> Json
-pub impl ToJson for Fragment
+}
+pub fn Fragment::to_json(Self) -> @json.Json
+pub impl @json.ToJson for Fragment
 
+#derive(Eq, @debug.Debug)
 pub(all) struct SearchPlan {
   from : String
   where_clause : Fragment
   order_by : String
   limit : Int32
   offset : Int32
-} derive(Eq, @debug.Debug)
-pub fn SearchPlan::to_json(Self) -> Json
-pub impl ToJson for SearchPlan
+}
+pub fn SearchPlan::to_json(Self) -> @json.Json
+pub impl @json.ToJson for SearchPlan
 
+#derive(Eq, @debug.Debug)
 pub(all) enum SqlValue {
   Text(String)
   Number(Double)
-} derive(Eq, @debug.Debug)
-pub fn SqlValue::to_json(Self) -> Json
-pub impl ToJson for SqlValue
+}
+pub fn SqlValue::to_json(Self) -> @json.Json
+pub impl @json.ToJson for SqlValue
 
 // Type aliases
 

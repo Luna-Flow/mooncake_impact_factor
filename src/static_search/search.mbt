@@ -8,12 +8,13 @@ pub fn runtime_version() -> String {
 
 ///|
 /// One page of search results.
+#derive(Eq, Debug)
 pub(all) struct SearchResult {
   /// Indices into the searched items, in result order.
   indices : Array[Int32]
   /// Number of matching items before paging.
   total : Int32
-} derive(Eq, Debug)
+}
 
 ///|
 pub impl ToJson for SearchResult with fn to_json(self) {

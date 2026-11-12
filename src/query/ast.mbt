@@ -3,10 +3,11 @@
 ///
 /// `And` is satisfied when every child is satisfied (an empty `And` group is
 /// always satisfied), `Or` when at least one child is.
+#derive(Eq, Debug)
 pub(all) enum GroupOp {
   And
   Or
-} derive(Eq, Debug)
+}
 
 ///|
 /// Lower-case name of the connective, as it appears in the JSON form
@@ -30,6 +31,7 @@ pub fn GroupOp::from_name(name : String) -> GroupOp? {
 
 ///|
 /// Package attribute a term node tests.
+#derive(Eq, Debug)
 pub(all) enum Field {
   Text
   Owner
@@ -55,7 +57,7 @@ pub(all) enum Field {
   Position
   HasRepository
   HasLicense
-} derive(Eq, Debug)
+}
 
 ///|
 let all_fields : FixedArray[Field] = [
@@ -128,6 +130,7 @@ pub fn Field::from_name(name : String) -> Field? {
 
 ///|
 /// Comparison a term node applies to its field.
+#derive(Eq, Debug)
 pub(all) enum Operator {
   /// `field:value`, substring match for text fields.
   Match
@@ -137,7 +140,7 @@ pub(all) enum Operator {
   Gte
   /// `field<=value`
   Lte
-} derive(Eq, Debug)
+}
 
 ///|
 /// Name of the operator in the JSON form (`"match"`, `"eq"`, `"gte"`,
@@ -181,12 +184,13 @@ pub fn Operator::symbol(self : Operator) -> String {
 /// `value` is kept as the user typed it; numeric and boolean fields read it
 /// with `number_value` or by comparing it with `"true"` when they are
 /// evaluated.
+#derive(Eq, Debug)
 pub(all) struct Term {
   field : Field
   operator : Operator
   value : String
   negated : Bool
-} derive(Eq, Debug)
+}
 
 ///|
 /// Builds a term. `negated` defaults to `false`.
@@ -202,11 +206,12 @@ pub fn Term::make(
 ///|
 /// Inner node of the query tree: children joined by `op`, optionally
 /// negated.
+#derive(Eq, Debug)
 pub(all) struct Group {
   op : GroupOp
   children : Array[Node]
   negated : Bool
-} derive(Eq, Debug)
+}
 
 ///|
 /// Builds a group. `negated` defaults to `false`.
@@ -220,10 +225,11 @@ pub fn Group::make(
 
 ///|
 /// A node of the query tree. The root of a query is always a `Group`.
+#derive(Eq, Debug)
 pub(all) enum Node {
   Term(Term)
   Group(Group)
-} derive(Eq, Debug)
+}
 
 ///|
 /// A term node: `Term(Term::make(field, operator, value, negated~))`.

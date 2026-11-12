@@ -1,9 +1,10 @@
 ///|
 /// Error raised for a search request the database cannot run. The server
 /// answers it with HTTP 400 and the message.
+#derive(Eq, Debug)
 pub suberror SqlError {
   SqlError(String)
-} derive(Eq, Debug)
+}
 
 ///|
 /// The message carried by the error.

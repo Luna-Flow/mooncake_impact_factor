@@ -1,5 +1,6 @@
 ///|
 /// Result orderings shared by the database search and the static search.
+#derive(Eq, Debug)
 pub(all) enum SortKey {
   /// Matched leaves first (static search) or FTS5 bm25 rank (database).
   Relevance
@@ -22,7 +23,7 @@ pub(all) enum SortKey {
   Position
   /// Days since the latest release.
   Age
-} derive(Eq, Debug)
+}
 
 ///|
 let all_sort_keys : FixedArray[SortKey] = [

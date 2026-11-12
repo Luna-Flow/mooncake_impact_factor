@@ -3,6 +3,7 @@ package "Luna-Flow/mooncake-impact-factor/query"
 
 import {
   "moonbitlang/core/debug",
+  "moonbitlang/core/json",
 }
 
 // Values
@@ -52,7 +53,7 @@ pub fn page_limit(String) -> Int32
 
 pub fn page_offset(String) -> Int32
 
-pub fn params_from_json(Json) -> Map[String, String]
+pub fn params_from_json(@json.Json) -> Map[String, String]
 
 pub fn parse_expression(String) -> Group raise QueryError
 
@@ -76,7 +77,7 @@ pub fn term(Field, Operator, String, negated? : Bool) -> Node
 
 pub fn trim(String) -> String
 
-pub fn validate(Json) -> Group raise QueryError
+pub fn validate(@json.Json) -> Group raise QueryError
 
 pub fn validate_json(String) -> String
 
@@ -85,12 +86,14 @@ pub fn with_query_ast_patch(Group) -> Map[String, String]
 pub fn with_query_ast_patch_json(String) -> String
 
 // Errors
+#derive(Eq, @debug.Debug)
 pub suberror QueryError {
   QueryError(String)
-} derive(Eq, @debug.Debug)
+}
 pub fn QueryError::message(Self) -> String
 
 // Types and methods
+#derive(Eq, @debug.Debug)
 pub(all) enum Field {
   Text
   Owner
@@ -112,55 +115,61 @@ pub(all) enum Field {
   Position
   HasRepository
   HasLicense
-} derive(Eq, @debug.Debug)
+}
 pub fn Field::all() -> Array[Self]
 pub fn Field::from_name(String) -> Self?
 pub fn Field::name(Self) -> String
 
+#derive(Eq, @debug.Debug)
 pub(all) struct Group {
   op : GroupOp
   children : Array[Node]
   negated : Bool
-} derive(Eq, @debug.Debug)
+}
 pub fn Group::has_intent(Self) -> Bool
 pub fn Group::make(GroupOp, Array[Node], negated? : Bool) -> Self
-pub fn Group::to_json(Self) -> Json
-pub impl ToJson for Group
+pub fn Group::to_json(Self) -> @json.Json
+pub impl @json.ToJson for Group
 
+#derive(Eq, @debug.Debug)
 pub(all) enum GroupOp {
   And
   Or
-} derive(Eq, @debug.Debug)
+}
 pub fn GroupOp::from_name(String) -> Self?
 pub fn GroupOp::name(Self) -> String
 
+#derive(Eq, @debug.Debug)
 pub(all) struct LegacyParam {
   key : String
   field : Field
   operator : Operator
   trimmed : Bool
-} derive(Eq, @debug.Debug)
+}
 
+#derive(Eq, @debug.Debug)
 pub(all) enum Node {
   Term(Term)
   Group(Group)
-} derive(Eq, @debug.Debug)
+}
 pub fn Node::has_intent(Self) -> Bool
 pub fn Node::negated(Self) -> Bool
-pub fn Node::to_json(Self) -> Json
+pub fn Node::to_json(Self) -> @json.Json
 pub fn Node::toggle_negation(Self) -> Self
-pub impl ToJson for Node
+pub impl @json.ToJson for Node
 
+#derive(Eq, @debug.Debug)
 pub(all) enum Operator {
   Match
   Eq
   Gte
   Lte
-} derive(Eq, @debug.Debug)
+}
 pub fn Operator::from_name(String) -> Self?
 pub fn Operator::name(Self) -> String
 pub fn Operator::symbol(Self) -> String
 
+#derive(Eq, @debug.Debug)
 pub(all) enum SortKey {
   Relevance
   Score
@@ -174,21 +183,22 @@ pub(all) enum SortKey {
   Owners
   Position
   Age
-} derive(Eq, @debug.Debug)
+}
 pub fn SortKey::all() -> Array[Self]
 pub fn SortKey::ascending_by_default(Self) -> Bool
 pub fn SortKey::from_name(String) -> Self?
 pub fn SortKey::name(Self) -> String
 
+#derive(Eq, @debug.Debug)
 pub(all) struct Term {
   field : Field
   operator : Operator
   value : String
   negated : Bool
-} derive(Eq, @debug.Debug)
+}
 pub fn Term::make(Field, Operator, String, negated? : Bool) -> Self
-pub fn Term::to_json(Self) -> Json
-pub impl ToJson for Term
+pub fn Term::to_json(Self) -> @json.Json
+pub impl @json.ToJson for Term
 
 // Type aliases
 

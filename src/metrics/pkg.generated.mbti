@@ -31,31 +31,36 @@ pub fn owner_of(String) -> String
 pub fn parse_timestamp(String) -> Int64?
 
 // Errors
+#derive(@debug.Debug)
 pub suberror MetricsError {
   InvalidNow(String)
-} derive(@debug.Debug)
+}
 pub impl Show for MetricsError
 
 // Types and methods
+#derive(Eq, @debug.Debug, @json.FromJson, @json.ToJson)
 pub(all) struct DownloadSnapshot {
   taken_at : String
   counts : Map[String, Int32]
-} derive(Eq, ToJson, @debug.Debug, @json.FromJson)
+}
 
+#derive(Eq, @debug.Debug, @json.FromJson, @json.ToJson)
 pub(all) struct Edge {
   source : String
   target : String
   first_seen_at : String?
   same_owner : Bool
-} derive(Eq, ToJson, @debug.Debug, @json.FromJson)
+}
 
+#derive(Eq, @debug.Debug, @json.FromJson, @json.ToJson)
 pub(all) struct Input {
   now : String
   releases : Array[Release]
   downloads : Map[String, Int32]
   download_history : Array[DownloadSnapshot]
-} derive(Eq, ToJson, @debug.Debug, @json.FromJson)
+}
 
+#derive(@debug.Debug, @json.FromJson, @json.ToJson)
 pub(all) struct PackageReport {
   name : String
   owner : String
@@ -75,16 +80,18 @@ pub(all) struct PackageReport {
   signals : @score.Signals
   signals_30d_ago : @score.Signals?
   snapshot : @score.ScoreSnapshot
-} derive(ToJson, @debug.Debug, @json.FromJson)
+}
 
+#derive(Eq, @debug.Debug, @json.FromJson, @json.ToJson)
 pub(all) struct Release {
   name : String
   version : String
   created_at : String?
   deps : Array[String]
   yanked : Bool
-} derive(Eq, ToJson, @debug.Debug, @json.FromJson)
+}
 
+#derive(@debug.Debug, @json.FromJson, @json.ToJson)
 pub(all) struct Report {
   computed_at : String
   population : Int32
@@ -94,7 +101,7 @@ pub(all) struct Report {
   top_score : Double
   packages : Array[PackageReport]
   edges : Array[Edge]
-} derive(ToJson, @debug.Debug, @json.FromJson)
+}
 
 // Type aliases
 
