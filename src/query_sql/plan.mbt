@@ -109,6 +109,7 @@ pub fn build_fts_query(
 
 ///|
 /// How to run one search request against the database.
+#derive(Eq, Debug)
 pub(all) struct SearchPlan {
   /// The `FROM` clause: `packages p` joined with `package_scores s`, and with
   /// `search_index` when the order uses its `bm25` rank.
@@ -121,7 +122,7 @@ pub(all) struct SearchPlan {
   limit : Int32
   /// Matches to skip, for `OFFSET ?`.
   offset : Int32
-} derive(Eq, Debug)
+}
 
 ///|
 /// `{"from","where","values","orderBy","limit","offset"}`

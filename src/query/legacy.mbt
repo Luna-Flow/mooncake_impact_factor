@@ -1,6 +1,7 @@
 ///|
 /// One flat search parameter of the web interface (the "legacy" form, from
 /// before the query language) and the term it stands for.
+#derive(Eq, Debug)
 pub(all) struct LegacyParam {
   /// Parameter name, as in the web interface state, for example
   /// `"minScore"`.
@@ -10,7 +11,7 @@ pub(all) struct LegacyParam {
   /// Whether the value is trimmed before use. Only the two presence flags
   /// keep their value as given.
   trimmed : Bool
-} derive(Eq, Debug)
+}
 
 ///|
 let legacy_param_list : FixedArray[LegacyParam] = [

@@ -30,6 +30,7 @@ pub const UNKNOWN_RELEASE_AGE_DAYS : Int32 = 3650
 /// dependency. It is external when its owner differs from this package's
 /// owner, and recent when the dependency first appeared in the 180 days
 /// before the point in time.
+#derive(ToJson, FromJson, Debug, Eq)
 pub(all) struct Signals {
   external_dependents : Int32
   self_dependents : Int32
@@ -37,7 +38,7 @@ pub(all) struct Signals {
   recent_self_dependents : Int32
   downloads : Int32
   days_since_release : Int32
-} derive(ToJson, FromJson, Debug, Eq)
+}
 
 ///|
 pub fn clamp_non_negative(value : Int32) -> Int32 {
@@ -94,12 +95,13 @@ pub const DOWNLOADS_WEIGHT : Double = 22.0
 /// The three terms of the base score and the multiplier, so that a reader
 /// can see where a score comes from. The score is
 /// `(dependents + recent_dependents + downloads) * multiplier`.
+#derive(ToJson, FromJson, Debug)
 pub struct ScoreBreakdown {
   dependents : Double
   recent_dependents : Double
   downloads : Double
   multiplier : Double
-} derive(ToJson, FromJson, Debug)
+}
 
 ///|
 pub fn score_breakdown(signals : Signals) -> ScoreBreakdown {
@@ -238,6 +240,7 @@ pub fn compute_momentum_label(
 
 ///|
 /// The full result of scoring one package within a population.
+#derive(ToJson, FromJson, Debug)
 pub struct ScoreSnapshot {
   score : Double
   score_30d_ago : Double
@@ -248,7 +251,7 @@ pub struct ScoreSnapshot {
   momentum_label : String
   activity_multiplier : Double
   breakdown : ScoreBreakdown
-} derive(ToJson, FromJson, Debug)
+}
 
 ///|
 /// Scores a whole population. `current[i]` holds the signals of package `i`

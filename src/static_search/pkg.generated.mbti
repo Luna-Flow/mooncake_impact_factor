@@ -4,6 +4,7 @@ package "Luna-Flow/mooncake-impact-factor/static_search"
 import {
   "Luna-Flow/mooncake-impact-factor/query",
   "moonbitlang/core/debug",
+  "moonbitlang/core/json",
 }
 
 // Values
@@ -36,12 +37,14 @@ pub fn search_items(Array[IndexItem], Map[String, String]) -> SearchResult raise
 pub fn sort_indices(Array[IndexItem], Array[Int32], @query.Group, sort~ : String, order~ : String) -> Array[Int32]
 
 // Errors
+#derive(Eq, @debug.Debug)
 pub suberror IndexError {
   IndexError(String)
-} derive(Eq, @debug.Debug)
+}
 pub fn IndexError::message(Self) -> String
 
 // Types and methods
+#derive(Eq, @debug.Debug)
 pub(all) struct IndexItem {
   full_name : String
   rank_label : String
@@ -65,15 +68,16 @@ pub(all) struct IndexItem {
   normalized_license : String
   normalized_repository : String
   normalized_keywords : Array[String]
-} derive(Eq, @debug.Debug)
-pub fn IndexItem::from_json(Json) -> Self raise IndexError
+}
+pub fn IndexItem::from_json(@json.Json) -> Self raise IndexError
 
+#derive(Eq, @debug.Debug)
 pub(all) struct SearchResult {
   indices : Array[Int32]
   total : Int32
-} derive(Eq, @debug.Debug)
-pub fn SearchResult::to_json(Self) -> Json
-pub impl ToJson for SearchResult
+}
+pub fn SearchResult::to_json(Self) -> @json.Json
+pub impl @json.ToJson for SearchResult
 
 // Type aliases
 

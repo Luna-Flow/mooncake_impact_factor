@@ -1,6 +1,7 @@
 ///|
 /// One package of the static search index (`search/search-index.json`), as
 /// far as searching needs it. The `normalized_*` texts are lower case.
+#derive(Eq, Debug)
 pub(all) struct IndexItem {
   full_name : String
   rank_label : String
@@ -24,14 +25,15 @@ pub(all) struct IndexItem {
   normalized_license : String
   normalized_repository : String
   normalized_keywords : Array[String]
-} derive(Eq, Debug)
+}
 
 ///|
 /// Error raised for an index document that does not have the expected
 /// shape.
+#derive(Eq, Debug)
 pub suberror IndexError {
   IndexError(String)
-} derive(Eq, Debug)
+}
 
 ///|
 /// The message carried by the error.
